@@ -7,12 +7,13 @@
 <existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
 <parsed>true</parsed>
 <columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
-<Column name="Column_1" id="03AA86BC-36B7-1364-9DB6-58D5F0A08F9E">
+<Column name="Table_ID" id="03AA86BC-36B7-1364-9DB6-58D5F0A08F9E">
 <createdBy>MichalBonino</createdBy>
 <createdTime>2024-05-02 23:02:15 UTC</createdTime>
 <ownerDesignName>MyDataModel</ownerDesignName>
-<nullsAllowed>true</nullsAllowed>
-<use>0</use>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT011</logicalDatatype>
 <ownDataTypeParameters>,,</ownDataTypeParameters>
 <autoIncrementCycle>false</autoIncrementCycle>
 </Column>
@@ -80,4 +81,17 @@
 <autoIncrementCycle>false</autoIncrementCycle>
 </Column>
 </columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="486DF0BB-0D83-03DB-C6B8-6B42CCBFF228" name="TABLE_1_PK">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-05-02 23:32:33 UTC</createdTime>
+<ownerDesignName>MyDataModel</ownerDesignName>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="03AA86BC-36B7-1364-9DB6-58D5F0A08F9E"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
 </Table>
