@@ -1,0 +1,463 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetInterviewLog_RR01092013]" directorySegmentName="seg_3" id="6978276A-D0A3-2677-CE26-07BD4F66026B">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@Organiza.onId int, 
+ @RecruiterId uniqueidentifier, 
+ @StartDate date.me, 
+ @EndDate date.me, 
+    @Disposi.on char(2), 
+    @FirstName varchar(50), 
+    @LastName varchar(50), 
+    @SSN varchar(9) 
+ 
+AS 
+BEGIN 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+  
+ DECLARE @SncoicFollowUpEventTypeID int 
+ 
+ SELECT @SncoicFollowUpEventTypeID = ID FROM RSSOSS.USMC.EventType  
+ WHERE EventSourceId = 16 AND Type = 'SNCOIC Follow Up' 
+  
+ CREATE TABLE #LastSNCOICFollowUpEvent  
+ ( 
+  EventId uniqueidentifier, 
+  StartDate date.me, 
+  SubjectId uniqueidentifier 
+ )  
+ 
+ CREATE TABLE #Interviews  
+ ( 
+  ProspectId uniqueidentifier, 
+  NwaId uniqueidentifier, 
+  StartDate date.me, 
+  EndDate date.me, 
+  Loca.on varchar(100), 
+  Bene.tTag1 varchar(50), 
+  Bene.tTag2 varchar(50), 
+  Bene.tTag3 varchar(50), 
+  SNCOICEventId uniqueidentifier, 
+  SNCOICEventDate date.me 
+ ) 
+ 
+ CREATE TABLE #InterviewLog 
+ ( 
+  ProspectId uniqueidentifier, 
+  NwaId uniqueidentifier, 
+  FirstName varchar(75), 
+  LastName varchar(75), 
+  HomePhone varchar(25), 
+  CellPhone varchar(25), 
+  StartDate date.me, 
+  EndDate date.me, 
+  Loca.on varchar(100), 
+  DateOfBirth date.me, 
+  Educa.onLevel char(2), 
+  Source varchar(10),        
+  Ac.vity varchar(10), 
+  EST int, 
+  SchoolName varchar(60), 
+  ASVAB int, 
+  ProgramInterest varchar(500), 
+  Bene.tTag1 varchar(50), 
+  Bene.tTag2 varchar(50), 
+  Bene.tTag3 varchar(50), 
+  Disposi.on varchar(40), 
+  SNCOICEventId uniqueidentifier, 
+  SNCOICEventDate date.me, 
+  SNCOICNoteDate date.me, 
+  SNCOICNote varchar(500), 
+  EmailAddress varchar(100) 
+ ) 
+ 
+ DECLARE @StartDateFormated date.me 
+ SET @StartDateFormated = CAST(CONVERT(varchar(4),Year(@StartDate))+ '-' +  
+        CONVERT(varchar(2),Month(@StartDate)) + '-' +  
+        CONVERT(varchar(2),Day(@StartDate)) as Date.me) 
+         
+ DECLARE @EndDateFormated date.me 
+ SET @EndDateFormated = CAST(CONVERT(varchar(4),Year(@EndDate))+ '-' +  
+        CONVERT(varchar(2),Month(@EndDate)) + '-' +  
+        CONVERT(varchar(2),Day(@EndDate)) as Date.me) 
+  
+ SELECT 
+  e.ID, 
+  e.Loca.on, 
+  e.EventTypeId, 
+  e.StartDate, 
+  e.EndDate, 
+  e.IsApproved, 
+  eo.AppointmentOutcomeId, 
+  eo.InterviewOutcomeId, 
+  eo.ID AS EOId, 
+  et.Type, 
+  eown.CreatorId, 
+  s.SubjectId 
+ INTO #Event 
+ FROM 
+ [RSSOSS].[USMC].[Event] e 
+ INNER JOIN [RSSOSS].[USMC].[EventType] AS et ON e.EventTypeId = et.ID 
+ INNER JOIN [RSSOSS].[USMC].[EventOutcome] AS eo ON e.ID = eo.EventId 
+ INNER JOIN [RSSOSS].[USMC].[EventOwners] AS eown on eown.EventID = e.ID 
+ INNER JOIN [RSSOSS].[USMC].[EventSubject] AS s on e.ID = s.EventID 
+ WHERE 
+ eo.AppointmentOutcomeId = 1 -- Show 
+ AND (@Organiza.onId IS NOT NULL AND e.Organiza.onId = @Organiza.onId) 
+ AND (eo.InterviewOutcomeId=1 or eo.InterviewOutcomeId=2) -- New Working Applicant or Follow-up 
+ AND et.Type != 'Follow Up' 
+ AND e.IsApproved = 1 
+ AND (@RecruiterId is null or (@Organiza.onId is not null and eown.CreatorId = @RecruiterId)) 
+ AND (     
+  ( @StartDate is null AND @EndDate is null) or 
+  ( @StartDate is not null AND @EndDate is not null AND 
+  CAST(CONVERT(varchar(4),Year(e.StartDate))+ '-' +  
+        CONVERT(varchar(2),Month(e.StartDate)) + '-' +  
+        CONVERT(varchar(2),Day(e.StartDate)) as Date.me) <= 
+  @EndDateFormated 
+      AND 
+  CAST(CONVERT(varchar(4),Year(e.EndDate))+ '-' +  
+        CONVERT(varchar(2),Month(e.EndDate)) + '-' +  
+        CONVERT(varchar(2),Day(e.EndDate)) as Date.me) >= 
+  @StartDateFormated 
+   ) or 
+  ( @StartDate is not null AND @EndDate is null AND  
+   CAST(CONVERT(varchar(4),Year(e.EndDate))+ '-' +  
+   CONVERT(varchar(2),Month(e.EndDate)) + '-' +  
+   CONVERT(varchar(2),Day(e.EndDate)) as Date.me) >= 
+   @StartDateFormated 
+   ) or 
+  ( @StartDate is null AND @EndDate is not null AND  
+   CAST(CONVERT(varchar(4),Year(e.StartDate))+ '-' +  
+         CONVERT(varchar(2),Month(e.StartDate)) + '-' +  
+      CONVERT(varchar(2),Day(e.StartDate)) as Date.me) <= 
+   @EndDateFormated 
+   ) 
+  ) 
+  
+ SELECT  
+  ID, 
+  StartDate, 
+  EventTypeId, 
+  LastUpdateDate 
+ INTO #SNCOICFollowUpEvent 
+ FROM RSSOSS.USMC.EVENT 
+ WHERE EventTypeId = @SncoicFollowUpEventTypeID 
+ AND Organiza.onId = @Organiza.onID 
+  
+ --Populate Temp Table of all SNCOIC Follow Up Events 
+ INSERT INTO #LastSNCOICFollowUpEvent 
+ SELECT  e.ID, 
+    e.StartDate, 
+    es.SubjectId 
+ FROM [RSSOSS].[USMC].[EventSubject] es 
+ INNER JOIN #SNCOICFollowUpEvent e ON e.ID = es.EVENTID  
+       AND e.StartDate IN ( SELECT MAX(e2.StartDate) 
+             FROM [RSSOSS].[USMC].[EventSubject] es2 
+             INNER JOIN #SNCOICFollowUpEvent e2 ON e2.ID = es2.EventID 
+                  AND e2.LastUpdateDate IN ( SELECT MAX(e3.LastUpdateDate) 
+                         FROM [RSSOSS].[USMC].[EventSubject] es3 
+                         INNER JOIN #SNCOICFollowUpEvent e3 ON e3.ID = es3.EventID 
+                         WHERE es2.SubjectID = es3.SubjectID) 
+             WHERE es.SubjectID = es2.SubjectID) 
+ 
+ SELECT 
+  eb.EventOutcomeId, 
+  ebt.Name, 
+  eb.Bene.tPriority   
+ INTO #EventBene.t 
+ FROM [RSSOSS].[USMC].EventBene.t eb  
+ INNER JOIN [RSSOSS].[USMC].EventBene.tType ebt ON eb.Bene.tTypeID = ebt.ID 
+  
+ INSERT INTO #Interviews 
+ SELECT PR.ProspectId, 
+     PR.NwaId, 
+     E.StartDate, 
+     E.EndDate,        
+     E.Loca.on, 
+     eb1.[Name], 
+     eb2.[Name], 
+     eb3.[Name], 
+     SFE.EventId, 
+     SFE.StartDate 
+ FROM #Event e 
+ INNER JOIN Prospec.ng.USMC.Prospect PR ON e.subjectId = PR.ProspectId 
+ INNER JOIN Prospec.ng.USMC.Person P ON PR.PersonId = P.PersonId 
+ INNER JOIN MCRISS.dbo.RECRUITING_ORGANIZATION RO ON PR.Recrui.ngOrganiza.onId = RO.rowguid 
+ LEFT OUTER JOIN #EventBene.t EB1 ON e.EOId = EB1.EventOutcomeId and EB1.Bene.tPriority = 1 
+ LEFT OUTER JOIN #EventBene.t  EB2 ON e.EOId = EB2.EventOutcomeId and EB2.Bene.tPriority = 2 
+ LEFT OUTER JOIN #EventBene.t EB3 ON e.EOId = EB3.EventOutcomeId and EB3.Bene.tPriority = 3 
+ LEFT OUTER JOIN #LastSNCOICFollowUpEvent AS SFE ON e.SubjectId = SFE.SubjectId  
+ WHERE  (@Organiza.onId is null or (@Organiza.onId is not null and RO.ORGANIZATION_ID = @Organiza.onId))  
+  
+ -- Persons 
+ SELECT 
+  PersonId, 
+  FirstName, 
+  LastName, 
+  DateOfBirth 
+ INTO #Person 
+ FROM Prospec.ng.USMC.Person 
+ WHERE (@FirstName IS NULL OR FirstName = @FirstName) 
+ AND (@LastName IS NULL OR LastName = @LastName) 
+ AND (@SSN IS NULL OR SocialSecurityNumber = @SSN) 
+      
+ /******************/ 
+ -- INSERT Prospects 
+  
+ -- Prospects 
+ SELECT PR.ProspectId, 
+    I.NwaId, 
+    p.PersonId,  
+    P.FirstName, 
+    P.LastName, 
+    I.StartDate, 
+    I.EndDate,        
+    I.Loca.on, 
+    P.DateOfBirth, 
+    pr.ProspectDisposi.onId, 
+    pr.ProgramCode, 
+    PR.Source,        
+    PR.Ac.vity, 
+    I.Bene.tTag1, 
+    I.Bene.tTag2, 
+    I.Bene.tTag3, 
+    I.SNCOICEventId, 
+    I.SNCOICEventDate, 
+    PR.SncoicNoteEnterDate, 
+    PR.SncoicNote 
+ INTO #Prospect 
+ FROM #Interviews I 
+ INNER JOIN Prospec.ng.USMC.Prospect PR ON I.ProspectId = PR.ProspectId 
+ INNER JOIN #Person P ON PR.PersonId = P.PersonId 
+       
+ -- Educa.on 
+ SELECT DISTINCT 
+  pe.CompletedDate, 
+  pe.ProspectId, 
+  pe.SchoolCode, 
+  pe.Educa.onLevel, 
+  hs.HIGHSCHOOL_NAME 
+ INTO #ProspectEduca.on 
+ FROM Prospec.ng.USMC.ProspectEduca.on pe  
+ INNER JOIN #Prospect pr ON pr.ProspectId = pe.ProspectId 
+       AND pe.CompletedDate IN (SELECT MAX(CompletedDate)              
+              FROM Prospec.ng.USMC.ProspectEduca.on pe2 
+              WHERE pe2.ProspectId = pr.ProspectId 
+                                         ) 
+ LEFT OUTER JOIN MCRISS.dbo.HIGH_SCHOOL hs ON pe.SchoolCode = hs.SCHOOL_CODE 
+  
+ -- Prospect ASVAB score 
+ SELECT 
+  asv.Score, 
+  pr.ProspectId 
+ INTO #ProspectASVAB 
+ FROM #Prospect pr 
+ INNER JOIN Prospec.ng.USMC.ProspectNonMEPSProfessedExam asv ON pr.ProspectId = asv.ProspectId and asv.ExamType = 'A' 
+                   AND ASV.ExamDate IN (SELECT MAX(asv2.ExamDate) 
+                         FROM Prospec.ng.USMC.ProspectNonMEPSProfessedExam asv2 
+                         WHERE asv2.ProspectId = pr.ProspectId  
+                         AND asv2.ExamType = 'A' 
+                         ) 
+ -- Prospect EST Score 
+ SELECT 
+  est.Score, 
+  pr.ProspectId 
+ INTO #ProspectEST 
+ FROM #Prospect pr 
+ INNER JOIN Prospec.ng.USMC.ProspectNonMEPSProfessedExam est ON pr.ProspectId = est.ProspectId and est.ExamType = 'E' 
+                   AND est.ExamDate IN (SELECT MAX(est2.ExamDate) 
+                         FROM Prospec.ng.USMC.ProspectNonMEPSProfessedExam est2 
+                         WHERE est2.ProspectId = pr.ProspectId  
+                         AND est2.ExamType = 'E' 
+                         ) 
+   
+ INSERT INTO #InterviewLog 
+ SELECT pr.ProspectId, 
+     pr.NwaId,  
+     pr.FirstName, 
+     pr.LastName, 
+     PPH.PhoneNumber as HomePhone, 
+     PPC.PhoneNumber as CellPhone, 
+     pr.StartDate, 
+     pr.EndDate,        
+     pr.Loca.on, 
+     pr.DateOfBirth, 
+     PE.Educa.onLevel, 
+     pr.Source,        
+     pr.Ac.vity, 
+     EST.Score as EST, 
+     pe.HIGHSCHOOL_NAME, 
+     ASV.Score as ASVAB, 
+     PRO.PROGRAM_DESCRIPTION, 
+     pr.Bene.tTag1, 
+     pr.Bene.tTag2, 
+     pr.Bene.tTag3, 
+     PD.ProspectDisposi.onType, 
+     pr.SNCOICEventId, 
+     pr.SNCOICEventDate, 
+     pr.SncoicNoteEnterDate, 
+     pr.SncoicNote, 
+     PEM.EmailAddress 
+ FROM #Prospect pr 
+ LEFT OUTER JOIN Prospec.ng.USMC.PersonEmail PEM ON PEM.PersonId = pr.PersonId and PEM.PersonEmailTypeId = 1  
+ LEFT OUTER JOIN Prospec.ng.USMC.ProspectDisposi.on PD ON pr.ProspectDisposi.onId = PD.ProspectDisposi.onId 
+ LEFT OUTER JOIN Prospec.ng.USMC.PersonPhone PPH ON pr.PersonId = PPH.PersonId and PPH.PersonPhoneTypeId = 1 
+ LEFT OUTER JOIN Prospec.ng.USMC.PersonPhone PPC ON pr.PersonId = PPC.PersonId and PPC.PersonPhoneTypeId = 3 
+ LEFT OUTER JOIN #ProspectEduca.on PE ON pr.ProspectId = PE.ProspectId  
+ LEFT OUTER JOIN #ProspectASVAB asv ON pr.ProspectId = asv.ProspectId      
+ LEFT OUTER JOIN #ProspectEST est ON pr.ProspectId = est.ProspectId 
+ LEFT OUTER JOIN MCRISS.dbo.PROGRAM PRO ON pr.ProgramCode = PRO.PROGRAM_ID 
+ WHERE pr.NwaId is null  
+  -- if @Disposi.on is applied, then this query should return empty set 
+  AND (@Disposi.on IS NULL OR 0>1) 
+ 
+ /*************/ 
+ -- INSERT NWAs 
+ 
+ -- NWAs 
+  SELECT I.ProspectId, 
+     I.NwaId,  
+     P.FIRST_NAME, 
+     P.LAST_NAME, 
+     I.StartDate, 
+     I.EndDate,        
+     I.Loca.on, 
+     MC.DATE_OF_BIRTH, 
+     nwa.MARINE_CANDIDATE_ID, 
+     nwa.NWA_ID, 
+     NWA.SOURCE_CODE,        
+     NWA.ACTIVITY_CODE, 
+     I.Bene.tTag1, 
+     I.Bene.tTag2, 
+     I.Bene.tTag3, 
+     I.SNCOICEventId, 
+     I.SNCOICEventDate, 
+     pr.ProgramCode, 
+     PR.SncoicNoteEnterDate, 
+     PR.SncoicNote, 
+     NWA.EMAIL_ADDRESS 
+ INTO #NWA 
+ FROM #Interviews I 
+ INNER JOIN Prospec.ng.USMC.Prospect PR ON I.ProspectId = PR.ProspectId 
+ INNER JOIN MCRISS.dbo.NWA NWA ON I.NwaId = NWA.rowguid 
+ INNER JOIN MCRISS.dbo.Person P ON NWA.MARINE_CANDIDATE_ID = P.PERSON_ID 
+ INNER JOIN MCRISS.dbo.MARINE_CANDIDATE MC ON NWA.MARINE_CANDIDATE_ID = MC.MARINE_CANDIDATE_ID 
+ WHERE I.NwaId is not null 
+  AND (@FirstName IS NULL OR P.First_Name = @FirstName) 
+  AND (@LastName IS NULL OR P.Last_Name = @LastName) 
+  AND (@SSN IS NULL OR p.SOCIAL_SECURITY_NUMBER = @SSN) 
+  
+ -- NWA Candidate Status  
+ SELECT DISTINCT 
+  cs.NWA_ID, 
+  cs.STATUS_TYPE, 
+  cs.STATUS_CODE, 
+  cs.DISPOSITION_CODE 
+ INTO #NWACandidateStatus 
+ FROM MCRISS.dbo.CANDIDATE_STATUS cs 
+ INNER JOIN #NWA nwa ON nwa.NWA_ID = cs.NWA_ID 
+      AND cs.CANDIDATE_STATUS_ID in (SELECT MAX(cs2.CANDIDATE_STATUS_ID)  
+                 FROM MCRISS.dbo.CANDIDATE_STATUS cs2 
+                 WHERE cs2.NWA_ID = nwa.NWA_ID) 
+ -- NWA Educa.on                 
+ SELECT DISTINCT 
+  ce.MARINE_CANDIDATE_ID, 
+  ce.EDUCATION_LEVEL, 
+  hs.HIGHSCHOOL_NAME 
+ INTO #NWAEduca.on 
+ FROM #NWA nwa 
+ INNER JOIN MCRISS.dbo.CANDIDATE_EDUCATION ce ON nwa.MARINE_CANDIDATE_ID = ce.MARINE_CANDIDATE_ID 
+             AND ce.SCHOOL_END_DATE = ( SELECT MAX(ce2.SCHOOL_END_DATE)  
+                   FROM MCRISS.dbo.CANDIDATE_EDUCATION ce2 
+                   WHERE ce2.MARINE_CANDIDATE_ID = nwa.MARINE_CANDIDATE_ID) 
+ INNER JOIN MCRISS.dbo.HIGH_SCHOOL hs ON ce.SCHOOL_CODE = hs.SCHOOL_CODE 
+  
+ -- NWA ASVAB 
+ SELECT DISTINCT 
+  asv.AFQT_SCORE, 
+  asv.MARINE_CANDIDATE_ID 
+ INTO #NWAASVAB 
+ FROM #NWA nwa 
+ INNER JOIN MCRISS.dbo.CANDIDATE_ASVAB asv ON asv.MARINE_CANDIDATE_ID = nwa.MARINE_CANDIDATE_ID 
+             AND asv.ASVAB_DATE IN (SELECT MAX(asv2.ASVAB_DATE) 
+                  FROM MCRISS.dbo.CANDIDATE_ASVAB asv2 
+                  WHERE asv2.MARINE_CANDIDATE_ID = nwa.MARINE_CANDIDATE_ID)                 
+ -- NWA CPE 
+ SELECT DISTINCT  
+  cpe.MARINE_CANDIDATE_ID,     
+  cpe.EXAM_SCORE 
+ INTO #NWACPE 
+ FROM #NWA nwa 
+ INNER JOIN MCRISS.dbo.CANDIDATE_PROFESSED_EXAM cpe ON nwa.MARINE_CANDIDATE_ID = cpe.MARINE_CANDIDATE_ID 
+                AND cpe.EXAM_DATE IN (SELECT MAX(cpe2.EXAM_DATE) 
+                    FROM MCRISS.dbo.CANDIDATE_PROFESSED_EXAM cpe2 
+                    WHERE cpe2.MARINE_CANDIDATE_ID = cpe.MARINE_CANDIDATE_ID 
+                    AND cpe2.PROFESSED_EXAM_TYPE = 'E') 
+  
+ INSERT INTO #InterviewLog 
+ SELECT nwa.ProspectId, 
+     nwa.NwaId,  
+     nwa.FIRST_NAME, 
+     nwa.LAST_NAME, 
+     PPH.AREA_CODE + PPH.TELEPHONE_NUMBER as HomePhone, 
+     PPH.AREA_CODE + PPC.TELEPHONE_NUMBER as CellPhone, 
+     nwa.StartDate, 
+     nwa.EndDate,        
+     nwa.Loca.on, 
+     nwa.DATE_OF_BIRTH, 
+     CE.EDUCATION_LEVEL, 
+     NWA.SOURCE_CODE,        
+     NWA.ACTIVITY_CODE, 
+     CPE.EXAM_SCORE, 
+     ce.HIGHSCHOOL_NAME, 
+     asv.AFQT_SCORE as ASVAB, 
+     PRO.PROGRAM_DESCRIPTION, 
+     nwa.Bene.tTag1, 
+     nwa.Bene.tTag2, 
+     nwa.Bene.tTag3, 
+     SD.DISPOSITION_DESCRIPTION, 
+     nwa.SNCOICEventId, 
+     nwa.SNCOICEventDate, 
+     nwa.SncoicNoteEnterDate, 
+     nwa.SncoicNote, 
+     NWA.EMAIL_ADDRESS 
+ FROM #NWA nwa  
+ INNER JOIN #NWACandidateStatus cs ON nwa.NWA_ID = CS.NWA_ID  
+ INNER JOIN MCRISS.dbo.STATUS_DISPOSITION SD ON (CS.STATUS_TYPE = SD.STATUS_TYPE and  
+               CS.STATUS_CODE = SD.STATUS_CODE and 
+               CS.DISPOSITION_CODE = SD.DISPOSITION_CODE) 
+ LEFT OUTER JOIN MCRISS.dbo.CANDIDATE_TELEPHONE PPH ON NWA.MARINE_CANDIDATE_ID = PPH.MARINE_CANDIDATE_ID and PPH.TELEPHONE_TYPE = 'C' 
+ LEFT OUTER JOIN MCRISS.dbo.CANDIDATE_TELEPHONE PPC ON NWA.MARINE_CANDIDATE_ID = PPC.MARINE_CANDIDATE_ID and PPC.TELEPHONE_TYPE = 'L' 
+ LEFT OUTER JOIN #NWAEduca.on CE ON NWA.MARINE_CANDIDATE_ID = CE.MARINE_CANDIDATE_ID 
+ LEFT OUTER JOIN #NWAASVAB asv ON NWA.MARINE_CANDIDATE_ID = asv.MARINE_CANDIDATE_ID 
+ LEFT OUTER JOIN #NWACPE cpe ON nwa.MARINE_CANDIDATE_ID = cpe.MARINE_CANDIDATE_ID 
+ LEFT OUTER JOIN MCRISS.dbo.PROGRAM PRO ON nwa.ProgramCode = PRO.PROGRAM_ID 
+ WHERE (@Disposi.on IS NULL OR CS.DISPOSITION_CODE = @Disposi.on)  
+ 
+ SELECT * FROM #InterviewLog 
+ 
+ DROP TABLE #Event 
+ DROP TABLE #EventBene.t 
+ DROP TABLE #SNCOICFollowUpEvent 
+    DROP TABLE #LastSNCOICFollowUpEvent 
+    DROP TABLE #Person 
+    DROP TABLE #Prospect 
+    DROP TABLE #ProspectEduca.on 
+    DROP TABLE #ProspectASVAB 
+    DROP TABLE #ProspectEST 
+    DROP TABLE #NWA 
+    DROP TABLE #NWACandidateStatus 
+    DROP TABLE #NWAEduca.on 
+    DROP TABLE #NWAASVAB 
+    DROP TABLE #NWACPE 
+ DROP TABLE #Interviews 
+ DROP TABLE #InterviewLog 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

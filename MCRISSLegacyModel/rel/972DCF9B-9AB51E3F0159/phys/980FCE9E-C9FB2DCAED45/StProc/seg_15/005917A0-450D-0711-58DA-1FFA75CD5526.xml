@@ -1,0 +1,78 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_FindMirsExport]" directorySegmentName="seg_15" id="005917A0-450D-0711-58DA-1FFA75CD5526">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[AS 
+ 
+SET NOCOUNT ON 
+ 
+/* 
+************************************************************************************** 
+CREATING and POPULATING Temp MIRS_EXPORT TABLE  
+************************************************************************************** 
+*/ 
+CREATE TABLE #TEMP_ME (TRANSACTION_ID INT NULL, MEPS_IP_ADDRESS VARCHAR(256) NULL,  
+   EXPORTED_DATA VARCHAR(4000) NULL, SEND_FILE CHAR(1) DEFAULT 'N', 
+   MEPS_IPADDRESS_USER VARCHAR(20) NULL, MEPS_IPADDRESS_PWD VARCHAR(20) NULL, 
+   TRANSACTION_TYPE_ID INT NULL, SCHEDULE_ID INT NULL) 
+ 
+INSERT INTO #TEMP_ME (TRANSACTION_ID, MEPS_IP_ADDRESS, EXPORTED_DATA, MEPS_IPADDRESS_USER, MEPS_IPADDRESS_PWD, 
+   TRANSACTION_TYPE_ID, SCHEDULE_ID) 
+SELECT 
+ TRANSACTION_ID, MEPS_IP_ADDRESS, EXPORTED_DATA, MEPS_IPADDRESS_USER, MEPS_IPADDRESS_PWD, TRANSACTION_TYPE_ID, 
+ SCHEDULE_ID  
+FROM  
+ MIRS_EXPORT 
+WHERE 
+ EXPORTED = 'N' AND 
+ EXPORTED_DATA IS NOT NULL AND  
+ COALESCE(SCHEDULE_ID, 0) != 0 AND 
+ COALESCE(PERSON_ID, 0) != 0 AND 
+ COALESCE(MEPS_IP_ADDRESS, '0.0.0.0') != '0.0.0.0' 
+ORDER BY 
+ MEPS_IP_ADDRESS, TRANSACTION_ID  
+ 
+ 
+/* 
+************************************************************************************** 
+CREATING and POPULATING Temp Comparison TABLE  
+************************************************************************************** 
+*/ 
+CREATE TABLE #TEMP_COMPARE (TRANS_ID INT NULL, IP_ADDRESS VARCHAR(256) NULL) 
+ 
+INSERT INTO #TEMP_COMPARE (IP_ADDRESS) 
+SELECT DISTINCT MEPS_IP_ADDRESS FROM #TEMP_ME  
+ 
+UPDATE #TEMP_COMPARE 
+SET TRANS_ID = (SELECT MAX(TRANSACTION_ID) FROM #TEMP_ME M --, #TEMP_COMPARE C   
+   WHERE M.MEPS_IP_ADDRESS = C.IP_ADDRESS) 
+FROM #TEMP_ME M, #TEMP_COMPARE C   
+WHERE M.MEPS_IP_ADDRESS = C.IP_ADDRESS  
+ 
+/* 
+************************************************************************************** 
+UPDATING the TEMP MIRS EXPORT TABLE  
+************************************************************************************** 
+*/ 
+UPDATE #TEMP_ME 
+SET SEND_FILE = 'Y' 
+FROM  #TEMP_ME M, #TEMP_COMPARE C 
+WHERE  C.TRANS_ID = M.TRANSACTION_ID AND 
+ C.IP_ADDRESS = M.MEPS_IP_ADDRESS 
+ 
+/* 
+************************************************************************************** 
+RETURNING RESULT SET 
+************************************************************************************** 
+*/ 
+SET NOCOUNT OFF 
+ 
+SELECT * FROM #TEMP_ME ORDER BY MEPS_IP_ADDRESS, TRANSACTION_ID 
+ 
+DROP TABLE #TEMP_ME 
+DROP TABLE #TEMP_COMPARE]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

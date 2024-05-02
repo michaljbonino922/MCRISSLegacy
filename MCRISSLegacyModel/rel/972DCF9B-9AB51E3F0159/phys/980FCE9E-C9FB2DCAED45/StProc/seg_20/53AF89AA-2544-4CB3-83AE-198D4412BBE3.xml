@@ -1,0 +1,105 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetProgramCodesForPoolView]" directorySegmentName="seg_20" id="53AF89AA-2544-4CB3-83AE-198D4412BBE3">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@ContractIDList varchar(3000) 
+AS 
+ 
+SET NOCOUNT ON  
+ 
+DECLARE @SearchString  varchar(3000) 
+DECLARE @StartPosi.on  int 
+DECLARE @EndPosi.on  int 
+ 
+DECLARE @ContractID int 
+DECLARE @blnStop bit 
+ 
+/* CREATE TEMP TABLE FOR CONTRACT IDs */ 
+CREATE TABLE #CONTRACT_ID (CONTRACT_ID INT) 
+ 
+/* SET THE STOP FLAG TO FALSE */ 
+SET @blnStop = 0 
+ 
+/* REMOVE THE PARENTHESES FROM THE CONTRACT ID LIST */ 
+SET @SearchString = Replace(Replace(@ContractIDList, '(', ''), ')', '') 
+ 
+/* DEFINE THE START AND END POSITIONS FOR THE FIRST CONTRACT ID IN THE LIST */ 
+SET @StartPosi.on = 1 
+SET @EndPosi.on = charindex(',', @SearchString) - 1 
+ 
+/* loop through the list and retrieve all the contract ids */ 
+WHILE @blnStop = 0  
+BEGIN 
+ /* RETRIEVE THE NEXT CONTRACT ID */ 
+ IF @EndPosi.on > 0  
+  BEGIN 
+  SET @ContractID = convert(int, substring(@SearchString, @StartPosi.on, @EndPosi.on))  
+  END 
+ ELSE 
+  BEGIN 
+  /* SET THE STOP FLAG WHEN WE GET TO THE LAST CONTRACT ID */ 
+  SET @blnStop = 1 
+  SET @ContractID = convert(int, @SearchString)  
+  END 
+ 
+ /* INSERT THE CONTRACT ID INTO THE #CONTRACT_ID TEMP TABLE */ 
+ INSERT INTO #CONTRACT_ID (CONTRACT_ID) VALUES (@ContractID) 
+ 
+ /* de.ne the @SearchString and @EndPosi.on for the next itera.on thru the loop */ 
+ SET @SearchString = RIGHT(@SearchString, LEN(@SearchString) - (@EndPosi.on + 2))   
+ SET @EndPosi.on = CHARINDEX(',', @SearchString) - 1  
+end 
+ 
+/* RETRIEVE THE PROGRAM/QSN DATA FOR THE CONTRACT IDs PASSED IN */ 
+SELECT  
+ C.CONTRACT_ID, C.COMPONENT_CODE,  
+ QSN = CASE  
+   WHEN C.COMPONENT_CODE IN ('K4', 'K8', 'K9', 'B5')  
+   THEN ISNULL((SELECT QSN.QSN_ID + '/' + QSN.MOS FROM QSN WHERE QSN.CONTRACT_ID = C.CONTRACT_ID), '') 
+   ELSE '' 
+  END, 
+ SKILL = CASE 
+   WHEN C.COMPONENT_CODE NOT IN ('K4', 'K8', 'K9', 'B5')  
+   THEN ISNULL((SELECT PG.PROGRAM_CODE + '0' FROM PROGRAM PG INNER JOIN PROGRAM_AVAILABILITY PA2 ON PG.PROGRAM_ID = PA2.PROGRAM_ID 
+    WHERE PA2.CONTRACT_ID = C.CONTRACT_ID AND  
+    PG.PROGRAM_TYPE IN ('EOP', 'QEP', 'MEOP')), '00000') 
+   ELSE '' 
+  END, 
+ BONUS = CASE 
+   WHEN C.COMPONENT_CODE NOT IN ('K4', 'K8', 'K9', 'B5')  
+   THEN ISNULL((SELECT PG.PROGRAM_CODE FROM PROGRAM PG INNER JOIN PROGRAM_AVAILABILITY PA2 ON PG.PROGRAM_ID = PA2.PROGRAM_ID  
+    WHERE PA2.CONTRACT_ID = C.CONTRACT_ID AND 
+    PG.PROGRAM_TYPE = 'EBP'), '000') 
+   ELSE '' 
+  END,  
+ MCCF = CASE 
+   WHEN C.COMPONENT_CODE NOT IN ('K4', 'K8', 'K9', 'B5')  
+   THEN ISNULL((SELECT PG.PROGRAM_CODE FROM PROGRAM PG INNER JOIN PROGRAM_AVAILABILITY PA2  
+    ON PG.PROGRAM_ID = PA2.PROGRAM_ID 
+    WHERE PA2.CONTRACT_ID = C.CONTRACT_ID AND  
+    PG.PROGRAM_TYPE = 'MCCF'), '000') 
+   ELSE '' 
+  END, 
+ LOC = CASE 
+   WHEN C.COMPONENT_CODE NOT IN ('K4', 'K8', 'K9', 'B5')  
+   THEN ISNULL((SELECT C1.DUTY_PREFERENCE1 FROM CONTRACT C1 INNER JOIN PROGRAM_AVAILABILITY PA2  
+    ON C1.CONTRACT_ID = PA2.CONTRACT_ID INNER JOIN PROGRAM PG ON PA2.PROGRAM_ID = PG.PROGRAM_ID  
+    WHERE PA2.CONTRACT_ID = C.CONTRACT_ID AND 
+    PG.PROGRAM_TYPE = 'QEP'), '00') 
+   ELSE '' 
+  END, 
+ PROG_ASSIGN_DATE = ISNULL(CONVERT(VARCHAR(8), (SELECT MAX(PA2.PROGRAM_ASSIGNMENT_DATE) FROM PROGRAM_AVAILABILITY PA2 WHERE PA2.CONTRACT_ID = C.CONTRACT_ID), 112), '') 
+FROM  
+ CONTRACT C  
+WHERE  
+ C.CONTRACT_ID IN (SELECT CONTRACT_ID FROM #CONTRACT_ID) 
+ORDER BY  
+ C.CONTRACT_ID  
+ 
+/* CLEAN UP */ 
+DROP TABLE #CONTRACT_ID]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

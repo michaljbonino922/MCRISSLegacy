@@ -1,0 +1,29 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetCAIAc.vityByRecrui.ngOrg]" directorySegmentName="seg_3" id="4B29D5DE-AD6E-AEB5-AEAB-9B2DC4E2F1C0">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@Recrui.ngOrgID int, 
+ @CAIAc.vityDateBegin date.me, 
+ @CAIAc.vityDateEnd date.me 
+AS 
+SET NOCOUNT ON 
+ 
+SELECT 
+ ORGANIZATION_ID as Recrui.ngOrgID, 
+ CAI_ACTIVITY_DATE as CAIAc.vityDate, 
+ CAI_ACTIVITY_TYPE_ID as CAIAc.vityTypeID 
+FROM 
+ [dbo].[CAI_ACTIVITY] WITH (NOLOCK) 
+WHERE 
+ ORGANIZATION_ID = @Recrui.ngOrgID AND 
+ DATEDIFF(DAY, @CAIAc.vityDateBegin, CAI_ACTIVITY_DATE) >= 0 AND 
+ DATEDIFF(DAY, CAI_ACTIVITY_DATE, @CAIAc.vityDateEnd) >= 0 
+ORDER BY 
+ CAI_ACTIVITY_DATE ASC, CAI_ACTIVITY_TYPE_ID ASC 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

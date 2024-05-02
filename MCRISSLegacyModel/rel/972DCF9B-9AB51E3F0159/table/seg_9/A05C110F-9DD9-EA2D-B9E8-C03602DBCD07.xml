@@ -1,0 +1,63 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_9" id="A05C110F-9DD9-EA2D-B9E8-C03602DBCD07" schemaObject="2A6D9360-3BB2-5CEA-6E99-790D76996FDF" name="ODSE_AllMarineLeads">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:51 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>461B4ACE-F4AE-B7FB-064E-59EC0FDAB1DC</importedID>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="SSN" id="FE394073-842B-7E12-B962-E72EA06484FB">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:04 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>4DFE82D8-1DD1-4C63-DD91-BEADB6BF0237</importedID>
+<use>0</use>
+<domain>429DB81C-B38B-9EFA-A0CA-C5A1DC3956FC</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="NEW_LEAD" id="A45C8047-E7BC-3820-C3C2-22D1DDF67713">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:04 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>FF2EDCF7-EB1A-1014-8D65-A963CBA9446B</importedID>
+<use>0</use>
+<domain>91FEE8D3-8598-AD10-5F0A-90AD41572AF8</domain>
+<usesDefaultValue>true</usesDefaultValue>
+<defaultValue>((0))</defaultValue>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="6D928986-DB04-FB77-6C7A-08B617B0CBBF" name="ODSE_AllMarineLeads_PK">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:04 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>4AF7EBD1-80EF-CCA7-5966-8B179C768C28</importedID>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="FE394073-842B-7E12-B962-E72EA06484FB"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="88C8C544-804F-533F-9395-2334C9207B8D" name="IDX_NEW_Lead_PJ">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:04 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>AE45B515-42A0-F378-6D33-958048CDD635</importedID>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="A45C8047-E7BC-3820-C3C2-22D1DDF67713"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+</Table>

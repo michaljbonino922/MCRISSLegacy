@@ -1,0 +1,254 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_0" id="0309EAC2-CB18-6446-E53F-1AB9A1E9514B" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="dbo.aesoa.vwApplicantAddress">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>199ACB69-7267-7425-1496-A24942B8789F</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  A.[MARINE_CANDIDATE_ID] as [PersonID] 
+  , PR.[SOCIAL_SECURITY_NUMBER] as [SSN] 
+  ,ISNULL(A.ADDRESS_TYPE, '') as [AddressType] 
+  ,ISNULL(A.STREET_ADDRESS, '') as [Street]  
+  ,ISNULL(A.STREET_ADDRESS_2, '') as [Street2] 
+  ,ISNULL(G.CITY_TEXT, '') as [City] 
+     ,ISNULL(G.STATE_TEXT, '') as [State] 
+  ,ISNULL(G.COUNTY_TEXT, '') as [County] 
+  ,ISNULL(A.CITY_CODE, '') as [CityCode] 
+  ,ISNULL(A.COUNTY_CODE, '') as [CountyCode] 
+  ,ISNULL(A.STATE_CODE, '') as [StateCode]  
+  ,SUBSTRING(ISNULL(A.ZIPCODE, ''), 1,5) as [Zip]  
+  ,SUBSTRING(ISNULL(A.ZIPCODE, ''), 6,4) as [ZipSu.x] 
+  ,ISNULL(A.ZIPCODE, '')as [ZipComplete]  
+  ,ISNULL(P.[TELEPHONE_TYPE], '') as [TelephoneType] 
+  ,ISNULL(P.AREA_CODE, '')+ISNULL(P.TELEPHONE_NUMBER, '') as [WholePhone] 
+  ,ISNULL(P.AREA_CODE, '')+'-'+SUBSTRING(ISNULL(P.TELEPHONE_NUMBER, ''), 1, 3)+'-'+SUBSTRING(REPLACE( ISNULL(P.TELEPHONE_NUMBER, ''), '-', ''), 4, 4) as [PhoneNumber] 
+ 
+FROM [dbo].[PERSON] PR INNER JOIN [dbo].[CANDIDATE_ADDRESS] A ON PR.[PERSON_ID] = A.[MARINE_CANDIDATE_ID] 
+ LEFT JOIN [dbo].[GEO_LOCATION] G ON (A.[CITY_CODE] = G.[CITY_CODE] AND  A.[COUNTY_CODE] = G.[COUNTY_CODE]) OR (A.[CITY_CODE] = G.[CITY_CODE] AND  A.[STATE_CODE] = G.[STATE_CODE]) 
+ LEFT JOIN dbo.CANDIDATE_TELEPHONE P ON A.[MARINE_CANDIDATE_ID] = P.[MARINE_CANDIDATE_ID]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[MARINE_CANDIDATE_ID]" id="DAB4BE43-6585-A7CC-B0F2-F408259887E1">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>PersonID</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>PersonID</headerAlias>
+<expression>[MARINE_CANDIDATE_ID]</expression>
+<reference>false</reference>
+<viewID>0309EAC2-CB18-6446-E53F-1AB9A1E9514B</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[SOCIAL_SECURITY_NUMBER]" id="FCCBDF57-08F5-3018-190A-135E04C88FC1">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>SSN</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>SSN</headerAlias>
+<expression>[SOCIAL_SECURITY_NUMBER]</expression>
+<reference>false</reference>
+<viewID>0309EAC2-CB18-6446-E53F-1AB9A1E9514B</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(A.ADDRESS_TYPE,&apos;&apos;)" id="69A62950-830E-AD9F-4EDC-B8F4F56A8B63">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>AddressType</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>AddressType</headerAlias>
+<expression>ISNULL(A.ADDRESS_TYPE,&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>0309EAC2-CB18-6446-E53F-1AB9A1E9514B</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(A.STREET_ADDRESS,&apos;&apos;)" id="C08DD59E-3CF6-557F-5382-86ECA456CF63">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Street</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>Street</headerAlias>
+<expression>ISNULL(A.STREET_ADDRESS,&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>0309EAC2-CB18-6446-E53F-1AB9A1E9514B</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(A.STREET_ADDRESS_2,&apos;&apos;)" id="EF4691D2-2AA9-2B2D-B965-8B43280D342A">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Street2</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>Street2</headerAlias>
+<expression>ISNULL(A.STREET_ADDRESS_2,&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>0309EAC2-CB18-6446-E53F-1AB9A1E9514B</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(G.CITY_TEXT,&apos;&apos;)" id="D1500498-D4E5-E43F-431E-9018AC0D95EE">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>City</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>City</headerAlias>
+<expression>ISNULL(G.CITY_TEXT,&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>0309EAC2-CB18-6446-E53F-1AB9A1E9514B</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(G.STATE_TEXT,&apos;&apos;)" id="8B8388DE-E0F3-8D2C-BADC-4ECC42FCDBBC">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>State</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>State</headerAlias>
+<expression>ISNULL(G.STATE_TEXT,&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>0309EAC2-CB18-6446-E53F-1AB9A1E9514B</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(G.COUNTY_TEXT,&apos;&apos;)" id="3336033A-EC16-1D92-7D42-840839FFFCCC">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>County</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>County</headerAlias>
+<expression>ISNULL(G.COUNTY_TEXT,&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>0309EAC2-CB18-6446-E53F-1AB9A1E9514B</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(A.CITY_CODE,&apos;&apos;)" id="5CDDAFE0-BC68-5F99-DFCE-709ED56891CE">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>CityCode</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>CityCode</headerAlias>
+<expression>ISNULL(A.CITY_CODE,&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>0309EAC2-CB18-6446-E53F-1AB9A1E9514B</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(A.COUNTY_CODE,&apos;&apos;)" id="09D80434-6615-9EEA-497D-79FD242CEAC6">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>CountyCode</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>CountyCode</headerAlias>
+<expression>ISNULL(A.COUNTY_CODE,&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>0309EAC2-CB18-6446-E53F-1AB9A1E9514B</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(A.STATE_CODE,&apos;&apos;)" id="67742FC2-7714-A45A-AE01-E845A5FAFD65">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>StateCode</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>StateCode</headerAlias>
+<expression>ISNULL(A.STATE_CODE,&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>0309EAC2-CB18-6446-E53F-1AB9A1E9514B</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="SUBSTRING(ISNULL(A.ZIPCODE,&apos;&apos;),1,5)" id="99559847-BFB6-0895-422B-19258ED7A4B4">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Zip</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>Zip</headerAlias>
+<expression>SUBSTRING(ISNULL(A.ZIPCODE,&apos;&apos;),1,5)</expression>
+<reference>false</reference>
+<viewID>0309EAC2-CB18-6446-E53F-1AB9A1E9514B</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="SUBSTRING(ISNULL(A.ZIPCODE,&apos;&apos;),6,4)" id="E828CA36-8EC1-4CFE-9BD6-6E01FE56DF10">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>ZipSu.x</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>ZipSu.x</headerAlias>
+<expression>SUBSTRING(ISNULL(A.ZIPCODE,&apos;&apos;),6,4)</expression>
+<reference>false</reference>
+<viewID>0309EAC2-CB18-6446-E53F-1AB9A1E9514B</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(A.ZIPCODE,&apos;&apos;)" id="5C37FDD1-883C-62DC-AE55-AD1B4CDF52E3">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>ZipComplete</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>ZipComplete</headerAlias>
+<expression>ISNULL(A.ZIPCODE,&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>0309EAC2-CB18-6446-E53F-1AB9A1E9514B</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(P.[TELEPHONE_TYPE],&apos;&apos;)" id="51BCE7A5-A462-C71D-95B6-3A289CCECDFB">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>TelephoneType</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>TelephoneType</headerAlias>
+<expression>ISNULL(P.[TELEPHONE_TYPE],&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>0309EAC2-CB18-6446-E53F-1AB9A1E9514B</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(P.AREA_CODE,&apos;&apos;)+ISNULL(P.TELEPHONE_NUMBER,&apos;&apos;)" id="1D667B06-2073-062A-93C6-80DD3A649523">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>WholePhone</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>WholePhone</headerAlias>
+<expression>ISNULL(P.AREA_CODE,&apos;&apos;)+ISNULL(P.TELEPHONE_NUMBER,&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>0309EAC2-CB18-6446-E53F-1AB9A1E9514B</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(P.AREA_CODE,&apos;&apos;)+&apos;-&apos;+SUBSTRING(ISNULL(P.TELEPHONE_NUMBER,&apos;&apos;),1,3)+&apos;-&apos;+SUBSTRING(REPLACE( ISNULL(P.TELEPHONE_NUMBER,&apos;&apos;),&apos;-&apos;,&apos;&apos;),4,4)" id="D8C0975A-60CE-A5AC-788E-F66AA357EF86">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>PhoneNumber</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>PhoneNumber</headerAlias>
+<expression>ISNULL(P.AREA_CODE,&apos;&apos;)+&apos;-&apos;+SUBSTRING(ISNULL(P.TELEPHONE_NUMBER,&apos;&apos;),1,3)+&apos;-&apos;+SUBSTRING(REPLACE( ISNULL(P.TELEPHONE_NUMBER,&apos;&apos;),&apos;-&apos;,&apos;&apos;),4,4)</expression>
+<reference>false</reference>
+<viewID>0309EAC2-CB18-6446-E53F-1AB9A1E9514B</viewID>
+</viewElement>
+</viewElements>
+</TableView>

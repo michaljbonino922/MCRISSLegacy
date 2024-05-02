@@ -1,0 +1,165 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_10" id="B06C0827-FD94-E8AF-DA54-1B59C2C7D96E" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="ProspectStatusHistory">
+<sourceDDLFile>create Prospecting script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:09 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>D68D7653-9721-1C80-4E57-6FECCB2FE9FE</importedID>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="HistoryID" id="7A34E634-43B9-AC86-2E61-C735ACE8C606">
+<sourceDDLFile>create Prospecting script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:23 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>5B9D2770-EC3E-CB19-C85E-5A5F0756E4B1</importedID>
+<use>0</use>
+<domain>8C77819C-1B2F-24A0-C36D-F924235A9668</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementColumn>true</autoIncrementColumn>
+<identityColumn>true</identityColumn>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="ProspectID" id="66506683-A3FB-785E-C25F-027004C8248E">
+<sourceDDLFile>create Prospecting script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:23 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>4616BFD1-4E62-CE60-C397-B365713D7298</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="7037B4F7-666A-92CF-7ACF-680973F88ABA" referredColumn="23D6B899-D508-35E4-D1B9-5C3A455FFD24"/>
+</associations>
+</Column>
+<Column name="Disposi.onID" id="9DDA96B8-AFD7-E16F-F944-2DF8033C3E80">
+<sourceDDLFile>create Prospecting script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:23 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>BAF2FE99-0935-EE1D-86C0-D42B889AEEEC</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>0B32FEBA-0818-67BE-914F-5328B1856905</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="UpdateUserID" id="76E646BD-3387-1BDC-C6F5-4DBBA4780489">
+<sourceDDLFile>create Prospecting script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:23 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>F5100C41-AE4D-43F9-4EF9-07876569B108</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="UpdateDate" id="4C797F0B-7997-8C03-238D-4064464C4B92">
+<sourceDDLFile>create Prospecting script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:23 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>5297442B-9D01-7B88-EE8C-672912A5D3B2</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="rowguid" id="01F7BC05-C9C8-6FDD-171A-8594D606BD30">
+<sourceDDLFile>create Prospecting script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:23 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>D8994FE8-CDB5-07EF-4901-EB950E0D4D8A</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="9B038C1D-4053-A853-B593-FC62474F7FC9" name="pk_ProspectStatusHistory">
+<sourceDDLFile>create Prospecting script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:23 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>BDA157FA-E6C3-E119-FD99-B5279D276E42</importedID>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="7A34E634-43B9-AC86-2E61-C735ACE8C606"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="94F54C8B-A6E9-4419-CE89-CEB210959BB4" name="IDX_ProspectStatusHistory_RCTAPI_ProspectId">
+<sourceDDLFile>create Prospecting script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:23 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>25C0A389-45BC-29E0-22FB-8E54C410541D</importedID>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="66506683-A3FB-785E-C25F-027004C8248E"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="36DD30AA-AF2C-0D0F-ED08-B74AE9BFE287" name="onId]v4">
+<sourceDDLFile>create Prospecting script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:23 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>66A8C804-D1C1-B605-ADD8-56396723A5E8</importedID>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="66506683-A3FB-785E-C25F-027004C8248E"/>
+<colUsage columnID="9DDA96B8-AFD7-E16F-F944-2DF8033C3E80"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="1FC0CEB9-C06F-3E07-21D2-159CA9CDD7AF" name="._StatusHistory_Prospect">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:27 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="66506683-A3FB-785E-C25F-027004C8248E"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+<tableCheckConstraints itemClass="oracle.dbtools.crest.model.design.constraint.TableLevelConstraint">
+<tableCheckConstraint name="[USMC].[ProspectStatusHistory]" directorySegmentName="seg_6" id="51FA5064-3DFE-F7DD-3F6C-0CB91E2F70D0">
+<sourceDDLFile>create Prospecting script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:23 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>427DA266-17B9-9F25-F51E-5641233A72FE</importedID>
+<rule><![CDATA[CONSTRAINT [._StatusHistory_Disposi.on]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="[USMC].[ProspectStatusHistory]v1" directorySegmentName="seg_6" id="3BA7EB48-BA11-E946-DF2C-459F1F5B5914">
+<sourceDDLFile>create Prospecting script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:23 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>79D0FB60-DC70-CE0B-50A3-D2447A87888D</importedID>
+<rule><![CDATA[CONSTRAINT [._StatusHistory_Prospect]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITH" directorySegmentName="seg_6" id="CDF1A631-0CFE-E646-A22E-F83F1E515E2A">
+<sourceDDLFile>create Prospecting script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:23 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>FF9FC2A1-5F15-A40D-24FC-7FDD249E9FCC</importedID>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITHv1" directorySegmentName="seg_6" id="0A88E6EC-2E0B-EAD9-674B-847ACBF869FA">
+<sourceDDLFile>create Prospecting script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:23 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>CE9390FD-DFF3-FE29-98E1-33627589E0B8</importedID>
+</tableCheckConstraint>
+</tableCheckConstraints>
+</Table>

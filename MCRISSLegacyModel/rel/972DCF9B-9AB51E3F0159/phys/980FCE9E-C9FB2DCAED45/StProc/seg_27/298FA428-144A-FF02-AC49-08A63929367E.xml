@@ -1,0 +1,87 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateHS]" directorySegmentName="seg_27" id="298FA428-144A-FF02-AC49-08A63929367E">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@mcc_code  varchar(5), 
+@dod_code  varchar(20), 
+@school_name  varchar(40), 
+@street   varchar(40), 
+@city   varchar(20), 
+@state_code  varchar(2), 
+@zip_code  varchar(9), 
+@phone_number  varchar(10), 
+@school_year  int 
+as 
+ 
+declare 
+@organiza.on_id  int, 
+@school_code   int, 
+@user_login   varchar(15), 
+@school_type   varchar(2) 
+ 
+set @organiza.on_id = (select ORGANIZATION_ID  from RECRUITING_ORGANIZATION 
+   where MCC_CODE = @mcc_code) 
+ 
+if @organiza.on_id is null 
+print 'Invalid MCC Code was entered!' 
+ 
+if @organiza.on_id is null 
+RETURN 
+ 
+ 
+--School Type Logic 
+if substring(@dod_code,1,2) = 'CC' 
+set @school_type = 'CC' 
+else 
+set @school_type = 'HS' 
+ 
+--Gets current user 
+set @user_login = (select current_user) 
+ 
+ 
+if exists (select 1 from HIGH_SCHOOL where DOD_CODE = @dod_code) 
+ 
+ update HIGH_SCHOOL 
+ set ORGANIZATION_ID = @organiza.on_id, 
+ STATE_CODE = @state_code, 
+ HIGHSCHOOL_NAME = @school_name, 
+ TELEPHONE_NUMBER = @phone_number, 
+ STREET = @street, 
+ CITY = @city, 
+ ZIP_CODE = @zip_code, 
+ DELETED = 'N', 
+ SCHOOL_TYPE = @school_type, 
+ USER_LOGIN = @user_login, 
+ UPDATE_DATE = getdate(), 
+ EFFECTIVE_DATE = getdate() 
+ where DOD_CODE = @dod_code 
+ 
+else 
+ 
+ insert HIGH_SCHOOL 
+ (ORGANIZATION_ID,STATE_CODE,HIGHSCHOOL_NAME,TELEPHONE_NUMBER,STREET, 
+ CITY,ZIP_CODE,DELETED,DOD_CODE,SCHOOL_TYPE,USER_LOGIN,UPDATE_DATE,EFFECTIVE_DATE) 
+ values 
+ (@organiza.on_id, @state_code, @school_name, @phone_number, @street, 
+ @city, @zip_code, 'N',@dod_code, @school_type, @user_login, getdate(),getdate()) 
+ 
+print 'The School Was added. Please Check the applica.on to con.rm' 
+ 
+ 
+set @school_code = (select SCHOOL_CODE from HIGH_SCHOOL where DOD_CODE = @dod_code) 
+ 
+ 
+if not exists(select 1 from HIGH_SCHOOL_PROFILE where SCHOOL_CODE = @school_code and 
+        SCHOOL_YEAR = @school_year ) 
+insert HIGH_SCHOOL_PROFILE 
+(SCHOOL_CODE,SCHOOL_YEAR, MALE_SENIORS,FEMALE_SENIORS,ASVAB_RESP,USER_LOGIN, UPDATE_DATE) 
+values 
+(@school_code, @school_year, 0,0,'N',@user_login, getdate()) 
+ 
+ 
+print 'The School Was added. Please Check the applica.on to con.rm']]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

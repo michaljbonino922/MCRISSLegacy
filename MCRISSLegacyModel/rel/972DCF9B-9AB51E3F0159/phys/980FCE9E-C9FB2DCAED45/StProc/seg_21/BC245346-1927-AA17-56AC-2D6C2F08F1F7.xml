@@ -1,0 +1,254 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_mg_NWA]" directorySegmentName="seg_21" id="BC245346-1927-AA17-56AC-2D6C2F08F1F7">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[as 
+ 
+/* 
+ * Declare variables. 
+ */ 
+declare  
+  @user_login varchar(15), 
+  @update_date date.me, 
+  @nwa_declared_date date.me, 
+  @nwa_date_started_working date.me, 
+  @marine_candidate_id int, 
+  @ac.vity_code char(2), 
+  @o.cer_component_code char(2), 
+  @organiza.on_of_record_id int, 
+  @recruiter_of_record_id int, 
+  @source_code char(10), 
+  @source_code_dual char(10), 
+  @working_recruiter_id int, 
+  @ppc char(8), 
+  @contract_dte char(6), 
+  @contract_dte_d date.me, 
+  @educa.on_level char(2), 
+  @educa.on_code char(1), 
+  @coll_ed_level char(1),   
+  @rsn char(3), 
+  @recrui.ng_org_id int, 
+  @person_id int, 
+  @ssn char(9), 
+  @ac.vity_code_t char(2), 
+  @source_code_t char(10), 
+  @pgm_comp_t varchar(2), 
+  @oso_ssn char(9) 
+ 
+ 
+declare cur_arms cursor for 
+  select ssn, 
+    acty_rctd_frm, 
+-- 09-19-03    pgm_comp,     
+    appr_pgm_comp,     
+    src_rctd_frm, 
+    ppc_no, 
+    contract_dte, 
+    coll_ed_level, 
+--    rsn 
+    org_id, 
+    oso_ssn 
+    from AO2 
+--    from vw_arms_o.cer 
+ 
+  set @user_login = 'o_migra.on' 
+  set @update_date = getdate() 
+ 
+  open cur_arms 
+  fetch cur_arms into 
+    @ssn, 
+--    @ac.vity_code, 
+    @ac.vity_code_t, 
+--    @o.cer_component_code, 
+    @pgm_comp_t , 
+--    @source_code, 
+    @source_code_t, 
+    @ppc, 
+    @contract_dte, 
+    @coll_ed_level, 
+--    @rsn    
+    @recrui.ng_org_id, 
+    @oso_ssn 
+ 
+ 
+while (@@FETCH_STATUS = 0) 
+begin 
+ 
+  set @person_id = (select person_id from person 
+    where social_security_number = @ssn) 
+ 
+-- 09-25-2003 
+--  set @recrui.ng_org_id = (select organiza.on_id from recrui.ng_organiza.on 
+--    where mcc_code = @rsn) 
+  set @working_recruiter_id = (select person_id from person 
+    where social_security_number = @oso_ssn) 
+ 
+ 
+ 
+  set @contract_dte_d = mcriss.dbo.sp_mg_GetDate(@contract_dte) 
+  set @nwa_declared_date = @contract_dte_d 
+  set @nwa_date_started_working = @contract_dte_d 
+   
+  /* 
+   * Error handling 
+   */ 
+--  if not exists (select 1 from recrui.ng_ac.vity where ac.vity_code = @ac.vity_code) 
+--    set @ac.vity_code = null 
+ 
+ 
+-- rule s.ll apply? 
+--  if not exists (select 1 from component_code where component_code = @o.cer_component_code) 
+--    set @o.cer_component_code = null 
+ 
+ 
+--  if not exists (select 1 from recrui.ng_source where source_code = @source_code) 
+    set @source_code = null 
+ 
+     
+  if (isnumeric(@ppc) = 0) 
+    set @ppc = null 
+ 
+  /* Need to update candidate_educa.on sql if transforma.on rules change. */ 
+  set @educa.on_level = '12' 
+  set @educa.on_code = '2' 
+ 
+-- 09-19-03 
+  /* 
+   * Change o.cer component code into MCRISS format. 
+   */ 
+  if @pgm_comp_t in ('0G','AD') 
+    begin 
+    set @o.cer_component_code= '0B' 
+    end 
+  else if @pgm_comp_t in ('0E', '0L') 
+    begin 
+    set @o.cer_component_code= '0E' 
+    end 
+  else if @pgm_comp_t in ('1B', '1D', '4D') 
+    begin 
+    set @o.cer_component_code= '1B' 
+    end 
+  else if @pgm_comp_t in ('1A', '1E') 
+    begin 
+    set @o.cer_component_code= '1A' 
+    end 
+  else 
+    begin 
+    set @o.cer_component_code= @pgm_comp_t  
+    end 
+ 
+  if not exists (select 1 from component_code where component_code = @o.cer_component_code ) 
+    set @o.cer_component_code = null 
+ 
+  /* 
+   * Change ac.vity code  into MCRISS format. 
+   */ 
+  if @ac.vity_code_t in ('CP','DT','HV') 
+    begin 
+    set @ac.vity_code = 'OB' 
+    end 
+  else 
+    begin 
+    set @ac.vity_code = @ac.vity_code_t  
+    end 
+ 
+  if not exists (select 1 from recrui.ng_ac.vity where ac.vity_code = @ac.vity_code) 
+    set @ac.vity_code = null 
+ 
+  /* 
+   * Change source code  into MCRISS format. 
+   */ 
+  if @source_code_t in ('CPR','PPC','TAD') 
+    begin 
+    set @source_code = 'OTH' 
+    end 
+  else if @source_code_t = 'PRF' 
+    begin 
+    set @source_code = 'DEP' 
+    end 
+  else if @source_code_t = 'LIS' 
+    begin 
+    set @source_code = 'CAN' 
+    end 
+  else 
+    begin 
+    set @source_code = @source_code_t 
+    end 
+ 
+  if not exists (select 1 from recrui.ng_source where source_code = @source_code) 
+    set @source_code = null 
+ 
+--  
+ 
+  /* 
+   * Change educa.on level into MCRISS format. 
+   */ 
+  if (@coll_ed_level <> '2') 
+   and (@coll_ed_level <> '3') 
+   and (@coll_ed_level <> '4') 
+   and (@coll_ed_level <> '5') 
+   and (@coll_ed_level <> '6') 
+   and (@coll_ed_level <> 'K') 
+   and (@coll_ed_level <> 'N') 
+   and (@coll_ed_level <> 'W') 
+    set @coll_ed_level = '6' 
+/* 
+print '----------------' 
+print @ssn 
+print @pgm_comp_t 
+print @o.cer_component_code 
+*/ 
+ 
+  insert into nwa ( 
+    marine_candidate_id, 
+    nwa_declared_date, 
+    nwa_date_started_working, 
+    ac.vity_code, 
+    o.cer_component_code, 
+    source_code, 
+    ppc, 
+    educa.on_level, 
+    organiza.on_of_record_id, 
+    recruiter_of_record_id,    -- 09-25-2003 
+    working_recruiter_id,      -- 09-25-2003 
+    user_login, 
+    update_date) 
+  values ( 
+    @person_id, 
+    @nwa_declared_date, 
+    @nwa_date_started_working, 
+    rtrim(@ac.vity_code), 
+    @o.cer_component_code, 
+    rtrim(@source_code), 
+    @ppc, 
+    @coll_ed_level, 
+    @recrui.ng_org_id,      -- 09-25-2003 
+    @working_recruiter_id,   -- 09-25-2003 
+    @working_recruiter_id,   -- 09-25-2003 
+    @user_login, 
+    @update_date) 
+ 
+  fetch cur_arms into 
+    @ssn, 
+--    @ac.vity_code, 
+    @ac.vity_code_t, 
+--    @o.cer_component_code, 
+    @pgm_comp_t , 
+--    @source_code, 
+    @source_code_t, 
+    @ppc, 
+    @contract_dte, 
+    @coll_ed_level, 
+--    @rsn    
+    @recrui.ng_org_id, 
+    @oso_ssn 
+ 
+end     
+ 
+close cur_arms 
+deallocate cur_arms]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

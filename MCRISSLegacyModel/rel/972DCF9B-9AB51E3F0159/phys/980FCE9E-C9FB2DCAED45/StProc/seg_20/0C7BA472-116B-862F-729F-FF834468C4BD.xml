@@ -1,0 +1,21 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetQSNRSPivotDate]" directorySegmentName="seg_20" id="0C7BA472-116B-862F-729F-FF834468C4BD">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@QSNID char(9), 
+ @Organiza.onID int OUTPUT, 
+ @QSNPivotDate date.me OUTPUT 
+AS 
+ 
+SELECT  
+ @Organiza.onID = RECRUITING_ORGANIZATION_ID, 
+ @QSNPivotDate = QSN_PIVOT_DATE 
+FROM  
+ QSN 
+WHERE  
+ QSN_ID = @QSNID]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

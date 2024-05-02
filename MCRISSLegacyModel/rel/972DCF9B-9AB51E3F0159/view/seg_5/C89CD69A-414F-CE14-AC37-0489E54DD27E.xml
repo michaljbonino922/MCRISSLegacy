@@ -1,0 +1,234 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_5" id="C89CD69A-414F-CE14-AC37-0489E54DD27E" schemaObject="2A6D9360-3BB2-5CEA-6E99-790D76996FDF" name="dbo.vwAc.vityObjec.veData">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:24 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>CA6A3F80-CD45-68B4-7C3A-5E73BC9F577D</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[select A.orguni.d, 
+ A.contactypeid, 
+ A.year as FiscalYear, 
+ ao10.objec.ve as October, 
+ ao11.objec.ve as November, 
+ ao12.objec.ve as December, 
+ ao1.objec.ve as January, 
+ ao2.objec.ve as February, 
+ ao3.objec.ve as March, 
+ ao4.objec.ve as April, 
+ ao5.objec.ve as May, 
+ ao6.objec.ve as June, 
+ ao7.objec.ve as July, 
+ ao8.objec.ve as August, 
+ ao9.objec.ve as September 
+ from  
+(select dis.nct orguni.d, contactypeid, calendaryear as year from ac.vityobjec.ve) A 
+le. outer join ac.vityobjec.ve ao10 on ao10.Month = 10 and ao10.OrgUnitID = A.OrgUnitID and ao10.contactypeid = A.contactypeid and ao10.calendaryear = A.year - 1 
+le. outer join ac.vityobjec.ve ao11 on ao11.Month = 11 and ao11.OrgUnitID = A.OrgUnitID and ao11.contactypeid = A.contactypeid and ao11.calendaryear = A.year - 1  
+le. outer join ac.vityobjec.ve ao12 on ao12.Month = 12 and ao12.OrgUnitID = A.OrgUnitID and ao12.contactypeid = A.contactypeid and ao12.calendaryear = A.year - 1 
+le. outer join ac.vityobjec.ve ao1 on ao1.Month = 1 and ao1.OrgUnitID = A.OrgUnitID and ao1.contactypeid = A.contactypeid and ao1.calendaryear = A.year  
+le. outer join ac.vityobjec.ve ao2 on ao2.Month = 2 and ao2.OrgUnitID = A.OrgUnitID and ao2.contactypeid = A.contactypeid and ao2.calendaryear = A.year  
+le. outer join ac.vityobjec.ve ao3 on ao3.Month = 3 and ao3.OrgUnitID = A.OrgUnitID and ao3.contactypeid = A.contactypeid and ao3.calendaryear = A.year  
+le. outer join ac.vityobjec.ve ao4 on ao4.Month = 4 and ao4.OrgUnitID = A.OrgUnitID and ao4.contactypeid = A.contactypeid and ao4.calendaryear = A.year  
+le. outer join ac.vityobjec.ve ao5 on ao5.Month = 5 and ao5.OrgUnitID = A.OrgUnitID and ao5.contactypeid = A.contactypeid and ao5.calendaryear = A.year  
+le. outer join ac.vityobjec.ve ao6 on ao6.Month = 6 and ao6.OrgUnitID = A.OrgUnitID and ao6.contactypeid = A.contactypeid and ao6.calendaryear = A.year  
+le. outer join ac.vityobjec.ve ao7 on ao7.Month = 7 and ao7.OrgUnitID = A.OrgUnitID and ao7.contactypeid = A.contactypeid and ao7.calendaryear = A.year  
+le. outer join ac.vityobjec.ve ao8 on ao8.Month = 8 and ao8.OrgUnitID = A.OrgUnitID and ao8.contactypeid = A.contactypeid and ao8.calendaryear = A.year  
+le. outer join ac.vityobjec.ve ao9 on ao9.Month = 9 and ao9.OrgUnitID = A.OrgUnitID and ao9.contactypeid = A.contactypeid and ao9.calendaryear = A.year]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="d" id="6A769758-BA0B-0F8C-DD61-3B27947E8882">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:24 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>d</alias>
+<dataType>UNKNOWN</dataType>
+<expression>d</expression>
+<reference>false</reference>
+<viewID>C89CD69A-414F-CE14-AC37-0489E54DD27E</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="contactypeid" id="377784F1-E0BB-9A0B-BC23-F096130089B4">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:24 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>contactypeid</alias>
+<dataType>UNKNOWN</dataType>
+<expression>contactypeid</expression>
+<reference>false</reference>
+<viewID>C89CD69A-414F-CE14-AC37-0489E54DD27E</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="year" id="9BBFA5A6-F46D-D704-4942-9A806D6465A3">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:24 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>FiscalYear</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>FiscalYear</headerAlias>
+<expression>year</expression>
+<reference>false</reference>
+<viewID>C89CD69A-414F-CE14-AC37-0489E54DD27E</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ve" id="96D166D6-860C-D87D-BB9B-49C6BC1EA258">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:24 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>October</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>October</headerAlias>
+<expression>ve</expression>
+<reference>false</reference>
+<viewID>C89CD69A-414F-CE14-AC37-0489E54DD27E</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_2684" id="E937625E-0001-BBA3-A3A2-101EB347D843">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:24 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>November</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>November</headerAlias>
+<expression>ve</expression>
+<reference>false</reference>
+<viewID>C89CD69A-414F-CE14-AC37-0489E54DD27E</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_2685" id="EBF7EF90-FB91-E373-A532-F95838FF9CF8">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:24 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>December</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>December</headerAlias>
+<expression>ve</expression>
+<reference>false</reference>
+<viewID>C89CD69A-414F-CE14-AC37-0489E54DD27E</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_2686" id="EE7F18E5-6E65-6C98-89DE-582AD9666A84">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:24 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>January</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>January</headerAlias>
+<expression>ve</expression>
+<reference>false</reference>
+<viewID>C89CD69A-414F-CE14-AC37-0489E54DD27E</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_2687" id="601A4B83-CE2D-91AE-5B95-9A93FF56DEB8">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:24 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>February</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>February</headerAlias>
+<expression>ve</expression>
+<reference>false</reference>
+<viewID>C89CD69A-414F-CE14-AC37-0489E54DD27E</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_2688" id="1927E206-7484-8CD7-CDDD-B1443EB97D87">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:24 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>March</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>March</headerAlias>
+<expression>ve</expression>
+<reference>false</reference>
+<viewID>C89CD69A-414F-CE14-AC37-0489E54DD27E</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_2689" id="8AD4AB77-3792-7B99-941F-A7902E986A93">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:24 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>April</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>April</headerAlias>
+<expression>ve</expression>
+<reference>false</reference>
+<viewID>C89CD69A-414F-CE14-AC37-0489E54DD27E</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_2690" id="60BEC3A8-C290-1629-B552-35F74956866A">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:24 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>May</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>May</headerAlias>
+<expression>ve</expression>
+<reference>false</reference>
+<viewID>C89CD69A-414F-CE14-AC37-0489E54DD27E</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_2691" id="5A1192E5-5936-78C4-0A3C-43C9ACEF20D5">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:24 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>June</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>June</headerAlias>
+<expression>ve</expression>
+<reference>false</reference>
+<viewID>C89CD69A-414F-CE14-AC37-0489E54DD27E</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_2692" id="434669FC-161F-4709-39AD-7C846C4C26AA">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:24 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>July</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>July</headerAlias>
+<expression>ve</expression>
+<reference>false</reference>
+<viewID>C89CD69A-414F-CE14-AC37-0489E54DD27E</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_2693" id="52CA8DAF-7A5C-790E-1222-72F5EAB33991">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:24 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>August</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>August</headerAlias>
+<expression>ve</expression>
+<reference>false</reference>
+<viewID>C89CD69A-414F-CE14-AC37-0489E54DD27E</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_2694" id="007AAE96-0DB9-A757-54B0-9CAE62D0A871">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:24 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>September</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>September</headerAlias>
+<expression>ve</expression>
+<reference>false</reference>
+<viewID>C89CD69A-414F-CE14-AC37-0489E54DD27E</viewID>
+</viewElement>
+</viewElements>
+</TableView>

@@ -1,0 +1,77 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[RCTAPI_GetCountyData]" directorySegmentName="seg_8" id="8C9C0FA9-EEC6-0BF5-2EF5-52B8631F65A6">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[AS 
+ 
+SET NOCOUNT ON 
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+----RssOss.[dbo].[RCTAPI_GetCountyData]  
+ 
+DECLARE @result   varchar(max) 
+ 
+SET @result = ( 
+    
+    SELECT  
+      countyId 
+     ,countyName 
+     ,countryId 
+     ,stateId 
+    FROM  
+     ( 
+      SELECT  
+       COUNTRY_DESCRIPTION + 
+       '-' + 
+       STATE_CODE + 
+       '-' + 
+       COUNTY_CODE     AS countyId 
+       ,COUNTY_TEXT    AS countyName 
+       ,COUNTRY_DESCRIPTION  AS countryId 
+       ,COUNTRY_DESCRIPTION + 
+       '-' + 
+       STATE_CODE     AS stateId 
+       ,1       AS orderRank 
+      FROM MCRISS.[dbo].[GEO_LOCATION]  
+      WHERE  
+       ISNUMERIC(STATE_CODE)=1 AND STATE_CODE <> '00' AND COUNTY_CODE <> '000' AND CITY_CODE = '0000' 
+ 
+      UNION 
+     
+      SELECT      
+       COUNTRY_DESCRIPTION + 
+       '-' + 
+       STATE_CODE + 
+       '-' + 
+       COUNTY_CODE + 
+       '-' + 
+       CITY_CODE     AS countyId 
+       ,' NOT LISTED'    AS countyName 
+       ,COUNTRY_DESCRIPTION  AS countryId 
+       ,COUNTRY_DESCRIPTION + 
+       '-' + 
+       STATE_CODE     AS stateId 
+       ,2       AS orderRank 
+ 
+      FROM MCRISS.[dbo].[GEO_LOCATION]  
+      WHERE   
+       (ISNUMERIC(STATE_CODE) = 0) AND (COUNTRY_DESCRIPTION IS NOT NULL) AND (LTRIM(COUNTRY_DESCRIPTION) <> '') AND (CITY_CODE = '0001') AND (CAST(COUNTY_CODE AS int) = 0) 
+       AND STATE_CODE NOT IN (  'CR' --'CORAL SEA ISLANDS' 
+             ,'IO' --'BR INDIAN OCEAN TERR' 
+             ) 
+       AND COUNTRY_DESCRIPTION <> 'UNITED STATES' 
+ 
+     ) T 
+ 
+     ORDER BY orderRank, countyId, countyName 
+     
+       FOR JSON AUTO, INCLUDE_NULL_VALUES 
+ 
+) 
+ 
+SELECT @result]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

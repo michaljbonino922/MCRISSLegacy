@@ -1,0 +1,21 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetCandidateTelephoneByPerson]" directorySegmentName="seg_4" id="007CCDF4-4558-866A-7948-4E85EE987E25">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @PersonID int 
+) 
+AS 
+ 
+SELECT -1 AS [ID] 
+   ,[MARINE_CANDIDATE_ID] 
+      ,[AREA_CODE] 
+      ,[TELEPHONE_NUMBER] 
+      ,[TELEPHONE_TYPE] 
+FROM [mcriss].[dbo].[CANDIDATE_TELEPHONE] WITH (NOLOCK) 
+WHERE [MARINE_CANDIDATE_ID] = @PersonID]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,25 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateOso369EvalChecklistCompleteDate]" directorySegmentName="seg_9" id="C39DDD0C-7CA3-F4D7-6891-70F5E8BCA701">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@Id uniqueidentifier, 
+@UpdateUserId uniqueidentifier  
+ 
+AS 
+ 
+BEGIN 
+    
+    SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+     
+    UPDATE USMC.Mul.MonthEvalua.on 
+    SET CompletedDate = GETDATE(), 
+        LastUpdatedDate = GETDATE(), 
+     LastUpdatedBy = @UpdateUserId 
+    WHERE ID = @Id 
+     
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

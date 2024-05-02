@@ -1,0 +1,27 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SignCounselingRecord]" directorySegmentName="seg_8" id="B8CE5207-1911-E1C8-E32B-9C693F8BEB23">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@CounselingID   uniqueidentifier, 
+ @RecruiterSignatureId uniqueidentifier = null, 
+ @SncoicSignatureId  uniqueidentifier, 
+ @UpdateUserId   uniqueidentifier 
+  
+AS 
+BEGIN 
+ 
+ UPDATE  
+  [RSSOSS].[USMC].[Counseling] 
+    SET RecruiterSignatureID = @RecruiterSignatureId, 
+        NCOICSignatureID = @SncoicSignatureId, 
+        LastUpdatedDate = GETDATE(), 
+        LastUpdatedBy = @UpdateUserId 
+ WHERE  
+  ID = @CounselingID 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

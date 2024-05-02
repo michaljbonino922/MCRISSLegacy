@@ -1,0 +1,346 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetIMOBriefRecruiterAc.vi.esList]" directorySegmentName="seg_13" id="4F0BFA92-6EAD-4F17-CD1C-3E18EBBD96A9">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@RecruiterID   uniqueiden..er = null, 
+    @OrgID   int = null, 
+    @DateFrom date.me = null, 
+    @DateTo date.me = null, 
+    @IsApproved bit = 0 
+ 
+AS 
+BEGIN 
+ 
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+SET NOCOUNT ON 
+ 
+SET @DateTo = DATEADD(second, -1, DATEADD(day, 1, @DateTo)) 
+ 
+-- Just in case the proc failed at some point and did not delete the temp table 
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'tempdb..#myIMOTemp') AND type in (N'T', N'U')) 
+DROP TABLE #myIMOTemp 
+ 
+ 
+ 
+CREATE TABLE #myIMOTemp  
+( 
+[ID]  uniqueiden..er null ,  
+[Name]  varchar(100) null,  
+CardType  varchar(160) null,  
+LastUpdateDate  DateTime null,  
+Sector  varchar(12) null,  
+Addi.onalGuid  uniqueiden..er null,  
+PrimaryGuid  uniqueiden..er null, 
+[Year]  int, 
+[Type]  varchar(12) null 
+) 
+ 
+CREATE TABLE #myIMOTemp2  
+( 
+[ID]  uniqueiden..er null ,  
+[Name]  varchar(100) null,  
+CardType  varchar(160) null,  
+LastUpdateDate  DateTime null,  
+Sector  varchar(12) null,  
+Addi.onalGuid  uniqueiden..er null,  
+PrimaryGuid  uniqueiden..er null, 
+[Year]  int, 
+[Type]  varchar(12) null 
+) 
+ 
+ 
+ 
+If @OrgID is null  
+Set @OrgID=0 
+ 
+ 
+---  REMEMBER ->  EventSubject table subjectID guid relates to mul.ple types of objects, persons or a school ect.... 
+ 
+ 
+DECLARE @RECRUITING_ORG_ID UNIQUEIDENTIFIER 
+ 
+SELECT @RECRUITING_ORG_ID = rowguid 
+  FROM [MCRISS].[dbo].[RECRUITING_ORGANIZATION] 
+  WHERE [ORGANIZATION_ID] = @OrgID 
+ 
+ 
+---  GET PERSON RELATED EVENTS  ---DISTINCT 
+INSERT INTO #myIMOTemp2  
+SELECT  ID, Name, CardType, LastUpdateDate, Sector, Addi.onalGuid, PrimaryGuid, Year, Type  
+       FROM (SELECT  E.ID,  
+                      ESJ.SubjectName AS Name,  
+                      ES.Name AS CardType,  
+                      E.LastUpdateDate,  
+       NULL AS Sector,  
+                      PR.NwaId AS Addi.onalGuid,  
+                      ESJ.SubjectId AS PrimaryGuid, 
+                      0 as [Year], 
+                      'EV' as [Type]       
+FROM         USMC.PersonAddress PA  
+       INNER JOIN USMC.Prospect PR ON PA.PersonId = PR.PersonId  
+       INNER JOIN MCRISS.dbo.RECRUITING_ORGANIZATION RO ON RO.ORGANIZATION_ID = @OrgID 
+       INNER JOIN RSSOSS.USMC.Event E ON E.Organiza.onId = RO.ORGANIZATION_ID 
+       INNER JOIN RSSOSS.USMC.EventSubject ESJ ON ESJ.EventId = E.ID AND PR.ProspectId = ESJ.SubjectId  
+       INNER JOIN RSSOSS.USMC.EventSource ES ON E.EventSourceId = ES.ID  
+       INNER JOIN RSSOSS.USMC.EventType ET ON E.EventTypeId = ET.ID                                              
+        WHERE  
+   (@RecruiterId is null or Exists(SELECT ID FROM [RSSOSS].[USMC].[EventPersonVisibility] AS EV  
+  WHERE E.ID = EV.EventId AND EV.Recrui.ngPersonId = @RecruiterId) OR Exists( 
+         SELECT ID FROM [RSSOSS].[USMC].[EventOwners] eo  
+         WHERE eo.EventID = E.ID AND eo.OwnerID = @RecruiterId)) 
+  AND ((@dateFrom IS NULL OR e.LastUpdateDate >= @dateFrom) AND (@dateTo IS NULL OR e.LastUpdateDate <= @dateTo)) 
+) AS PROSPECTS 
+ 
+--Contracted dudes 
+ update #myIMOTemp2  
+ set #myIMOTemp2.Sector = isnull(ms.sectordesignator, c.sector) 
+ from #myIMOTemp2   
+ inner join mcriss.dbo.nwa n on #myIMOTemp2.Addi.onalGuid = n.rowguid 
+ inner join MCRISS.dbo.[CONTRACT] c on n.NWA_ID = c.nwa_id le. join RSSOSS.USMC.MapsSector ms on c.SectorID = ms.sectorid 
+  
+ --Recrui.ng Person sectors 
+ update #myIMOTemp2 
+ set #myIMOTemp2.Sector = (select top 1 ms.sectordesignator from RSSOSS.USMC.MapsSectorZip msz   
+  inner join RSSOSS.USMC.MapsSector ms on ms.sectorid = msz.sectorid  
+  inner join RSSOSS.USMC.MapsSectorRecruiter msr on msz.sectorid = msr.sectorid   
+  INNER JOIN USMC.Prospect P ON #myIMOTemp2.PrimaryGuid = P.ProspectId 
+  INNER JOIN USMC.PersonAddress PA ON P.PersonId = PA.PersonId 
+  WHERE msr.recrui.ngpersonid = @RecruiterID AND ms.recrui.ngorganiza.onid = @RECRUITING_ORG_ID  and msz.zip = PA.ZipCode AND PA.PersonAddressTypeId = 1 
+  order by ms.LastUpdateDate desc) 
+  WHERE #myIMOTemp2.Sector is null 
+ 
+ --Recrui.ng Person sectors 
+ update #myIMOTemp2 
+ set #myIMOTemp2.Sector = (select top 1 ms.sectordesignator from  RSSOSS.USMC.MapsSectorZip msz 
+  inner join RSSOSS.USMC.MapsSector ms on ms.sectorid = msz.sectorid  
+  INNER JOIN USMC.Prospect P ON #myIMOTemp2.PrimaryGuid = P.ProspectId 
+  INNER JOIN USMC.PersonAddress PA ON P.PersonId = PA.PersonId 
+  where ms.recrui.ngorganiza.onid = @RECRUITING_ORG_ID and msz.zip = PA.ZIPCODE 
+  order by ms.LastUpdateDate desc) 
+  WHERE #myIMOTemp2.Sector is null 
+ 
+ update #myIMOTemp2 
+ set Sector = 'OA' 
+ Where Sector is null; 
+   
+INSERT INTO #myIMOTemp ([ID], [Name] , CardType , LastUpdateDate, Sector, Addi.onalGuid , PrimaryGuid ,[Year] ,[Type]) 
+ 
+SELECT ID, Name, CardType, LastUpdateDate, Sector, Addi.onalGuid, PrimaryGuid, Year, Type FROM #myIMOTemp2  
+ 
+UNION 
+-- GET POOL CARD AND MCRD CARD DATA 
+SELECT              E.ID AS ID,  
+                      ESJ.SubjectName AS Name,  
+                      ES.Name AS CardType,  
+                      E.LastUpdateDate,  
+       isnull(ms.sectordesignator, c.sector) as Sector, 
+                      n.rowguid AS Addi.onalGuid,  
+                      ESJ.SubjectId AS PrimaryGuid, 
+                      0 as [Year], 
+                      'EV' as [Type]       
+FROM         [MCRISS].[dbo].[NWA] n 
+             INNER JOIN MCRISS.dbo.RECRUITING_ORGANIZATION RO ON RO.ORGANIZATION_ID = @OrgID 
+       INNER JOIN RSSOSS.USMC.Event E ON E.Organiza.onId = RO.ORGANIZATION_ID 
+       INNER JOIN RSSOSS.USMC.EventSubject ESJ ON ESJ.EventId = E.ID AND n.rowguid = ESJ.SubjectId  
+       INNER JOIN RSSOSS.USMC.EventSource ES ON E.EventSourceId = ES.ID  
+       INNER JOIN RSSOSS.USMC.EventType ET ON E.EventTypeId = ET.ID    
+       LEFT JOIN MCRISS.dbo.[CONTRACT] c on n.NWA_ID = c.nwa_id  
+       LEFT JOIN RSSOSS.USMC.MapsSector ms on c.SectorID = ms.sectorid 
+                      WHERE  
+   (@RecruiterId is null or Exists(SELECT ID FROM [RSSOSS].[USMC].[EventPersonVisibility] AS EV  
+  WHERE E.ID = EV.EventId AND EV.Recrui.ngPersonId = @RecruiterId) OR Exists( 
+         SELECT ID FROM [RSSOSS].[USMC].[EventOwners] eo  
+         WHERE eo.EventID = E.ID AND eo.OwnerID = @RecruiterId)) 
+         AND ((@dateFrom IS NULL OR e.LastUpdateDate >= @dateFrom) AND (@dateTo IS NULL OR e.LastUpdateDate <= @dateTo))  
+ 
+UNION 
+--  GET LIST SCHEDULING DATA  ---DISTINCT 
+SELECT   
+                         e.Id AS id, 
+                         EventSubject.SubjectName AS Name,  
+                         EventSource.Name AS CardType, 
+                         e.LastUpdateDate,  
+                         MapsSector.SectorDesignator AS Sector,  
+                          null AS Addi.onalGuid, 
+                         ie.ImportEventId AS primaryGuid, 
+                         hsp.SCHOOL_YEAR AS [Year],                         
+                         'EV' as [Type]                   
+FROM            RSSOSS.USMC.MapsSectorZip INNER JOIN 
+                         RSSOSS.USMC.MapsSector ON MapsSectorZip.SectorID = MapsSector.SectorID INNER JOIN 
+                         MCRISS.dbo.HIGH_SCHOOL HS ON MapsSectorZip.Zip = SUBSTRING(HS.ZIP_CODE, 1, 5) INNER JOIN 
+                         MCRISS.dbo.HIGH_SCHOOL_PROFILE AS hsp ON HS.SCHOOL_CODE = hsp.SCHOOL_CODE 
+                         INNER JOIN USMC.ImportEvent ie ON ie.SchoolId = HS.rowguid  and hsp.School_Year = ie.Gradua.onYear 
+                         INNER JOIN RSSOSS.USMC.EventSubject ON ie.ImportEventId = EventSubject.SubjectId INNER JOIN 
+                         RSSOSS.USMC.Event e ON EventSubject.EventId = e.ID INNER JOIN 
+                         RSSOSS.USMC.EventSource ON e.EventSourceId = EventSource.ID 
+                         
+WHERE  
+      E.Organiza.onId = @OrgID 
+     AND (@RecruiterId is null or Exists(SELECT ID FROM [RSSOSS].[USMC].[EventPersonVisibility] AS EV  
+          WHERE (E.ID = EV.EventId) AND EV.Recrui.ngPersonId = @RecruiterId) 
+          OR Exists(Select  ID FROM [RSSOSS].[USMC].[EventOwners] eo  
+    WHERE eo.EventID = E.ID AND eo.OwnerID = @RecruiterId)) 
+  AND ((@dateFrom IS NULL OR e.LastUpdateDate >= @dateFrom) AND (@dateTo IS NULL OR e.LastUpdateDate <= @dateTo)) 
+  UNION 
+ 
+--  GET CONTACT DATA  ---DISTINCT 
+SELECT   
+                         e.Id AS id, 
+                         EventSubject.SubjectName AS Name,  
+                         EventSource.Name AS CardType, 
+                         e.LastUpdateDate,  
+                         MapsSector.SectorDesignator AS Sector,  
+                          null AS Addi.onalGuid, 
+                         cc.ID AS primaryGuid, 
+                         cc.ForFY AS [Year],                         
+                         'EV' as [Type]                   
+FROM            RSSOSS.USMC.MapsSectorZip INNER JOIN 
+                         RSSOSS.USMC.MapsSector ON MapsSectorZip.SectorID = MapsSector.SectorID INNER JOIN 
+                        RSSOSS.USMC.CONTACTCARD cc ON MapsSectorZip.Zip = SUBSTRING(cc.WORK_ZIPCODE, 1, 5) 
+                         INNER JOIN RSSOSS.USMC.EventSubject ON cc.ID = EventSubject.SubjectId INNER JOIN 
+                         RSSOSS.USMC.Event e ON EventSubject.EventId = e.ID INNER JOIN 
+                         RSSOSS.USMC.EventSource ON e.EventSourceId = EventSource.ID 
+ 
+WHERE  
+      E.Organiza.onId = @OrgID 
+     AND (@RecruiterId is null or Exists(SELECT ID FROM [RSSOSS].[USMC].[EventPersonVisibility] AS EV  
+          WHERE (E.ID = EV.EventId) AND EV.Recrui.ngPersonId = @RecruiterId) 
+          OR Exists(Select  ID FROM [RSSOSS].[USMC].[EventOwners] eo  
+    WHERE eo.EventID = E.ID AND eo.OwnerID = @RecruiterId)) 
+  AND ((@dateFrom IS NULL OR e.LastUpdateDate >= @dateFrom) AND (@dateTo IS NULL OR e.LastUpdateDate <= @dateTo)) 
+  UNION 
+ 
+ 
+ 
+--  GET TAKEONE DATA  ---DISTINCT 
+SELECT   
+                         null AS id, 
+                         'Sector ' + ms.SectorDesignator + ' ' + 'TO ' + tc.FY AS Name,  
+                         'TAKE ONE' AS CardType, 
+                         tr.RestockDate,  
+                         ms.SectorDesignator AS Sector,  
+                         null AS Addi.onalGuid, 
+                         tc.ID AS primaryGuid, 
+                         tc.FY AS [Year],                         
+                         'EV' as [Type]                   
+FROM            RSSOSS.USMC.MapsSector ms INNER JOIN 
+                RSSOSS.USMC.MapsSectorRecruiter mr  ON ms.SectorID = mr.SectorID INNER JOIN 
+                RSSOSS.USMC.TAKEONECARD tc  ON ms.SectorID = tc.SectorID                        
+                INNER JOIN RSSOSS.USMC.MapsSectorRecruiter msr ON tc.SectorID  = msr.SectorID  
+                INNER JOIN  RSSOSS.USMC.TAKEONELOCATION tl on tl.TakeOneCardID = tc.ID 
+                INNER JOIN  RSSOSS.USMC.TAKEONELOCATIONRESTOCK tr on tl.ID = tr.TakeOneLoca.onID 
+                INNER JOIN MCRISS.DBO.RECRUITING_ORGANIZATION ro on ro.rowguid = ms.Recrui.ngOrganiza.onId               
+ 
+WHERE  
+      ro.Organiza.on_Id = @OrgID  
+     AND (@RecruiterId is null or mr.Recrui.ngPersonId = @RecruiterId)   
+  AND ((@dateFrom IS NULL OR tr.RestockDate >= @dateFrom) AND (@dateTo IS NULL OR tr.RestockDate <= @dateTo)) 
+   
+   
+  UNION 
+ 
+--  GET IRT DATA  ---DISTINCT 
+SELECT   
+                         e.Id AS id, 
+                         EventSubject.SubjectName AS Name,  
+                         EventSource.Name AS CardType, 
+                         e.LastUpdateDate,  
+                         ic.Sector,  
+                          null AS Addi.onalGuid, 
+                         ic.IRTCardId AS primaryGuid, 
+                         ic.ForFY AS [Year],                         
+                         'EV' as [Type]                   
+FROM                     RSSOSS.USMC.IRTCARD ic INNER JOIN RSSOSS.USMC.EventSubject  
+                         ON ic.IRTCardId = EventSubject.SubjectId INNER JOIN 
+                         RSSOSS.USMC.Event e ON EventSubject.EventId = e.ID INNER JOIN 
+                         RSSOSS.USMC.EventSource ON e.EventSourceId = EventSource.ID 
+ 
+WHERE  
+      E.Organiza.onId = @OrgID 
+     AND (@RecruiterId is null or Exists(SELECT ID FROM [RSSOSS].[USMC].[EventPersonVisibility] AS EV  
+          WHERE (E.ID = EV.EventId) AND EV.Recrui.ngPersonId = @RecruiterId) 
+          OR Exists(Select  ID FROM [RSSOSS].[USMC].[EventOwners] eo  
+    WHERE eo.EventID = E.ID AND eo.OwnerID = @RecruiterId)) 
+  AND ((@dateFrom IS NULL OR e.LastUpdateDate >= @dateFrom) AND (@dateTo IS NULL OR e.LastUpdateDate <= @dateTo)) 
+   
+   
+UNION 
+ 
+ 
+ 
+--  GET MEDIA DATA  ---DISTINCT 
+SELECT   
+                         e.Id AS id, 
+                         EventSubject.SubjectName AS Name,  
+                         EventSource.Name AS CardType, 
+                         e.LastUpdateDate,  
+                         MapsSector.SectorDesignator AS Sector,  
+                          null AS Addi.onalGuid, 
+                         mc.MediaCardId AS primaryGuid, 
+                         mc.FY AS [Year],                         
+                         'EV' as [Type]                   
+FROM            RSSOSS.USMC.MapsSectorZip INNER JOIN 
+                         RSSOSS.USMC.MapsSector ON MapsSectorZip.SectorID = MapsSector.SectorID INNER JOIN 
+                        RSSOSS.USMC.MEDIACARD mc ON MapsSectorZip.Zip = SUBSTRING(mc.ZIP_CODE, 1, 5) 
+                         INNER JOIN RSSOSS.USMC.EventSubject ON mc.MediaCardId = EventSubject.SubjectId INNER JOIN 
+                         RSSOSS.USMC.Event e ON EventSubject.EventId = e.ID INNER JOIN 
+                         RSSOSS.USMC.EventSource ON e.EventSourceId = EventSource.ID 
+ 
+WHERE  
+      E.Organiza.onId = @OrgID 
+     AND (@RecruiterId is null or Exists(SELECT ID FROM [RSSOSS].[USMC].[EventPersonVisibility] AS EV  
+          WHERE (E.ID = EV.EventId) AND EV.Recrui.ngPersonId = @RecruiterId) 
+          OR Exists(Select  ID FROM [RSSOSS].[USMC].[EventOwners] eo  
+    WHERE eo.EventID = E.ID AND eo.OwnerID = @RecruiterId)) 
+  AND ((@dateFrom IS NULL OR e.LastUpdateDate >= @dateFrom) AND (@dateTo IS NULL OR e.LastUpdateDate <= @dateTo)) 
+   
+ 
+ 
+UNION 
+ 
+--  GET SCHOOL RELATED DATA  ---DISTINCT 
+SELECT   
+                         e.Id AS id, 
+                         EventSubject.SubjectName AS Name,  
+                         EventSource.Name AS CardType, 
+                         e.LastUpdateDate,  
+                         MapsSector.SectorDesignator AS Sector,  
+                          null AS Addi.onalGuid, 
+                         hsp.rowguid AS primaryGuid, 
+                         hsp.SCHOOL_YEAR AS [Year],                         
+                         'EV' as [Type]                   
+FROM            RSSOSS.USMC.MapsSectorZip INNER JOIN 
+                         RSSOSS.USMC.MapsSector ON MapsSectorZip.SectorID = MapsSector.SectorID INNER JOIN 
+                         MCRISS.dbo.HIGH_SCHOOL ON MapsSectorZip.Zip = SUBSTRING(MCRISS.dbo.HIGH_SCHOOL.ZIP_CODE, 1, 5) INNER JOIN 
+                         MCRISS.dbo.HIGH_SCHOOL_PROFILE AS hsp ON MCRISS.dbo.HIGH_SCHOOL.SCHOOL_CODE = hsp.SCHOOL_CODE INNER JOIN 
+                         RSSOSS.USMC.EventSubject ON hsp.rowguid = EventSubject.SubjectId INNER JOIN 
+                         RSSOSS.USMC.Event e ON EventSubject.EventId = e.ID INNER JOIN 
+                         RSSOSS.USMC.EventSource ON e.EventSourceId = EventSource.ID 
+ 
+WHERE  
+      E.Organiza.onId = @OrgID 
+     AND (@RecruiterId is null or Exists(SELECT ID FROM [RSSOSS].[USMC].[EventPersonVisibility] AS EV  
+          WHERE (E.ID = EV.EventId) AND EV.Recrui.ngPersonId = @RecruiterId) 
+          OR Exists(Select  ID FROM [RSSOSS].[USMC].[EventOwners] eo  
+    WHERE eo.EventID = E.ID AND eo.OwnerID = @RecruiterId)) 
+  AND ((@dateFrom IS NULL OR e.LastUpdateDate >= @dateFrom) AND (@dateTo IS NULL OR e.LastUpdateDate <= @dateTo)); 
+   
+--update #myIMOTemp Set Sector = 'OA' where Sector is null 
+  
+---  GET THE AGGREGATED DATA ---DISTINCT 
+SELECT        ID, Name, CardType, LastUpdateDate, Sector, Addi.onalGuid, PrimaryGuid, Year, Type 
+FROM            [#myIMOTemp]  
+GROUP BY ID, Name, CardType, LastUpdateDate, Sector, Addi.onalGuid, PrimaryGuid, Year, Type 
+ 
+--/*---  FINISHED WITH TEMP TABLE  --- 
+DROP TABLE #myIMOTemp 
+DROP TABLE #myIMOTemp2 
+ 
+--*/ 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

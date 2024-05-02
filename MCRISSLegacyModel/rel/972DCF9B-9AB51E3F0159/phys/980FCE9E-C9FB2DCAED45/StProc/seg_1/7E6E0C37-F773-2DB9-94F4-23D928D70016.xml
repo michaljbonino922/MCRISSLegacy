@@ -1,0 +1,36 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetBudgetEvents]" directorySegmentName="seg_1" id="7E6E0C37-F773-2DB9-94F4-23D928D70016">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@StartDate    date.me, 
+ @EndDate    date.me, 
+ @Organiza.onId   int 
+ 
+AS 
+BEGIN 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+ SELECT E.ID, 
+  E.EventSourceId,  
+  E.EventTypeId, 
+  E.Comments, 
+  E.Budgeted, 
+  E.Spent, 
+  E.StartDate, 
+  ET.Type 
+FROM [RSSOSS].[USMC].[vwBudgetEvents] E 
+      INNER JOIN [RSSOSS].[USMC].[EventType] ET ON E.EventTypeId = ET.ID 
+WHERE (@Organiza.onId = 0 or (E.Organiza.onId = @Organiza.onId)) and 
+   ((@StartDate is null AND @EndDate is null) or 
+       (E.StartDate BETWEEN @StartDate AND @EndDate) or 
+    (E.EndDate BETWEEN @StartDate AND @EndDate) or 
+    (E.StartDate < @StartDate and E.EndDate > @EndDate)) 
+ORDER BY E.StartDate desc 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

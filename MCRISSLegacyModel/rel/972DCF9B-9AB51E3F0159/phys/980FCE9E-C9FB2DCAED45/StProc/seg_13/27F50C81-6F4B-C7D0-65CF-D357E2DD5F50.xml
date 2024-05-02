@@ -1,0 +1,51 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SP_CHECK_186]" directorySegmentName="seg_13" id="27F50C81-6F4B-C7D0-65CF-D357E2DD5F50">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[as 
+ 
+declare  
+@ssn   varchar(10), 
+@date_ship  varchar(8), 
+@last_updt  varchar(8), 
+@con.rm  char(1) 
+ 
+declare check_date cursor for 
+ 
+select SOCIAL_SECURITY_NUMBER, 
+  substring(DATE_SHIP,2,8), 
+ LAST_UPDATE_DATE 
+ 
+from arms..ARMS186 
+ 
+open check_date 
+ 
+fetch check_date into 
+ @ssn, @date_ship,@last_updt 
+ 
+while(@@fetch_status = 0) 
+ 
+ begin --.rst begin 
+  
+ exec SP_CHECK_DATE_8 @date_ship, @con.rm output 
+ if @con.rm = 'N' 
+ begin 
+ insert ERRORS_186 
+ (SSN, LAST_UPDATE_DATE, ERROR_DATA, ERROR_TYPE) values 
+ (@ssn,@last_updt, @date_ship, 'Bad DATE_SHIP') 
+ end 
+ 
+ 
+fetch check_date into 
+ @ssn, @date_ship,@last_updt 
+ 
+ 
+ end--all done  
+ 
+close check_date 
+deallocate check_date]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

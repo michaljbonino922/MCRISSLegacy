@@ -1,0 +1,17 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetLeaveOfAbsenceReasons]" directorySegmentName="seg_17" id="69F44408-3A3D-E4BF-AC1F-CEEDA4A23886">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[AS  
+ 
+SELECT  
+ LOA_REASON_ID, LOA_REASON 
+FROM  
+ LEAVE_OF_ABSENCE_REASON 
+ORDER BY 
+ LOA_REASON_ID]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,48 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateMedicalStatusWaiversDates]" directorySegmentName="seg_25" id="FA46B39D-89C1-5C3E-FA6F-6BD1143F2400">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@NWAID int, 
+ @AnnualCert1 date.me, 
+ @AnnualCert2 date.me, 
+ @AnnualCert3 date.me, 
+ @AnnualCert4 date.me, 
+ @HIVDate date.me, 
+ @PAPDate date.me, 
+ @FlightPEDate date.me, 
+ @DatePlacedNOE date.me, 
+ @DateReleasedNOE date.me, 
+ @UserLogin varchar(15) 
+AS 
+ 
+IF EXISTS (SELECT 1 FROM MEDICAL_STATUS_WAIVERS_DATES WHERE NWA_ID = @NWAID) 
+BEGIN 
+ UPDATE 
+  [MEDICAL_STATUS_WAIVERS_DATES] 
+ SET 
+  [ANNUAL_CERT_1] = @AnnualCert1, 
+  [ANNUAL_CERT_2] = @AnnualCert2, 
+  [ANNUAL_CERT_3] = @AnnualCert3, 
+  [ANNUAL_CERT_4] = @AnnualCert4, 
+  [HIV_DATE] = @HIVDate, 
+  [PAP_DATE] = @PAPDate, 
+  [FLIGHT_PE_DATE] = @FlightPEDate, 
+  [DATE_PLACED_NOE] = @DatePlacedNOE, 
+  [DATE_RELEASED_NOE] = @DateReleasedNOE, 
+  [USER_LOGIN] = @UserLogin, 
+  [UPDATE_DATE] = getdate() 
+ WHERE 
+  [NWA_ID] = @NWAID 
+END 
+ELSE 
+BEGIN 
+ INSERT INTO 
+  [MEDICAL_STATUS_WAIVERS_DATES] ([NWA_ID], [ANNUAL_CERT_1], [ANNUAL_CERT_2], [ANNUAL_CERT_3], [ANNUAL_CERT_4], [HIV_DATE], [PAP_DATE], [FLIGHT_PE_DATE], [DATE_PLACED_NOE], [DATE_RELEASED_NOE], [USER_LOGIN], [UPDATE_DATE]) 
+ VALUES 
+  (@NWAID, @AnnualCert1, @AnnualCert2, @AnnualCert3, @AnnualCert4, @HIVDate, @PAPDate, @FlightPEDate, @DatePlacedNOE, @DateReleasedNOE, @UserLogin, getdate()) 
+END]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

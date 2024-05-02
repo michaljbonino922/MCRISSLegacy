@@ -1,0 +1,23 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetMepsOrganiza.on]" directorySegmentName="seg_13" id="57C6A3CE-689A-1237-DA25-BE2CBF93BAA1">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[AS 
+BEGIN 
+   
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+SELECT  
+ MEPS_ORGANIZATION_ID, COALESCE(MEPS_NAME, SPACE(0)) + COALESCE(' - (' + STATE_CODE + ')', SPACE(0)) AS MEPS_NAME 
+FROM  
+ MCRISS.dbo.MEPS_ORGANIZATION_LOOKUP 
+WHERE ISOPEN = 'Y'   
+ORDER BY  
+ MEPS_NAME 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

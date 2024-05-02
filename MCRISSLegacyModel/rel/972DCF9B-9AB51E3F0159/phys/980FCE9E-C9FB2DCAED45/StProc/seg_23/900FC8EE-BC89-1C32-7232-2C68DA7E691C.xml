@@ -1,0 +1,88 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_ToolboxUpdateContract]" directorySegmentName="seg_23" id="900FC8EE-BC89-1C32-7232-2C68DA7E691C">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@ContractID int, 
+ @NWAID int, 
+ @ContractBeginDate date.me, 
+ @ComponentCode varchar(2), 
+ @TermOfEnlistment int = 4, 
+ @ProjectedShipDate date.me, 
+ @ProjectedTrainingOrgID int, 
+ @PayGradeCode varchar(3) = null, 
+ @Induc.onStatusCode char(1) = null, 
+ @SourceOfEntryCode varchar(4) = null, 
+ @YouthProgramCode varchar(3) = null, 
+        @ENTNACSubmitDate date.me = null, 
+ @ENTNACCompleteDate date.me = null, 
+ @SpecialInterest varchar(15) = null, 
+ @DischargeDate date.me = null, 
+ @DischargeCode varchar(4) = null, 
+ @CategoryP char(1) = null, 
+ @DutyPref1 varchar(10) = null, 
+ @DutyPref2 varchar(10) = null, 
+ @DutyPref3 varchar(10) = null, 
+ @MCROC varchar(20) = null, 
+ @ISTDate date.me = null, 
+ @ISTPullUps int = null, 
+ @ISTHang int = null, 
+ @ISTCrunches int = null, 
+ @ISTMinutes int = null, 
+ @ISTResult varchar(1) = null, 
+ @ISTSeconds int = null, 
+ @OrdersAddressType char(1) = null, 
+ @ISTHeight int = null, 
+ @ISTWeight int = null, 
+ @ContractGPA .oat = null, 
+ @DEPExt int = null, 
+ @MissingDocs varchar(250) = null, 
+ @UserLogin varchar(15) 
+AS 
+  
+IF EXISTS (SELECT 1 FROM CONTRACT WHERE CONTRACT_ID = @ContractID) 
+ BEGIN 
+ 
+ UPDATE  CONTRACT 
+ SET  NWA_ID = @NWAID, 
+  CONTRACT_BEGIN_DATE = @ContractBeginDate, 
+  COMPONENT_CODE = @ComponentCode, 
+  TERM_OF_ENLISTMENT = @TermOfEnlistment, 
+  PROJECTED_SHIP_DATE = @ProjectedShipDate, 
+  PROJECTED_TRAINING_ORG_ID = @ProjectedTrainingOrgID, 
+  PAY_GRADE_CODE = @PayGradeCode, 
+  INDUCTION_STATUS_CODE = @Induc.onStatusCode, 
+  SOURCE_OF_ENTRY_CODE = @SourceOfEntryCode, 
+  YOUTH_PROGRAM_CODE = @YouthProgramCode, 
+  ENTNAC_SUBMIT_DATE = @ENTNACSubmitDate, 
+  ENTNAC_COMPLETE_DATE = @ENTNACCompleteDate, 
+  SPECIAL_INTEREST = @SpecialInterest, 
+  DISCHARGE_DATE = @DischargeDate, 
+  DISCHARGE_CODE = @DischargeCode, 
+  CATEGORY_P = @CategoryP, 
+  DUTY_PREFERENCE1 = @DutyPref1, 
+  DUTY_PREFERENCE2 = @DutyPref2, 
+  DUTY_PREFERENCE3 = @DutyPref3, 
+  MCROC = @MCROC, 
+  IST_DATE = @ISTDate, 
+  IST_PULL_UPS = @ISTPullUps, 
+  IST_HANG = @ISTHang, 
+  IST_CRUNCHES = @ISTCrunches, 
+  IST_MINUTES = @ISTMinutes, 
+  IST_RESULT = @ISTResult, 
+  IST_SECONDS = @ISTSeconds, 
+  ORDERS_ADDRESS_TYPE = @OrdersAddressType, 
+  IST_HEIGHT = @ISTHeight, 
+  IST_WEIGHT = @ISTWeight, 
+  CONTRACT_GPA = @ContractGPA, 
+  DEP_EXTENSION = @DEPEXt, 
+  MISSING_DOCS = @MissingDocs, 
+  USER_LOGIN = @UserLogin, 
+  UPDATE_DATE = GetDate() 
+ WHERE  CONTRACT_ID = @ContractID 
+ 
+ END]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

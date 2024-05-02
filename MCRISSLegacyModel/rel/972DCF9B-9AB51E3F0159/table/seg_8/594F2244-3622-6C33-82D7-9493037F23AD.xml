@@ -1,0 +1,147 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_8" id="594F2244-3622-6C33-82D7-9493037F23AD" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="MapsSectorRecruiter">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>153200E7-3399-8497-3988-FD6023981EDB</importedID>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="SectorRecruiterId" id="36171CDF-03D5-E485-EC3C-0C78F9E486EA">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:01 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>1255F2F0-7688-413D-0743-4C7C29A7367D</importedID>
+<use>0</use>
+<domain>5B1C7CF5-EF3B-C5B8-1E76-224B54D9B1CB</domain>
+<usesDefaultValue>true</usesDefaultValue>
+<defaultValue>(newid())</defaultValue>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="SectorID" id="AF665E7F-A27D-A32A-089F-98768FD2CA5D">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>55123851-CF3D-025A-4762-AA16AF83549C</importedID>
+<use>0</use>
+<domain>5B1C7CF5-EF3B-C5B8-1E76-224B54D9B1CB</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="5F846DFE-7EAE-1FD2-9DB5-39FBB4907FCA" referredColumn="FA06B8C1-8FF7-3E0E-CE2B-7A0606B2FFF2"/>
+</associations>
+</Column>
+<Column name="Recrui.ngPersonId" id="4AD095D5-FB38-462F-A254-7ACD90BE46E2">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>C631C7ED-6DD5-3F74-8B5E-1A3069370F94</importedID>
+<use>0</use>
+<domain>5B1C7CF5-EF3B-C5B8-1E76-224B54D9B1CB</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="LastUpdateDate" id="803C787D-1495-074C-163B-FBC39FFC9255">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>7EDF349A-0B8C-2DC2-BB9B-AEF81D67671E</importedID>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="LastUpdateUserId" id="0D4ED5B6-A5AE-5D66-AC65-2D803B473D8A">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>6F65A4E0-5DBC-E72E-BC3F-45CC4D5C49A3</importedID>
+<use>0</use>
+<domain>5B1C7CF5-EF3B-C5B8-1E76-224B54D9B1CB</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="F8348C13-DBF4-0FE4-06E9-EC5ED0DBA707" name="PK_MapsSectorRecruiter">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>74FC1F17-533B-A862-21A7-DFA8C60531E2</importedID>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="36171CDF-03D5-E485-EC3C-0C78F9E486EA"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="9AF89CE1-3C64-8785-82B2-21B60EF5F929" name="ngPersonId]v2">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>F9DABE9C-9F48-63B7-0C3B-CAFA3A47FEF2</importedID>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="4AD095D5-FB38-462F-A254-7ACD90BE46E2"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="846C901E-6568-65A9-6323-F161BE105AA5" name="IX_MapsSectorRecruiter_508_PJ">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>7B968716-C006-EC0F-1785-182E881B62BC</importedID>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="AF665E7F-A27D-A32A-089F-98768FD2CA5D"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="8975A3FA-EE78-526E-71E7-0E5ACE194814" name="ngPersonID_PJ]">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>1E24E55E-B2B5-34C0-ABDC-B8FC19FD87E1</importedID>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="4AD095D5-FB38-462F-A254-7ACD90BE46E2"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="79770D46-3F7E-0DFC-209D-81176D63C8E9" name="FK_MapsSectorRecruiter_MapsSector">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="AF665E7F-A27D-A32A-089F-98768FD2CA5D"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+<tableCheckConstraints itemClass="oracle.dbtools.crest.model.design.constraint.TableLevelConstraint">
+<tableCheckConstraint name="[USMC].[MapsSectorRecruiter]" directorySegmentName="seg_4" id="17A0F8F1-3C18-CC11-F170-BAF340B6E5B2">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>0FDBBB85-57A9-884A-2666-9B6F4BF01B7F</importedID>
+<rule><![CDATA[CONSTRAINT [FK_MapsSectorRecruiter_MapsSector]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITH" directorySegmentName="seg_4" id="F0B26C09-A55B-9EC3-2831-0C60557FAAE3">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>DB3C54FC-BA76-E5B4-F411-C76473A55123</importedID>
+</tableCheckConstraint>
+</tableCheckConstraints>
+</Table>

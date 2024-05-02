@@ -1,0 +1,46 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertProgramPeriod]" directorySegmentName="seg_11" id="55C11686-F062-20DD-792F-1288EA0AD54F">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@PeriodCode int, 
+ @FY  int, 
+ @BeginDate date.me, 
+ @EndDate date.me, 
+ @LastEditBy varchar(15) 
+AS 
+ 
+SET NOCOUNT ON 
+ 
+DECLARE @DBID  INT 
+DECLARE @DBNAME NVARCHAR(128) 
+DECLARE @ERRMSG VARCHAR(200) 
+ 
+SET @DBID  = DB_ID()  
+SET @DBNAME  = DB_NAME() 
+ 
+IF EXISTS (SELECT PROGRAM_PERIOD_ID FROM [dbo].[PROGRAM_PERIOD] WHERE FY = @FY AND PERIOD_CODE = @PeriodCode) 
+ BEGIN 
+ ---  Raise Error and return 
+ SET @ERRMSG = 'A program alloca.on plan already exists for FY ' + CONVERT(VARCHAR, @FY) + '.' 
+ RAISERROR (@ERRMSG, 16, 1, @DBID, @DBNAME) 
+ RETURN 
+ END  
+ 
+IF EXISTS (SELECT PROGRAM_PERIOD_ID FROM [dbo].[PROGRAM_PERIOD] WHERE FY = @FY AND DATEDIFF(DAY, END_DATE, @EndDate) <= 0) 
+ BEGIN 
+ ---  Raise Error and return 
+ SET @ERRMSG = 'The periods in the FY program alloca.on plan can not overlap.  Please adjust the End Date for Period ' + CONVERT(VARCHAR, @PeriodCode) + '.' 
+ RAISERROR (@ERRMSG, 16, 2, @DBID, @DBNAME) 
+ RETURN 
+ END  
+  
+--- OTHERWISE PROCEED WITH INSERT 
+INSERT INTO [dbo].[PROGRAM_PERIOD]  
+ (PERIOD_CODE, FY, BEGIN_DATE, END_DATE, USER_LOGIN, UPDATE_DATE) 
+VALUES  
+ (@PeriodCode, @FY, @BeginDate, @EndDate, @LastEditBy, GETDATE())]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

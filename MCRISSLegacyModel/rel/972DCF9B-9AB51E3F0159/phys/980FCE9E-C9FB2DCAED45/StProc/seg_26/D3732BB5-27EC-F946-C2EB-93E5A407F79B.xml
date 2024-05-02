@@ -1,0 +1,28 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SPUPDPERSONTBL]" directorySegmentName="seg_26" id="D3732BB5-27EC-F946-C2EB-93E5A407F79B">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@person_id      int, 
+@su.cd         varchar(5), 
+@ssn            varchar(9), 
+@l.rst         varchar(20), 
+@lmiddle        varchar(20), 
+@llast          varchar(20), 
+@user_login varchar(15), 
+@update_date date.me 
+as 
+ 
+  update mcriss..PERSON 
+   set SUFFIX_CD = @su.cd, 
+       SOCIAL_SECURITY_NUMBER = @ssn, 
+       FIRST_NAME = @l.rst, 
+       LEGAL_MIDDLE_NAME = @lmiddle, 
+       LAST_NAME = @llast, 
+ USER_LOGIN = @user_login, 
+ UPDATE_DATE = @update_date 
+   where PERSON_ID = @person_id]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

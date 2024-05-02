@@ -1,0 +1,36 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_rptRecruiterHistoryReport]" directorySegmentName="seg_23" id="C830A581-E8D8-DA63-15C6-5C50B5F8ABB9">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@ssn as char(9) 
+AS 
+ 
+SELECT     TOP 1 PERSON.PERSON_ID,  
+  PERSON.SOCIAL_SECURITY_NUMBER,  
+  PERSON.LAST_NAME,  
+  PERSON.FIRST_NAME,  
+  PERSON.LEGAL_MIDDLE_NAME,  
+  MARINE.BILLET_MOS,  
+  MARINE.PRIMARY_MOS,  
+  RECRUITING_PERSON.RANK_CODE,  
+  RECRUITING_PERSON.TOUR_BEGIN_DATE,  
+  (SELECT TOP 1 on_produc.on from produc.on_status_history where person_id = PERSON.PERSON_ID order by update_date desc)as prodstatus, 
+  RECRUITING_PERSON.ON_PRODUCTION,  
+  RECRUITING_PERSON.BILLET_BEGIN_DATE, 
+  RECRUITING_ROLE.SHORT_DESCRIPTION as CurrentBillet,  
+  RECRUITING_ORGANIZATION.SHORT_NAME as RS 
+FROM         RECRUITING_PERSON LEFT OUTER JOIN 
+                      RECRUITING_ROLE ON RECRUITING_PERSON.RECRUITING_ROLE_ID = RECRUITING_ROLE.RECRUITING_ROLE_ID  
+  LEFT OUTER JOIN RECRUITING_ORGANIZATION ON  
+                       RECRUITING_PERSON.ORGANIZATION_ID = RECRUITING_ORGANIZATION.ORGANIZATION_ID  
+  RIGHT OUTER JOIN MARINE ON  
+   RECRUITING_PERSON.RECRUITING_PERSON_ID = MARINE.MARINE_ID  
+  RIGHT OUTER JOIN PERSON ON  
+   MARINE.MARINE_ID = PERSON.PERSON_ID AND MARINE.MARINE_ID = PERSON.PERSON_ID 
+   
+WHERE     (PERSON.SOCIAL_SECURITY_NUMBER = @ssn)]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,65 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_3" id="4BB45836-30B9-10D9-70B5-E1C8490AD862" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="_dta_mv_306">
+<sourceDDLFile>create Prospecting script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>E33B144A-FFCE-2815-7596-30FD28F119D8</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  [USMC].[ProspectComment].[ProspectId] as _col_1,  [USMC].[ProspectAc.vityComment].[ProspectCommentTypeId] as _col_2,  [USMC].[ProspectComment].[ProspectCommentId] as _col_3,  count_big(*) as _col_4 FROM  [USMC].[ProspectComment],  [USMC].[ProspectAc.vityComment]   WHERE  [USMC].[ProspectAc.vityComment].[Ac.vity] = 'HV'  AND  [USMC].[ProspectComment].[ProspectAc.vityCommentId] = [USMC].[ProspectAc.vityComment].[ProspectAc.vityCommentId]  GROUP BY  [USMC].[ProspectComment].[ProspectId],  [USMC].[ProspectAc.vityComment].[ProspectCommentTypeId],  [USMC].[ProspectComment].[ProspectCommentId]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[ProspectId]" id="07CEFC74-81AC-9630-557E-980752AB9203">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_1</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_1</headerAlias>
+<expression>[ProspectId]</expression>
+<reference>false</reference>
+<viewID>4BB45836-30B9-10D9-70B5-E1C8490AD862</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="vityComment].[ProspectCommentTypeId]" id="B84F1E52-158F-4B44-452B-D10D5F8B8DA9">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_2</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_2</headerAlias>
+<expression>vityComment].[ProspectCommentTypeId]</expression>
+<reference>false</reference>
+<viewID>4BB45836-30B9-10D9-70B5-E1C8490AD862</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[ProspectCommentId]" id="6854A012-A115-FD4C-E22D-76A5B22658D6">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_3</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_3</headerAlias>
+<expression>[ProspectCommentId]</expression>
+<reference>false</reference>
+<viewID>4BB45836-30B9-10D9-70B5-E1C8490AD862</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="count_big(*)" id="394AEB30-CA73-F5D4-333D-2FA2C74842E5">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_4</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_4</headerAlias>
+<expression>count_big(*)</expression>
+<reference>false</reference>
+<viewID>4BB45836-30B9-10D9-70B5-E1C8490AD862</viewID>
+</viewElement>
+</viewElements>
+</TableView>

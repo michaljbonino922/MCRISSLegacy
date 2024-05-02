@@ -1,0 +1,179 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetXmlOso369MonthEval]" directorySegmentName="seg_6" id="D676543B-EB4A-1401-F8CB-0A8FF78EAA92">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@SelectedIDs xml  
+ 
+AS 
+BEGIN 
+  
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+     
+    declare @isToUseTrainingFileID bit; 
+  
+ IF @SelectedIDs IS NOT null 
+ BEGIN 
+       
+     SET @isToUseTrainingFileID = @SelectedIDs.exist('/IDs/TrainingFileID') 
+ 
+  if @isToUseTrainingFileID = 0 -- sign a few eval tasks only  
+  BEGIN 
+   DECLARE @IDTable TABLE (ID uniqueidentifier) 
+    
+   INSERT INTO @IDTable (ID) 
+   SELECT ParamValues.ID.value('.','VARCHAR(36)') 
+   FROM @SelectedIDs.nodes('IDs/ID') as ParamValues(ID) 
+    
+   SELECT  
+      et.ID 
+     ,Mul.MonthEvalua.onId 
+     ,Evalua.onTaskGroupID 
+     ,et.Title 
+     ,Designa.on 
+     ,Reference 
+     ,FirstMonthValue 
+     ,SecondMonthValue 
+     ,ThirdMonthValue 
+     ,DateCer..ed 
+     ,NCOICSignatureID   
+     ,RecruiterSignatureID 
+     ,RISignatureID 
+     ,LastUpdatedDate 
+     ,LastUpdatedBy 
+     ,EvalSignatureID AS 'EvalSignature/SignatureID' 
+              ,U1.FirstName AS 'EvalSignature/SignatureFirstName'  
+     ,U1.MiddleName AS 'EvalSignature/SignatureMiddleName'  
+     ,U1.LastName AS 'EvalSignature/SignatureLastName'  
+     ,OSOSignatureID AS 'OSOSignature/SignatureID'  
+              ,U2.FirstName AS 'OSOSignature/SignatureFirstName'  
+     ,U2.MiddleName AS 'OSOSignature/SignatureMiddleName'  
+     ,U2.LastName AS 'OSOSignature/SignatureLastName'  
+   FROM USMC.Evalua.onTask et 
+   LEFT OUTER JOIN USMC.vwMcrissUserMgmtUser AS U1 ON U1.UserID = et.EvalSignatureID 
+   LEFT OUTER JOIN USMC.vwMcrissUserMgmtUser AS U2 ON U2.UserID = et.OSOSignatureID 
+   WHERE et.ID IN (SELECT * FROM @IDTable) 
+   ORDER BY le.(et.Designa.on,1) desc, et.Designa.on, .tle 
+   FOR XML PATH('Evalua.onTask'), root('MonthEval-OSO-369-Evalua.onTasks'), ELEMENTS XSINIL 
+  END 
+  ELSE  -- trainingFileID is provided. whole eval is being signed 
+  BEGIN  
+   DECLARE @TrainingFileIDTable TABLE (ID uniqueidentifier) 
+    
+   INSERT INTO @TrainingFileIDTable (ID) 
+   SELECT ParamValues.ID.value('.','VARCHAR(36)') 
+   FROM @SelectedIDs.nodes('IDs/TrainingFileID') as ParamValues(ID) 
+    
+            SELECT mme.ID 
+   ,Evalua.onTypeID 
+   ,et.Name AS EvalTypeName 
+   ,TrainingFileID 
+   ,Es.matedDate 
+   ,CompletedDate 
+   ,LastUpdatedDate 
+   ,LastUpdatedBy 
+   ,Remarks 
+   ,SentToDistrictDate 
+   ,SentToDistrictSignature 
+   ,RsCoSignature AS 'RsCoSignature/SignatureID' 
+            ,U11.FirstName AS 'RsCoSignature/SignatureFirstName'  
+   ,U11.MiddleName AS 'RsCoSignature/SignatureMiddleName'  
+   ,U11.LastName AS 'RsCoSignature/SignatureLastName' 
+   ,RsCoSignDate 
+   ,AopSignature AS 'AopSignature/SignatureID' 
+            ,U22.FirstName AS 'AopSignature/SignatureFirstName'  
+   ,U22.MiddleName AS 'AopSignature/SignatureMiddleName'  
+   ,U22.LastName AS 'AopSignature/SignatureLastName' 
+   ,AopSignDate 
+   ,OsoSignature AS 'OsoSignature/SignatureID' 
+            ,U33.FirstName AS 'OsoSignature/SignatureFirstName'  
+   ,U33.MiddleName AS 'OsoSignature/SignatureMiddleName'  
+   ,U33.LastName AS 'OsoSignature/SignatureLastName' 
+   ,OsoSignDate 
+    
+   ,(SELECT ev.ID 
+   ,Mul.MonthEvalua.onID 
+   ,MonthIncrement 
+   ,Remarks 
+   ,Es.matedDate 
+   ,ReviewBy AS 'ReviewBySignature/SignatureID' 
+   ,U1.FirstName AS 'ReviewBySignature/SignatureFirstName'  
+   ,U1.MiddleName AS 'ReviewBySignature/SignatureMiddleName'  
+   ,U1.LastName AS 'ReviewBySignature/SignatureLastName'  
+   ,ReviewByDate 
+   ,LastUpdatedDate 
+   ,LastUpdatedBy 
+   FROM USMC.MonthEvalua.on ev 
+   LEFT OUTER JOIN USMC.vwMcrissUserMgmtUser AS U1 ON U1.UserID = ev.ReviewBy 
+   WHERE ev.Mul.MonthEvalua.onID = mme.ID 
+   ORDER BY MonthIncrement 
+   FOR XML PATH('MonthlyEvalua.on'), TYPE, ELEMENTS XSINIL 
+   ) AS MonthlyEvalua.ons 
+    
+   ,(SELECT  
+      et.ID 
+     ,Mul.MonthEvalua.onId 
+     ,Evalua.onTaskGroupID 
+     ,et.Title 
+     ,Designa.on 
+     ,Reference 
+     ,FirstMonthValue 
+     ,SecondMonthValue 
+     ,ThirdMonthValue 
+     ,DateCer..ed 
+     ,NCOICSignatureID   
+     ,RecruiterSignatureID 
+     ,RISignatureID 
+     ,LastUpdatedDate 
+     ,LastUpdatedBy 
+     ,EvalSignatureID AS 'EvalSignature/SignatureID' 
+              ,U1.FirstName AS 'EvalSignature/SignatureFirstName'  
+     ,U1.MiddleName AS 'EvalSignature/SignatureMiddleName'  
+     ,U1.LastName AS 'EvalSignature/SignatureLastName'  
+     ,OSOSignatureID AS 'OSOSignature/SignatureID'  
+              ,U2.FirstName AS 'OSOSignature/SignatureFirstName'  
+     ,U2.MiddleName AS 'OSOSignature/SignatureMiddleName'  
+     ,U2.LastName AS 'OSOSignature/SignatureLastName'  
+   FROM USMC.Evalua.onTask et 
+   LEFT OUTER JOIN USMC.vwMcrissUserMgmtUser AS U1 ON U1.UserID = et.EvalSignatureID 
+   LEFT OUTER JOIN USMC.vwMcrissUserMgmtUser AS U2 ON U2.UserID = et.OSOSignatureID 
+   WHERE et.Mul.MonthEvalua.onId=mme.ID 
+   ORDER BY le.(et.Designa.on,1) desc, et.Designa.on, .tle 
+   FOR XML PATH('Evalua.onTask'), TYPE, ELEMENTS XSINIL 
+   ) AS Evalua.onTasks 
+             
+            ,(SELECT eckl.ID 
+     ,Mul.MonthEvalua.onId 
+     ,Title 
+     ,Designa.on 
+     ,FirstMonthValue 
+     ,SecondMonthValue 
+     ,ThirdMonthValue 
+     ,DateCer..ed 
+     ,LastUpdatedDate 
+     ,LastUpdatedBy 
+        FROM USMC.Evalua.onChecklist eckl 
+              WHERE eckl.Mul.MonthEvalua.onId=mme.ID 
+              ORDER BY Le.(eckl.Designa.on,2), cast (substring(eckl.Designa.on, 4, len(eckl.Designa.on)-3) as int) 
+              FOR XML PATH('Evalua.onChecklist'), TYPE, ELEMENTS XSINIL 
+            ) AS Evalua.onChecklists  
+             
+    FROM USMC.Mul.MonthEvalua.on mme 
+   INNER JOIN USMC.Evalua.onType et ON mme.Evalua.onTypeID=et.ID 
+            LEFT OUTER JOIN USMC.vwMcrissUserMgmtUser AS U11 ON U11.UserID = mme.RsCoSignature 
+            LEFT OUTER JOIN USMC.vwMcrissUserMgmtUser AS U22 ON U22.UserID = mme.AopSignature 
+            LEFT OUTER JOIN USMC.vwMcrissUserMgmtUser AS U33 ON U33.UserID = mme.OsoSignature 
+   WHERE 
+   TrainingFileID IN (SELECT * FROM @TrainingFileIDTable) 
+ 
+   FOR XML PATH ('MonthEval-OSO-369'), root('MonthEval-OSO-369s'), ELEMENTS XSINIL    
+    
+  END  
+ END 
+  
+  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

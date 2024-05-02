@@ -1,0 +1,85 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_8" id="20D49822-8E4A-7E9D-ABA0-09382C2CA833" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="MapsMapRoute">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:54 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>0FC8DEF4-7B0E-BF6C-7B75-364091521697</importedID>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="RouteId" id="B710435D-BC27-2D4C-F6C5-1FE89051BB97">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:01 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>86BDA042-0F81-8977-273B-9765B9A10DA8</importedID>
+<use>0</use>
+<domain>5B1C7CF5-EF3B-C5B8-1E76-224B54D9B1CB</domain>
+<usesDefaultValue>true</usesDefaultValue>
+<defaultValue>(newid())</defaultValue>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="Recrui.ngOrganiza.onId" id="C87CBE99-E8F4-4B6C-9D6D-4FCFAAB27DF3">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:01 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>79D5B3AD-6E2A-BD76-A5F4-3BB9250C7809</importedID>
+<use>0</use>
+<domain>5B1C7CF5-EF3B-C5B8-1E76-224B54D9B1CB</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="RouteName" id="EB0CA873-07A3-85D7-43F5-3EF7641003D5">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:01 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>E025DEFE-F608-6886-AEF4-95AFAE2F5DDA</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>2E8EE7FC-99CE-D4AE-132C-50F4AADCC1F4</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="LastUpdateDate" id="E48FCAD8-D83E-935B-5D0F-C70F62FB713B">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:01 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>734895D0-4600-1DF8-5A3D-4DC9C7C5AA91</importedID>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="LastUpdateUserId" id="90E8A88E-3762-4CF1-720B-52F8D13CBABB">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:01 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>750AD323-CD3E-62AF-034D-20635DDBED63</importedID>
+<use>0</use>
+<domain>5B1C7CF5-EF3B-C5B8-1E76-224B54D9B1CB</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="6F6E2F6F-04C1-4B5C-2283-E2E964B815AB" name="PK_MapsMapRoute">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:01 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>69FFA3AA-8E21-CABB-4A91-F7D060D04A3D</importedID>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="B710435D-BC27-2D4C-F6C5-1FE89051BB97"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+</Table>

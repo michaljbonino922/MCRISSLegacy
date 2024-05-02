@@ -1,0 +1,112 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetNwaPending3]" directorySegmentName="seg_7" id="AB28BC1D-EE4B-91BF-8903-ED48E2CD672F">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@Star.ngRow int, 
+ @PageSize int, 
+ @OrgID int, 
+ @SortBy int 
+ 
+AS 
+BEGIN 
+  
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+ DECLARE @_Star.ngRow int 
+ DECLARE @_PageSize int 
+ DECLARE @_OrgID int 
+ DECLARE @_SortBy int 
+ 
+ SET @_Star.ngRow = @Star.ngRow 
+ SET @_PageSize = @PageSize 
+ SET @_OrgID = @OrgID 
+ SET @_SortBy = @SortBy 
+  
+ DECLARE @LastRow int 
+ SET @LastRow = @_Star.ngRow + @_PageSize 
+ 
+ CREATE TABLE #NWASortedTable( 
+  [RowNumber] [int] IDENTITY(1,1) NOT NULL, 
+  [Person_ID] [int] NOT NULL, 
+  [NWA_ID] [int] NOT NULL, 
+  [ORGANIZATION_OF_RECORD_ID] [int] NULL, 
+  [SSN] [varchar](9) NULL, 
+  [FIRST_NAME] [varchar](20) NULL, 
+  [MIDDLE_NAME] [varchar](20) NULL, 
+  [LAST_NAME] [varchar](20) NULL, 
+  [Su.x] [varchar](5) NULL, 
+  [DECL] [date.me] NOT NULL, 
+  [DSW] [date.me] NULL, 
+  [AGE] [int] NULL, 
+  [GENDER_CODE] [char](1) NULL, 
+  [CATEGORY_CODE] [varchar](6) NULL, 
+  [RECRUITER_OF_RECORD_ID] [int] NULL, 
+  [DISPOSITION_CODE] [varchar](20) NOT NULL, 
+  [RSS] [varchar](45) NULL, 
+  [RECRUITER_NAME] [varchar](50) NULL, 
+  CONSTRAINT [PK_NWASortedTable] PRIMARY KEY CLUSTERED  
+ ( 
+  [RowNumber] ASC 
+ )WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY] 
+ ) ON [PRIMARY] 
+  
+  INSERT INTO #NWASortedTable 
+  SELECT 
+    P.Person_ID, 
+    N.NWA_ID, 
+    N.ORGANIZATION_OF_RECORD_ID, 
+    P.SOCIAL_SECURITY_NUMBER as SSN, 
+    P.FIRST_NAME, 
+    P.LEGAL_MIDDLE_NAME as MIDDLE_NAME, 
+    P.LAST_NAME, 
+    P.SUFFIX_CD as Su.x, 
+    N.NWA_DECLARED_DATE as DECL, 
+    N.NWA_DATE_STARTED_WORKING as DSW, 
+    USMC.GetAge(MC.DATE_OF_BIRTH) as AGE, 
+    MC.GENDER_CODE, 
+    N.CATEGORY_CODE,  
+    N.RECRUITER_OF_RECORD_ID, 
+    CS.DISPOSITION_CODE, 
+    RSS.NAME as RSS, 
+    LTRIM(RTRIM(RP.RANK_CODE)) + ' ' + LTRIM(RTRIM(P2.LAST_NAME)) AS RECRUITER_NAME 
+   FROM dbo.PERSON P 
+   INNER JOIN vwCurrentNWA N on P.Person_ID = N.MARINE_CANDIDATE_ID  
+   INNER JOIN [USMC].[vwRecrui.ngOrgIDs] VWROI ON N.ORGANIZATION_OF_RECORD_ID = VWROI.root 
+   INNER JOIN RECRUITING_ORGANIZATION RSS ON VWROI.RSS = RSS.ORGANIZATION_ID 
+   INNER JOIN CANDIDATE_STATUS CS ON N.NWA_ID = CS.NWA_ID AND CS.CANDIDATE_STATUS_ID IN ( SELECT MAX(CS2.CANDIDATE_STATUS_ID)  
+              FROM CANDIDATE_STATUS CS2  
+              WHERE CS2.NWA_ID = CS.NWA_ID) 
+   INNER JOIN MARINE_CANDIDATE MC on P.Person_ID = MC.MARINE_CANDIDATE_ID 
+   INNER JOIN RECRUITING_PERSON RP ON RP.RECRUITING_PERSON_ID = N.RECRUITER_OF_RECORD_ID 
+   INNER JOIN PERSON P2 ON P2.PERSON_ID = RP.RECRUITING_PERSON_ID 
+   WHERE (VWROI.RS = @_OrgID  
+     OR VWROI.RSS = @_OrgID  
+     OR VWROI.District = @_OrgID  
+     OR VWROI.Region = @_OrgID  
+     OR VWROI.HQ = @_OrgID) 
+    AND CS.DISPOSITION_CODE = 'PA' 
+   ORDER BY CASE @_SortBy 
+      WHEN 1 THEN 7 
+      WHEN 2 THEN 4 
+      WHEN 3 THEN 10 
+      WHEN 4 THEN 11 
+      WHEN 5 THEN 12 
+      WHEN 6 THEN 16 
+      WHEN 7 THEN 17 
+      ELSE 7 
+     END 
+    ,CASE WHEN @_SortBy = 1 THEN 5 END 
+    ,CASE WHEN @_SortBy = 1 THEN 6 END 
+ 
+  SELECT *   
+  FROM #NWASortedTable 
+  WHERE RowNumber >= @_Star.ngRow AND RowNumber <= @LastRow 
+ 
+  DROP TABLE #NWASortedTable 
+  
+END]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

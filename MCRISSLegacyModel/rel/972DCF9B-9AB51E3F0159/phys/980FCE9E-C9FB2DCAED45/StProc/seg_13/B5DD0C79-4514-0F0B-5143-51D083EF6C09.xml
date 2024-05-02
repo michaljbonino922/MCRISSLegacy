@@ -1,0 +1,88 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetAreaCanvassingMatrixRa.oData]" directorySegmentName="seg_13" id="B5DD0C79-4514-0F0B-5143-51D083EF6C09">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@ORG_ID int, 
+ @MISSION_FISCAL_YEAR int, 
+ @SY_MONTH int = 7 
+AS 
+BEGIN 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+  
+ Declare @PREVIOUS_SY_START_DATE date.me 
+ Declare @PREVIOUS_SY_END_DATE date.me 
+ Declare @SelectedDate date.me 
+  
+ IF @SY_MONTH > 6 
+ BEGIN 
+  set @SelectedDate = CAST(CAST( (@MISSION_FISCAL_YEAR-1) AS char(4)) + '-' + CAST( @SY_MONTH AS char(2)) + '-1' AS Date.me) 
+ END 
+ ELSE 
+ BEGIN 
+  set @SelectedDate = CAST(CAST( (@MISSION_FISCAL_YEAR) AS char(4)) + '-' + CAST( @SY_MONTH AS char(2)) + '-1' AS Date.me) 
+ END 
+   
+ set @PREVIOUS_SY_START_DATE = DATEADD(MONTH, -12, @SelectedDate); 
+ set @PREVIOUS_SY_END_DATE =   DATEADD(second, -1, @SelectedDate) 
+  
+  
+ -- Call the GetOSSMonthlyDataAnalysis stored procedure because it already has the working logic 
+ CREATE TABLE #OSSMonthlyDataAnalysis 
+ ( HeaderText varchar(10), 
+  RowDate date.me, 
+  TcContacts int, 
+  TcInterviews int, 
+  TcSOE int, 
+  DcContacts int, 
+  DcInterviews int, 
+  DcSOE int, 
+  AcContacts int, 
+  AcInterviews int, 
+  AcSOE int, 
+  OtContacts int, 
+  OtInterviews int, 
+  OtSOE int, 
+  TotalContacts int, 
+  TotalAverage int, 
+  BPTC decimal(10,5), 
+  BPDC decimal(10,5), 
+  BPAC decimal(10,5), 
+  BPOT decimal(10,5), 
+  CrInterviews int, 
+  CrNWA int, 
+  ClosingRa.o decimal(10,5), 
+  PrNWA int, 
+  PrContracts int, 
+  ProcessingRa.o decimal(10,5), 
+  SrInterviews int, 
+  SrContracts int, 
+  SalesRa.o decimal(10,5) 
+ ) 
+  
+ Insert into #OSSMonthlyDataAnalysis 
+ Exec [RSSOSS].[USMC].[GetOSSMonthlyDataAnalysis] @PREVIOUS_SY_START_DATE, @PREVIOUS_SY_END_DATE, @ORG_ID, @MISSION_FISCAL_YEAR; 
+  
+ -- Get values from the .rst row because it contains the totals 
+ SELECT TOP (1) 
+  ISNULL(PrNWA, 0) AS NWAS, 
+  ISNULL(PrContracts, 0) AS CONTRACTS, 
+  ISNULL(AcInterviews, 0) AS AC_INTERVIEWS, 
+  ISNULL(SrInterviews, 0) AS TOTAL_INTERVIEWS, 
+  ISNULL(AcContacts, 0) AS AC_CONDUCTED, 
+  ISNULL(ProcessingRa.o, 0) AS PROCESSING_RATIO, 
+  ISNULL(SalesRa.o, 0) AS SALES_RATIO, 
+  ISNULL(AcSOE, 0) AS AC_SOE 
+ FROM #OSSMonthlyDataAnalysis 
+ ORDER BY RowDate 
+  
+  
+ DROP TABLE #OSSMonthlyDataAnalysis 
+  
+  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

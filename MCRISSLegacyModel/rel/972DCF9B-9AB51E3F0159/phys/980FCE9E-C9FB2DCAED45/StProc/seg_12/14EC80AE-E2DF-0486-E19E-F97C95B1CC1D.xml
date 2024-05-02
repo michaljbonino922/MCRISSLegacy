@@ -1,0 +1,119 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SearchSITREPs]" directorySegmentName="seg_12" id="14EC80AE-E2DF-0486-E19E-F97C95B1CC1D">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:37 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @OrgUnitID int = 0, 
+ @StartDate date.me, 
+ @EndDate date.me, 
+ @FiscalYear int 
+) 
+AS 
+ 
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+IF (@FiscalYear = 2011) 
+BEGIN  
+SELECT 
+ ap.ApplicantPackageID, --added to preserve uniqueness 
+ ap.ApplicantPackageTypeID AS PackageType, 
+ pg.PayGradeType AS PayGradeType, 
+ ap.DateJoinCredit AS DateUpdated, 
+ CASE WHEN ap.MOSMatchTypeID = 6 
+  THEN 'True' 
+  ELSE 'False' 
+ END AS OpenQSN 
+FROM 
+ [dbo].[ApplicantPackage] ap 
+ INNER JOIN [dbo].[QSN] q ON q.QSNID = ap.QSNID 
+ INNER JOIN [dbo].[ApplicantPackageType] apt ON apt.ApplicantPackageTypeID = ap.ApplicantPackageTypeID 
+ INNER JOIN [dbo].[Lead] l ON ap.LeadID = l.LeadID 
+ INNER JOIN [dbo].[LeadStatusDisposi.on] lsd ON ap.LeadID = lsd.LeadID 
+ INNER JOIN [dbo].[StatusDisposi.on] sd ON lsd.StatusDisposi.onID = sd.StatusDisposi.onID 
+ INNER JOIN [dbo].[Status] st ON st.StatusID = sd.StatusID 
+ INNER JOIN [dbo].[PayGrade] pg ON pg.PayGradeID = q.PayGradeID 
+ LEFT JOIN [dbo].[vwOrgUnitIDs] orgs ON l.AtachedPSRSSID = orgs.root 
+ LEFT JOIN [dbo].[PSROrgUnit] orgHQ ON orgHQ.PSROrgUnitID = orgs.HQ 
+ LEFT JOIN [dbo].[PSROrgUnit] orgRegion ON orgRegion.PSROrgUnitID = orgs.Region 
+ LEFT JOIN [dbo].[PSROrgUnit] orgRS ON orgRs.PSROrgUnitID = orgs.RS 
+ LEFT JOIN [dbo].[PSROrgUnit] orgRSS ON orgRss.PSROrgUnitID = orgs.RSS 
+WHERE 
+ ap.DateJoinCredit >= @StartDate AND ap.DateJoinCredit <= @EndDate AND 
+ q.FiscalYear = @FiscalYear AND 
+ lsd.StatusDisposi.onID in (16,28,29,34,35,36,37,38) 
+AND ( 
+   orgRSS.PSROrgUnitID = @OrgUnitID 
+   OR orgRS.PSROrgUnitID = @OrgUnitID 
+   OR orgRegion.PSROrgUnitID = @OrgUnitID 
+   OR orgHQ.PSROrgUnitID = @OrgUnitID 
+   OR @OrgUnitID = 0 
+  ) 
+union 
+ 
+select  NEWID() as ApplicantPackageID, 
+  ApplicantPackageTypeID as PackageType, 
+  PayGradeType, 
+  DateOfJoin as DateUpdated, 
+  CASE WHEN IsOpen = 1  
+   THEN 'True' 
+   ELSE 'False' 
+  END AS OpenQSN 
+from 
+ dbo.vwFiscalYearJoins2011 
+ LEFT JOIN [dbo].[vwOrgUnitIDs] orgs ON vwFiscalYearJoins2011.PSROrgUnitID = orgs.root 
+ LEFT JOIN [dbo].[PSROrgUnit] orgHQ ON orgHQ.PSROrgUnitID = orgs.HQ 
+ LEFT JOIN [dbo].[PSROrgUnit] orgRegion ON orgRegion.PSROrgUnitID = orgs.Region 
+ LEFT JOIN [dbo].[PSROrgUnit] orgRS ON orgRs.PSROrgUnitID = orgs.RS 
+ LEFT JOIN [dbo].[PSROrgUnit] orgRSS ON orgRss.PSROrgUnitID = orgs.RSS 
+WHERE 
+ DateOfJoin >= @StartDate AND DateOfJoin < @EndDate AND 
+ StatusID = 6  
+AND ( 
+   orgRSS.PSROrgUnitID = @OrgUnitID 
+   OR orgRS.PSROrgUnitID = @OrgUnitID 
+   OR orgRegion.PSROrgUnitID = @OrgUnitID 
+   OR orgHQ.PSROrgUnitID = @OrgUnitID 
+   OR @OrgUnitID = 0 
+  ) 
+END  
+ELSE 
+BEGIN 
+SELECT 
+ ap.ApplicantPackageID, --added to preserve uniqueness 
+ ap.ApplicantPackageTypeID AS PackageType, 
+ pg.PayGradeType AS PayGradeType, 
+ ap.DateJoinCredit AS DateUpdated, 
+ CASE WHEN ap.MOSMatchTypeID = 6 
+  THEN 'True' 
+  ELSE 'False' 
+ END AS OpenQSN 
+FROM 
+ [dbo].[ApplicantPackage] ap 
+ INNER JOIN [dbo].[QSN] q ON q.QSNID = ap.QSNID 
+ INNER JOIN [dbo].[ApplicantPackageType] apt ON apt.ApplicantPackageTypeID = ap.ApplicantPackageTypeID 
+ INNER JOIN [dbo].[Lead] l ON ap.LeadID = l.LeadID 
+ INNER JOIN [dbo].[LeadStatusDisposi.on] lsd ON ap.LeadID = lsd.LeadID 
+ INNER JOIN [dbo].[StatusDisposi.on] sd ON lsd.StatusDisposi.onID = sd.StatusDisposi.onID 
+ INNER JOIN [dbo].[Status] st ON st.StatusID = sd.StatusID 
+ INNER JOIN [dbo].[PayGrade] pg ON pg.PayGradeID = q.PayGradeID 
+ LEFT JOIN [dbo].[vwOrgUnitIDs] orgs ON l.AtachedPSRSSID = orgs.root 
+ LEFT JOIN [dbo].[PSROrgUnit] orgHQ ON orgHQ.PSROrgUnitID = orgs.HQ 
+ LEFT JOIN [dbo].[PSROrgUnit] orgRegion ON orgRegion.PSROrgUnitID = orgs.Region 
+ LEFT JOIN [dbo].[PSROrgUnit] orgRS ON orgRs.PSROrgUnitID = orgs.RS 
+ LEFT JOIN [dbo].[PSROrgUnit] orgRSS ON orgRss.PSROrgUnitID = orgs.RSS 
+WHERE 
+ ap.DateJoinCredit >= @StartDate AND ap.DateJoinCredit <= @EndDate AND 
+ q.FiscalYear = @FiscalYear AND 
+ lsd.StatusDisposi.onID in (16,28,29,34,35,36,37,38) 
+AND ( 
+   orgRSS.PSROrgUnitID = @OrgUnitID 
+   OR orgRS.PSROrgUnitID = @OrgUnitID 
+   OR orgRegion.PSROrgUnitID = @OrgUnitID 
+   OR orgHQ.PSROrgUnitID = @OrgUnitID 
+   OR @OrgUnitID = 0 
+  ) 
+END]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+</StoredProcedureSqlServerv2k5>

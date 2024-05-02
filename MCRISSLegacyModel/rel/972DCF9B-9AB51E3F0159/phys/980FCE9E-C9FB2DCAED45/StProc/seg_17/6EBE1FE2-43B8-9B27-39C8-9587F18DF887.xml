@@ -1,0 +1,21 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetDischargeCode]" directorySegmentName="seg_17" id="6EBE1FE2-43B8-9B27-39C8-9587F18DF887">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@SSN    as varchar(9), 
+ @DischargeCode  as varchar(4) output 
+AS 
+ 
+SELECT  
+ @DischargeCode = C.DISCHARGE_CODE 
+FROM  
+ PERSON P, NWA, CONTRACT C 
+WHERE 
+ P.SOCIAL_SECURITY_NUMBER = @SSN AND 
+ P.PERSON_ID = NWA.MARINE_CANDIDATE_ID AND 
+ NWA.NWA_ID = C.NWA_ID]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

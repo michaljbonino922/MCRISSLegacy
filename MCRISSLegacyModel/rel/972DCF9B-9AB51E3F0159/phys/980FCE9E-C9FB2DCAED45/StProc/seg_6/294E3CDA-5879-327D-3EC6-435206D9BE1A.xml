@@ -1,0 +1,110 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetWorkingDaySchoolList]" directorySegmentName="seg_6" id="294E3CDA-5879-327D-3EC6-435206D9BE1A">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@OrgID int, 
+ @RecruiterID uniqueidentifier, 
+ @FiscalYear int, 
+ @Month int 
+    
+AS 
+BEGIN 
+  
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+ DECLARE @CalendarYear int 
+ 
+ IF @Month = 10 OR @Month = 11 OR @Month = 12 
+ BEGIN 
+  SET @CalendarYear = @FiscalYear - 1 
+ END 
+ ELSE 
+ BEGIN 
+  SET @CalendarYear = @FiscalYear 
+ END 
+ 
+ DECLARE @SchoolYear int 
+ 
+ IF @Month = 7 OR 
+    @Month = 8 OR 
+    @Month = 9 OR 
+    @Month = 10 OR 
+    @Month = 11 OR 
+    @Month = 12 
+ BEGIN  
+  SET @SchoolYear = @CalendarYear + 1 
+ END 
+ ELSE 
+ BEGIN 
+  SET @SchoolYear = @CalendarYear  
+ END  
+ 
+  
+ SELECT *  
+ INTO #HighSchool 
+ FROM  
+  MCRISS.dbo.HIGH_SCHOOL hs 
+ WHERE  
+  hs.ORGANIZATION_ID = @OrgID 
+  AND hs.School_Type = 'HS' 
+  AND hs.DELETED <> 'Y' 
+ 
+ DECLARE @Recrui.ngPersonID int 
+   
+    SELECT @Recrui.ngPersonID = RECRUITING_PERSON_ID FROM MCRISS.dbo.RECRUITING_PERSON 
+ WHERE rowguid = @RecruiterID 
+ 
+ SELECT DISTINCT 
+  hs.HighSchool_Name AS SchoolName 
+  ,hs.RowGuid AS SchoolID 
+  ,ms.SectorDesignator AS Sector 
+  ,hsp.Designator  
+  ,hsp.rowguid AS SchoolPro.leId 
+  ,hsp.Priority_Code AS Priority 
+  ,hsp.ACCESS_CODE AS Access 
+  ,@SchoolYear as SCHOOL_YEAR 
+  ,hsp.Status_Code AS Category 
+  ,hsp.MALE_SENIORS AS MaleSeniors 
+  ,hsp.MALE_SENIORS + hsp.FEMALE_SENIORS AS TotalSeniors 
+  ,hsp.PERCENT_TO_COLLEGE AS PercentSr 
+  ,g.PacCount 
+  ,COALESCE((  SELECT COUNT(*)  
+   FROM  
+    PROSPECTING.USMC.ProspectSchool s 
+    INNER JOIN PROSPECTING.USMC.Prospect p 
+     ON s.ProspectId = p.ProspectId 
+   WHERE  
+    SchoolId = hs.RowGuid 
+    AND p.ProspectDisposi.onId = 2 
+   ), 0) AS CurrentPacCount 
+  
+ FROM 
+  #HighSchool hs 
+  INNER JOIN MCRISS.dbo.HIGH_SCHOOL_PROFILE hsp 
+   ON hsp.SCHOOL_CODE = hs.SCHOOL_CODE 
+  LEFT OUTER JOIN USMC.MapsSectorZip msz 
+   ON LEFT(hs.ZIP_CODE, 5) = msz.Zip  
+  LEFT OUTER JOIN USMC.MapsSector ms  
+   ON ms.SectorID = msz.SectorID 
+  LEFT OUTER JOIN  [MCRISS].[dbo].[RECRUITING_ORGANIZATION] org 
+   ON org.rowguid = ms.Recrui.ngOrganiza.onId   
+  LEFT OUTER JOIN USMC.MisGauge g 
+   ON g.SchoolID = hs.RowGuid AND 
+    g.CalendarYear = @CalendarYear AND 
+    g.CalendarMonth = @Month 
+ WHERE 
+     hsp.RECRUITER_ID = @Recrui.ngPersonID 
+  AND hsp.SCHOOL_YEAR = @SchoolYear 
+  AND SectorType = 'E' 
+  AND org.ORGANIZATION_ID = @OrgID 
+ ORDER BY ms.SectorDesignator, hsp.Designator, hs.HighSchool_Name   
+  
+ 
+ DROP TABLE #HighSchool 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

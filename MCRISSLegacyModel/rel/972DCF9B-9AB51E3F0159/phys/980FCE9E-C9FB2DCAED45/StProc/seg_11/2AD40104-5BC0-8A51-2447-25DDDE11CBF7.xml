@@ -1,0 +1,48 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertPerson_PJ]" directorySegmentName="seg_11" id="2AD40104-5BC0-8A51-2447-25DDDE11CBF7">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @FirstName varchar(20), 
+ @LastName varchar(20), 
+ @MiddleName varchar(20), 
+ @SSN varchar(9), 
+ @Su.xID varchar(5), 
+ @LastEditBy varchar(15) 
+) 
+AS 
+BEGIN 
+ IF EXISTS(SELECT SOCIAL_SECURITY_NUMBER FROM PERSON_PJ_1_9_13 WHERE SOCIAL_SECURITY_NUMBER = @SSN) 
+ BEGIN 
+  SELECT PERSON_ID FROM PERSON_PJ_1_9_13 WHERE SOCIAL_SECURITY_NUMBER = @SSN  
+ END 
+ ELSE 
+ BEGIN 
+  INSERT INTO [mcriss].[dbo].[PERSON_PJ_1_9_13] 
+   ([SOCIAL_SECURITY_NUMBER] 
+   ,[FIRST_NAME] 
+   ,[LEGAL_MIDDLE_NAME] 
+   ,[LAST_NAME] 
+   ,[SUFFIX_CD] 
+   ,[USER_LOGIN] 
+   ,[UPDATE_DATE] 
+   ,[rowguid]) 
+  VALUES 
+   (@SSN 
+   ,@FirstName 
+   ,@MiddleName 
+   ,@LastName 
+   ,@Su.xID 
+   ,@LastEditBy 
+   ,GetDate() 
+   ,newid()) 
+ 
+  SELECT SCOPE_IDENTITY() 
+ 
+ END 
+END]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

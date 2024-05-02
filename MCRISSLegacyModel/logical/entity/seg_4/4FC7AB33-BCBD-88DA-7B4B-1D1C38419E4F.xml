@@ -1,0 +1,93 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Entity class="oracle.dbtools.crest.model.design.logical.Entity" directorySegmentName="seg_4" id="4FC7AB33-BCBD-88DA-7B4B-1D1C38419E4F" name="NROTC UNIT">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>D6B57C33-1FEB-0E79-4748-FF39B3E29A26</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<adequatelyNormalized>NO</adequatelyNormalized>
+<expectedVolumes>0</expectedVolumes>
+<fwdEngineeringStrategyName>Single Table</fwdEngineeringStrategyName>
+<growthPercent>0</growthPercent>
+<growthType>Year</growthType>
+<maxVolumes>9999999</maxVolumes>
+<minVolumes>0</minVolumes>
+<normalForm>Third</normalForm>
+<attributes itemClass="oracle.dbtools.crest.model.design.logical.Attribute">
+<Attribute name="NROTC UNIT ID" id="4A58C49C-30C8-D94C-C1F9-DC682368B697">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>010D35CD-66D9-F072-49C8-CCA7A297217E</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<use>0</use>
+<domain>8C77819C-1B2F-24A0-C36D-F924235A9668</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="NROTC UNIT NAME" id="C1963780-00D8-7A9A-A46D-AD10E6BDEED2">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>21835BCF-C6A6-B7AF-7D4B-C23C8616BF7B</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<use>0</use>
+<domain>27508766-BB8A-7C66-5C01-9D4029B8962D</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="USER LOGIN" id="A2F44FB5-F625-1443-5E22-B410AFB7ACC2">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>191FFED6-0054-D8C7-1826-02CCB778BBF7</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<use>0</use>
+<domain>2E8EE7FC-99CE-D4AE-132C-50F4AADCC1F4</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="UPDATE DATE" id="BE7745CA-C0DB-9CFF-228A-AB6C2C648B4F">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>8A257B0C-96AB-3106-03A3-E71305203A13</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="rowguid" id="6607ABCA-7F43-FF7C-BC65-0CCD671276F0">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>006E8463-2F97-C556-3537-58705C2C3D5B</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+</attributes>
+<identifiers itemClass="oracle.dbtools.crest.model.design.logical.CandidateKey">
+<identifier id="2BD59A5D-7839-0B42-D52E-007CBB56D787" name="PK NROTC UNIT">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>98550A52-930A-67C8-D2EA-86B054CEF16E</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<pk>true</pk>
+<usedAttributes>
+<attributeRef>4A58C49C-30C8-D94C-C1F9-DC682368B697</attributeRef>
+</usedAttributes>
+</identifier>
+</identifiers>
+</Entity>

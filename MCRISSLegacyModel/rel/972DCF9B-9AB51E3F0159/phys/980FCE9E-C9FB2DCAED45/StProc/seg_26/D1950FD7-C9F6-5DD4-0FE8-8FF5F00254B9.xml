@@ -1,0 +1,59 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateBilletDateHistory]" directorySegmentName="seg_26" id="D1950FD7-C9F6-5DD4-0FE8-8FF5F00254B9">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@PersonId int, 
+ @BeginDate date.me, 
+ @Enddate date.me, 
+ @E.ec.vedate date.me, 
+ @UserLogin varchar(15) 
+ 
+AS 
+ 
+declare 
+@e.ec.ve_date varchar(20) 
+ 
+ 
+IF @E.ec.vedate IS NULL 
+BEGIN 
+--- UPDATE BILLET DATE IN RECRUITING PERSON TABLE 
+ IF EXISTS (SELECT 1 FROM RECRUITING_PERSON WHERE RECRUITING_PERSON_ID = @PersonId) 
+ BEGIN 
+  UPDATE RECRUITING_PERSON 
+  SET BILLET_BEGIN_DATE = @BeginDate, 
+      USER_LOGIN = @UserLogin, 
+      UPDATE_DATE = GetDate() 
+  WHERE 
+      RECRUITING_PERSON_ID = @PersonId  
+ END 
+ 
+ 
+END 
+ 
+ELSE 
+BEGIN 
+ 
+SET @e.ec.ve_date = CONVERT(VARCHAR(20), @E.ec.vedate, 101) 
+ 
+--- UPDATE BILLET DATE IN RECRUITER HISTORY TABLE 
+ IF EXISTS (SELECT 1 FROM RECRUITER_HISTORY WHERE RECRUITING_PERSON_ID = @PersonId AND CONVERT(VARCHAR(20),EFFECTIVE_DATE, 101) = @e.ec.ve_date) 
+ BEGIN 
+ 
+     UPDATE RECRUITER_HISTORY 
+  SET BILLET_BEGIN_DATE = @BeginDate, 
+      BILLET_END_DATE = @Enddate, 
+      EFFECTIVE_DATE = dateadd(ms,datepart(ms,getdate()),@BeginDate), 
+      USER_LOGIN = @UserLogin, 
+      UPDATE_DATE = GetDate() 
+  WHERE 
+      RECRUITING_PERSON_ID = @PersonId  
+   AND CONVERT(VARCHAR(20),EFFECTIVE_DATE, 101) = @e.ec.ve_date 
+ 
+ END 
+ 
+END]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

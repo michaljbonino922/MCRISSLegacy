@@ -1,0 +1,22 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdatePTADPoolMemberStatus]" directorySegmentName="seg_27" id="57470EB4-CF6F-B150-6ED7-51A6F6A86F7B">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @ID int, 
+ @PTADPoolMemberStatus bit, 
+ @LastEditBy varchar(15)  
+) 
+AS 
+ 
+  
+UPDATE [mcriss].[dbo].[NWA] SET 
+ [PTAD_POOL_MEMBER] = @PTADPoolMemberStatus 
+ ,[USER_LOGIN] = @LastEditBy 
+ ,[UPDATE_DATE] = GetDate() 
+WHERE [NWA_ID] = @ID]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

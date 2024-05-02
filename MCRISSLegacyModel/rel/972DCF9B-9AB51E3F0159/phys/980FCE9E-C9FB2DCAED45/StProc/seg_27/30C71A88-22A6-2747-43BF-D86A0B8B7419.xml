@@ -1,0 +1,112 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateMarketAnalysisRecord]" directorySegmentName="seg_27" id="30C71A88-22A6-2747-43BF-D86A0B8B7419">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@CollegePro.leID uniqueiden..er, 
+         @SchoolCode int, 
+         @FiscalYear int,  
+         @PriorityCode smallint = null, 
+         @BarronsIndex varchar(2), 
+         @NumMale int, 
+         @NumFemale int, 
+    @NumAfricanAmerican int, 
+    @NumHispanic int, 
+    @NumOther int, 
+    @PercentQuali.ed int, 
+    @NumQCPMale int, 
+    @NumQCPFemale int, 
+    @NumDQCPMale int, 
+    @NumDQCPFemale int, 
+    @DistanceToCollege int, 
+    @TimeToCollegeInMinutes varchar(20), 
+    @UserLogin varchar(50) 
+          
+     
+AS 
+SET NOCOUNT ON 
+ 
+ --IMPORTANT NOTE: Add begin and end transac.on 
+ IF EXISTS (SELECT '1' from [USMC].CollegePro.le cp where cp.CollegePro.leID = @CollegePro.leID) 
+  -- the update the exisi.ng record 
+  BEGIN    
+  
+    UPDATE [MCRISS].[USMC].CollegePro.le 
+     SET  BarronsIndex = @BarronsIndex, 
+       PriorityCode = @PriorityCode, 
+         NumMale = @NumMale, 
+         NumFemale = @NumFemale, 
+    NumAfricanAmerican = @NumAfricanAmerican, 
+    NumHispanic = @NumHispanic, 
+    NumOther = @NumOther, 
+    PercentQuali.ed = @PercentQuali.ed, 
+    NumQCPMale = @NumQCPMale, 
+    NumQCPFemale = @NumQCPFemale, 
+    NumDQCPMale = @NumDQCPMale, 
+    NumDQCPFemale = @NumDQCPFemale, 
+    DistanceToCollege = @DistanceToCollege, 
+    TimeToCollegeInMinutes = @TimeToCollegeInMinutes, 
+    [UserLogin] = @UserLogin, 
+        [UpdateDate] = GetDate() 
+     WHERE CollegePro.leID  = @CollegePro.leID   
+ 
+  END  
+ 
+ ELSE  
+    BEGIN 
+     
+    -- try to update any exis.ng records before inser.ng a new one 
+    -- try to get an exis.ng CollegePro.leID based on SchoolCode and FiscalYear 
+  DECLARE @Exis.ngCollegePro.leID uniqueiden..er 
+   
+  SELECT @Exis.ngCollegePro.leID = [CollegePro.leID] 
+   FROM [USMC].CollegePro.le cp 
+   WHERE cp.[SCHOOL_CODE] = @SchoolCode 
+   AND cp.[FiscalYear] = @FiscalYear 
+    
+    IF EXISTS (SELECT '1' from [USMC].CollegePro.le cp where cp.CollegePro.leID = @Exis.ngCollegePro.leID) 
+     BEGIN 
+      UPDATE [MCRISS].[USMC].CollegePro.le 
+       SET  BarronsIndex = @BarronsIndex, 
+         PriorityCode = @PriorityCode, 
+           NumMale = @NumMale, 
+           NumFemale = @NumFemale, 
+      NumAfricanAmerican = @NumAfricanAmerican, 
+      NumHispanic = @NumHispanic, 
+      NumOther = @NumOther, 
+      PercentQuali.ed = @PercentQuali.ed, 
+      NumQCPMale = @NumQCPMale, 
+      NumQCPFemale = @NumQCPFemale, 
+      NumDQCPMale = @NumDQCPMale, 
+      NumDQCPFemale = @NumDQCPFemale, 
+      DistanceToCollege = @DistanceToCollege, 
+      TimeToCollegeInMinutes = @TimeToCollegeInMinutes, 
+      [UserLogin] = @UserLogin, 
+          [UpdateDate] = GetDate() 
+       WHERE CollegePro.leID  = @Exis.ngCollegePro.leID   
+     END 
+     
+    ELSE 
+     BEGIN 
+   
+     INSERT INTO [MCRISS].[USMC].[CollegePro.le] 
+             ([CollegePro.leID],[SCHOOL_CODE], [FiscalYear], [BarronsIndex], [PriorityCode], 
+           [NumMale],[NumFemale],[NumAfricanAmerican],[NumHispanic],  
+     [NumOther], [PercentQuali.ed], [NumQCPMale],[NumQCPFemale], 
+     [NumDQCPMale],[NumDQCPFemale],[DistanceToCollege], [TimeToCollegeInMinutes], 
+     [UserLogin] ,[UpdateDate])             
+           
+     VALUES          
+          (@CollegePro.leID,@SchoolCode, @FiscalYear, @BarronsIndex, @PriorityCode, 
+        @NumMale, @NumFemale, @NumAfricanAmerican,  @NumHispanic,  @NumOther, 
+     @PercentQuali.ed, @NumQCPMale, @NumQCPFemale, @NumDQCPMale, @NumDQCPFemale, 
+     @DistanceToCollege, @TimeToCollegeInMinutes,  @UserLogin, GetDate())   
+  END 
+ END 
+   
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

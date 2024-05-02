@@ -1,0 +1,83 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateCandidateTelephone]" directorySegmentName="seg_26" id="A559121A-0467-867F-8DAE-C2026491CD43">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @PersonId int, 
+ @Type varchar(1), 
+ @AreaCode varchar(4), 
+ @Number varchar(10), 
+ @LastEditBy varchar(15) 
+) 
+AS 
+ 
+-- This stored procedure's behavior depends upon the type of phone number being provided. 
+--  For "Current" and "Home Of Record" phone numbers, it must only update the phone numbers. 
+--  For all other phone numbers, which are considered to be "Addi.onal Phone Numbers", 
+--     we must delete all addi.onal numbers to ensure that only the provided "addi.onal phone number" 
+--     is the only one stored. 
+IF ((@Type = 'C') OR (@Type = 'H')) 
+BEGIN 
+ -- Is a "Current" OR "House Of Record" phone number 
+ IF EXISTS (SELECT 1 FROM [mcriss].[dbo].[CANDIDATE_TELEPHONE] WHERE [MARINE_CANDIDATE_ID] = @PersonId AND [TELEPHONE_TYPE] = @Type) 
+  BEGIN 
+   UPDATE [mcriss].[dbo].[CANDIDATE_TELEPHONE] SET  
+    [AREA_CODE] = @AreaCode 
+    ,[TELEPHONE_NUMBER] = @Number 
+    ,[USER_LOGIN] = @LastEditBy 
+    ,[UPDATE_DATE] = GetDate() 
+    WHERE [MARINE_CANDIDATE_ID] = @PersonId AND [TELEPHONE_TYPE] = @Type 
+  END 
+ ELSE 
+  BEGIN 
+   INSERT INTO [mcriss].[dbo].[CANDIDATE_TELEPHONE] 
+    ([MARINE_CANDIDATE_ID] 
+    ,[TELEPHONE_TYPE] 
+    ,[AREA_CODE] 
+    ,[TELEPHONE_NUMBER] 
+    ,[USER_LOGIN] 
+    ,[UPDATE_DATE] 
+    ,[rowguid]) 
+   VALUES 
+    (@PersonId 
+    ,@Type 
+    ,@AreaCode 
+    ,@Number 
+    ,@LastEditBy 
+    ,GetDate() 
+    ,NEWID()) 
+  END 
+END 
+ELSE 
+BEGIN 
+ -- Is NOT a "Current" OR "House Of Record" phone number 
+ -- First, delete all numbers that are not "Current" or "Home Of Record" 
+ DELETE  FROM [mcriss].[dbo].[CANDIDATE_TELEPHONE]  
+  WHERE  
+   [MARINE_CANDIDATE_ID]=@PersonId 
+   AND 
+   [TELEPHONE_TYPE] NOT IN ('C','H') 
+ 
+ -- Finally, insert the provided number so that it is the only recorded "addi.onal phone number" 
+ INSERT INTO [mcriss].[dbo].[CANDIDATE_TELEPHONE] 
+  ([MARINE_CANDIDATE_ID] 
+  ,[TELEPHONE_TYPE] 
+  ,[AREA_CODE] 
+  ,[TELEPHONE_NUMBER] 
+  ,[USER_LOGIN] 
+  ,[UPDATE_DATE] 
+  ,[rowguid]) 
+ VALUES 
+  (@PersonId 
+  ,@Type 
+  ,@AreaCode 
+  ,@Number 
+  ,@LastEditBy 
+  ,GetDate() 
+  ,NEWID()) 
+END]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,164 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUpdateContactCard]" directorySegmentName="seg_15" id="96E5A034-388B-C47B-37DD-9F3DF50CEEED">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:56 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@ID uniqueiden..er, 
+ @DatePrepared date.me = NULL, 
+ @LastName varchar(75) = NULL, 
+ @FirstName varchar(75) = NULL, 
+ @MiddleName varchar(75) = NULL, 
+ @ForFY int = NULL, 
+ @A.lia.ons varchar(100) = NULL, 
+ @FormerUSMC bit = NULL, 
+ @Other varchar(100) = NULL, 
+ @ValueToRSS varchar(100) = NULL, 
+ @HomeStreet1 varchar(75) = NULL, 
+ @HomeStreet2 varchar(75) = NULL, 
+ @HomeCity varchar(30) = NULL, 
+ @HomeCounty varchar(3) = NULL, 
+ @HomeState varchar(2) = NULL, 
+ @HomeZipCode varchar(9) = NULL,  
+ @HomePhone varchar(10) = NULL,  
+ @WorkStreet1 varchar(75) = NULL, 
+ @WorkStreet2 varchar(75) = NULL, 
+ @WorkCity varchar(30) = NULL, 
+ @WorkCounty varchar(3) = NULL, 
+ @WorkState varchar(2) = NULL, 
+ @WorkZipCode varchar(9) = NULL, 
+ @WorkPhone varchar(10) = NULL, 
+ @EmailAddress varchar(75) = NULL 
+    
+ 
+AS 
+BEGIN 
+ 
+ -- STEP 1: Start the transac.on 
+ BEGIN TRANSACTION 
+ 
+ -- STEP 2 & 3: Issue the data change statement(s), checking @@ERROR a.er each statement 
+ IF EXISTS(SELECT ID FROM [RSSOSS].[USMC].ContactCard WHERE ID = @ID) 
+ BEGIN 
+  -- if already exists.  UPDATE. 
+  UPDATE [RSSOSS].[USMC].ContactCard 
+  SET  
+   ID = @ID, 
+   DatePrepared = @DatePrepared, 
+   LastName = @LastName, 
+   FirstName = @FirstName, 
+   MiddleName = @MiddleName, 
+   ForFY = @ForFY, 
+   A.lia.ons = @A.lia.ons, 
+   FormerUSMC = @FormerUSMC, 
+   Other = @Other, 
+   ValueToRSS = @ValueToRSS, 
+   Home_Street1 = @HomeStreet1, 
+   Home_Street2 = @HomeStreet2, 
+   Home_City = @HomeCity, 
+   Home_County = @HomeCounty, 
+   Home_State = @HomeState, 
+   Home_ZipCode = @HomeZipCode, 
+   Home_Phone = @HomePhone, 
+   Work_Street1 = @WorkStreet1, 
+   Work_Street2 = @WorkStreet2, 
+   Work_City = @WorkCity, 
+   Work_County = @WorkCounty, 
+   Work_State = @WorkState, 
+   Work_ZipCode = @WorkZipCode, 
+   Work_Phone = @WorkPhone, 
+   EmailAddress = @EmailAddress 
+    
+  WHERE ID = @ID 
+ END 
+ ELSE 
+ BEGIN 
+  -- if does not exist.  INSERT. 
+  INSERT INTO [RSSOSS].[USMC].ContactCard 
+           ( 
+   ID, 
+   DatePrepared, 
+   LastName, 
+   FirstName, 
+   MiddleName, 
+   ForFY, 
+   A.lia.ons, 
+   FormerUSMC, 
+   Other, 
+   ValueToRSS, 
+   Home_Street1, 
+   Home_Street2, 
+   Home_City, 
+   Home_County, 
+   Home_State, 
+   Home_ZipCode, 
+   Home_Phone, 
+   Work_Street1, 
+   Work_Street2, 
+   Work_City, 
+   Work_County, 
+   Work_State, 
+   Work_ZipCode, 
+   Work_Phone, 
+   EmailAddress 
+   ) 
+  VALUES 
+           ( 
+   @ID, 
+   @DatePrepared, 
+   @LastName, 
+   @FirstName, 
+   @MiddleName, 
+   @ForFY, 
+   @A.lia.ons, 
+   @FormerUSMC, 
+   @Other, 
+   @ValueToRss, 
+   @HomeStreet1, 
+   @HomeStreet2, 
+   @HomeCity, 
+   @HomeCounty, 
+   @HomeState, 
+   @HomeZipCode, 
+   @HomePhone, 
+   @WorkStreet1, 
+   @WorkStreet2, 
+   @WorkCity, 
+   @WorkCounty, 
+   @WorkState, 
+   @WorkZipCode, 
+   @WorkPhone, 
+   @EmailAddress 
+   ) 
+ END 
+ 
+ -- Rollback the transac.on if there were any errors 
+ IF @@ERROR <> 0 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+ 
+  -- Raise an error and return 
+  RAISERROR ('Error occurred while performing the change.', 16, 1) 
+  RETURN 
+ END 
+ 
+ -- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+ IF @@ROWCOUNT > 1 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+ 
+  -- Raise an error and return 
+  RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+  RETURN 
+ END 
+  
+ -- STEP 4: If we reach this point, the commands completed successfully 
+ --         Commit the transac.on.... 
+ COMMIT TRANSACTION 
+  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

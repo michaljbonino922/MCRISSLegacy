@@ -1,0 +1,142 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetCandidateCriteria]" directorySegmentName="seg_16" id="BD2A1A04-556A-4AD4-6E88-86208712CCC1">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@ContractID   int, 
+ @TermOfEnlistment  int OUTPUT, 
+ @Gender   char(1) OUTPUT, 
+ @Ci.zenship  varchar(2) OUTPUT, 
+ @DriverLicState  varchar(2) OUTPUT, 
+ @DateOfBirth  date.me OUTPUT, 
+ @HighestWaiverLevel int OUTPUT, 
+ @Height   int OUTPUT, 
+ @Le.UncorrVis  varchar(10) OUTPUT, 
+ @RightUncorrVis  varchar(10) OUTPUT, 
+ @Le.CorrVis  varchar(10) OUTPUT, 
+ @RightCorrVis  varchar(10) OUTPUT, 
+ @VisualColor  char(1) OUTPUT, 
+ @Educa.onTier  varchar(2) OUTPUT, 
+ @Educa.onLevel  varchar(2) OUTPUT, 
+ @Educa.onCode  char(1) OUTPUT, 
+ @AFQT   int OUTPUT, 
+ @GT   int OUTPUT, 
+ @EL   int OUTPUT, 
+ @CL   int OUTPUT, 
+ @MM   int OUTPUT, 
+ @PAOI   int OUTPUT, 
+ @WPMT   int OUTPUT, 
+ --- @MEOP   int OUTPUT, 
+ @MEOP   varchar(5) OUTPUT, 
+ @APT   int OUTPUT, 
+ @EDPT   int OUTPUT, 
+ @DLAB   int OUTPUT 
+AS 
+SET NOCOUNT ON 
+ 
+DECLARE @MarineCandidateID  int 
+DECLARE @NWAID   int 
+DECLARE @ContractBeginDate date.me 
+DECLARE @ProjectedShipDate date.me 
+ 
+--- get the term of enlistment and nwa id from the CONTRACT table and 
+--- get the marine candidate data from the NWA and MARINE_CANDIDATE tables 
+SELECT  
+ @ContractBeginDate = C.CONTRACT_BEGIN_DATE, 
+ @ProjectedShipDate = C.PROJECTED_SHIP_DATE, 
+ @TermOfEnlistment = C.TERM_OF_ENLISTMENT, 
+ @NWAID    = C.NWA_ID, 
+ @MarineCandidateID  = N.MARINE_CANDIDATE_ID, 
+ @Gender   = MC.GENDER_CODE,  
+ @Ci.zenship   = MC.CITIZENSHIP, 
+ @DriverLicState  = MC.DRIVER_LICENSE_STATE,  
+ @DateOfBirth   = MC.DATE_OF_BIRTH    
+FROM  
+ CONTRACT C INNER JOIN NWA N ON  
+  (C.NWA_ID = N.NWA_ID AND 
+  C.CONTRACT_ID = @ContractID) 
+ INNER JOIN MARINE_CANDIDATE MC ON N.MARINE_CANDIDATE_ID = MC.MARINE_CANDIDATE_ID 
+  
+ 
+--- get the highest moral/drug waiver level 
+SELECT   
+ @HighestWaiverLevel = MIN(W.WAIVER_LEVEL_ID)   
+FROM   
+ CANDIDATE_WAIVER CW INNER JOIN WAIVER W ON  
+  (CW.NWA_ID = @NWAID AND  
+  CW.WAIVER_ID = W.WAIVER_ID) 
+ INNER JOIN WAIVER_CATEGORY WC ON  
+  (W.WAIVER_CATEGORY_ID = WC.WAIVER_CATEGORY_ID AND 
+  --- W.WAIVER_CATEGORY_ID IN (4, 6) 
+  WC.WAIVER_CATEGORY_CODE IN ('D', 'F')) 
+ INNER JOIN WAIVER_LEVEL WL ON W.WAIVER_LEVEL_ID = WL.WAIVER_LEVEL_ID 
+ 
+ 
+--- get the candidate medical exam data from the most recent FULL exam 
+SELECT 
+ @Height  = CM.HEIGHT,  
+ @Le.UncorrVis  = CM.LEFT_UNCORR_VISUAL_ACUITY,  
+ @RightUncorrVis = CM.RIGHT_UNCORR_VISUAL_ACUITY, 
+ @Le.CorrVis  = CM.LEFT_CORR_VISUAL_ACUITY,  
+ @RightCorrVis  = CM.RIGHT_CORR_VISUAL_ACUITY,  
+ @VisualColor  = CM.VISUAL_COLOR 
+FROM 
+ CANDIDATE_MEDICAL_EXAM CM 
+WHERE  
+ CM.MARINE_CANDIDATE_ID  = @MarineCandidateID AND 
+ CM.MEDICAL_EXAM_TYPE  = 'FULL' AND 
+ CM.MEDICAL_EXAM_DATE  = dbo.GetMaxMedicalExamDate(CM.MARINE_CANDIDATE_ID, CM.MEDICAL_EXAM_TYPE) 
+ 
+--- get the most recent educa.on data 
+SELECT 
+ @Educa.onTier  = COALESCE((SELECT dbo.GetTier(CE.EDUCATION_CODE, @ProjectedShipDate, @MarineCandidateID)), 0), 
+ @Educa.onLevel = CE.EDUCATION_LEVEL,  
+ @Educa.onCode  = CE.EDUCATION_CODE 
+FROM 
+ CANDIDATE_EDUCATION CE 
+ INNER JOIN EDUCATION_LEVEL_CODE ELC ON  
+  (CE.MARINE_CANDIDATE_ID = @MarineCandidateID AND 
+  CE.EDUCATION_LEVEL = ELC.EDUCATION_LEVEL_CODE AND  
+  CE.EDUCATION_CODE = ELC.EDUCATION_CODE AND 
+  CE.SCHOOL_END_DATE = dbo.GetMaxSchoolEndDate(CE.MARINE_CANDIDATE_ID)) 
+ 
+--- get the candidate most recent ASVAB data 
+SELECT 
+ @AFQT  = CA.AFQT_SCORE,  
+ @GT  = CA.GT_SCORE,  
+ @EL  = CA.EL_SCORE,  
+ @CL  = CA.CL_SCORE,  
+ @MM  = CA.MM_SCORE  
+FROM 
+ CANDIDATE_ASVAB CA 
+WHERE 
+ CA.MARINE_CANDIDATE_ID  = @MarineCandidateID AND 
+ CA.ASVAB_DATE   = dbo.GetMaxASVABDate(CA.MARINE_CANDIDATE_ID) 
+ 
+--- get the most recent professed exam scores 
+SELECT   
+ @PAOI = CASE CP.PROFESSED_EXAM_TYPE WHEN 'P' THEN CP.EXAM_SCORE ELSE @PAOI END, 
+ @WPMT = CASE CP.PROFESSED_EXAM_TYPE WHEN 'B' THEN CP.EXAM_SCORE ELSE @WPMT END, 
+ @MEOP = CASE CP.PROFESSED_EXAM_TYPE WHEN 'M' THEN CONVERT(VARCHAR(5), CP.EXAM_SCORE) ELSE @MEOP END 
+FROM   
+ CANDIDATE_PROFESSED_EXAM CP  
+WHERE   
+ CP.MARINE_CANDIDATE_ID  = @MarineCandidateID AND 
+ CP.EXAM_DATE   = dbo.GetMaxProfessedExamDate(CP.MARINE_CANDIDATE_ID, CP.PROFESSED_EXAM_TYPE) 
+ 
+--- get the most recent special exam socres 
+SELECT   
+ @APT = CASE CS.SPECIAL_EXAM_TYPE WHEN 'APT' THEN CS.SPECIAL_EXAM_SCORE ELSE @APT END, 
+ @EDPT = CASE CS.SPECIAL_EXAM_TYPE WHEN 'EDPT' THEN CS.SPECIAL_EXAM_SCORE ELSE @EDPT END, 
+ @DLAB = CASE CS.SPECIAL_EXAM_TYPE WHEN 'DLAB' THEN CS.SPECIAL_EXAM_SCORE ELSE @DLAB END 
+FROM   
+ CANDIDATE_SPECIAL_EXAM CS  
+WHERE   
+ CS.MARINE_CANDIDATE_ID  = @MarineCandidateID AND 
+ CS.SPECIAL_EXAM_DATE  = dbo.GetMaxSpecialExamDate(CS.MARINE_CANDIDATE_ID, CS.SPECIAL_EXAM_TYPE) 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

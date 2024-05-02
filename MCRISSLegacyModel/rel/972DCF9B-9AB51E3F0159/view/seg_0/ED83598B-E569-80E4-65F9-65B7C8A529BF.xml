@@ -1,0 +1,760 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_0" id="ED83598B-E569-80E4-65F9-65B7C8A529BF" schemaObject="2A6D9360-3BB2-5CEA-6E99-790D76996FDF" name="dbo.aesoa.vwPersonCandidate">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>AF7FD0C6-7B2E-1507-80F9-D9B70B502B41</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT        dbo.MARINE_CANDIDATE.MARINE_CANDIDATE_ID AS PersonID, ISNULL(dbo.MIRS_EXPORT.EXPORTED, 'N') AS Exported, dbo.NWA.NWA_ID AS NwaId, MS.MEPS_ORGANIZATION_ID AS MepsId,  
+                         C.COMPONENT_CODE AS ComponentCode, C.CONTRACT_ID AS ContractId, C.CONTRACT_BEGIN_DATE, C.PROJECTED_TRAINING_ORG_ID AS ProjectedTrainingOrgId,  
+                         dbo.MIRS_EXPORT.EXPORT_DATE AS ExportDate, dbo.PERSON.SOCIAL_SECURITY_NUMBER AS SSN, ISNULL(dbo.PERSON.FIRST_NAME, '') AS FirstName, ISNULL(dbo.PERSON.LEGAL_MIDDLE_NAME, '')  
+                         AS MiddleName, ISNULL(dbo.PERSON.LAST_NAME, '') AS LastName, ISNULL(dbo.PERSON.SUFFIX_CD, '') AS Su.x, CAddressH.MARINE_CANDIDATE_ID AS HomeAddressPersonID,  
+                         CAddressH.STREET_ADDRESS AS HomeStreetAddress, CAddressH.STREET_ADDRESS_2 AS HomeStreetAddress2, CAddressH.CITY_CODE AS HomeCityCodes, vwCi.esH.Name AS HomeCity,  
+                         CAddressH.COUNTY_CODE AS HomeCountyCodes, vwCoun.esH.Name AS HomeCounty, CAddressH.STATE_CODE AS HomeStateCodes, vwStatesH.Name AS HomeState, CAddressH.ZIPCODE AS HomeZipcode,  
+                         CAddressH.USER_LOGIN AS HomeCAUserLogin, CAddressH.UPDATE_DATE AS HomeCAUpdateDate, CAddressC.MARINE_CANDIDATE_ID AS CurrentAddressPersonID,  
+                         CAddressC.STREET_ADDRESS AS CurrentStreetAddress, CAddressC.STREET_ADDRESS_2 AS CurrentStreetAddress2, CAddressC.CITY_CODE AS CurrentCityCodes, vwCi.esC.Name AS CurrentCity,  
+                         CAddressC.COUNTY_CODE AS CurrentCountyCodes, vwCoun.esC.Name AS CurrentCounty, CAddressC.STATE_CODE AS CurrentStateCodes, vwStatesC.Name AS CurrentState,  
+                         CAddressC.ZIPCODE AS CurrentZipcode, CAddressC.USER_LOGIN AS CurrentCAUserLogin, CAddressC.UPDATE_DATE AS CurrentCAUpdateDate, ISNULL(dbo.MARINE_CANDIDATE.MARITAL_STATUS_CODE, '')  
+                         AS MaritalStatus, ISNULL(dbo.MARINE_CANDIDATE.RACE_CODE, '') AS RaceCode, ISNULL(dbo.MARINE_CANDIDATE.ETHNIC_CODE, '') AS EthnicCode, ISNULL(dbo.MARINE_CANDIDATE.GENDER_CODE, '')  
+                         AS Gender, ISNULL(dbo.MARINE_CANDIDATE.RELIGION_CODE, '') AS Religion, ISNULL(dbo.MARINE_CANDIDATE.POPULATION_GROUP_CODE, '') AS Popula.onGroup,  
+                         dbo.MARINE_CANDIDATE.DATE_OF_BIRTH AS DateOfBirth, ISNULL(dbo.MARINE_CANDIDATE.CITIZENSHIP, '') AS Ci.zenship, ISNULL(dbo.MARINE_CANDIDATE.BIRTH_CITY, '') AS BirthCity,  
+                         ISNULL(dbo.MARINE_CANDIDATE.COUNTRY_OF_ORIGIN, '') AS CountryOfOrgin, ISNULL(dbo.MARINE_CANDIDATE.BIRTH_COUNTY, '') AS BirthCountry, ISNULL(dbo.MARINE_CANDIDATE.BIRTH_STATE, '')  
+                         AS BirthState, ISNULL(dbo.MARINE_CANDIDATE.DRIVER_LICENSE_STATE, '') AS DriversLicense, ISNULL(dbo.MARINE_CANDIDATE.DRIVER_LICENSE_NUM, '') AS DriversLicNumber,  
+                         dbo.MARINE_CANDIDATE.DRIVER_LICENSE_EXP AS DriversLicExp, ISNULL(dbo.MARINE_CANDIDATE.MEPCOM_RACE_CODE, '') AS MepcomRaceCode,  
+                         ISNULL(dbo.MARINE_CANDIDATE.MEPCOM_ETHNIC_CODE, '') AS MepcomEthnicCode 
+FROM            dbo.PERSON INNER JOIN 
+                         dbo.MARINE_CANDIDATE ON dbo.PERSON.PERSON_ID = dbo.MARINE_CANDIDATE.MARINE_CANDIDATE_ID INNER JOIN 
+                         dbo.NWA ON dbo.MARINE_CANDIDATE.MARINE_CANDIDATE_ID = dbo.NWA.MARINE_CANDIDATE_ID INNER JOIN 
+                         dbo.MIRS_EXPORT ON dbo.PERSON.PERSON_ID = dbo.MIRS_EXPORT.PERSON_ID LEFT OUTER JOIN 
+                         dbo.CANDIDATE_ADDRESS AS CAddressC ON dbo.MARINE_CANDIDATE.MARINE_CANDIDATE_ID = CAddressC.MARINE_CANDIDATE_ID AND CAddressC.ADDRESS_TYPE = 'C' LEFT OUTER JOIN 
+                         dbo.CANDIDATE_ADDRESS AS CAddressH ON dbo.MARINE_CANDIDATE.MARINE_CANDIDATE_ID = CAddressH.MARINE_CANDIDATE_ID AND CAddressH.ADDRESS_TYPE = 'H' LEFT OUTER JOIN 
+                         USMC.vwStatesWithTerritories AS vwStatesH ON vwStatesH.Code = CAddressH.STATE_CODE LEFT OUTER JOIN 
+                         USMC.vwStatesWithTerritories AS vwStatesC ON vwStatesC.Code = CAddressC.STATE_CODE LEFT OUTER JOIN 
+                         USMC.vwCoun.es AS vwCoun.esH ON vwCoun.esH.Code = CAddressH.COUNTY_CODE AND vwCoun.esH.StateCode = CAddressH.STATE_CODE LEFT OUTER JOIN 
+                         USMC.vwCoun.es AS vwCoun.esC ON vwCoun.esC.Code = CAddressC.COUNTY_CODE AND vwCoun.esC.StateCode = CAddressC.STATE_CODE LEFT OUTER JOIN 
+                         USMC.vwCi.es AS vwCi.esH ON vwCi.esH.CountyCode = CAddressH.COUNTY_CODE AND vwCi.esH.StateCode = CAddressH.STATE_CODE AND vwCi.esH.Code = CAddressH.CITY_CODE LEFT OUTER JOIN 
+                         USMC.vwCi.es AS vwCi.esC ON vwCi.esC.CountyCode = CAddressC.COUNTY_CODE AND vwCi.esC.StateCode = CAddressC.STATE_CODE AND vwCi.esC.Code = CAddressC.CITY_CODE LEFT OUTER JOIN 
+                         dbo.CONTRACT AS C ON C.NWA_ID = dbo.NWA.NWA_ID LEFT OUTER JOIN 
+                         dbo.MEPS_SCHEDULE AS MS ON MS.NWA_ID = dbo.NWA.NWA_ID AND MS.SCHEDULE_ID = 
+                             (SELECT        MAX(SCHEDULE_ID) AS Expr1 
+                               FROM            dbo.MEPS_SCHEDULE 
+                               WHERE        (NWA_ID = dbo.NWA.NWA_ID))]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="MARINE_CANDIDATE_ID" id="4A97E8C9-B976-8DD7-D2D2-7A894F4B66A0">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>PersonID</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>PersonID</headerAlias>
+<expression>MARINE_CANDIDATE_ID</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(dbo.MIRS_EXPORT.EXPORTED,&apos;N&apos;)" id="430B1462-B462-E93C-A028-ACF500513FF4">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Exported</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>Exported</headerAlias>
+<expression>ISNULL(dbo.MIRS_EXPORT.EXPORTED,&apos;N&apos;)</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="NWA_ID" id="75B6D8DE-29ED-DA33-7561-B78F95895D07">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>NwaId</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>NwaId</headerAlias>
+<expression>NWA_ID</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="MEPS_ORGANIZATION_ID" id="51D31C85-A349-B87D-4EDF-E7FA99FF1B86">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>MepsId</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>MepsId</headerAlias>
+<expression>MEPS_ORGANIZATION_ID</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COMPONENT_CODE" id="13028B34-FDB5-4AE9-C83C-6CB1DD609414">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>ComponentCode</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>ComponentCode</headerAlias>
+<expression>COMPONENT_CODE</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="CONTRACT_ID" id="696AE7A0-5BBD-776D-6DA0-D7A4F9CEF907">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>ContractId</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>ContractId</headerAlias>
+<expression>CONTRACT_ID</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="CONTRACT_BEGIN_DATE" id="BADC9E5C-07FE-461B-A605-6DEC5CA259B0">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>CONTRACT_BEGIN_DATE</alias>
+<dataType>UNKNOWN</dataType>
+<expression>CONTRACT_BEGIN_DATE</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="PROJECTED_TRAINING_ORG_ID" id="247B918C-706E-CE5D-D4D2-567C40129B15">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>ProjectedTrainingOrgId</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>ProjectedTrainingOrgId</headerAlias>
+<expression>PROJECTED_TRAINING_ORG_ID</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="EXPORT_DATE" id="736F5601-B88B-D0C9-1E96-43FFCD69F68A">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>ExportDate</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>ExportDate</headerAlias>
+<expression>EXPORT_DATE</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="SOCIAL_SECURITY_NUMBER" id="51A53336-CF5E-64E6-AB39-D9F1D9A4E1F6">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>SSN</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>SSN</headerAlias>
+<expression>SOCIAL_SECURITY_NUMBER</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(dbo.PERSON.FIRST_NAME,&apos;&apos;)" id="405425D2-3C91-56B6-3E5E-69E90D848C5B">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>FirstName</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>FirstName</headerAlias>
+<expression>ISNULL(dbo.PERSON.FIRST_NAME,&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(dbo.PERSON.LEGAL_MIDDLE_NAME,&apos;&apos;)" id="671CCF23-40E3-3457-9500-91C443184E7C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>MiddleName</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>MiddleName</headerAlias>
+<expression>ISNULL(dbo.PERSON.LEGAL_MIDDLE_NAME,&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(dbo.PERSON.LAST_NAME,&apos;&apos;)" id="073DF9F8-3E5F-AB9D-20B0-23CED61A72B3">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>LastName</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>LastName</headerAlias>
+<expression>ISNULL(dbo.PERSON.LAST_NAME,&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(dbo.PERSON.SUFFIX_CD,&apos;&apos;)" id="A2A5B234-EFF8-D164-9073-DD1AAEAFF991">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Su.x</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>Su.x</headerAlias>
+<expression>ISNULL(dbo.PERSON.SUFFIX_CD,&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_624" id="FDEE5FFC-C989-F5F0-D381-C128E007BBBA">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>HomeAddressPersonID</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>HomeAddressPersonID</headerAlias>
+<expression>MARINE_CANDIDATE_ID</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="STREET_ADDRESS" id="FB5E5F47-1916-6A77-57D1-C714A1BF4FD9">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>HomeStreetAddress</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>HomeStreetAddress</headerAlias>
+<expression>STREET_ADDRESS</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="STREET_ADDRESS_2" id="851F3E25-A0AB-535A-FFFB-F6DEE68565B5">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>HomeStreetAddress2</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>HomeStreetAddress2</headerAlias>
+<expression>STREET_ADDRESS_2</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="CITY_CODE" id="F4A1BE6E-158D-A3CC-37D7-A103CEA08F0F">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>HomeCityCodes</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>HomeCityCodes</headerAlias>
+<expression>CITY_CODE</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="Name" id="94BEA7E6-F967-95A4-CBE4-18D7796FDABF">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>HomeCity</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>HomeCity</headerAlias>
+<expression>Name</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COUNTY_CODE" id="1BE42AD2-C273-8C4F-4C20-B8683D6441B1">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>HomeCountyCodes</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>HomeCountyCodes</headerAlias>
+<expression>COUNTY_CODE</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_630" id="8E5780C7-EC37-94FE-9B72-E4F8F993B001">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>HomeCounty</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>HomeCounty</headerAlias>
+<expression>Name</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="STATE_CODE" id="D016E241-5A3A-A485-6DDE-6307D3F41A18">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>HomeStateCodes</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>HomeStateCodes</headerAlias>
+<expression>STATE_CODE</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_632" id="C809F764-0593-F416-50FA-EED965D39B34">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>HomeState</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>HomeState</headerAlias>
+<expression>Name</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ZIPCODE" id="19184CBD-6913-F1E2-76B9-F17E7CE61A22">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>HomeZipcode</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>HomeZipcode</headerAlias>
+<expression>ZIPCODE</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="USER_LOGIN" id="3F48EE47-C243-B931-C09A-85F1EC36D1BB">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>HomeCAUserLogin</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>HomeCAUserLogin</headerAlias>
+<expression>USER_LOGIN</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="UPDATE_DATE" id="61BC3AB5-F2C1-25CD-3C2A-BA541C9002FA">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>HomeCAUpdateDate</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>HomeCAUpdateDate</headerAlias>
+<expression>UPDATE_DATE</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_636" id="AD214F6C-BD2F-3BC9-6B49-8A7FA5D78C38">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>CurrentAddressPersonID</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>CurrentAddressPersonID</headerAlias>
+<expression>MARINE_CANDIDATE_ID</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_637" id="E8F2A63C-1812-4552-D777-A27F8CB46A20">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>CurrentStreetAddress</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>CurrentStreetAddress</headerAlias>
+<expression>STREET_ADDRESS</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_638" id="885FAF06-D807-CE26-A148-1FECFD64FD16">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>CurrentStreetAddress2</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>CurrentStreetAddress2</headerAlias>
+<expression>STREET_ADDRESS_2</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_639" id="276E0D50-0067-2198-07FD-3634020A9F84">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>CurrentCityCodes</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>CurrentCityCodes</headerAlias>
+<expression>CITY_CODE</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_640" id="087A0BB1-A9E2-B37F-03E0-8BDD71247AC2">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>CurrentCity</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>CurrentCity</headerAlias>
+<expression>Name</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_641" id="D4FB4120-07AD-93CA-09C6-4E581FCFE09E">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>CurrentCountyCodes</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>CurrentCountyCodes</headerAlias>
+<expression>COUNTY_CODE</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_642" id="27435558-E22D-4A96-C3B7-D137FDE82E12">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>CurrentCounty</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>CurrentCounty</headerAlias>
+<expression>Name</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_643" id="4DD20A2C-63D2-01B6-9ED3-3B370F7D7CBD">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>CurrentStateCodes</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>CurrentStateCodes</headerAlias>
+<expression>STATE_CODE</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_644" id="2656BE7B-0EFA-FFE8-9DA9-24E1C600F0AE">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>CurrentState</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>CurrentState</headerAlias>
+<expression>Name</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_645" id="58500240-6E0C-CB34-0E83-D88BE84128CC">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>CurrentZipcode</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>CurrentZipcode</headerAlias>
+<expression>ZIPCODE</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_646" id="6EA43D70-A4DF-D025-E7ED-9AC292DBD543">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>CurrentCAUserLogin</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>CurrentCAUserLogin</headerAlias>
+<expression>USER_LOGIN</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_647" id="121655FC-D60A-D05D-ACA4-4598580E67E6">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>CurrentCAUpdateDate</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>CurrentCAUpdateDate</headerAlias>
+<expression>UPDATE_DATE</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(dbo.MARINE_CANDIDATE.MARITAL_STATUS_CODE,&apos;&apos;)" id="127A3150-B499-4E15-99FE-31E68951C8D6">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>MaritalStatus</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>MaritalStatus</headerAlias>
+<expression>ISNULL(dbo.MARINE_CANDIDATE.MARITAL_STATUS_CODE,&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(dbo.MARINE_CANDIDATE.RACE_CODE,&apos;&apos;)" id="08ED42F5-8A3F-EEAD-63BB-A162DABA0981">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>RaceCode</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>RaceCode</headerAlias>
+<expression>ISNULL(dbo.MARINE_CANDIDATE.RACE_CODE,&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(dbo.MARINE_CANDIDATE.ETHNIC_CODE,&apos;&apos;)" id="30F215D7-8AF0-0485-08DF-E30080D3DF3B">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>EthnicCode</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>EthnicCode</headerAlias>
+<expression>ISNULL(dbo.MARINE_CANDIDATE.ETHNIC_CODE,&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(dbo.MARINE_CANDIDATE.GENDER_CODE,&apos;&apos;)" id="1E71534A-595C-2BDE-5BB5-45FBB71DA737">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Gender</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>Gender</headerAlias>
+<expression>ISNULL(dbo.MARINE_CANDIDATE.GENDER_CODE,&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(dbo.MARINE_CANDIDATE.RELIGION_CODE,&apos;&apos;)" id="E7051FF6-0641-6DFC-4423-AE26769684AB">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Religion</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>Religion</headerAlias>
+<expression>ISNULL(dbo.MARINE_CANDIDATE.RELIGION_CODE,&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(dbo.MARINE_CANDIDATE.POPULATION_GROUP_CODE,&apos;&apos;)" id="23B1360B-3896-0EB4-2DC5-049241F0F68C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Popula.onGroup</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>Popula.onGroup</headerAlias>
+<expression>ISNULL(dbo.MARINE_CANDIDATE.POPULATION_GROUP_CODE,&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="DATE_OF_BIRTH" id="0C25EB87-FFDC-19FE-6E81-CD929BCAB3A4">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>DateOfBirth</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>DateOfBirth</headerAlias>
+<expression>DATE_OF_BIRTH</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(dbo.MARINE_CANDIDATE.CITIZENSHIP,&apos;&apos;)" id="739928BE-8C25-4D79-8FA8-F05EDC47CC50">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Ci.zenship</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>Ci.zenship</headerAlias>
+<expression>ISNULL(dbo.MARINE_CANDIDATE.CITIZENSHIP,&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(dbo.MARINE_CANDIDATE.BIRTH_CITY,&apos;&apos;)" id="FE08DFB0-A5C0-F1C6-5D7B-611C06DC4913">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>BirthCity</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>BirthCity</headerAlias>
+<expression>ISNULL(dbo.MARINE_CANDIDATE.BIRTH_CITY,&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(dbo.MARINE_CANDIDATE.COUNTRY_OF_ORIGIN,&apos;&apos;)" id="4B9BD436-70CF-9DEE-41DE-EC70E2750E50">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>CountryOfOrgin</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>CountryOfOrgin</headerAlias>
+<expression>ISNULL(dbo.MARINE_CANDIDATE.COUNTRY_OF_ORIGIN,&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(dbo.MARINE_CANDIDATE.BIRTH_COUNTY,&apos;&apos;)" id="4C672DBB-A63A-88CD-F6C9-ADCBA0F54E17">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>BirthCountry</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>BirthCountry</headerAlias>
+<expression>ISNULL(dbo.MARINE_CANDIDATE.BIRTH_COUNTY,&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(dbo.MARINE_CANDIDATE.BIRTH_STATE,&apos;&apos;)" id="4F131DAA-E26D-5887-362C-2DB298AEA130">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>BirthState</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>BirthState</headerAlias>
+<expression>ISNULL(dbo.MARINE_CANDIDATE.BIRTH_STATE,&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(dbo.MARINE_CANDIDATE.DRIVER_LICENSE_STATE,&apos;&apos;)" id="33576052-0D93-1B45-B72C-0DBD03EF9F7B">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>DriversLicense</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>DriversLicense</headerAlias>
+<expression>ISNULL(dbo.MARINE_CANDIDATE.DRIVER_LICENSE_STATE,&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(dbo.MARINE_CANDIDATE.DRIVER_LICENSE_NUM,&apos;&apos;)" id="358D48C8-8084-47A1-4934-128BD60F63B3">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>DriversLicNumber</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>DriversLicNumber</headerAlias>
+<expression>ISNULL(dbo.MARINE_CANDIDATE.DRIVER_LICENSE_NUM,&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="DRIVER_LICENSE_EXP" id="DC432484-4FF6-BDFF-25F2-2D9013420140">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>DriversLicExp</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>DriversLicExp</headerAlias>
+<expression>DRIVER_LICENSE_EXP</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(dbo.MARINE_CANDIDATE.MEPCOM_RACE_CODE,&apos;&apos;)" id="37BF17C1-650F-C9E6-C6B0-553A48A5E0C5">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>MepcomRaceCode</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>MepcomRaceCode</headerAlias>
+<expression>ISNULL(dbo.MARINE_CANDIDATE.MEPCOM_RACE_CODE,&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(dbo.MARINE_CANDIDATE.MEPCOM_ETHNIC_CODE,&apos;&apos;)" id="AFD74FF6-5D86-ADD3-AB68-3F5A3A0A761F">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>MepcomEthnicCode</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>MepcomEthnicCode</headerAlias>
+<expression>ISNULL(dbo.MARINE_CANDIDATE.MEPCOM_ETHNIC_CODE,&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>ED83598B-E569-80E4-65F9-65B7C8A529BF</viewID>
+</viewElement>
+</viewElements>
+</TableView>

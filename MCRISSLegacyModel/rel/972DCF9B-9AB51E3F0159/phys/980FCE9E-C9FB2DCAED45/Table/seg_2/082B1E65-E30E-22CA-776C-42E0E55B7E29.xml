@@ -1,0 +1,49 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="MapsRouteAddress" directorySegmentName="seg_2" id="082B1E65-E30E-22CA-776C-42E0E55B7E29">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:54 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<schemaObject>454547C7-2829-9C8F-6E0C-35E4CFDC8E47</schemaObject>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="RouteId" id="4F60E44D-5192-34AC-BE31-1DE9858C88FF">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:01 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="AddressId" id="94634B11-4189-E768-7FEC-A5BAF1C68A1F">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:01 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="ID" id="F2AB1FF8-869D-66B1-99A6-58B7E736598B">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:01 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<defaultValue>(newid())</defaultValue>
+</ColumnProxy>
+</columnProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="FK_MapsRouteAddress_MapsMapRoute" id="2BC90143-7486-2663-ECDD-EC379EEFECAC">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="FK_MapsRouteAddress_MapsAddress" id="F7822869-4405-3AC7-E91D-423B4BC0C843">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="PK_MapsRouteAddress" id="9C267459-3237-0D90-A724-A15AF60A0D6C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:01 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<clustered>true</clustered>
+<fillFactor>100</fillFactor>
+<partitioningColumn>EFC1C3A0-E2D3-374A-ACA3-B322F3BEB012</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+</TableProxySqlServerv2k5>

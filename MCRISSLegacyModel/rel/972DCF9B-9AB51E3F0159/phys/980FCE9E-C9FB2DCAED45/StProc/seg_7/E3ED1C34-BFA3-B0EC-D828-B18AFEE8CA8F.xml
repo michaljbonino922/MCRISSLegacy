@@ -1,0 +1,155 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUpdateIRTStop]" directorySegmentName="seg_7" id="E3ED1C34-BFA3-B0EC-D828-B18AFEE8CA8F">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@stopID    uniqueidentifier, 
+ @irtCardID   uniqueidentifier, 
+ @StopNumber   int, 
+ @orgName   varchar(60) = null, 
+ @street    varchar(80), 
+ @city    varchar(40), 
+ @state    varchar(2), 
+ @ZipCode   varchar(5), 
+ @phoneNumber  varchar(20) =null, 
+ @.me    varchar(10) = null, 
+ @comments   varchar(500) = null, 
+ @Title    varchar(5)=null, 
+ @FirstName   varchar(20) = null, 
+ @mi     varchar(1) = null, 
+ @LastName   varchar(35) = null, 
+ @lastUpdateUser  uniqueidentifier, 
+ @countyCode   varchar(4)=null, 
+ @cityCode   varchar(4)=null, 
+ @stateCode   varchar(4)=null, 
+ @countryCode  varchar(5)=null, 
+ @country   varchar(40)=null, 
+ @street2   varchar(50)=null 
+  
+AS 
+BEGIN 
+ 
+-- STEP 1: Start the transac.on 
+BEGIN TRANSACTION 
+ 
+-- STEP 2 & 3: Issue the data change statement(s), checking @@ERROR a.er each statement 
+IF EXISTS(SELECT StopID FROM [RSSOSS].[USMC].[IRTStops] WHERE StopID = @StopID ) 
+BEGIN 
+ -- if @intCount > 0, then the Record already exists.  UPDATE. 
+ UPDATE  
+  [RSSOSS].[USMC].[IRTStops] 
+    SET  
+        StopNumber = @StopNumber, 
+        Organiza.onName = @orgName, 
+        Street = @Street, 
+        City = @City, 
+        [State] = @state, 
+        ZipCode= @ZipCode, 
+        PhoneNumber = @phoneNumber, 
+        [Time] = @.me, 
+        Comments = @comments, 
+        Title = @Title, 
+        FirstName=@FirstName, 
+        MI=@mi, 
+        LastName=@LastName, 
+        lastUpdateDate = GETDATE(), 
+        lastUpdateUser = @lastUpdateUser, 
+        CountyCode = @countyCode, 
+        CityCode = @cityCode, 
+        StateCode = @stateCode, 
+        CountryCode = @countryCode, 
+        Country = @country, 
+        Street2 = @street2 
+ WHERE  
+  StopID = @stopID  
+   
+END 
+ELSE 
+BEGIN 
+ -- if @intCount = 0, then the Record does not exist.  INSERT. 
+ INSERT INTO [RSSOSS].[USMC].[IRTStops] 
+           ( 
+   StopID, 
+            IRTCardID, 
+            StopNumber, 
+            Organiza.onName, 
+            Street, 
+            City, 
+            [State], 
+            ZipCode, 
+            PhoneNumber, 
+            [Time], 
+            Comments, 
+            Title, 
+            FirstName, 
+            MI, 
+            LastName, 
+            LastUpdateDate, 
+            LastUpdateUser, 
+            CountyCode, 
+            CityCode, 
+            StateCode, 
+            Country, 
+            CountryCode, 
+            Street2 
+   ) 
+     VALUES 
+           (  
+   @stopID, 
+            @IRTCardID, 
+            @stopNumber, 
+            @orgName, 
+            @street, 
+            @city, 
+            @state, 
+            @zipCode, 
+            @phoneNumber, 
+            @.me, 
+            @comments, 
+            @Title, 
+            @FirstName, 
+            @mi, 
+            @LastName, 
+            GetDate(), 
+            @LastUpdateUser, 
+            @CountyCode, 
+            @CityCode, 
+            @StateCode, 
+            @Country, 
+            @CountryCode, 
+            @street2 
+           ) 
+END 
+ 
+-- Rollback the transac.on if there were any errors 
+IF @@ERROR <> 0 
+ BEGIN 
+    -- Rollback the transac.on 
+    ROLLBACK TRANSACTION 
+ 
+    -- Raise an error and return 
+    RAISERROR ('Error occurred while performing the change.', 16, 1) 
+    RETURN 
+ END 
+ 
+-- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+IF @@ROWCOUNT > 1 
+BEGIN 
+    -- Rollback the transac.on 
+    ROLLBACK TRANSACTION 
+ 
+    -- Raise an error and return 
+    RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+    RETURN 
+END 
+  
+-- STEP 4: If we reach this point, the commands completed successfully 
+--         Commit the transac.on.... 
+COMMIT TRANSACTION 
+ 
+  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

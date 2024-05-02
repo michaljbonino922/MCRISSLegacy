@@ -1,0 +1,25 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetDistrictOSSs]" directorySegmentName="seg_16" id="3DEABA3D-7BA8-F38B-2288-98E95CDB9D12">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@District  int 
+AS 
+ 
+SELECT  
+ OSS.ORGANIZATION_ID, OSS.SHORT_NAME,  
+ OSS.ORGANIZATION_TYPE 
+FROM  
+ RECRUITING_ORGANIZATION OSS INNER JOIN ORGANIZATION_MAP RS ON 
+  (OSS.ORGANIZATION_ID = RS.CHILD_ORGANIZATION_ID AND 
+  OSS.ORGANIZATION_TYPE = 'OSS' AND 
+  OSS.ISOPEN = 'Y') 
+ INNER JOIN ORGANIZATION_MAP DIST ON  
+  (RS.PARENT_ORGANIZATION_ID = DIST.CHILD_ORGANIZATION_ID AND 
+  DIST.PARENT_ORGANIZATION_ID = @District) 
+ORDER BY  
+ OSS.SHORT_NAME]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

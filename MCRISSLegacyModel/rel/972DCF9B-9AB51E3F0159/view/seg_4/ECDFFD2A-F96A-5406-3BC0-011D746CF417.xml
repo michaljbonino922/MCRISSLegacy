@@ -1,0 +1,26 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_4" id="ECDFFD2A-F96A-5406-3BC0-011D746CF417" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="_dta_mv_330">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>06D2DF29-B3D7-9233-2800-9268EEDD7076</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  [USMC].[EventSubject].[Id] as _col_1 FROM  [USMC].[Event],  [USMC].[EventSubject]   WHERE  [USMC].[Event].[ID] = [USMC].[EventSubject].[EventId]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[Id]" id="19F180D5-A589-1CD1-31DD-046C08C09A6E">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_1</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_1</headerAlias>
+<expression>[Id]</expression>
+<reference>false</reference>
+<viewID>ECDFFD2A-F96A-5406-3BC0-011D746CF417</viewID>
+</viewElement>
+</viewElements>
+</TableView>

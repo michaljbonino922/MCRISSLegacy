@@ -1,0 +1,67 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateMEPSOrg]" directorySegmentName="seg_27" id="E5C2D8E1-D288-E0BA-528D-6CD79BDCFB49">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+      @ID AS INT, 
+      @Name AS VARCHAR(60), 
+      @Street AS VARCHAR(40), 
+      @Street2 AS VARCHAR(40) = NULL, 
+      @City AS VARCHAR(20), 
+      @StateCode AS VARCHAR(2), 
+      @Zipcode AS VARCHAR(9), 
+      @IsOpen AS CHAR(1), 
+      @E.ec.veDate AS DATETIME, 
+      @ClosedDate AS DATETIME, 
+      @UserLogin AS VARCHAR(50), 
+      @MepsCutO.Time AS TIME, 
+   @CityCode as varchar(4) = null, 
+   @CountyCode as varchar(3) = null, 
+   @StateGeoCode as varchar(2) = null 
+    ) 
+AS 
+    IF EXISTS ( SELECT 
+                    1 
+                FROM 
+                    dbo.MEPS_ORGANIZATION_LOOKUP 
+                WHERE 
+                    MEPS_ORGANIZATION_ID = @ID ) 
+        BEGIN  
+            UPDATE 
+                dbo.MEPS_ORGANIZATION_LOOKUP 
+            SET 
+                [MEPS_NAME] = @Name, 
+                [STREET] = @Street, 
+                [STREET2] = @Street2, 
+                [CITY] = @City, 
+                [STATE_CODE] = @StateCode, 
+                [ZIP_CODE] = @Zipcode, 
+                [ISOPEN] = @IsOpen, 
+                [EFFECTIVE_DATE] = @E.ec.veDate, 
+                [CLOSED_DATE] = @ClosedDate, 
+                [USER_LOGIN] = @UserLogin, 
+                [UPDATE_DATE] = GETDATE(), 
+                [MEPS_CUTOFF_TIME] = @MepsCutO.Time, 
+    [CITY_CODE] = @CityCode, 
+    [COUNTY_CODE] = @CountyCode, 
+    [STATE_GEO_CODE] = @StateGeoCode 
+            WHERE 
+                MEPS_ORGANIZATION_ID = @ID; 
+    
+        END; 
+ 
+    IF @IsOpen = 'Y' 
+        BEGIN 
+ -- The organiza.on is open, so make sure there is no closed date 
+            UPDATE 
+                dbo.MEPS_ORGANIZATION_LOOKUP 
+            SET 
+                [CLOSED_DATE] = NULL 
+            WHERE 
+                [MEPS_ORGANIZATION_ID] = @ID; 
+        END;]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

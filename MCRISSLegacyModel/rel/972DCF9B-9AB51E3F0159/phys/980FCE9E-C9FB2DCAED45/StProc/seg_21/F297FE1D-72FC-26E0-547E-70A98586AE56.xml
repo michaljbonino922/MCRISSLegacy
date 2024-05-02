@@ -1,0 +1,28 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetSchoolStatus]" directorySegmentName="seg_21" id="F297FE1D-72FC-26E0-547E-70A98586AE56">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[AS 
+ 
+SELECT  
+ STATUS_CODE, 
+ -- return new short descrip.on per SCR # 102  
+ CASE  
+  WHEN STATUS_CODE = 'NW' THEN 'NW - Non Working' 
+  WHEN STATUS_CODE = 'NW/N' THEN 'NC - Non Coopera.ve' 
+  WHEN STATUS_CODE = 'WK' THEN 'WK - Working' 
+  ELSE SHORT_DESCRIPTION 
+ END AS SHORT_DESCRIPTION  
+FROM  
+ HIGH_SCHOOL_STATUS 
+WHERE  
+ -- .lter out 'NW/S' value per SCR # 102 since database team is changing 
+ -- all 'NW/S' records to 'NW' 
+ STATUS_CODE <> 'NW/S' 
+  
+-- SELECT STATUS_CODE, SHORT_DESCRIPTION FROM HIGH_SCHOOL_STATUS]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,36 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateMUDQCDate]" directorySegmentName="seg_25" id="7DB7F00D-028A-E152-A692-F7243D0C8766">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@OrgId int, 
+ @UserLogin varchar(15), 
+ @QCDate date.me 
+ 
+AS 
+ 
+ 
+SET NOCOUNT ON 
+ 
+--- UPDATE MUD FILE BASED ON ZIPCODES 
+IF EXISTS (SELECT 1 FROM MUD_QC_DATE WHERE ORG_ID = @OrgId) 
+BEGIN 
+ UPDATE MUD_QC_DATE 
+ SET  
+  QC_DATE = @QCDate, 
+  USER_LOGIN = @UserLogin 
+ WHERE 
+  ORG_ID = @OrgId 
+END 
+ELSE 
+BEGIN 
+ INSERT INTO MUD_QC_DATE 
+ SELECT @OrgId, @UserLogin, @QCDate 
+END 
+ 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

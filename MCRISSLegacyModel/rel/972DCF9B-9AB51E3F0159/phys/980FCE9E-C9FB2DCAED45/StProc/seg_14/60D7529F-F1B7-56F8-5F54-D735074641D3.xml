@@ -1,0 +1,72 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_DBACon.rmDistContract]" directorySegmentName="seg_14" id="60D7529F-F1B7-56F8-5F54-D735074641D3">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@org_name varchar(10), 
+@begin_date date.me, 
+@end_date date.me 
+as 
+ 
+declare @org_id   int 
+declare @total_count  int 
+declare @discharged_count  int 
+ 
+ 
+set  @org_id = (select organiza.on_id from recrui.ng_organiza.on  
+   where [short_name] = @org_name) 
+ 
+--Check to see if name was valid 
+if @org_id is null 
+begin 
+Print 'Check Organiza.on Name' 
+RETURN 
+End 
+ 
+--ini.alize dates 
+ 
+set @end_date = dateadd(ms, -2, dateadd(day, 1, @end_date)) 
+ 
+--Total Contracted 
+select @total_count = (select count(*) from contract c  
+inner join nwa n on c.nwa_id = n.nwa_id 
+inner join candidate_status cs on n.nwa_id = cs.nwa_id  
+inner join organiza.on_map o1 on n.organiza.on_of_record_id = o1.child_organiza.on_id  
+inner join organiza.on_map o2 on o1.parent_organiza.on_id = o2.child_organiza.on_id  
+--inner join organiza.on_map o3 on o2.parent_organiza.on_id = o3.child_organiza.on_id 
+where  c.contract_begin_date between @begin_date and @end_date 
+and  o2.parent_organiza.on_id = @org_id 
+and  cs.candidate_status_id = (select max(candidate_status_id) from candidate_status 
+     where nwa_id = n.nwa_id and status_e.ec.ve_date <= @end_date) 
+and  cs.disposi.on_code not in ('L') 
+and    n.comp_change_.ag is null) 
+ 
+--Total Discharged 
+ 
+select @discharged_count = (select count(*) from contract c  
+inner join nwa n on c.nwa_id = n.nwa_id 
+inner join candidate_status cs on n.nwa_id = cs.nwa_id  
+inner join organiza.on_map o1 on n.organiza.on_of_record_id = o1.child_organiza.on_id  
+inner join organiza.on_map o2 on o1.parent_organiza.on_id = o2.child_organiza.on_id  
+--inner join organiza.on_map o3 on o2.parent_organiza.on_id = o3.child_organiza.on_id 
+where  c.discharge_date between @begin_date and @end_date 
+and  cs.candidate_status_id = (select max(candidate_status_id) from candidate_status 
+     where nwa_id = n.nwa_id and status_e.ec.ve_date <= @end_date and 
+     cs.disposi.on_code = 'L') 
+and  o2.parent_organiza.on_id = @org_id 
+and    n.comp_change_.ag is null) 
+ 
+ 
+ 
+print '=============================================' 
+print 'Total Contracted ' 
+print '=============================================' 
+print @total_count 
+print '=============================================' 
+print 'Dep Discharged ' 
+print '=============================================' 
+print @discharged_count]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

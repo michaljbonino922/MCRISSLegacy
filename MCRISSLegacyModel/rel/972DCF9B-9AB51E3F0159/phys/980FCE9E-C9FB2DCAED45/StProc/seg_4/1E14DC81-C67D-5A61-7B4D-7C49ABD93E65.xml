@@ -1,0 +1,37 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetCollegePro.leExtended]" directorySegmentName="seg_4" id="1E14DC81-C67D-5A61-7B4D-7C49ABD93E65">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@SchoolCode as integer  
+   
+AS 
+SET NOCOUNT ON 
+ BEGIN 
+ SELECT  
+  -- CollegePro.leExtID is an iden.ty .eld and should not be selected 
+  [CollegePro.leExtID] As CollegePro.leID, 
+  cp.[SCHOOL_CODE] AS SchoolCode, 
+  cpe.[FiscalYear], hs.highschool_name AS CollegeName, 
+  [NumVisits], 
+  [NumMCFOPS],[NumEAC],[NumPresenta.ons], 
+  [NumMailOutConducted],[PercentMailOutReturn],[NumPosterityConducted], 
+  [PercentPosterityReturn],[NumContracts],[NumCommissions], 
+  --need to .x AEV column name in the table 
+  [NumAEV]  
+    
+ FROM [MCRISS].[USMC].[CollegePro.leExtended] cpe 
+   INNER JOIN  [USMC].CollegePro.le cp  ON  cpe.CollegePro.leExtID = cp.CollegePro.leID 
+   INNER JOIN  [dbo].High_School hs  ON  cp.school_code = hs.school_code 
+             and hs.school_type <> 'HS'  
+          
+ WHERE cp.SCHOOL_CODE = @SchoolCode   
+ ORDER by  FiscalYear 
+ END 
+  
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,39 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_4" id="1A180B5A-BD0E-2447-DE51-ADD068FE04D8" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="_dta_mv_366">
+<sourceDDLFile>create Prospecting script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:27 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>EFC280A7-338C-5F86-B82A-1BA93E7E9698</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  [USMC].[Prospect].[MonthWorkFor] as _col_1,  count_big(*) as _col_2 FROM  [USMC].[Prospect]  GROUP BY  [USMC].[Prospect].[MonthWorkFor]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[MonthWorkFor]" id="EE2CC7D2-FD59-68D7-E5C3-1C27F42C231C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:27 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_1</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_1</headerAlias>
+<expression>[MonthWorkFor]</expression>
+<reference>false</reference>
+<viewID>1A180B5A-BD0E-2447-DE51-ADD068FE04D8</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="count_big(*)" id="A88ED2DB-C9B1-D852-C273-853FBF5307D6">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:27 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_2</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_2</headerAlias>
+<expression>count_big(*)</expression>
+<reference>false</reference>
+<viewID>1A180B5A-BD0E-2447-DE51-ADD068FE04D8</viewID>
+</viewElement>
+</viewElements>
+</TableView>

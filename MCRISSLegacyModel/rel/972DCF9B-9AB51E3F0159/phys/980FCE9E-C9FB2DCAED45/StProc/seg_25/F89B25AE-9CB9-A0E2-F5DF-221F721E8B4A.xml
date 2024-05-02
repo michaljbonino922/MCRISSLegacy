@@ -1,0 +1,18 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateO.cerProgramHistory]" directorySegmentName="seg_25" id="F89B25AE-9CB9-A0E2-F5DF-221F721E8B4A">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@NWAID  int, 
+ @O.cerProgram varchar(2), 
+ @UserLogin varchar(15) 
+AS 
+ 
+INSERT INTO OFFICER_PROGRAM_HISTORY 
+ (NWA_ID, OFFICER_PROGRAM, OFFICER_PROGRAM_CHANGED_DATE, USER_LOGIN, UPDATE_DATE) 
+VALUES  
+ (@NWAID, @O.cerProgram, GETDATE(), @UserLogin, GETDATE())]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

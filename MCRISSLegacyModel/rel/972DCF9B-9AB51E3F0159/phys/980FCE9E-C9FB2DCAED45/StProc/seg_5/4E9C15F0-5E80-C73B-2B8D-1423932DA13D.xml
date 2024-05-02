@@ -1,0 +1,20 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetLanguageByCode]" directorySegmentName="seg_5" id="4E9C15F0-5E80-C73B-2B8D-1423932DA13D">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[(@Code varchar(2)) 
+AS 
+ 
+SELECT  
+  -1 AS ID 
+ ,[LANGUAGE_CODE] AS Code 
+ ,[LANGUAGE_CODE_DESCRIPTION] AS Descrip.on 
+FROM 
+ [dbo].[LANGUAGE] WITH (NOLOCK) 
+WHERE 
+ LANGUAGE_CODE = @Code]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

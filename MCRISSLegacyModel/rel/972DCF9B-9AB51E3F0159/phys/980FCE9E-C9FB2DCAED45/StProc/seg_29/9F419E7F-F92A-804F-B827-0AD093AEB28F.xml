@@ -1,0 +1,70 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SaveChecklist]" directorySegmentName="seg_29" id="9F419E7F-F92A-804F-B827-0AD093AEB28F">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:39 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @ChecklistId uniqueiden..er, 
+ @PackageId uniqueiden..er, 
+ @Comments varchar(max) 
+) 
+AS 
+BEGIN  
+ 
+BEGIN TRANSACTION 
+ 
+IF EXISTS (SELECT ChecklistId FROM [ACP].[Checklist] WHERE [ChecklistId] = @ChecklistId) 
+BEGIN 
+ UPDATE  
+  [ACP].[Checklist] 
+ SET 
+  [PackageId] = @PackageId, 
+  [Comments] = @Comments 
+ WHERE 
+  [ChecklistId] = @ChecklistId 
+END 
+ELSE 
+BEGIN 
+ INSERT INTO [ACP].[Checklist] 
+ ( 
+  [ChecklistId], 
+  [PackageId], 
+  [Comments] 
+ ) 
+ VALUES 
+ ( 
+  @ChecklistId, 
+  @PackageId, 
+  @Comments 
+ ) 
+END 
+  
+ -- Rollback the transac.on if there were any errors 
+ IF @@ERROR <> 0 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+  
+  -- Raise an error and return 
+  RAISERROR ('Error occurred while performing the change.', 16, 1) 
+  RETURN 
+ END 
+  
+ -- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+ IF @@ROWCOUNT > 1 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+  
+  -- Raise an error and return 
+  RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+  RETURN 
+ END 
+  
+ -- If we reach this point, the commands completed successfully. 
+ COMMIT TRANSACTION 
+END]]></body>
+<schema>569A41D8-8F40-0619-141C-F4C9436AAF46</schema>
+<database>2D7ED536-DF8E-3523-7DC3-4228EBAF5F66</database>
+</StoredProcedureSqlServerv2k5>

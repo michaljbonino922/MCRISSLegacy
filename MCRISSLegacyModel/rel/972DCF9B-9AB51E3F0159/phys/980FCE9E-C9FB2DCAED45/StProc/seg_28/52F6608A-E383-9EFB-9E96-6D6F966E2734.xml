@@ -1,0 +1,37 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUpdateRecruiter]" directorySegmentName="seg_28" id="52F6608A-E383-9EFB-9E96-6D6F966E2734">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:58:46 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @RecruiterId uniqueiden..er, 
+ @Data image 
+) 
+AS 
+ 
+DECLARE @retVal int 
+ 
+IF EXISTS(SELECT 1 FROM [AFP].[USMC].[Recruiter] WHERE RecruiterId = @RecruiterId) 
+BEGIN 
+ UPDATE [AFP].[USMC].[Recruiter] 
+  SET Data = @Data 
+  WHERE RecruiterId = @RecruiterId 
+  SET @retVal = 1 
+END 
+ELSE 
+BEGIN  
+ INSERT INTO [AFP].[USMC].[Recruiter] 
+  ([RecruiterId] 
+  ,[Data]) 
+     VALUES 
+  (@RecruiterId 
+  ,@Data) 
+   
+ SET @retVal = 0 
+END 
+ 
+SELECT @retVal]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>DC23F770-7DD9-7021-9572-6AE599ACA3AE</database>
+</StoredProcedureSqlServerv2k5>

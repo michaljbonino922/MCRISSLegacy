@@ -1,0 +1,117 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_3" id="49E66266-AB36-093E-7479-85604DE75400" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="_dta_mv_287">
+<sourceDDLFile>create Prospecting script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>E25EA595-F9FF-EC1F-06F4-90D787CD6BDD</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  [USMC].[Prospect].[NwaId] as _col_1,  [USMC].[Prospect].[Recrui.ngPersonId] as _col_2,  [USMC].[Prospect].[ProspectDisposi.onId] as _col_3,  [USMC].[ProspectDisposi.on].[ProspectDisposi.onId] as _col_4,  [USMC].[Prospect].[ProspectId] as _col_5,  [USMC].[Person].[LastName] as _col_6,  [USMC].[Person].[FirstName] as _col_7,  [USMC].[Person].[MiddleName] as _col_8 FROM  [USMC].[Person],  [USMC].[Prospect],  [USMC].[ProspectDisposi.on]   WHERE  [USMC].[Prospect].[ProspectDisposi.onId] = [USMC].[ProspectDisposi.on].[ProspectDisposi.onId]  AND  [USMC].[Person].[PersonId] = [USMC].[Prospect].[PersonId]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[NwaId]" id="98C0D2CF-9CBA-7851-57EF-59B9FD829D22">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_1</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_1</headerAlias>
+<expression>[NwaId]</expression>
+<reference>false</reference>
+<viewID>49E66266-AB36-093E-7479-85604DE75400</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[Recrui.ngPersonId]" id="5A4183ED-F3CD-91A5-BA3A-21CB464EFB11">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_2</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_2</headerAlias>
+<expression>[Recrui.ngPersonId]</expression>
+<reference>false</reference>
+<viewID>49E66266-AB36-093E-7479-85604DE75400</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[ProspectDisposi.onId]" id="D2BA2460-A47F-8B9A-253E-F8D2EDFD92D6">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_3</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_3</headerAlias>
+<expression>[ProspectDisposi.onId]</expression>
+<reference>false</reference>
+<viewID>49E66266-AB36-093E-7479-85604DE75400</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="on].[ProspectDisposi.onId]" id="361E69E1-5738-703D-F11A-D99414204760">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_4</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_4</headerAlias>
+<expression>on].[ProspectDisposi.onId]</expression>
+<reference>false</reference>
+<viewID>49E66266-AB36-093E-7479-85604DE75400</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[ProspectId]" id="02090095-18AE-F877-3872-C0C0DD2EAB0C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_5</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_5</headerAlias>
+<expression>[ProspectId]</expression>
+<reference>false</reference>
+<viewID>49E66266-AB36-093E-7479-85604DE75400</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[LastName]" id="9CFC7107-0880-5D05-94C0-9E799B181113">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_6</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_6</headerAlias>
+<expression>[LastName]</expression>
+<reference>false</reference>
+<viewID>49E66266-AB36-093E-7479-85604DE75400</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[FirstName]" id="C651B96C-2048-81BB-4FBC-043B822B041C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_7</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_7</headerAlias>
+<expression>[FirstName]</expression>
+<reference>false</reference>
+<viewID>49E66266-AB36-093E-7479-85604DE75400</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[MiddleName]" id="E11D4A7A-5914-0BA5-BC21-FBAB0DC3BF00">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_8</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_8</headerAlias>
+<expression>[MiddleName]</expression>
+<reference>false</reference>
+<viewID>49E66266-AB36-093E-7479-85604DE75400</viewID>
+</viewElement>
+</viewElements>
+</TableView>

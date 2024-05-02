@@ -1,0 +1,128 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_MIDeleteContract]" directorySegmentName="seg_22" id="C3175AE7-3F35-E693-7C62-A872F9CDBA78">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@NWAID   int, 
+ @UserLogin  varchar(15) 
+AS 
+ 
+SET NOCOUNT ON 
+ 
+DECLARE @DBID    int 
+DECLARE @DBNAME   sysname 
+DECLARE @ErrMsg   varchar(100) 
+DECLARE @ComponentCode   varchar(2) 
+Declare @ContractID  int 
+DECLARE @CandidateStatusID int 
+ 
+SELECT  
+ @DBID  = DB_ID(),  
+ @DBNAME = DB_NAME() 
+select @ContractID = Contract_ID from Contract where NWA_ID = @NWAID 
+SELECT @CandidateStatusID = CANDIDATE_STATUS_ID from Candidate_status where NWA_ID = @NWAID 
+ 
+IF EXISTS (SELECT 1 FROM CONTRACT WHERE CONTRACT_ID = @ContractID) 
+BEGIN  
+ --- BEGIN TRANSACTION  
+ 
+ --- DELETE THE PADD HISTORY 
+ EXEC sp_MIDeletePADDHistory @ContractID = @ContractID, @UserLogin = @UserLogin 
+ 
+ IF @@ERROR != 0 
+ BEGIN 
+  --- ROLLBACK TRANSACTION 
+  SET @ErrMsg = 'An error occurred dele.ng the PADD History for Contract ' + CONVERT(VARCHAR, @ContractID) + '.'  
+  RAISERROR (@ErrMsg, 16, 1, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ 
+ --- DELETE PROGRAM_MOS_CODES  
+ EXEC sp_MIDeleteProgramMOSCodes @ContractID = @ContractID, @UserLogin = @UserLogin 
+ 
+ IF @@ERROR != 0 
+ BEGIN 
+  --- ROLLBACK TRANSACTION 
+  SET @ErrMsg = 'An error occurred dele.ng the PROGRAM_MOS_CODES for Contract ' + CONVERT(VARCHAR, @ContractID) + '.'  
+  RAISERROR (@ErrMsg, 16, 1, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ --- DELETE THE CANDIDATE_STATUS RECORD 
+ EXEC sp_MIDeleteCandidateStatus @NWAID = @NWAID, @CandidateStatusID = @CandidateStatusID, @UserLogin = @UserLogin 
+ 
+ IF @@ERROR != 0 
+ BEGIN 
+  --- ROLLBACK TRANSACTION 
+  SET @ErrMsg = 'An error occurred dele.ng the status record for NWA ' + CONVERT(VARCHAR, @NWAID) + '.'  
+  RAISERROR (@ErrMsg, 16, 2, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ 
+ --- GET THE COMPONENT CODE AND 
+ --- REMOVE PROGRAM/QSN ASSIGNMENT(S) IF THEY EXIST 
+ SELECT @ComponentCode = C.COMPONENT_CODE FROM CONTRACT C WHERE C.CONTRACT_ID = @ContractID 
+ 
+ IF @ComponentCode IN ('K4', 'K8', 'K9', 'B5')  
+ BEGIN 
+  EXEC sp_MIRemoveQSNAssignment @ContractID = @ContractID, @UserLogin = @UserLogin 
+ END 
+ ELSE 
+ BEGIN 
+  EXEC sp_MIRemoveProgramAssignment @ContractID = @ContractID, @UserLogin = @UserLogin 
+ END 
+ 
+ IF @@ERROR != 0 
+ BEGIN 
+  --- ROLLBACK TRANSACTION 
+  SET @ErrMsg = 'An error occurred removing the ' +  
+    CASE  
+     WHEN @ComponentCode IN ('K4', 'K8', 'K9', 'B5') THEN 'QSN Assignment' 
+     ELSE 'Program Assignment(s)' 
+    END + ' for Contract ' + CONVERT(VARCHAR, @ContractID) + '.'  
+  RAISERROR (@ErrMsg, 16, 3, @DBID, @DBNAME) 
+  RETURN 
+ END   
+ 
+ --- REMOVE ANY REFERRALS  
+ EXEC sp_MIDeleteReferrals @ContractID = @ContractID, @UserLogin = @UserLogin 
+ 
+ IF @@ERROR != 0 
+ BEGIN 
+  --- ROLLBACK TRANSACTION 
+  SET @ErrMsg = 'An error occurred dele.ng the referral data for Contract ' + CONVERT(VARCHAR, @ContractID) + '.'  
+  RAISERROR (@ErrMsg, 16, 5, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ 
+ --- UPDATE CONTRACT DATA WITH THE USER LOGIN AND UPDATE DATE  
+ --- BEFORE DELETING IT 
+ UPDATE  
+  CONTRACT 
+ SET 
+  USER_LOGIN  = @UserLogin, 
+  UPDATE_DATE = GETDATE() 
+ WHERE 
+  CONTRACT_ID  = @ContractID 
+ 
+ 
+ --- DELETE THE CONTRACT DATA 
+ DELETE FROM CONTRACT WHERE CONTRACT_ID = @ContractID 
+ 
+ IF @@ERROR != 0 OR @@ROWCOUNT = 0 
+ BEGIN 
+  --- ROLLBACK TRANSACTION 
+  SET @ErrMsg = 'An error occurred dele.ng the contract record for Contract ' + CONVERT(VARCHAR, @ContractID) + '.'  
+  RAISERROR (@ErrMsg, 16, 6, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ 
+ --- COMMIT TRANSACTION 
+ 
+END 
+ 
+--- CLEAN UP   
+SET NOCOUNT OFF]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

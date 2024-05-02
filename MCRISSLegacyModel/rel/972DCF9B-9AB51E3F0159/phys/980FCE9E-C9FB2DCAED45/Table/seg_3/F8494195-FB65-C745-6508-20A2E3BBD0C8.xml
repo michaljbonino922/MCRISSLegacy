@@ -1,0 +1,66 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="RUCReserveUnit" directorySegmentName="seg_3" id="F8494195-FB65-C745-6508-20A2E3BBD0C8">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:53 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<schemaObject>2A6D9360-3BB2-5CEA-6E99-790D76996FDF</schemaObject>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="MSCID" id="0B8A92F4-2F19-9C16-22FF-F725EE029019">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="RUCReserveUnitID" id="31B64012-474A-4A76-B6F9-94914EDD38B4">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="ReserveUnitID" id="BE0D1B47-9245-FD08-6511-DCA93E766945">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="RUCID" id="E164DBF7-6073-1A9A-6F25-3825AAC22279">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+</columnProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="._RUCReserveUnit_ReserveUnit" id="A3673AC7-6858-3733-1D1A-6C976CECFB81">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:25 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="._RUCReserveUnit_RUC" id="B27E8FB2-323F-6155-CCD7-68DB5320D7FE">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:25 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="._RUCReserveUnit_MSC" id="D6B22FA3-6F91-2A67-9C74-932F13D11CE9">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:25 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="pk_RUCReserveUnit" id="D04F0FA7-A023-90C9-1BBE-EB5DC3F4DFC2">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:15 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<clustered>true</clustered>
+<fillFactor>90</fillFactor>
+<partitioningColumn>3F1BEA94-0C5E-1197-3706-DD9A3514E58B</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+<uniqueKeys>
+<UniqueKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.UniqueProxySqlServerv2k5" name="uk_RUCReserveUnit" id="4D4DE1AE-8DFF-A036-3E1C-83AD61BCE4E8">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:15 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<fillFactor>90</fillFactor>
+</UniqueKey>
+</uniqueKeys>
+</TableProxySqlServerv2k5>

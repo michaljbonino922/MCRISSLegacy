@@ -1,0 +1,19 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateQSNPivotDateHistory]" directorySegmentName="seg_25" id="967880D7-24B0-2EC7-DF79-159364E12E93">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@QSNID   char(9) = '0', 
+ @PreviousPivotDate date.me, 
+ @NewPivotDate  date.me, 
+ @UserLogin  varchar(15) 
+AS 
+ 
+INSERT INTO QSN_PIVOT_DATE_HISTORY  
+ (QSN_ID, PREVIOUS_PIVOT_DATE, NEW_PIVOT_DATE, DATE_CHANGED, USER_LOGIN, UPDATE_DATE) 
+VALUES  
+ (@QSNID, @PreviousPivotDate, @NewPivotDate, GETDATE(), @UserLogin, GETDATE())]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

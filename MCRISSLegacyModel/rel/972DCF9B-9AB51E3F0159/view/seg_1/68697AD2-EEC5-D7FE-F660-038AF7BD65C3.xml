@@ -1,0 +1,117 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_1" id="68697AD2-EEC5-D7FE-F660-038AF7BD65C3" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="_dta_mv_12">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>831AFE6C-7825-916B-BDAA-C16805694835</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  [USMC].[Event].[EventTypeId] as _col_1,  [USMC].[EventOwners].[ID] as _col_2,  [USMC].[Event].[ID] as _col_3,  [USMC].[EventSubject].[EventId] as _col_4,  [USMC].[EventSubject].[Id] as _col_5,  [USMC].[EventSubject].[SubjectId] as _col_6,  [USMC].[Event].[IsApproved] as _col_7,  count_big(*) as _col_8 FROM  [USMC].[Event],  [USMC].[EventSubject],  [USMC].[EventOwners]   WHERE  [USMC].[Event].[ID] = [USMC].[EventOwners].[EventID]  AND ( [USMC].[EventSubject].[EventId] = [USMC].[EventOwners].[EventID]  AND  [USMC].[Event].[ID] = [USMC].[EventOwners].[EventID] ) GROUP BY  [USMC].[Event].[EventTypeId],  [USMC].[EventOwners].[ID],  [USMC].[Event].[ID],  [USMC].[EventSubject].[EventId],  [USMC].[EventSubject].[Id],  [USMC].[EventSubject].[SubjectId],  [USMC].[Event].[IsApproved]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[EventTypeId]" id="2EF776B8-0A87-AC0A-28A1-E3A522021555">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_1</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_1</headerAlias>
+<expression>[EventTypeId]</expression>
+<reference>false</reference>
+<viewID>68697AD2-EEC5-D7FE-F660-038AF7BD65C3</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[ID]" id="E94A8BCD-AB5C-38FB-1CDE-F85E094B11B3">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_2</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_2</headerAlias>
+<expression>[ID]</expression>
+<reference>false</reference>
+<viewID>68697AD2-EEC5-D7FE-F660-038AF7BD65C3</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_1065" id="79ED9B66-06BC-F23A-BDD2-A856B29555A0">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_3</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_3</headerAlias>
+<expression>[ID]</expression>
+<reference>false</reference>
+<viewID>68697AD2-EEC5-D7FE-F660-038AF7BD65C3</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[EventId]" id="A9F27E10-1D8C-D8B1-0042-4FA6315EC2DC">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_4</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_4</headerAlias>
+<expression>[EventId]</expression>
+<reference>false</reference>
+<viewID>68697AD2-EEC5-D7FE-F660-038AF7BD65C3</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_1067" id="B5305DD1-7392-9395-5779-DDB8DAFF2655">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_5</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_5</headerAlias>
+<expression>[Id]</expression>
+<reference>false</reference>
+<viewID>68697AD2-EEC5-D7FE-F660-038AF7BD65C3</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[SubjectId]" id="6EA450FE-17B2-FF10-1828-F2090ABBD3AD">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_6</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_6</headerAlias>
+<expression>[SubjectId]</expression>
+<reference>false</reference>
+<viewID>68697AD2-EEC5-D7FE-F660-038AF7BD65C3</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[IsApproved]" id="4C45DDB6-A14F-9F66-561C-0169F1B95DEB">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_7</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_7</headerAlias>
+<expression>[IsApproved]</expression>
+<reference>false</reference>
+<viewID>68697AD2-EEC5-D7FE-F660-038AF7BD65C3</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="count_big(*)" id="BEAC63A3-097F-B7E9-15A5-DFC345068CE6">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_8</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_8</headerAlias>
+<expression>count_big(*)</expression>
+<reference>false</reference>
+<viewID>68697AD2-EEC5-D7FE-F660-038AF7BD65C3</viewID>
+</viewElement>
+</viewElements>
+</TableView>

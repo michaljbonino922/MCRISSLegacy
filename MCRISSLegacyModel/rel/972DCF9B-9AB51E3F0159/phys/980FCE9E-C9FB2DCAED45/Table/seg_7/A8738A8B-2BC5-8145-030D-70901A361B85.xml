@@ -1,0 +1,54 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="FormHistory" directorySegmentName="seg_7" id="A8738A8B-2BC5-8145-030D-70901A361B85">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:58:59 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<schemaObject>454547C7-2829-9C8F-6E0C-35E4CFDC8E47</schemaObject>
+<database>DC23F770-7DD9-7021-9572-6AE599ACA3AE</database>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="FormId" id="1DD23508-9E84-6CD3-71E0-3E87A3134E29">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="FormHistoryId" id="36AF292D-3FC1-84A2-77AC-F9A6AE441C4F">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<defaultValue>(newid())</defaultValue>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="Actor" id="4EC42E54-D2EE-6733-39A1-D3263CDAA761">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="Ac.on" id="69E0F319-1762-56CC-05A2-B2E33CCB0697">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="Ac.onDate" id="9D6EFD5A-27AA-5C95-C18C-0BFAE44ABC91">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+</columnProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="FORM_FORM_HISTORY_FK1" id="AD38897A-850D-0FB3-BDC9-B09AAE6B82E8">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:00 UTC</createdTime>
+<ownerDesignName>create MCRISS_ERROR script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="FORM_HISTORY_PK" id="97A2CE1E-FE48-DF77-BE4F-9821F981DED6">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<clustered>true</clustered>
+<fillFactor>90</fillFactor>
+<partitioningColumn>36AF292D-3FC1-84A2-77AC-F9A6AE441C4F</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+</TableProxySqlServerv2k5>

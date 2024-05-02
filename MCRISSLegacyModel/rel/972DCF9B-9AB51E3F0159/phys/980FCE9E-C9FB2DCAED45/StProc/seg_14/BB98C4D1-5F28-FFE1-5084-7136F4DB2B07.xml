@@ -1,0 +1,121 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetWFVListSchedulingCardRows]" directorySegmentName="seg_14" id="BB98C4D1-5F28-FFE1-5084-7136F4DB2B07">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:56 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[(  
+ @OrgId uniqueiden..er = null, 
+ @RecruiterId uniqueiden..er = null, 
+ @ScheduledEventsStart date.me, 
+ @ScheduledEventsEnd date.me, 
+ @EventTypeId int = null, 
+ @OnlyNextScheduledEvent bit = 1 
+) 
+ 
+AS 
+  
+DECLARE @Organiza.onID INT  
+ 
+SELECT @Organiza.onID = ORGANIZATION_ID FROM MCRISS.DBO.RECRUITING_ORGANIZATION WHERE rowguid = @orgid   
+ 
+SELECT 
+ rp.RECRUITING_PERSON_ID,  
+ rp.rowguid, 
+ rp.RANK_CODE, 
+ rcrtr.LAST_NAME, 
+ rcrtr.FIRST_NAME, 
+ rcrtr.LEGAL_MIDDLE_NAME 
+INTO #Recrui.ngPerson 
+FROM [MCRISS].[dbo].[RECRUITING_PERSON] rp  
+INNER JOIN [MCRISS].[dbo].[PERSON] rcrtr ON rp.RECRUITING_PERSON_ID = rcrtr.PERSON_ID  
+WHERE ((rp.RowGuid = @RecruiterId AND @RecruiterId IS NOT NULL) OR (@RecruiterId IS NULL))  
+  
+DECLARE @ListSchedulingGrid TABLE (     
+SchoolId uniqueiden..er, 
+SchoolYear int, 
+ImportEventId uniqueiden..er NULL, 
+LastUpdateDate date.me, 
+Recrui.ngOrganiza.onId uniqueiden..er  
+)  
+ 
+INSERT INTO @ListSchedulingGrid(schoolid, schoolyear,LastUpdateDate, ImportEventId, Recrui.ngOrganiza.onId) 
+SELECT DISTINCT ie.SchoolId, ie.Gradua.onYear, ie.LastUpdateDate, ie.ImportEventId, ie.Recrui.ngOrganiza.onId 
+FROM            USMC.ImportEvent AS ie INNER JOIN 
+                         USMC.ImportEvent AS ie2 ON ie.SchoolId = ie2.SchoolId AND ie.Gradua.onYear = ie2.Gradua.onYear AND ie.LastUpdateDate = 
+                             (SELECT        MAX(LastUpdateDate) AS Expr1 
+                               FROM            USMC.ImportEvent AS ie2 
+                               WHERE         
+        (ie.SchoolId = ie2.SchoolId)  
+        AND (ie.Gradua.onYear = ie2.Gradua.onYear))  
+        AND ie2.ImportEventStatusTypeId = 3 
+WHERE        (ie.SchoolId IS NOT NULL) AND (year(getdate())) <= ie.Gradua.onYear  
+ORDER BY ie.SchoolId, ie.LastUpdateDate DESC  
+   
+SELECT 
+  hsp.RowGuid AS ApplicantAssetID    
+  ,ls.ImportEventId AS CardID 
+  ,ie.DateStarted AS CreateDate 
+  ,HS.HIGHSCHOOL_NAME + '-' + cast(ls.Schoolyear as varchar(5)) as ApplicantAssetName  
+  ,COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+  COALESCE(RTRIM(rp.LAST_NAME), SPACE(0))  + SPACE(1) +  
+  COALESCE(RTRIM(rp.FIRST_NAME), SPACE(0)) + SPACE(1) +  
+  COALESCE(RTRIM(rp.LEGAL_MIDDLE_NAME), SPACE(0)) AS Recruiter 
+  ,COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+  COALESCE(RTRIM(rp.LAST_NAME), SPACE(0)) AS RecruiterShortName 
+  ,rp.rowguid AS RecruiterID 
+  ,lse.EventID AS EventID 
+  ,lse.StartDate AS EventDate 
+  ,lse.EventTypeOther 
+  ,lse.EventType 
+INTO #RESULTS 
+FROM @ListSchedulingGrid ls  
+  inner join USMC.ImportEvent AS ie on ie.ImportEventId = ls.importeven.d  
+  inner join MCRISS.dbo.HIGH_SCHOOL AS hs ON hs.rowguid = ls.SchoolId  
+  inner join MCRISS.dbo.HIGH_SCHOOL_Pro.le AS hsp ON hs.School_Code = hsp.School_Code 
+  and hsp.School_Year = ls.SchoolYear 
+  --INNER JOIN RSSOSS.USMC.MapsSectorZip msz ON SUBSTRING(hs.ZIP_CODE,1,5) = msz.Zip 
+  --           AND msz.LastUpdateDate IN (SELECT MAX(msz2.LastUpdateDate) 
+  --                  FROM RSSOSS.USMC.MapsSectorZip msz2 
+  --                  WHERE msz.Zip = msz2.Zip) 
+  --INNER JOIN RSSOSS.USMC.MapsSectorRecruiter msr ON msz.SectorID = msr.SectorID 
+  --           AND msr.LastUpdateDate IN ( SELECT MAX(msr2.LastUpdateDate) 
+  --                  FROM RSSOSS.USMC.MapsSectorRecruiter msr2 
+  --                  WHERE msr.SectorID = msr2.SectorID) 
+  INNER JOIN MCRISS.dbo.RECRUITING_ORGANIZATION ro ON ie.Recrui.ngOrganiza.onId = ro.rowguid 
+  INNER JOIN #Recrui.ngPerson rp ON hsp.Recruiter_ID = rp.RECRUITING_PERSON_ID  
+  INNER JOIN ( SELECT es.SubjectID, 
+       e.ID AS EventID, 
+       e.StartDate, 
+       e.EventTypeId, 
+       e.EventTypeOther, 
+       et.[Type] as EventType 
+      FROM MCRISS.dbo.HIGH_SCHOOL_Pro.le AS hsp2 
+      INNER JOIN [RSSOSS].[USMC].EventSubject es ON es.SubjectID = hsp2.rowguid 
+      INNER JOIN RSSOSS.USMC.Event e ON e.Id = es.EventId AND e.EventSourceId = 20 
+      inner join [RSSOSS].[USMC].[EventType] et on et.ID = e.EventTypeId 
+                
+     ) lse ON lse.SubjectID =   hsp.rowguid    
+WHERE (rp.RowGuid = @RecruiterId OR @RecruiterId IS NULL) 
+ AND (ro.ORGANIZATION_ID = @Organiza.onID OR @Organiza.onID = NULL) 
+ AND lse.StartDate >= @ScheduledEventsStart 
+ AND lse.StartDate < @ScheduledEventsEnd 
+ AND (lse.EventTypeId = @EventTypeId OR @EventTypeId IS NULL) 
+  
+  
+ SELECT * 
+ FROM #RESULTS r 
+ WHERE (EventDate IN (SELECT MIN(EventDate) 
+      FROM #RESULTS r2 
+      WHERE r.ApplicantAssetID = r2.ApplicantAssetID 
+       AND r2.EventDate >= GetDate())) 
+  OR (@OnlyNextScheduledEvent = 0   
+  AND r.EventDate >= GetDate())-- this returns all future events when set to 0 
+ 
+  
+   
+DROP TABLE #RESULTS 
+DROP TABLE #Recrui.ngPerson]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

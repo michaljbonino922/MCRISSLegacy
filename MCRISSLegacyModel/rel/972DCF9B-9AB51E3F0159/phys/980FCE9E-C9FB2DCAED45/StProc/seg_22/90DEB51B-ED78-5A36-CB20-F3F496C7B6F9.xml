@@ -1,0 +1,39 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_MSupd_NROTC_BOOST]" directorySegmentName="seg_22" id="90DEB51B-ED78-5A36-CB20-F3F496C7B6F9">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@c1 int,@c2 date.me,@c3 date.me,@c4 varchar(2),@c5 varchar(15),@c6 date.me,@pkc1 int 
+,@bitmap binary(1) 
+as 
+if substring(@bitmap,1,1) & 1 = 1 
+begin 
+update [NROTC_BOOST] set 
+[NWA_ID] = case substring(@bitmap,1,1) & 1 when 1 then @c1 else [NWA_ID] end 
+,[PROGRAM_BEGIN_DATE] = case substring(@bitmap,1,1) & 2 when 2 then @c2 else [PROGRAM_BEGIN_DATE] end 
+,[PROGRAM_GRAD_DATE] = case substring(@bitmap,1,1) & 4 when 4 then @c3 else [PROGRAM_GRAD_DATE] end 
+,[ADVANCED_PROGRAM] = case substring(@bitmap,1,1) & 8 when 8 then @c4 else [ADVANCED_PROGRAM] end 
+,[USER_LOGIN] = case substring(@bitmap,1,1) & 16 when 16 then @c5 else [USER_LOGIN] end 
+,[UPDATE_DATE] = case substring(@bitmap,1,1) & 32 when 32 then @c6 else [UPDATE_DATE] end 
+where [NWA_ID] = @pkc1 
+if @@rowcount = 0 
+ if @@microso.version>0x07320000 
+  exec sp_MSreplraiserror 20598 
+end 
+else 
+begin 
+update [NROTC_BOOST] set 
+[PROGRAM_BEGIN_DATE] = case substring(@bitmap,1,1) & 2 when 2 then @c2 else [PROGRAM_BEGIN_DATE] end 
+,[PROGRAM_GRAD_DATE] = case substring(@bitmap,1,1) & 4 when 4 then @c3 else [PROGRAM_GRAD_DATE] end 
+,[ADVANCED_PROGRAM] = case substring(@bitmap,1,1) & 8 when 8 then @c4 else [ADVANCED_PROGRAM] end 
+,[USER_LOGIN] = case substring(@bitmap,1,1) & 16 when 16 then @c5 else [USER_LOGIN] end 
+,[UPDATE_DATE] = case substring(@bitmap,1,1) & 32 when 32 then @c6 else [UPDATE_DATE] end 
+where [NWA_ID] = @pkc1 
+if @@rowcount = 0 
+ if @@microso.version>0x07320000 
+  exec sp_MSreplraiserror 20598 
+end]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

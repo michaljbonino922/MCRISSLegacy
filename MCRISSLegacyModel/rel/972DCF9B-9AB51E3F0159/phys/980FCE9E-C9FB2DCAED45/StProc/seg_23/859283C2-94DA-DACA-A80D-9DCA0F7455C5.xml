@@ -1,0 +1,23 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_MSins_MCRC_RECEIVED_DATE]" directorySegmentName="seg_23" id="859283C2-94DA-DACA-A80D-9DCA0F7455C5">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@c1 int,@c2 int,@c3 date.me,@c4 varchar(15),@c5 date.me 
+ 
+AS 
+BEGIN 
+ 
+insert into [MCRC_RECEIVED_DATE](  
+[MCRC_RECEIVED_DATE_ID], [CONTRACT_ID], [MCRC_RECEIVED_DATE], [USER_LOGIN], [UPDATE_DATE] 
+ ) 
+ 
+values (  
+@c1, @c2, @c3, @c4, @c5 
+ ) 
+ 
+END]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

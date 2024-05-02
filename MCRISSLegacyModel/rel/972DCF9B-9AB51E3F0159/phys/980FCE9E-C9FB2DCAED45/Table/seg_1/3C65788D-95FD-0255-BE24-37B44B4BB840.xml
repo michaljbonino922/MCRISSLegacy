@@ -1,0 +1,96 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="MapsSectorZip" directorySegmentName="seg_1" id="3C65788D-95FD-0255-BE24-37B44B4BB840">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<schemaObject>454547C7-2829-9C8F-6E0C-35E4CFDC8E47</schemaObject>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="E.ec.veDate" id="24C6EA7A-BA43-59A2-B91A-6617E7F70F31">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<defaultValue>(getdate())</defaultValue>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="LastUpdateDate" id="409B9FA3-42D3-A712-973D-83054C4819CD">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="LastUpdateUserId" id="506BB156-F750-364A-86B9-63CBA874FB16">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="SectorZipId" id="7579CAC1-F844-CC3F-18DC-B878087A5991">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<defaultValue>(newid())</defaultValue>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="Zip" id="C8C88ABE-290F-0A0D-36E8-D3E6B1F74A2B">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="SectorID" id="CE890BB5-663E-59C9-6A78-790952DF1FC4">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+</columnProxies>
+<indexProxies>
+<IndexProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.IndexProxySqlServerv2k12" name="IX_SectorID2" id="113CEC55-B150-C3D3-2EA5-603E273BCB67">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<fillFactor>100</fillFactor>
+<recomputeStatistics>ON</recomputeStatistics>
+</IndexProxy>
+<IndexProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.IndexProxySqlServerv2k12" name="IX_SectorId" id="264D5CC2-26E0-1D71-9648-E6847660A2EA">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<fillFactor>100</fillFactor>
+<recomputeStatistics>ON</recomputeStatistics>
+</IndexProxy>
+<IndexProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.IndexProxySqlServerv2k12" name="ve_Date_INC_Sector_ID_PJ_7_18_2016]" id="6967B606-98E2-86F7-0DB4-05F839843DB8">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<recomputeStatistics>ON</recomputeStatistics>
+</IndexProxy>
+<IndexProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.IndexProxySqlServerv2k12" name="IDX_MapsSectorZip_RCTAPI_SectorID" id="A25224D0-0A15-BC43-9AD5-ECF081D318E5">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<fillFactor>100</fillFactor>
+<recomputeStatistics>ON</recomputeStatistics>
+</IndexProxy>
+<IndexProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.IndexProxySqlServerv2k12" name="IDX_LastUpdaeDate_9_26_2017" id="D7E5E024-D97E-BD47-E1BD-E31F637B6854">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<fillFactor>100</fillFactor>
+<recomputeStatistics>ON</recomputeStatistics>
+</IndexProxy>
+</indexProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="FK_MapsSectorZip_MapsSector" id="D86EAB9F-1E8C-77D5-163C-5E90A0FAEF01">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="PK_MapsSectorZip" id="DBBC2740-EF27-2EBD-26B9-DF861B2C7CB6">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<clustered>true</clustered>
+<fillFactor>100</fillFactor>
+<partitioningColumn>7579CAC1-F844-CC3F-18DC-B878087A5991</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+</TableProxySqlServerv2k5>

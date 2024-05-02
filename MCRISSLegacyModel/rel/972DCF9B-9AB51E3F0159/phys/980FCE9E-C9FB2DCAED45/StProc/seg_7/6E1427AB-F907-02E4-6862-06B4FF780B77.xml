@@ -1,0 +1,121 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUpdateRssDataSheetBack]" directorySegmentName="seg_7" id="6E1427AB-F907-02E4-6862-06B4FF780B77">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@OrgID int, 
+ @FiscalYear int, 
+ @Month int, 
+ @ContractGoalRmnps int = null, 
+ @ContractGoalRfnps int = null, 
+ @ContractGoalReserves int = null, 
+ @ShipQuotaRmnps int = null, 
+ @ShipQuotaRfnps int = null, 
+ @ShipQuotaReserves int = null, 
+ @Note varchar(500) = null, 
+ @LastUpdateBy uniqueidentifier    
+ 
+AS 
+BEGIN 
+ 
+ -- STEP 1: Start the transac.on 
+ BEGIN TRANSACTION 
+ 
+ DECLARE @ID uniqueidentifier  
+ SET @ID = NULL 
+  
+ SELECT @ID=ID  
+ FROM USMC.DataSheetBack  
+ WHERE 
+  OrgID = @OrgID 
+  AND FiscalYear = @FiscalYear 
+  AND Month = @Month 
+   
+ 
+ -- STEP 2 & 3: Issue the data change statement(s), checking @@ERROR a.er each statement 
+ IF @ID IS NOT NULL 
+ BEGIN 
+  -- if already exists.  UPDATE. 
+  UPDATE [USMC].[DataSheetBack] 
+  SET 
+   OrgID =  @OrgID, 
+   FiscalYear =  @FiscalYear, 
+   Month =  @Month, 
+   ContractGoalRmnps =  @ContractGoalRmnps, 
+   ContractGoalRfnps =  @ContractGoalRfnps, 
+   ContractGoalReserves =  @ContractGoalReserves, 
+   ShipQuotaRmnps =  @ShipQuotaRmnps, 
+   ShipQuotaRfnps =  @ShipQuotaRfnps, 
+   ShipQuotaReserves =  @ShipQuotaReserves, 
+   Note = @Note, 
+   LastUpdateBy =  @LastUpdateBy, 
+   LastUpdateDate =  GETDATE()  
+  WHERE ID =  @ID 
+    
+ END 
+ ELSE 
+ BEGIN 
+  -- if does not exist.  INSERT. 
+  INSERT INTO RSSOSS.USMC.DataSheetBack 
+           (ID 
+           ,OrgID 
+           ,FiscalYear 
+           ,Month 
+           ,ContractGoalRmnps 
+           ,ContractGoalRfnps 
+           ,ContractGoalReserves 
+           ,ShipQuotaRmnps 
+           ,ShipQuotaRfnps 
+           ,ShipQuotaReserves 
+           ,Note 
+           ,LastUpdateBy 
+           ,LastUpdateDate) 
+     VALUES( 
+   NEWID(), 
+   @OrgID, 
+   @FiscalYear, 
+   @Month, 
+   @ContractGoalRmnps, 
+   @ContractGoalRfnps, 
+   @ContractGoalReserves, 
+   @ShipQuotaRmnps, 
+   @ShipQuotaRfnps, 
+   @ShipQuotaReserves, 
+   @Note, 
+   @LastUpdateBy, 
+   GETDATE() 
+   ) 
+ 
+ END 
+ 
+ -- Rollback the transac.on if there were any errors 
+ IF @@ERROR <> 0 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+ 
+  -- Raise an error and return 
+  RAISERROR ('Error occurred while performing the change.', 16, 1) 
+  RETURN 
+ END 
+ 
+ -- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+ IF @@ROWCOUNT > 1 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+ 
+  -- Raise an error and return 
+  RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+  RETURN 
+ END 
+  
+ -- STEP 4: If we reach this point, the commands completed successfully 
+ --         Commit the transac.on.... 
+ COMMIT TRANSACTION 
+  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

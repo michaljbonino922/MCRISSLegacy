@@ -1,0 +1,22 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[LogMCRISSMessage]" directorySegmentName="seg_12" id="7FFEB5E4-C441-14EB-F392-629646385369">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@MessageEvent int, 
+ @MessageStatus int, 
+ @Message varchar(100), 
+ @OrgID int,  
+ @UserLogin varchar(50) 
+AS 
+ 
+INSERT INTO MCRISS_MESSAGE  
+ (MESSAGE_EVENT, MESSAGE_STATUS, MESSAGE, ORGANIZATION_ID, MESSAGE_SENT_BY, MESSAGE_SENT, USER_LOGIN, UPDATE_DATE) 
+VALUES  
+ (@MessageEvent, @MessageStatus, @Message, @OrgID, @UserLogin, GETDATE(), @UserLogin, GETDATE()) 
+ 
+SELECT SCOPE_IDENTITY()]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

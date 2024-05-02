@@ -1,0 +1,103 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetDailyReportAc.vityObjec.ves]" directorySegmentName="seg_17" id="E0D99BB4-D944-3140-FC9E-2FE48571C10F">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@Organiza.onID int,  
+ @FiscalYear  int = 0,  
+ @Month   int = 0, 
+ @BeginDate date.me = null, 
+ @EndDate date.me = null 
+AS 
+SET NOCOUNT ON 
+ 
+DECLARE @Organiza.onType as Varchar(3) 
+ 
+SET @Organiza.onID = COALESCE(@Organiza.onID, 900) 
+SET @Organiza.onType = (SELECT ORGANIZATION_TYPE FROM RECRUITING_ORGANIZATION WHERE ORGANIZATION_ID = @Organiza.onID) 
+ 
+SELECT * INTO #SUBORGS FROM dbo.GetOrgHierarchy(@Organiza.onID) 
+ 
+DECLARE @ReportType AS VARCHAR(10) 
+DECLARE @MonthBeginDate date.me 
+ 
+IF ((@FiscalYear > 0) AND (@Month > 0)) 
+BEGIN 
+ SET @ReportType = 'BY_MONTH' 
+ SET @MonthBeginDate = CONVERT(DATETIME, CONVERT(VARCHAR(2), @Month) + '/01/' + CONVERT(VARCHAR(4), @FiscalYear)) 
+ SET @BeginDate = NULL 
+ SET @EndDate = NULL 
+END 
+ELSE 
+BEGIN 
+ SET @ReportType = 'DATE_RANGE' 
+ SET @MonthBeginDate = @BeginDate 
+END 
+ 
+SELECT 
+ CASE @Organiza.onType 
+  WHEN 'H' THEN SO.REG_ID 
+  WHEN 'R' THEN SO.DIST_ID 
+  WHEN 'D' THEN SO.RS_ID 
+  WHEN 'RS' THEN SO.RSS_ID 
+ END AS ORGANIZATION_ID, 
+ SUM(COALESCE(AO.CONTRACT_OBJECTIVE, 0)) AS CONTRACT_OBJECTIVE, 
+ --- dbo.GetContractObjec.ve (RSS.ORGANIZATION_ID, @FiscalYear, @Month, RSS.ORGANIZATION_TYPE) AS CONTRACT_OBJECTIVE, 
+ SUM(COALESCE(AO.NWAS_OBJECTIVE, 0)) AS NWAS_OBJECTIVE, 
+ SUM(COALESCE(AO.INTERVIEWS_OBJECTIVE, 0)) AS INTERVIEWS_OBJECTIVE 
+INTO 
+ #DAILY_REPORT 
+FROM 
+ #SUBORGS SO 
+ LEFT OUTER JOIN ACTIVITY_OBJECTIVE AO ON  
+  (SO.ORG_ID = AO.ORGANIZATION_ID AND 
+  AO.FISCAL_YEAR = CASE @ReportType 
+     WHEN 'BY_MONTH' THEN @FiscalYear 
+     WHEN 'DATE_RANGE' THEN AO.FISCAL_YEAR 
+    END 
+  AND 
+  AO.MONTH = CASE @ReportType 
+     WHEN 'BY_MONTH' THEN @Month 
+     WHEN 'DATE_RANGE' THEN AO.MONTH 
+    END 
+  AND 
+  DATEDIFF(MONTH, 
+   COALESCE(@BeginDate, CONVERT(DATETIME, CONVERT(VARCHAR(2), AO.MONTH) + '/1/' + CONVERT(VARCHAR(4), AO.FISCAL_YEAR))), 
+   CONVERT(DATETIME, CONVERT(VARCHAR(2), AO.MONTH) + '/1/' + CONVERT(VARCHAR(4), AO.FISCAL_YEAR))) >= 0 AND 
+  DATEDIFF(MONTH, 
+   CONVERT(DATETIME, CONVERT(VARCHAR(2), AO.MONTH) + '/1/' + CONVERT(VARCHAR(4), AO.FISCAL_YEAR)), 
+   COALESCE(@EndDate, CONVERT(DATETIME, CONVERT(VARCHAR(2), AO.MONTH) + '/1/' + CONVERT(VARCHAR(4), AO.FISCAL_YEAR)))) >= 0) 
+WHERE 
+ SO.ORG_TYPE = 'RSS' AND 
+ (DATEDIFF(MONTH, SO.EFFECTIVE_DATE, @MonthBeginDate) >= 0) AND 
+ @Organiza.onID = CASE @Organiza.onType 
+    WHEN 'H' THEN @Organiza.onID 
+    WHEN 'R' THEN SO.REG_ID 
+    WHEN 'D' THEN SO.DIST_ID 
+    WHEN 'RS' THEN SO.RS_ID 
+     END 
+GROUP BY 
+ CASE @Organiza.onType 
+  WHEN 'H' THEN SO.REG_ID 
+  WHEN 'R' THEN SO.DIST_ID 
+  WHEN 'D' THEN SO.RS_ID 
+  WHEN 'RS' THEN SO.RSS_ID 
+ END 
+ 
+SELECT 
+ DO.* 
+FROM 
+ #DAILY_REPORT DO 
+ INNER JOIN RECRUITING_ORGANIZATION RO ON DO.ORGANIZATION_ID = RO.ORGANIZATION_ID 
+ORDER BY 
+ RO.NAME 
+ 
+--- CLEAN UP 
+DROP TABLE #DAILY_REPORT 
+DROP TABLE #SUBORGS 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

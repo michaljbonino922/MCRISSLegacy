@@ -1,0 +1,375 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_0" id="E730F288-8B12-BB29-8227-F1D4CA665BA4" schemaObject="2A6D9360-3BB2-5CEA-6E99-790D76996FDF" name="dbo.aesoa.vwMedicalExam">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>18B2CBC9-BA7D-0CF1-F20D-B1196EB13768</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT ME.[MARINE_CANDIDATE_ID] as [PersonID] 
+  ,P.SOCIAL_SECURITY_NUMBER as [SSN] 
+  ,ME.[MEDICAL_EXAM_DATE] 
+  ,ME.[MEDICAL_EXAM_TYPE] 
+  ,ISNULL(ME.[HEIGHT], 0) as [HEIGHT] 
+  ,ISNULL(ME.[WEIGHT], 0) as [WEIGHT] 
+  ,T.MEDICAL_EXAM_DESC  
+  ,ME.[MEPS_ORGANIZATION_ID] 
+  ,ISNULL(ME.[P_GENERAL_BODY_BUILD], '''') as [P_GENERAL_BODY_BUILD] 
+  ,ISNULL(ME.[U_UPPER_BODY], '''') as [U_UPPER_BODY] 
+  ,ISNULL(ME.[L_LOWER_BODY], '''') as [L_LOWER_BODY] 
+  ,ISNULL(ME.[H_HEARING], '''') as [H_HEARING] 
+  ,ISNULL(ME.[E_EYES], '''') as [E_EYES] 
+  ,ISNULL(ME.[S_MENTAL_PSYCHOLOGICAL], '''') as [S_MENTAL_PSYCHOLOGICAL] 
+  ,ISNULL(ME.[VISUAL_COLOR], '''') as [VISUAL_COLOR] 
+        ,ISNULL(V.VISION_COLOR_DESCRIPTION, '''') as [VISION_COLOR_DESCRIPTION] 
+  ,ISNULL(ME.[VISUAL_COLOR_DISPOSITION], '''') as [VISUAL_COLOR_DISPOSITION] 
+  ,ISNULL(ME.[X], '''') as [X] 
+  ,ISNULL(ME.[LEFT_CORR_VISUAL_ACUITY], '''') as [LEFT_CORR_VISUAL_ACUITY] 
+  ,ISNULL(ME.[RIGHT_CORR_VISUAL_ACUITY], '''') as [RIGHT_CORR_VISUAL_ACUITY] 
+  ,ISNULL(ME.[LEFT_UNCORR_VISUAL_ACUITY], '''') as [LEFT_UNCORR_VISUAL_ACUITY] 
+  ,ISNULL(ME.[RIGHT_UNCORR_VISUAL_ACUITY], '''') as [RIGHT_UNCORR_VISUAL_ACUITY] 
+  ,ISNULL(ME.[MEDICAL_DISPOSITION], '''') as [MEDICAL_DISPOSITION] 
+  ,ISNULL(ME.[CONSULTATION_TYPE], '''') as CONSULTATION_TYPE 
+  ,ME.[USER_LOGIN] 
+  ,ME.[UPDATE_DATE]   
+  FROM  dbo.PERSON P INNER JOIN [dbo].[CANDIDATE_MEDICAL_EXAM] ME ON P.PERSON_ID = ME.MARINE_CANDIDATE_ID 
+  JOIN dbo.Medical_Exam T ON ME.[MEDICAL_EXAM_TYPE] = T.MEDICAL_EXAM_TYPE  
+  LEFT JOIN dbo.WEIGHT_LOOKUP W   ON ME.[WEIGHT] = W.[WEIGHT] 
+  LEFT JOIN dbo.HEIGHT_LOOKUP H  ON ME.[HEIGHT] = H.[HEIGHT] 
+  LEFT JOIN [dbo].[VISION_COLOR] V   ON ME.[VISUAL_COLOR] = V.[VISION_COLOR_CODE]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[MARINE_CANDIDATE_ID]" id="5B2965D6-84B9-3DB3-8C7F-BB6E4A015FB4">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>PersonID</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>PersonID</headerAlias>
+<expression>[MARINE_CANDIDATE_ID]</expression>
+<reference>false</reference>
+<viewID>E730F288-8B12-BB29-8227-F1D4CA665BA4</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="SOCIAL_SECURITY_NUMBER" id="31A8CFBE-5EC6-D3B7-29F8-39C96D3D16A9">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>SSN</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>SSN</headerAlias>
+<expression>SOCIAL_SECURITY_NUMBER</expression>
+<reference>false</reference>
+<viewID>E730F288-8B12-BB29-8227-F1D4CA665BA4</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[MEDICAL_EXAM_DATE]" id="9780B7C3-43B0-81C5-8C73-815931CAEECF">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>[MEDICAL_EXAM_DATE]</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[MEDICAL_EXAM_DATE]</expression>
+<reference>false</reference>
+<viewID>E730F288-8B12-BB29-8227-F1D4CA665BA4</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[MEDICAL_EXAM_TYPE]" id="C3C969D5-9C92-0F65-25AF-65FA5983304E">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>[MEDICAL_EXAM_TYPE]</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[MEDICAL_EXAM_TYPE]</expression>
+<reference>false</reference>
+<viewID>E730F288-8B12-BB29-8227-F1D4CA665BA4</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(ME.[HEIGHT],0)" id="8729CFD7-CC2B-DEC2-3AFE-2E506478095F">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>HEIGHT</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>HEIGHT</headerAlias>
+<expression>ISNULL(ME.[HEIGHT],0)</expression>
+<reference>false</reference>
+<viewID>E730F288-8B12-BB29-8227-F1D4CA665BA4</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(ME.[WEIGHT],0)" id="56C85D4A-E376-9619-CC5B-A2838AB8F4BB">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>WEIGHT</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>WEIGHT</headerAlias>
+<expression>ISNULL(ME.[WEIGHT],0)</expression>
+<reference>false</reference>
+<viewID>E730F288-8B12-BB29-8227-F1D4CA665BA4</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="MEDICAL_EXAM_DESC" id="354DC8B1-AB82-BEF7-20A5-F0C4049881E3">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>MEDICAL_EXAM_DESC</alias>
+<dataType>UNKNOWN</dataType>
+<expression>MEDICAL_EXAM_DESC</expression>
+<reference>false</reference>
+<viewID>E730F288-8B12-BB29-8227-F1D4CA665BA4</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[MEPS_ORGANIZATION_ID]" id="B9A16EA0-0777-E06B-948A-4C76EE7CAEA1">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>[MEPS_ORGANIZATION_ID]</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[MEPS_ORGANIZATION_ID]</expression>
+<reference>false</reference>
+<viewID>E730F288-8B12-BB29-8227-F1D4CA665BA4</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(ME.[P_GENERAL_BODY_BUILD],&apos;&apos;&apos;&apos;)" id="950E4D57-F6E8-5D81-781A-70D1235415D7">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>P_GENERAL_BODY_BUILD</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>P_GENERAL_BODY_BUILD</headerAlias>
+<expression>ISNULL(ME.[P_GENERAL_BODY_BUILD],&apos;&apos;&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>E730F288-8B12-BB29-8227-F1D4CA665BA4</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(ME.[U_UPPER_BODY],&apos;&apos;&apos;&apos;)" id="185B41A4-47B7-755B-9555-8DAD9891F467">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>U_UPPER_BODY</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>U_UPPER_BODY</headerAlias>
+<expression>ISNULL(ME.[U_UPPER_BODY],&apos;&apos;&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>E730F288-8B12-BB29-8227-F1D4CA665BA4</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(ME.[L_LOWER_BODY],&apos;&apos;&apos;&apos;)" id="B97F9793-8F12-54FF-085E-EFF7CEE9CA39">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>L_LOWER_BODY</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>L_LOWER_BODY</headerAlias>
+<expression>ISNULL(ME.[L_LOWER_BODY],&apos;&apos;&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>E730F288-8B12-BB29-8227-F1D4CA665BA4</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(ME.[H_HEARING],&apos;&apos;&apos;&apos;)" id="85AF659E-FAD6-1655-8D15-006828737EE9">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>H_HEARING</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>H_HEARING</headerAlias>
+<expression>ISNULL(ME.[H_HEARING],&apos;&apos;&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>E730F288-8B12-BB29-8227-F1D4CA665BA4</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(ME.[E_EYES],&apos;&apos;&apos;&apos;)" id="21B58D5D-5D67-7148-B4CF-644687AC8FBD">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>E_EYES</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>E_EYES</headerAlias>
+<expression>ISNULL(ME.[E_EYES],&apos;&apos;&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>E730F288-8B12-BB29-8227-F1D4CA665BA4</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(ME.[S_MENTAL_PSYCHOLOGICAL],&apos;&apos;&apos;&apos;)" id="12BD0871-66D5-7784-E65E-B0B71B489F7C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>S_MENTAL_PSYCHOLOGICAL</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>S_MENTAL_PSYCHOLOGICAL</headerAlias>
+<expression>ISNULL(ME.[S_MENTAL_PSYCHOLOGICAL],&apos;&apos;&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>E730F288-8B12-BB29-8227-F1D4CA665BA4</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(ME.[VISUAL_COLOR],&apos;&apos;&apos;&apos;)" id="DC9C9EC7-FACF-8C71-32F4-A15C890CA121">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>VISUAL_COLOR</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>VISUAL_COLOR</headerAlias>
+<expression>ISNULL(ME.[VISUAL_COLOR],&apos;&apos;&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>E730F288-8B12-BB29-8227-F1D4CA665BA4</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(V.VISION_COLOR_DESCRIPTION,&apos;&apos;&apos;&apos;)" id="80C416EE-A8F6-E74D-896D-F6DAD4B0E5F9">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>VISION_COLOR_DESCRIPTION</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>VISION_COLOR_DESCRIPTION</headerAlias>
+<expression>ISNULL(V.VISION_COLOR_DESCRIPTION,&apos;&apos;&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>E730F288-8B12-BB29-8227-F1D4CA665BA4</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(ME.[VISUAL_COLOR_DISPOSITION],&apos;&apos;&apos;&apos;)" id="C826FD1B-329B-613D-B217-15547F42AC45">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>VISUAL_COLOR_DISPOSITION</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>VISUAL_COLOR_DISPOSITION</headerAlias>
+<expression>ISNULL(ME.[VISUAL_COLOR_DISPOSITION],&apos;&apos;&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>E730F288-8B12-BB29-8227-F1D4CA665BA4</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(ME.[X],&apos;&apos;&apos;&apos;)" id="9DD15423-5163-0A3D-7DB6-EF6BC9883FE8">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>X</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>X</headerAlias>
+<expression>ISNULL(ME.[X],&apos;&apos;&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>E730F288-8B12-BB29-8227-F1D4CA665BA4</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(ME.[LEFT_CORR_VISUAL_ACUITY],&apos;&apos;&apos;&apos;)" id="205C3276-273E-3FF0-7A85-B345F6291A89">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>LEFT_CORR_VISUAL_ACUITY</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>LEFT_CORR_VISUAL_ACUITY</headerAlias>
+<expression>ISNULL(ME.[LEFT_CORR_VISUAL_ACUITY],&apos;&apos;&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>E730F288-8B12-BB29-8227-F1D4CA665BA4</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(ME.[RIGHT_CORR_VISUAL_ACUITY],&apos;&apos;&apos;&apos;)" id="5943DA6A-1310-E923-4278-97B31C740128">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>RIGHT_CORR_VISUAL_ACUITY</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>RIGHT_CORR_VISUAL_ACUITY</headerAlias>
+<expression>ISNULL(ME.[RIGHT_CORR_VISUAL_ACUITY],&apos;&apos;&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>E730F288-8B12-BB29-8227-F1D4CA665BA4</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(ME.[LEFT_UNCORR_VISUAL_ACUITY],&apos;&apos;&apos;&apos;)" id="F949D453-5556-9BB1-6A8D-C0731D04971E">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>LEFT_UNCORR_VISUAL_ACUITY</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>LEFT_UNCORR_VISUAL_ACUITY</headerAlias>
+<expression>ISNULL(ME.[LEFT_UNCORR_VISUAL_ACUITY],&apos;&apos;&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>E730F288-8B12-BB29-8227-F1D4CA665BA4</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(ME.[RIGHT_UNCORR_VISUAL_ACUITY],&apos;&apos;&apos;&apos;)" id="BA1E6AC3-C986-CEAD-3CCB-20B90875278E">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>RIGHT_UNCORR_VISUAL_ACUITY</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>RIGHT_UNCORR_VISUAL_ACUITY</headerAlias>
+<expression>ISNULL(ME.[RIGHT_UNCORR_VISUAL_ACUITY],&apos;&apos;&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>E730F288-8B12-BB29-8227-F1D4CA665BA4</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(ME.[MEDICAL_DISPOSITION],&apos;&apos;&apos;&apos;)" id="DE693D51-C426-0536-FF8E-E962C0B42362">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>MEDICAL_DISPOSITION</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>MEDICAL_DISPOSITION</headerAlias>
+<expression>ISNULL(ME.[MEDICAL_DISPOSITION],&apos;&apos;&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>E730F288-8B12-BB29-8227-F1D4CA665BA4</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(ME.[CONSULTATION_TYPE],&apos;&apos;&apos;&apos;)" id="7D09B134-20FA-35A0-D5DD-BC625E8462C5">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>CONSULTATION_TYPE</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>CONSULTATION_TYPE</headerAlias>
+<expression>ISNULL(ME.[CONSULTATION_TYPE],&apos;&apos;&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>E730F288-8B12-BB29-8227-F1D4CA665BA4</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[USER_LOGIN]" id="DAB9BC90-17D7-23DE-0386-A390E50D86AC">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>[USER_LOGIN]</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[USER_LOGIN]</expression>
+<reference>false</reference>
+<viewID>E730F288-8B12-BB29-8227-F1D4CA665BA4</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[UPDATE_DATE]" id="9DF17413-CC88-228C-E674-9191A1D0F6E6">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>[UPDATE_DATE]</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[UPDATE_DATE]</expression>
+<reference>false</reference>
+<viewID>E730F288-8B12-BB29-8227-F1D4CA665BA4</viewID>
+</viewElement>
+</viewElements>
+</TableView>

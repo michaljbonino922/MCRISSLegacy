@@ -1,0 +1,17 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetBilletsbyOrgType]" directorySegmentName="seg_16" id="651A99EA-56C8-97EF-A7CB-A6BE649A4544">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@Organiza.onType as varchar(3) 
+AS 
+ 
+SELECT RECRUITING_ROLE.RECRUITING_ROLE_ID, RECRUITING_ROLE.SHORT_DESCRIPTION 
+FROM ORGANIZATION_BILLET, RECRUITING_ROLE 
+WHERE  
+ORGANIZATION_BILLET.RECRUITING_ROLE_ID = RECRUITING_ROLE.RECRUITING_ROLE_ID AND 
+ORGANIZATION_BILLET.ORGANIZATION_TYPE = @Organiza.onType]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

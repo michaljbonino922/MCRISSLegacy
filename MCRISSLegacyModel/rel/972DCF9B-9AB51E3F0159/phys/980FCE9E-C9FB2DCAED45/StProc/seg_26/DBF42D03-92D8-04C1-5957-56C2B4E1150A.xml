@@ -1,0 +1,50 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateCandidateEduca.on]" directorySegmentName="seg_26" id="DBF42D03-92D8-04C1-5957-56C2B4E1150A">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[(@MarineCandidateID int 
+ ,@SchoolCode int 
+ ,@Educa.onLevel varchar(2) 
+ ,@SchoolEndDate date.me 
+ ,@Educa.onTier varchar(2) 
+ ,@Educa.onCode char(1) 
+ ,@CivilianEduca.onMajorCode varchar(2) 
+ ,@ProjectedComple.onDate date.me 
+ --,@FirstSenior char(1) 
+ ,@Veri.ca.on varchar(10) 
+ --,@Cumula.veGPA .oat 
+ --,@HighMathLevel varchar(2) 
+ --,@CurrentGPA .oat 
+ --,@CreditHours int 
+ --,@FullTimeStudent char(1) 
+ ,@ProjectedTier int 
+ ,@UserLogin varchar(15)) 
+AS 
+ 
+UPDATE  
+ [dbo].[CANDIDATE_EDUCATION]  
+SET 
+  [SCHOOL_END_DATE] = @SchoolEndDate 
+ ,[EDUCATION_TIER] = @Educa.onTier 
+ ,[EDUCATION_CODE] = @Educa.onCode 
+ ,[CIVILIAN_EDUCATION_MAJOR_CODE] = @CivilianEduca.onMajorCode 
+ ,[PROJECTED_COMPL_DATE] = @ProjectedComple.onDate 
+ --,[FIRST_SENIOR] = @FirstSenior 
+ ,[VERIFICATION] = @Veri.ca.on 
+ --,[CUMULATIVE_GPA] = @Cumula.veGPA 
+ --,[HIGH_MATH_LEVEL] = @HighMathLevel 
+ --,[CURRENT_GPA] = @CurrentGPA 
+ --,[CREDIT_HOURS] = @CreditHours 
+ --,[FULL_TIME_STUDENT] = @FullTimeStudent 
+ ,[PROJECTED_TIER] = @ProjectedTier 
+ ,[USER_LOGIN] = @UserLogin 
+ ,[UPDATE_DATE] = GetDate() 
+WHERE 
+ MARINE_CANDIDATE_ID = @MarineCandidateID AND 
+ SCHOOL_CODE = @SchoolCode AND 
+ EDUCATION_LEVEL = @Educa.onLevel]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,87 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetQSNPivotDateHistoryCount]" directorySegmentName="seg_20" id="EF157045-11E3-253E-C8CD-98F33D917D96">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@FiscalYear  int, 
+ @OrgID   int 
+AS 
+ 
+SET NOCOUNT ON 
+ 
+SET @OrgID = COALESCE(@OrgID, 900) 
+ 
+-- Only MCRC and Region users should be calling this procedure.  If neither, then return a count of 0 and return 
+-- because the rest of the procedure will go into an in.nite loop otherwise. 
+IF NOT (@OrgID IN (SELECT ORGANIZATION_ID FROM RECRUITING_ORGANIZATION WHERE ORGANIZATION_TYPE IN ('H', 'R', 'D', 'RS'))) 
+BEGIN 
+ SELECT 0 
+ RETURN 
+END 
+ 
+/* 
+------------------------------------------------------------------------------ 
+--- Create Temp Tables --- 
+ 
+The #SUBORGS table will be populated with all OrgIDs that are in the child hierarchy 
+of the input @OrgID.  USED is a bit that is necessary for popula.ng the data 
+to .ag whether an OrgID's children have been joined yet.  This is to make 
+sure the direct children of an OrgID are only inserted once. 
+ 
+The #IDS table is used only to temporarily store the OrgIDs that children are being 
+retrieved for.  Because it is an itera.ve process, this table is necessary so that 
+we know which OrgIDs to toggle the USED .ag on in the #SUBORGS table. 
+------------------------------------------------------------------------------ 
+*/ 
+CREATE TABLE #SUBORGS (ORG_ID int NOT NULL, ORG_TYPE varchar(3), USED bit NOT NULL) 
+CREATE TABLE #IDS (ORG_ID int NOT NULL) 
+ 
+-- Seed the temp table with the input OrgID 
+INSERT INTO #SUBORGS 
+SELECT ORGANIZATION_ID, 
+ ORGANIZATION_TYPE, 
+ 0 
+FROM RECRUITING_ORGANIZATION 
+WHERE ORGANIZATION_ID = @OrgID 
+ 
+-- Con.nue processing un.l we have goten to the RS level 
+WHILE (SELECT COUNT(1) FROM #SUBORGS WHERE USED = 0 AND ORG_TYPE = 'RS') = 0 
+BEGIN 
+ 
+-- Save all OrgIDs in the #SUBORGS table that we haven't goten children for yet. 
+INSERT INTO #IDS 
+SELECT ORG_ID 
+FROM #SUBORGS 
+WHERE USED = 0 
+ 
+-- Insert new children (with Used .ag = 0) into the #SUBORGS table. 
+INSERT INTO #SUBORGS 
+SELECT OM.CHILD_ORGANIZATION_ID, RO.ORGANIZATION_TYPE, 0 
+FROM ORGANIZATION_MAP OM INNER JOIN #SUBORGS SO ON OM.PARENT_ORGANIZATION_ID = SO.ORG_ID AND SO.USED = 0 
+ INNER JOIN RECRUITING_ORGANIZATION RO ON OM.CHILD_ORGANIZATION_ID = RO.ORGANIZATION_ID 
+ 
+-- Set the USED .ag to 1 for the OrgIDs that we just processed. 
+UPDATE #SUBORGS 
+SET USED = 1 
+WHERE ORG_ID IN (SELECT * FROM #IDS) 
+ 
+-- No need to save the OrgIDs that we just got children for.  They will remain in the #SUBORGS table 
+-- and are now marked as used/processed. 
+DELETE FROM #IDS 
+ 
+END 
+ 
+-- Temp table of child hierarchy is built.  Join to it based on QSN.ASSIGNED_ORG_ID so that we don't count 
+-- QSNs that are under a di.erent organiza.on branch. 
+SELECT 
+ Count(1) 
+FROM 
+ QSN_PIVOT_DATE_HISTORY H INNER JOIN QSN Q ON 
+  (Q.FY = @FiscalYear AND H.QSN_ID = Q.QSN_ID) 
+ INNER JOIN #SUBORGS SO ON (Q.ASSIGNED_ORG_ID = SO.ORG_ID AND SO.ORG_TYPE = 'RS') 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

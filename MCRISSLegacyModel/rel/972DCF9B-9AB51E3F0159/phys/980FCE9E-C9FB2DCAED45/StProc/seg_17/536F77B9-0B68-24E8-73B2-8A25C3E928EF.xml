@@ -1,0 +1,37 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetContrac.ngGoalViewForMCRC]" directorySegmentName="seg_17" id="536F77B9-0B68-24E8-73B2-8A25C3E928EF">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@FiscalYear int,  
+ @MCRC int  
+AS 
+ 
+SELECT   
+ OMD.CHILD_ORGANIZATION_ID AS ORGANIZATION_ID,   
+ MONTH_CODE.MONTH_CODE, 
+ CMP.MISSION_VALUE 
+FROM  
+  
+ CONTRACTING_MISSION_PLAN CMP,  
+ RECRUITING_ORGANIZATION RO, 
+ ORGANIZATION_MAP OMR,   
+ ORGANIZATION_MAP OMD, 
+ MONTH_CODE 
+WHERE  
+ RO.ORGANIZATION_ID = OMD.CHILD_ORGANIZATION_ID AND 
+ RO.ORGANIZATION_TYPE = 'D' AND 
+ OMR.PARENT_ORGANIZATION_ID = @MCRC AND 
+ OMR.CHILD_ORGANIZATION_ID = OMD.PARENT_ORGANIZATION_ID AND 
+ OMD.CHILD_ORGANIZATION_ID = CMP.ORGANIZATION_ID AND 
+ CMP.FISCAL_YEAR = @FiscalYear AND 
+ CMP.MONTH_CODE = MONTH_CODE.MONTH_CODE AND 
+ CMP.MONTH_CODE > 0 AND 
+ CMP.CONTRACTING_MISSION_TYPE = 'CMC' 
+ORDER BY  
+ OMR.CHILD_ORGANIZATION_ID, RO.SHORT_NAME, 
+ MONTH_CODE.DISPLAY_ORDER]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

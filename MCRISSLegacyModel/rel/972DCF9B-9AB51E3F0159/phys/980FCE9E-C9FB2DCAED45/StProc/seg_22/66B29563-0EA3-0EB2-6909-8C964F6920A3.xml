@@ -1,0 +1,116 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_mg_Marine_Candidate]" directorySegmentName="seg_22" id="66B29563-0EA3-0EB2-6909-8C964F6920A3">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[as 
+ 
+/* 
+ * Declare variables. 
+ */ 
+declare  
+  @user_login varchar(15), 
+  @update_date date.me, 
+  @ci.zenship_code char(2), 
+  @dob char(6), 
+  @dob_date date.me, 
+  @ethnic char(1), 
+  @marital_stat char(1), 
+  @origin char(2), 
+  @sex char(1), 
+  @race char(1), 
+  @ssn char(9), 
+  @person_id int 
+ 
+declare cur_arms cursor for 
+  select ssn, 
+    ci.zenship_code, 
+    dob, 
+    ethnic, 
+    marital_stat, 
+    origin, 
+    sex, 
+    race 
+    from AO2 
+ 
+  set @user_login = 'o_migra.on' 
+  set @update_date = getdate() 
+ 
+  open cur_arms 
+  fetch cur_arms into 
+    @ssn, 
+    @ci.zenship_code, 
+    @dob, 
+    @ethnic, 
+    @marital_stat, 
+    @origin, 
+    @sex, 
+    @race 
+ 
+while (@@FETCH_STATUS = 0) 
+begin 
+ 
+  set @person_id = (select person_id from person 
+  where social_security_number = @ssn) 
+  set @dob_date = mcriss.dbo.sp_mg_GetDate(@dob) 
+ 
+  /* 
+   * Error handling 
+   */ 
+  if not exists (select 1 from ci.zenship where ci.zenship_code = @ci.zenship_code) 
+    set @ci.zenship_code = null 
+  if not exists (select 1 from country where country_code = @origin) 
+    set @origin = null 
+  if not exists (select 1 from ethnic where ethnic_code = @ethnic) 
+    set @ethnic = null 
+  if not exists (select 1 from marital_status where marital_status_code = @marital_stat) 
+    set @marital_stat = null 
+  if not exists (select 1 from race where race_code = @race) 
+    set @race = null 
+  if not exists (select 1 from gender where gender_code = @sex) 
+    set @sex = null 
+ 
+  /* 
+   * Insert into table 
+   */ 
+  insert into marine_candidate ( 
+    marine_candidate_id, 
+    ci.zenship, 
+    date_of_birth, 
+    ethnic_code, 
+    marital_status_code, 
+    country_of_origin, 
+    gender_code, 
+    race_code, 
+    user_login, 
+    update_date) 
+  values ( 
+    @person_id, 
+    @ci.zenship_code, 
+    @dob_date, 
+    @ethnic, 
+    @marital_stat, 
+    @origin, 
+    @sex, 
+    @race, 
+    @user_login, 
+    @update_date) 
+ 
+ 
+    fetch cur_arms into 
+    @ssn, 
+    @ci.zenship_code, 
+    @dob, 
+    @ethnic, 
+    @marital_stat, 
+    @origin, 
+    @sex, 
+    @race 
+end     
+ 
+close cur_arms 
+deallocate cur_arms]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

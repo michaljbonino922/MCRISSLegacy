@@ -1,0 +1,223 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateBillet]" directorySegmentName="seg_26" id="D41A4073-C81B-E7B7-3B6B-983945CA3852">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@PersonID   INT  
+ , @Billet  VARCHAR(25) =null 
+ , @Billet_Date  DATETIME=null 
+ , @Rank_ID  INT=null 
+ , @MCD_ID  INT=null 
+ , @Loca.on_ID  INT=null 
+ , @Date_AFADBD  DATETIME=null 
+ , @Date_Rank  DATETIME=null 
+ , @Current_Loca.on VARCHAR(20)=null 
+ , @Phone_No  VARCHAR(13)=null 
+ , @Date_8412I  DATETIME=null 
+ , @Date_8412  DATETIME=null 
+ , @Date_Curr_Tour_Began DATETIME=null 
+ , @Date_Last_PCS DATETIME=null 
+ , @Date_Re.re  DATETIME=null 
+ , @Date_Void  DATETIME=null 
+ , @UserID  varchar(15) =null 
+AS 
+ 
+DECLARE @SeqNo INT 
+DECLARE @bilID INT 
+ 
+ 
+IF @Rank_ID = 0  set @Rank_ID = null 
+ 
+ 
+    
+BEGIN 
+   -- new record 
+   IF NOT EXISTS (SELECT Person_ID FROM M8412_Recruit_Person WHERE Person_ID=@PersonID) 
+   BEGIN 
+  
+      INSERT INTO M8412_Recruit_Person VALUES( 
+ @PersonID 
+ , @Rank_ID 
+ , @MCD_ID 
+ , @Loca.on_ID 
+ , @Billet 
+ , @Billet_Date 
+ , @Date_AFADBD 
+ , @Date_Rank 
+ , @Current_Loca.on 
+ , @Phone_No 
+ , @Date_8412I 
+ , @Date_8412 
+ , @Date_Curr_Tour_Began 
+ , @Date_Last_PCS 
+ , @Date_Re.re 
+ , @Date_Void 
+ , GETDATE() 
+ , @UserID 
+ , GETDATE() 
+ , @UserID 
+ ) 
+   END 
+ 
+-- Record exists 
+ELSE 
+   BEGIN 
+ -- billet and billet date entered 
+ IF (ISNULL(LEN(@Billet_Date),0)!=0 OR ISNULL(LEN(@Billet),0)!=0)  
+     BEGIN 
+       UPDATE M8412_Recruit_Person   
+  SET  
+  Rank_ID = @Rank_ID 
+  , MCD_ID=@MCD_ID 
+  , Loca.on_ID=@Loca.on_ID 
+  , Billet=@Billet 
+  , Date_Billet=@Billet_Date 
+  , Date_AFADBD=@Date_AFADBD 
+  , Date_Rank= @Date_Rank 
+  , Current_Loca.on=@Current_Loca.on 
+  , Phone_No=@Phone_No 
+  , Date_8412I=@Date_8412I 
+  , Date_8412=@Date_8412 
+  , Date_Curr_Tour_Began=@Date_Curr_Tour_Began 
+  , Date_Last_PCS=@Date_Last_PCS 
+  , Date_Re.re=@Date_Re.re 
+  , Date_Void=@Date_Void 
+  , Modi.ed_Date=GETDATE() 
+  , Modi.ed_By=@UserID 
+       WHERE Person_ID=@PersonID 
+     END 
+  -- no billet and billet date entered 
+  ELSE 
+    BEGIN  
+       UPDATE M8412_Recruit_Person 
+         SET  
+  Rank_ID = @Rank_ID 
+  , MCD_ID=@MCD_ID 
+  , Loca.on_ID=@Loca.on_ID 
+   , Date_AFADBD=@Date_AFADBD 
+  , Date_Rank= @Date_Rank 
+  , Current_Loca.on=@Current_Loca.on 
+  , Phone_No=@Phone_No 
+  , Date_8412I=@Date_8412I 
+  , Date_8412=@Date_8412 
+  , Date_Curr_Tour_Began=@Date_Curr_Tour_Began 
+  , Date_Last_PCS=@Date_Last_PCS 
+  , Date_Re.re=@Date_Re.re 
+  , Date_Void=@Date_Void 
+  , Modi.ed_Date=GETDATE() 
+  , Modi.ed_By=@UserID 
+       WHERE Person_ID=@PersonID 
+            END 
+  END  
+END 
+ 
+-- if no billet or no date entered, no history record added 
+ 
+IF (ISNULL(LEN(@Billet_Date),0)=0 OR ISNULL(LEN(@Billet),0)=0) GOTO ExitProc 
+ 
+ 
+SET @SeqNo=0 
+IF EXISTS (SELECT Person_ID FROM M8412_Recruit_History WHERE Person_ID=@PersonID)  
+ SELECT @SeqNo=max(Sequence_No) FROM M8412_Recruit_History WHERE Person_ID=@PersonID 
+ 
+SET @SeqNo= @SeqNo+1 
+ 
+select @bilID = Billet_ID from M8412_Lk_Billet where Billet=@Billet 
+ 
+INSERT INTO M8412_Recruit_History VALUES( 
+ @PersonID 
+ , @SeqNo 
+ , @bilID 
+ , @Billet 
+ , @Loca.on_ID 
+ , @Current_Loca.on 
+ , @Billet_Date 
+ , (CASE WHEN LTRIM(RTRIM(@Date_Re.re)) IS NOT NULL THEN @Date_Re.re 
+  WHEN LTRIM(RTRIM(@Date_Void)) IS NOT NULL THEN @Date_Void 
+  ELSE GETDATE() 
+  END) 
+ , NULL 
+ , GETDATE() 
+ , @UserID 
+ , GETDATE() 
+ , @UserID 
+ ) 
+ 
+ 
+ 
+Declare @ISeqNo int, 
+ @IBDate DATETIME, 
+ @IEDate DATETIME, 
+ 
+ @IPreBDate DATETIME, 
+ @IPreSeq INT,  
+ @Cnt   int 
+ 
+ 
+ SET @IPreSeq=0 
+ SET @IPreBDate='' 
+ SET @Cnt=0 
+ 
+ DECLARE Cur_Per CURSOR FOR 
+     SELECT Sequence_No, Billet_Begin_Date, Billet_End_Date 
+  FROM M8412_Recruit_History 
+  WHERE Person_ID = @PersonID 
+  ORDER BY Billet_Begin_Date DESC 
+ 
+ OPEN Cur_Per 
+ FETCH NEXT FROM Cur_Per INTO  @ISeqNo,@IBDate,@IEDate 
+ WHILE (@@FETCH_STATUS =0) 
+ BEGIN 
+         IF @Cnt >0 
+  BEGIN 
+      UPDATE M8412_Recruit_History 
+        SET Billet_End_Date =(CASE WHEN @Cnt=0 THEN GETDATE() ELSE @IPreBDate  END) 
+    , Modi.ed_Date=GETDATE() 
+    , Modi.ed_By=@UserID 
+   WHERE Person_ID=@PersonID AND Sequence_No=@ISeqNo 
+ 
+  END 
+  SET @Cnt = @Cnt + 1 
+  SET @IPreSeq = @ISeqNo 
+  SET @IPreBDate=@IBDate 
+   
+    FETCH NEXT FROM Cur_Per INTO  @ISeqNo,@IBDate,@IEDate 
+ END 
+ Close Cur_Per 
+ DEALLOCATE Cur_Per 
+ 
+ 
+-- 05/17/07  S.Kho Replace/Update the loca.on, the billet and the billet begin date in the background  
+--           informa.on sec.on with the informa.on from the most recent billet in the billet history.  
+DECLARE @TLoc   VARCHAR(20), 
+ @TLocID  INT, 
+ @TBillet VARCHAR(25) 
+ 
+ IF @Cnt >0 
+ BEGIN 
+  SELECT TOP 1 @TBillet = Billet 
+    , @IBDate=Billet_Begin_Date 
+    , @TLocID=Loca.on_ID 
+    , @TLoc=Loca.on 
+   FROM M8412_Recruit_History 
+   WHERE Person_ID = @PersonID 
+   ORDER BY Billet_Begin_Date DESC 
+ 
+ 
+  UPDATE M8412_Recruit_Person   
+   SET Loca.on_ID=@TLocID 
+    , Current_Loca.on = @TLoc 
+    , Billet=@TBillet 
+    , Date_Billet=@IBDate 
+    , Modi.ed_Date=GETDATE() 
+    , Modi.ed_By=@UserID 
+   WHERE Person_ID = @PersonID 
+ END 
+ 
+  
+ 
+ExitProc:]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,94 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_8" id="0C0ADC67-9971-2D11-F15A-5E10E0FE77CE" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="MapsMapPointType">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:54 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>0044AB82-052F-A2EC-2D0E-DF5E84A0AB30</importedID>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="MapPointTypeId" id="CA94AAE7-17CB-A422-C412-F9DD9308EC4C">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:01 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>9017B507-79D1-0742-5E4B-4775284BCBB0</importedID>
+<use>0</use>
+<domain>5B1C7CF5-EF3B-C5B8-1E76-224B54D9B1CB</domain>
+<usesDefaultValue>true</usesDefaultValue>
+<defaultValue>(newid())</defaultValue>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="LayerId" id="35B8C5F2-3700-6CF3-8B62-2FC06035DC0B">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:01 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>23FFEC4B-C02F-CF8D-C9FA-67DAC9F973C9</importedID>
+<use>0</use>
+<domain>5B1C7CF5-EF3B-C5B8-1E76-224B54D9B1CB</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="29F0F471-E5EE-10BA-70B0-A33EEA2C0075" referredColumn="1A5CC098-2522-F56B-41D9-DB57A02A5CC5"/>
+</associations>
+</Column>
+<Column name="MapPointName" id="7CAE5294-9845-065F-52E5-ECA94A8A236A">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:01 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>B0CCADBB-6CC7-DC9B-F836-8C80C1EAF218</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>2E8EE7FC-99CE-D4AE-132C-50F4AADCC1F4</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="B7D0A4F1-8F2C-E48D-7A59-73C71E0B28D1" name="PK_MapsMapPointType">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:01 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>405F4351-1389-7A99-02F3-287D67B5E02F</importedID>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="CA94AAE7-17CB-A422-C412-F9DD9308EC4C"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="27DA9FCB-B5A4-331D-6C6A-CF57071BF313" name="FK_MapsMapPointType_MapsMapLayer">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="35B8C5F2-3700-6CF3-8B62-2FC06035DC0B"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+<tableCheckConstraints itemClass="oracle.dbtools.crest.model.design.constraint.TableLevelConstraint">
+<tableCheckConstraint name="[USMC].[MapsMapPointType]" directorySegmentName="seg_4" id="21F84AF2-E56A-A64F-B461-A814EF957C61">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:01 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>D6C1126B-5864-2A33-6FBF-B1DBFFBF7568</importedID>
+<rule><![CDATA[CONSTRAINT [FK_MapsMapPointType_MapsMapLayer]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITH" directorySegmentName="seg_4" id="2A776374-1721-1CCF-DD82-C57DB309B3B3">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:01 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>E3CA5A84-1EFC-3558-F6C5-C8A12456C4F3</importedID>
+</tableCheckConstraint>
+</tableCheckConstraints>
+</Table>

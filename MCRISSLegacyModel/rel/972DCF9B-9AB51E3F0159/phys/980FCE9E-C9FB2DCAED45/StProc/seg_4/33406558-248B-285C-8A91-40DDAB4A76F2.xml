@@ -1,0 +1,25 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetCandidateSpecialExamForPerson]" directorySegmentName="seg_4" id="33406558-248B-285C-8A91-40DDAB4A76F2">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[(@PersonID int) 
+AS 
+ 
+SELECT 
+  ROW_NUMBER() OVER (Order by MARINE_CANDIDATE_ID) AS ID 
+ ,[MARINE_CANDIDATE_ID] 
+ ,[SPECIAL_EXAM_TYPE] 
+ ,[SPECIAL_EXAM_DATE] 
+ ,[SPECIAL_EXAM_SCORE] 
+ ,[SPECIAL_EXAM_SCORE2] 
+ ,[SPECIAL_EXAM_SCORE3] 
+ ,[SPECIAL_EXAM_VERSION] 
+FROM 
+ [dbo].[CANDIDATE_SPECIAL_EXAM] WITH (NOLOCK) 
+WHERE 
+ MARINE_CANDIDATE_ID = @PersonID]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

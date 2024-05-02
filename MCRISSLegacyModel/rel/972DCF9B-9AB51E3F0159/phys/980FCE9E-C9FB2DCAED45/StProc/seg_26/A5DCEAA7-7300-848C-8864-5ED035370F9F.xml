@@ -1,0 +1,23 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SPADDPERSONTBL]" directorySegmentName="seg_26" id="A5DCEAA7-7300-848C-8864-5ED035370F9F">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@su.cd         varchar(5), 
+@ssn            varchar(9), 
+@l.rst         varchar(20), 
+@lmiddle        varchar(20), 
+@llast          varchar(20), 
+@user_login varchar(15), 
+@update_date date.me 
+ 
+as 
+insert into PERSON 
+(SOCIAL_SECURITY_NUMBER,FIRST_NAME,LEGAL_MIDDLE_NAME,LAST_NAME, 
+SUFFIX_CD,USER_LOGIN,UPDATE_DATE) 
+values 
+(@ssn,@l.rst,@lmiddle,@llast,@su.cd,@user_login,@update_date)]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

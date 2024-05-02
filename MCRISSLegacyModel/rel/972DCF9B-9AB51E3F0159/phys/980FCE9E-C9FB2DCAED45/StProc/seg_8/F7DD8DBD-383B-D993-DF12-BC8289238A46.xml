@@ -1,0 +1,33 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetPointOfContact]" directorySegmentName="seg_8" id="F7DD8DBD-383B-D993-DF12-BC8289238A46">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@PointOfContactID uniqueiden..er 
+        
+AS 
+SET NOCOUNT ON 
+BEGIN 
+   --ContactName is a generalize name for any person or place 
+ SELECT  
+   [PointOfContactID], 
+   [En.tyTitle], 
+   [En.tyTypeID], 
+   [POCLastName], [POCLegalMiddleName],[POCFirstName],[Street1], 
+         [Street2],[City],[State],[ZipCode], 
+         [TelephoneNumber],[CellPhoneNumber], 
+         [FaxNumber],[EmailAddress],[ValueToOSS],[Remarks],[CITY_CODE], [COUNTY_CODE], [STATE_CODE] 
+         --,[UserLogin],[UpdateDate] 
+   FROM [MCRISS].[USMC].[PointOfContact] poc 
+--  inner join [MCRISS].[USMC].MediaType mt on mt.MediaTypeID = poc.En.tyType 
+    
+   WHERE [PointOfContactID] = @PointOfContactID 
+ 
+END 
+  
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

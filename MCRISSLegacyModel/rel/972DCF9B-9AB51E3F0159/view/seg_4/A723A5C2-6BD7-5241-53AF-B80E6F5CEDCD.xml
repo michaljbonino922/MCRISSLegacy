@@ -1,0 +1,39 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_4" id="A723A5C2-6BD7-5241-53AF-B80E6F5CEDCD" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="_dta_mv_336">
+<sourceDDLFile>create Prospecting script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>440C13FC-F549-DB61-3385-00C91C922124</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  [USMC].[Prospect].[Recrui.ngPersonId] as _col_1,  count_big(*) as _col_2 FROM  [USMC].[Prospect]  GROUP BY  [USMC].[Prospect].[Recrui.ngPersonId]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[Recrui.ngPersonId]" id="F97108B9-5893-CB5A-152B-0057C7866E09">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_1</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_1</headerAlias>
+<expression>[Recrui.ngPersonId]</expression>
+<reference>false</reference>
+<viewID>A723A5C2-6BD7-5241-53AF-B80E6F5CEDCD</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="count_big(*)" id="586B71B8-0482-4BB5-F492-1F0DCF4BBCEF">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_2</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_2</headerAlias>
+<expression>count_big(*)</expression>
+<reference>false</reference>
+<viewID>A723A5C2-6BD7-5241-53AF-B80E6F5CEDCD</viewID>
+</viewElement>
+</viewElements>
+</TableView>

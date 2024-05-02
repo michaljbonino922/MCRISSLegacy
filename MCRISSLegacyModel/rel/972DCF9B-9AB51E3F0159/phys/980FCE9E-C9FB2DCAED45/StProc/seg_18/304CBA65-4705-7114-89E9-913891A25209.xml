@@ -1,0 +1,24 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetMilestones]" directorySegmentName="seg_18" id="304CBA65-4705-7114-89E9-913891A25209">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@Organiza.onID as integer, @SchoolYear as integer 
+AS 
+ 
+SELECT 
+ HIGH_SCHOOL_PLAN_TYPE.PLAN_TYPE, HIGH_SCHOOL_PLAN_TYPE.SHORT_DESCRIPTION, PRIORITY_CODE, OBJECTIVE_MONTH, SUM(OBJECTIVE_PERCENTAGE) AS OBJECTIVE_PERCENTAGE 
+FROM 
+ HIGH_SCHOOL_MILESTONE, HIGH_SCHOOL_PLAN_TYPE 
+WHERE  
+ HIGH_SCHOOL_PLAN_TYPE.PLAN_TYPE *= HIGH_SCHOOL_MILESTONE.PLAN_TYPE AND 
+ HIGH_SCHOOL_MILESTONE.ORGANIZATION_ID = @Organiza.onID AND 
+ SCHOOL_YEAR = @SchoolYear 
+GROUP BY 
+ HIGH_SCHOOL_PLAN_TYPE.PLAN_TYPE,SHORT_DESCRIPTION, PRIORITY_CODE, OBJECTIVE_MONTH 
+ORDER BY 
+ SHORT_DESCRIPTION, PRIORITY_CODE, OBJECTIVE_MONTH]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

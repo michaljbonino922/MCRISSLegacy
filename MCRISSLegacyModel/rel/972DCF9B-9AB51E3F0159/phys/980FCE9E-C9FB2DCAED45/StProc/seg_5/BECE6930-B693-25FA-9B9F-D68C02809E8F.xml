@@ -1,0 +1,58 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetInternalTrainingEvent]" directorySegmentName="seg_5" id="BECE6930-B693-25FA-9B9F-D68C02809E8F">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[--@PointOfContactID integer, 
+       --@En.tyTypeID integer 
+AS 
+SET NOCOUNT ON 
+BEGIN 
+   --ContactName is a generalize name for any person or place 
+ SELECT  
+  
+ --These columns may be needed by the data contracts for insert/update 
+    oe.[FiscalYear], e.[EventID], e.[EventType], e.[EventName],  
+            
+  
+ --This will be foreign key from  EventDate table 
+ -- There can be more than one event date 
+ [EventDateID], 
+  
+  
+ -- TrainigType and Name are speci.c to Internal training as there can be  
+ -- more than one topic - thoughs as per the analyst most of the .me it will 
+ -- be one topic 
+ -- Topic  - The type/name of the training being o.ered. (from SDD) 
+ ite.[TrainingType],   
+ ite.[TrainingName],  
+ ite.[InstructorName],  
+  
+ --The member(s) of the OST that will be required to atend the training session. (from SDD) 
+ -- at present a comma seperated list of atendees 
+ ite.[AtendeeList], 
+    
+ eco.[Cost], 
+    
+ RTRIM (pc.POCLastName) + ',' + RTRIM(pc.POCFirstName) + '.' + IsNull(substring(pc.POCLegalMiddleName,1,1),'') +  
+    '.' AS POCName, 
+    [POCLastName], [POCLegalMiddleName], [POCFirstName], 
+    [TelephoneNumber] 
+   
+     
+   FROM  
+  [MCRISS].[USMC].[InternalTrainingEvent] ite 
+  inner join [MCRISS].[USMC].[Organiza.onEvent] oe ON  ite.Organiza.onEventID = oe.Organiza.onEventID  
+  inner join [MCRISS].[USMC].[Event] e ON  e.EventID = oe.EventID 
+  le. outer join [MCRISS].[USMC].[PointOfContact] pc ON  pc.PointOfContactID = oe.PointOfContactID  
+  le. outer join [MCRISS].[USMC].[EventCost] eco ON  oe.EventCostID = oe.EventCostID 
+     le. outer join [MCRISS].[USMC].[EventDate] ed ON  oe.EventDateID = oe.EventDateID 
+    
+END 
+  
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

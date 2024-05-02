@@ -1,0 +1,314 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetMissionBoardRollupActualDataByOrgFY]" directorySegmentName="seg_6" id="766D0C55-984A-B7E3-41CD-46093290CAD6">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@Organiza.onID  as integer,  
+ @FiscalYear as   integer 
+ 
+AS 
+ 
+SET NOCOUNT ON 
+ 
+-- Get the withdrawn NWAs so the withdrawn contracts can be excluded 
+CREATE TABLE #Withdrawals(NWA_ID int) 
+Insert into #Withdrawals 
+Exec [MCRISS].[USMC].[GetWithdrawnNWAs]; 
+ 
+DECLARE @Organiza.onType varchar(3) 
+DECLARE @ChildOrgType varchar(3) 
+ 
+-- At present this defaults to OSS as the requirement do not state it to passed as an input parameter 
+SELECT  @Organiza.onType= 'OSS'  
+SET @ChildOrgType = CASE @Organiza.onType 
+   WHEN 'H' THEN 'R' 
+   WHEN 'R' THEN 'D' 
+   WHEN 'D' THEN 'RS' 
+   WHEN 'RS' THEN 'OSS' 
+   ELSE 'OSS' 
+   END 
+ 
+ 
+CREATE TABLE #ORG  
+( 
+ORG_ID INT,  
+SHORT_NAME varchar(15), 
+NAME varchar(45),  
+ORG_TYPE varchar(3) DEFAULT 'D' 
+) 
+ 
+ 
+IF @Organiza.onType IN ('H', 'R', 'D', 'RS') 
+BEGIN 
+ --- GET CHILD ORGS 
+ INSERT INTO #ORG 
+ EXEC sp_GetChildOrgs @Organiza.onID, @ChildOrgType 
+END  
+ 
+IF @Organiza.onType = 'OSS' 
+BEGIN 
+ --- INSERT ONLY THE ORG ID 
+ INSERT INTO #ORG (ORG_ID) VALUES (@Organiza.onID) 
+END 
+---------------------------------------------------------------------------------------------------------------------- 
+-- select the plccomb actuals 
+---------------------------------------------------------------------------------------------------------------------- 
+select 
+-- this informa.on is used only during debugging and will be removed once the sp is debugged 
+OC.CLASS_NUMBER, OC.FISCAL_YEAR AS MISSION_YEAR, OC.TRAINING_TYPE_CODE,  N.NWA_ID, 
+--these are the actual columns for the data table it the grid view 
+1 as DATA_TABLE_NUM, 
+O.COMPONENT_CODE,C.COMPONENT_DESCRIPTION, 
+-- this is the diversity and gender related informa.on  required by the diversity plan 
+ 
+-- ethnic code is for the 'OTHER' code in the diversity plan 
+--MC.RACE_CODE AS DIVERSITY_CODE, MC.ETHNIC_CODE, 
+CASE 
+   WHEN (MC.RACE_CODE + MC.ETHNIC_CODE) IS NULL THEN NULL 
+   WHEN (MC.RACE_CODE + MC.ETHNIC_CODE) IN 
+     ('AA', 
+      'C1','C2','C3','C4','C5','C6','C7','C9','CA','CB','CD','CE','CF','CG','CH','CJ', 
+      'CK','CL','CP','CQ','CS','CT','CV','CW','CZ', 
+      'EA','FA') THEN 'AA' 
+   WHEN (MC.RACE_CODE + MC.ETHNIC_CODE) IN 
+     ('EP','EZ','FP','FZ') THEN 'W' 
+   WHEN (MC.RACE_CODE + MC.ETHNIC_CODE) IN 
+     ('A4','A6','A9','AB','AS','BB','DB','E1','E4','E6','E9','EB','ES','F1','F4','F6', 
+      'F9','FB','FS') THEN 'H' 
+   ELSE 'O' 
+  END AS DIVERSITY_CODE, 
+MC.GENDER_CODE 
+ 
+from NWA N  
+ inner join OFFICER_CONTRACT OFC ON OFC.NWA_ID = N.NWA_ID 
+ inner join OFFICER_REFERRAL OFR ON N.NWA_ID = OFR.NWA_ID  
+ inner join MARINE M  ON M.MARINE_ID = OFR.MARINE_ID 
+ inner join PERSON P ON P.PERSON_ID = M.MARINE_ID 
+ inner join OCS O ON O.NWA_ID = N.NWA_ID  
+ inner join OCS_CLASS OC ON O.OCS_CLASS_ID = OC.CLASS_ID 
+ inner join COMPONENT_CODE C ON C.COMPONENT_CODE = O.COMPONENT_CODE 
+ inner join CANDIDATE_EDUCATION CE ON N.MARINE_CANDIDATE_ID = CE.MARINE_CANDIDATE_ID 
+ inner join MARINE_CANDIDATE MC ON N.MARINE_CANDIDATE_ID = MC.MARINE_CANDIDATE_ID 
+ inner join HIGH_SCHOOL H  ON CE.SCHOOL_CODE = H.SCHOOL_CODE 
+where  OC.FISCAL_YEAR = @FiscalYear 
+    AND C.COMPONENT_DESCRIPTION like '%PLC%' 
+    AND OFC.PROJECTED_COMMISSION_DATE between convert(date.me, 'Oct 1 '+CAST(@FiscalYear as CHAR(4))) and  convert(date.me, 'Sep 30 '+CAST(@FiscalYear+1 as CHAR(4))) 
+    AND N.NWA_ID not in (SELECT NWA_ID FROM #Withdrawals) 
+order by O.COMPONENT_CODE  
+ 
+---------------------------------------------------------------------------------------------------------------------- 
+--select the plcsr and plcjr actuals 
+---------------------------------------------------------------------------------------------------------------------- 
+select 
+-- this informa.on is used only during debugging and will be removed once the sp is debugged 
+OC.CLASS_NUMBER, OC.FISCAL_YEAR AS MISSION_YEAR, OC.TRAINING_TYPE_CODE,  N.NWA_ID, 
+ 
+CASE  
+ WHEN OFC.PROJECTED_COMMISSION_DATE between convert(date.me, 'Oct 1 '+CAST(@FiscalYear+1 as CHAR(4))) and  convert(date.me, 'Sep 30 '+CAST(@FiscalYear+2 as CHAR(4))) THEN '2' 
+ WHEN OFC.PROJECTED_COMMISSION_DATE between convert(date.me, 'Oct 1 '+CAST(@FiscalYear+2 as CHAR(4))) and  convert(date.me, 'Sep 30 '+CAST(@FiscalYear+3 as CHAR(4))) THEN '3' 
+END AS DATA_TABLE_NUM,  
+--these are the actual columns for the data table it the grid view 
+O.COMPONENT_CODE,C.COMPONENT_DESCRIPTION,  
+-- S.SHIP_TYPE AS INCREMENT 
+'1' AS INCREMENT, --need to .x this 
+-- this is the diversity and gender related informa.on  required by the diversity plan 
+-- ethnic code is for the 'OTHER' code in the diversity plan 
+ 
+-- ethnic code is for the 'OTHER' code in the diversity plan 
+--MC.RACE_CODE AS DIVERSITY_CODE, MC.ETHNIC_CODE, 
+CASE 
+   WHEN (MC.RACE_CODE + MC.ETHNIC_CODE) IS NULL THEN NULL 
+   WHEN (MC.RACE_CODE + MC.ETHNIC_CODE) IN 
+     ('AA', 
+      'C1','C2','C3','C4','C5','C6','C7','C9','CA','CB','CD','CE','CF','CG','CH','CJ', 
+      'CK','CL','CP','CQ','CS','CT','CV','CW','CZ', 
+      'EA','FA') THEN 'AA' 
+   WHEN (MC.RACE_CODE + MC.ETHNIC_CODE) IN 
+     ('EP','EZ','FP','FZ') THEN 'W' 
+   WHEN (MC.RACE_CODE + MC.ETHNIC_CODE) IN 
+     ('A4','A6','A9','AB','AS','BB','DB','E1','E4','E6','E9','EB','ES','F1','F4','F6', 
+      'F9','FB','FS') THEN 'H' 
+   ELSE 'O' 
+  END AS DIVERSITY_CODE, 
+MC.GENDER_CODE 
+ 
+from NWA N  
+ inner join OFFICER_CONTRACT OFC ON OFC.NWA_ID = N.NWA_ID 
+ inner join OFFICER_REFERRAL OFR ON N.NWA_ID = OFR.NWA_ID  
+ inner join MARINE M  ON M.MARINE_ID = OFR.MARINE_ID 
+ inner join PERSON P ON P.PERSON_ID = M.MARINE_ID 
+ inner join OCS O ON O.NWA_ID = N.NWA_ID  
+ inner join OCS_CLASS OC ON O.OCS_CLASS_ID = OC.CLASS_ID 
+ inner join COMPONENT_CODE C ON C.COMPONENT_CODE = O.COMPONENT_CODE 
+ inner join CANDIDATE_EDUCATION CE ON N.MARINE_CANDIDATE_ID = CE.MARINE_CANDIDATE_ID 
+ inner join MARINE_CANDIDATE MC ON N.MARINE_CANDIDATE_ID = MC.MARINE_CANDIDATE_ID 
+ inner join HIGH_SCHOOL H  ON CE.SCHOOL_CODE = H.SCHOOL_CODE 
+ -- uncomment this informa.on for ship_type 
+ --inner join [CONTRACT] C ON N.NWA_ID = C.NWA_ID 
+ --inner join SHIPPER S ON S.CONTRACT_ID = C.CONTRACT_ID  
+ 
+WHERE OC.FISCAL_YEAR = @FiscalYear 
+     AND C.COMPONENT_DESCRIPTION like '%PLC%' 
+  AND OFC.PROJECTED_COMMISSION_DATE between convert(date.me, 'Oct 1 '+CAST(@FiscalYear+1 as CHAR(4))) and  convert(date.me, 'Sep 30 '+CAST(@FiscalYear+3 as CHAR(4))) 
+  AND N.NWA_ID not in (SELECT NWA_ID FROM #Withdrawals) 
+ORDER BY OC.TRAINING_TYPE_CODE DESC, O.COMPONENT_CODE  
+ 
+---------------------------------------------------------------------------------------------------------------------- 
+-- select the occ fall actuals for the .scal year 
+---------------------------------------------------------------------------------------------------------------------- 
+ 
+select  
+-- this informa.on is used only during debugging and will be removed once the sp is debugged 
+OC.CLASS_NUMBER, OC.FISCAL_YEAR AS MISSION_YEAR, OC.TRAINING_TYPE_CODE,  N.NWA_ID, 
+-- the following columns will be returned by the stored proc 
+1 as DATA_TABLE_NUM, 
+O.COMPONENT_CODE,C.COMPONENT_DESCRIPTION, 
+ 
+ 
+-- this is the diversity and gender related informa.on  required by the diversity plan 
+-- ethnic code is for the 'OTHER' code in the diversity plan 
+--MC.RACE_CODE AS DIVERSITY_CODE, MC.ETHNIC_CODE, 
+CASE 
+   WHEN (MC.RACE_CODE + MC.ETHNIC_CODE) IS NULL THEN NULL 
+   WHEN (MC.RACE_CODE + MC.ETHNIC_CODE) IN 
+     ('AA', 
+      'C1','C2','C3','C4','C5','C6','C7','C9','CA','CB','CD','CE','CF','CG','CH','CJ', 
+      'CK','CL','CP','CQ','CS','CT','CV','CW','CZ', 
+      'EA','FA') THEN 'AA' 
+   WHEN (MC.RACE_CODE + MC.ETHNIC_CODE) IN 
+     ('EP','EZ','FP','FZ') THEN 'W' 
+   WHEN (MC.RACE_CODE + MC.ETHNIC_CODE) IN 
+     ('A4','A6','A9','AB','AS','BB','DB','E1','E4','E6','E9','EB','ES','F1','F4','F6', 
+      'F9','FB','FS') THEN 'H' 
+   ELSE 'O' 
+  END AS DIVERSITY_CODE, 
+MC.GENDER_CODE 
+ 
+ 
+from NWA N  
+ inner join OFFICER_REFERRAL OFR ON N.NWA_ID = OFR.NWA_ID  
+ inner join MARINE M  ON M.MARINE_ID = OFR.MARINE_ID 
+ inner join PERSON P ON P.PERSON_ID = M.MARINE_ID 
+ inner join OCS O ON O.NWA_ID = N.NWA_ID  
+ --join both on the class_id and .scal year 
+ inner join OCS_CLASS OC ON O.OCS_CLASS_ID = OC.CLASS_ID --AND OCS.FISCAL_YEAR = @FiscalYear 
+ inner join COMPONENT_CODE C ON C.COMPONENT_CODE = O.COMPONENT_CODE 
+ inner join CANDIDATE_EDUCATION CE ON N.MARINE_CANDIDATE_ID = CE.MARINE_CANDIDATE_ID 
+ inner join MARINE_CANDIDATE MC ON N.MARINE_CANDIDATE_ID = MC.MARINE_CANDIDATE_ID 
+ inner join HIGH_SCHOOL H  ON CE.SCHOOL_CODE = H.SCHOOL_CODE 
+ 
+where OC.FISCAL_YEAR = @FiscalYear 
+  AND C.COMPONENT_DESCRIPTION like '%OCC%' 
+  AND datepart(mm, OC.CLASS_BEGIN_DATE) >=9 and datepart(mm, OC.CLASS_BEGIN_DATE) <=12  
+ 
+UNION 
+ 
+---------------------------------------------------------------------------------------------------------------------- 
+-- select the occ winter actuals for the .scal year 
+---------------------------------------------------------------------------------------------------------------------- 
+ 
+ 
+select  
+-- this informa.on is used only during debugging and will be removed once the sp is debugged 
+OC.CLASS_NUMBER, OC.FISCAL_YEAR AS MISSION_YEAR, OC.TRAINING_TYPE_CODE,  N.NWA_ID, 
+-- the following columns will be returned by the stored proc 
+2 AS DATA_TABLE_NUM, 
+O.COMPONENT_CODE,C.COMPONENT_DESCRIPTION, 
+ 
+-- this is the diversity and gender related informa.on  required by the diversity plan 
+-- ethnic code is for the 'OTHER' code in the diversity plan 
+--MC.RACE_CODE AS DIVERSITY_CODE, MC.ETHNIC_CODE, 
+CASE 
+   WHEN (MC.RACE_CODE + MC.ETHNIC_CODE) IS NULL THEN NULL 
+   WHEN (MC.RACE_CODE + MC.ETHNIC_CODE) IN 
+     ('AA', 
+      'C1','C2','C3','C4','C5','C6','C7','C9','CA','CB','CD','CE','CF','CG','CH','CJ', 
+      'CK','CL','CP','CQ','CS','CT','CV','CW','CZ', 
+      'EA','FA') THEN 'AA' 
+   WHEN (MC.RACE_CODE + MC.ETHNIC_CODE) IN 
+     ('EP','EZ','FP','FZ') THEN 'W' 
+   WHEN (MC.RACE_CODE + MC.ETHNIC_CODE) IN 
+     ('A4','A6','A9','AB','AS','BB','DB','E1','E4','E6','E9','EB','ES','F1','F4','F6', 
+      'F9','FB','FS') THEN 'H' 
+   ELSE 'O' 
+  END AS DIVERSITY_CODE, 
+MC.GENDER_CODE 
+ 
+ 
+from NWA N  
+ inner join OFFICER_REFERRAL OFR ON N.NWA_ID = OFR.NWA_ID  
+ inner join MARINE M  ON M.MARINE_ID = OFR.MARINE_ID 
+ inner join PERSON P ON P.PERSON_ID = M.MARINE_ID 
+ inner join OCS O ON O.NWA_ID = N.NWA_ID  
+ --join both on the class_id and .scal year 
+ inner join OCS_CLASS OC ON O.OCS_CLASS_ID = OC.CLASS_ID --AND OCS.FISCAL_YEAR = @FiscalYear 
+ inner join COMPONENT_CODE C ON C.COMPONENT_CODE = O.COMPONENT_CODE 
+ inner join CANDIDATE_EDUCATION CE ON N.MARINE_CANDIDATE_ID = CE.MARINE_CANDIDATE_ID 
+ inner join MARINE_CANDIDATE MC ON N.MARINE_CANDIDATE_ID = MC.MARINE_CANDIDATE_ID 
+ inner join HIGH_SCHOOL H  ON CE.SCHOOL_CODE = H.SCHOOL_CODE 
+ 
+where OC.FISCAL_YEAR = @FiscalYear 
+  AND C.COMPONENT_DESCRIPTION like '%OCC%' 
+  AND datepart(mm, OC.CLASS_BEGIN_DATE) >=1 and datepart(mm, OC.CLASS_BEGIN_DATE) <=4  
+   
+UNION 
+ 
+---------------------------------------------------------------------------------------------------------------------- 
+-- select the occ summer  actuals for the .scal year 
+---------------------------------------------------------------------------------------------------------------------- 
+ 
+ 
+select  
+-- this informa.on is used only during debugging and will be removed once the sp is debugged 
+OC.CLASS_NUMBER, OC.FISCAL_YEAR AS MISSION_YEAR, OC.TRAINING_TYPE_CODE,  N.NWA_ID, 
+3 as DATA_TABLE_NUM, 
+-- the following columns will be returned by the stored proc 
+O.COMPONENT_CODE,C.COMPONENT_DESCRIPTION, 
+ 
+-- this is the diversity and gender related informa.on  required by the diversity plan 
+-- ethnic code is for the 'OTHER' code in the diversity plan 
+--MC.RACE_CODE AS DIVERSITY_CODE, MC.ETHNIC_CODE, 
+CASE 
+   WHEN (MC.RACE_CODE + MC.ETHNIC_CODE) IS NULL THEN NULL 
+   WHEN (MC.RACE_CODE + MC.ETHNIC_CODE) IN 
+     ('AA', 
+      'C1','C2','C3','C4','C5','C6','C7','C9','CA','CB','CD','CE','CF','CG','CH','CJ', 
+      'CK','CL','CP','CQ','CS','CT','CV','CW','CZ', 
+      'EA','FA') THEN 'AA' 
+   WHEN (MC.RACE_CODE + MC.ETHNIC_CODE) IN 
+     ('EP','EZ','FP','FZ') THEN 'W' 
+   WHEN (MC.RACE_CODE + MC.ETHNIC_CODE) IN 
+     ('A4','A6','A9','AB','AS','BB','DB','E1','E4','E6','E9','EB','ES','F1','F4','F6', 
+      'F9','FB','FS') THEN 'H' 
+   ELSE 'O' 
+  END AS DIVERSITY_CODE, 
+MC.GENDER_CODE 
+ 
+from NWA N  
+ inner join OFFICER_REFERRAL OFR ON N.NWA_ID = OFR.NWA_ID  
+ inner join MARINE M  ON M.MARINE_ID = OFR.MARINE_ID 
+ inner join PERSON P ON P.PERSON_ID = M.MARINE_ID 
+ inner join OCS O ON O.NWA_ID = N.NWA_ID  
+ --join both on the class_id and .scal year 
+ inner join OCS_CLASS OC ON O.OCS_CLASS_ID = OC.CLASS_ID --AND OCS.FISCAL_YEAR = @FiscalYear 
+ inner join COMPONENT_CODE C ON C.COMPONENT_CODE = O.COMPONENT_CODE 
+ inner join CANDIDATE_EDUCATION CE ON N.MARINE_CANDIDATE_ID = CE.MARINE_CANDIDATE_ID 
+ inner join MARINE_CANDIDATE MC ON N.MARINE_CANDIDATE_ID = MC.MARINE_CANDIDATE_ID 
+ inner join HIGH_SCHOOL H  ON CE.SCHOOL_CODE = H.SCHOOL_CODE 
+ 
+where  OC.FISCAL_YEAR = @FiscalYear 
+  AND C.COMPONENT_DESCRIPTION like '%OCC%' 
+  AND datepart(mm, OC.CLASS_BEGIN_DATE) >=5 and datepart(mm, OC.CLASS_BEGIN_DATE) <=8   
+   
+ 
+order by OC.CLASS_NUMBER, O.COMPONENT_CODE  
+ 
+--- CLEAN UP 
+DROP TABLE #ORG 
+DROP TABLE #Withdrawals 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

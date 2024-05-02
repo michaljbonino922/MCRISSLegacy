@@ -1,0 +1,60 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetPacExpira.onEventID]" directorySegmentName="seg_4" id="27B1B858-EA28-6CA9-4F9A-6CC57A59072E">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@OrgId int , 
+ @ProspectID uniqueidentifier, 
+ @Expira.onDate date.me  
+ 
+AS 
+BEGIN 
+  
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+ DECLARE @EventID uniqueidentifier  
+  
+ SET @EventID = NULL 
+ 
+ SELECT @EventID = e.ID 
+ FROM USMC.Event e JOIN  
+   USMC.EventSubject s 
+ ON e.ID = s.EventId 
+ WHERE 
+ EventSourceId = 16 AND 
+ EventTypeId = 174 AND  
+ Organiza.onId = @OrgId AND 
+ SubjectId = @ProspectID 
+ 
+ IF @EventID IS NULL 
+ BEGIN  
+  SET @EventID = NEWID() 
+ END 
+ ELSE  -- event already exist, see if we need update by comparing expira.on date 
+ BEGIN 
+  IF EXISTS( 
+   SELECT e.ID  
+   FROM USMC.Event e JOIN  
+     USMC.EventSubject s 
+   ON e.ID = s.EventId 
+   WHERE 
+      EventSourceId = 16 AND 
+   EventTypeId = 174 AND  
+   Organiza.onId = @OrgId AND 
+   SubjectId = @ProspectID AND 
+   DATEPART(year, StartDate) = DATEPART(year, @Expira.onDate) AND 
+   DATEPART(month, StartDate) = DATEPART(month, @Expira.onDate) AND 
+   DATEPART(day, StartDate) = DATEPART(day, @Expira.onDate) 
+     ) 
+  BEGIN --- expira.on date is the same, no change is needed 
+   SET @EventID = '00000000-0000-0000-0000-000000000000' 
+  END   
+ END 
+ 
+ SELECT @EventID as EventID 
+  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

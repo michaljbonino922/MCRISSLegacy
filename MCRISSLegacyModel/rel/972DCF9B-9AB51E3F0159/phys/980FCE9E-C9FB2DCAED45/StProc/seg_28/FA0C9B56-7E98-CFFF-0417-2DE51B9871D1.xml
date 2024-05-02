@@ -1,0 +1,29 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateWaiver]" directorySegmentName="seg_28" id="FA0C9B56-7E98-CFFF-0417-2DE51B9871D1">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[(@WaiverID int 
+ ,@WaiverCategoryID int 
+ ,@WaiverTypeID int 
+ ,@WaiverLevelID int 
+ ,@E.ec.veDate date.me 
+ ,@UserLogin varchar(15)) 
+ 
+AS 
+ 
+UPDATE  
+ [dbo].[WAIVER] 
+SET 
+  [WAIVER_CATEGORY_ID] = @WaiverCategoryID 
+ ,[WAIVER_TYPE_ID] = @WaiverTypeID 
+ ,[WAIVER_LEVEL_ID] = @WaiverLevelID 
+ ,[EFFECTIVE_DATE] = @E.ec.veDate 
+ ,[USER_LOGIN] = @UserLogin 
+ ,[UPDATE_DATE] = GetDate() 
+WHERE 
+ [WAIVER_ID] = @WaiverID]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

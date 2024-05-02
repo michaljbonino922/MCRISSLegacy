@@ -1,0 +1,77 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_DBAMigrateZips]" directorySegmentName="seg_14" id="C9216895-6D41-A622-93CA-7ECBE08D3076">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[as 
+ 
+declare 
+@org_id  int, 
+@mcc   varchar(5), 
+@zip   varchar(9), 
+@user   varchar(15), 
+@update_date  date.me, 
+@deleted  char(1) 
+ 
+declare zipcode cursor for 
+ 
+select mcc_code, zip_code 
+from arms..zipcode_migrate 
+ 
+open zipcode 
+ 
+fetch zipcode into 
+@mcc, @zip 
+ 
+set @user='migra.on' 
+set @update_date=getdate() 
+set @deleted='N' 
+ 
+ 
+while (@@fetch_status = 0) 
+begin 
+ 
+ set @org_id = (select organiza.on_id from recrui.ng_organiza.on where 
+    MCC_CODE = @mcc) 
+ 
+if @org_id is not null 
+ begin 
+ if not exists (select 1 from zip_code_assignment where zip_code = @zip) 
+  begin 
+  insert into zip_code_assignment 
+  (organiza.on_id, zip_code, deleted, user_login, update_date) 
+  values 
+  (@org_id, @zip, @deleted, @user, @update_date) 
+ 
+  print 'ZIP CODE INSERTED' 
+ 
+  end 
+ 
+   else begin 
+  update zip_code_assignment 
+  set 
+  organiza.on_id = @org_id, 
+  zip_code = @zip, 
+  deleted = @deleted, 
+  user_login = @user, 
+  update_date = @update_date 
+  where zip_code = @zip 
+ 
+  print 'ZIP CODE UPDATED' 
+ 
+   end 
+ 
+ end 
+else print @mcc +' '+ 'IS NOT A VALID MCC_CODE' 
+  
+fetch zipcode into 
+@mcc, @zip 
+ 
+end 
+ 
+close zipcode 
+deallocate zipcode]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

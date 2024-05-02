@@ -1,0 +1,209 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[ReopenLead]" directorySegmentName="seg_11" id="972AB1B1-BB19-6591-EBE9-1788112D2604">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:37 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @RecruitID uniqueiden..er, 
+ @UserID uniqueiden..er 
+) 
+ 
+AS 
+BEGIN 
+ 
+ DECLARE @OldCurrentLeadID uniqueiden..er 
+ DECLARE @NewLeadID uniqueiden..er 
+ DECLARE @UserRecruiterID uniqueiden..er 
+ DECLARE @NewAssignedRecruiterID uniqueiden..er 
+ DECLARE @NewPSRSSID int 
+ DECLARE @AssignedDisposi.on varchar(20) 
+ DECLARE @AssignedStatusDisposi.onID int 
+ 
+ BEGIN TRANSACTION 
+ 
+ IF EXISTS(SELECT RecruitCurrentLeadID FROM [dbo].[RecruitCurrentLead] WHERE [RecruitID] = @RecruitID) 
+ BEGIN 
+  SELECT @OldCurrentLeadID = LeadID 
+  FROM RecruitCurrentLead 
+  WHERE [RecruitID] = @RecruitID 
+ 
+  SELECT @NewLeadID = NEWID() 
+ 
+  SELECT @UserRecruiterID = RecruiterID 
+      FROM [dbo].[Recruiter] R 
+      inner join [dbo].[Person] P on R.[PersonID] = P.[PersonID] 
+      inner join [dbo].[User] U on U.FirstName = P.FirstName and U.LastName = P.LastName and U.Sta.on_OrgUnitID = R.Organiza.onID 
+      WHERE U.UserID = @UserID 
+       
+  IF @UserRecruiterID IS NOT NULL 
+  BEGIN 
+   SELECT @NewAssignedRecruiterID = RecruiterID, @NewPSRSSID = Organiza.onID 
+   FROM Recruiter 
+   WHERE RecruiterID = @UserRecruiterID 
+  END 
+  ELSE 
+  BEGIN 
+   SELECT @NewAssignedRecruiterID = AssignedRecruiterID, @NewPSRSSID = AtachedPSRSSID 
+   FROM Lead WHERE [LeadID] = @OldCurrentLeadID 
+  END 
+ 
+  INSERT INTO [dbo].[Lead]  
+  ( 
+   [LeadID], 
+   [RecruitID], 
+   [DateStartedWorking], 
+   [PayGradeID], 
+   [DOR], 
+   [PrimaryMOSID], 
+   [AddtlMOSID1], 
+   [AddtlMOSID2], 
+   [PresentRUCID], 
+   [DateRECC], 
+   [DateEndAc.veService], 
+   [MCC], 
+   [ReserveRUCID], 
+   [MaritalStatusID], 
+   [NumberDependents], 
+   [CompositeScore], 
+   [DrawCaseCode], 
+   [ConductAvgService], 
+   [Pro.ciencyAvgService], 
+   [ReEnlistmentCode], 
+   [DateCRCRCer..ca.on], 
+   [SatYears], 
+   [DateEnteredArmedForces], 
+   [DatePayEntryBase], 
+   [DateArmedForcesAc.veDutyBase], 
+   [DateHIVScreen], 
+   [Gender], 
+   [DateMostCurrentPHA], 
+   [DateMostCurrentPhysical], 
+   [Separa.onCode], 
+   [DateProjectedJoin], 
+   [NWARequestTypeID], 
+   [Veri.edUnworkable_UserID], 
+   [Veri.edUnworkable_Date], 
+   [NWARequested_UserID], 
+   [NWARequested_Date], 
+   [NWAApproved_UserID], 
+   [NWAApproved_Date], 
+   [AssignedRecruiterID], 
+   [DateAssigned], 
+   [AtachedPSRSSID], 
+   [ComponentCode], 
+   [ReserveComponentCode] 
+  ) 
+  SELECT 
+   @NewLeadID, 
+   [RecruitID], 
+   null, 
+   [PayGradeID], 
+   [DOR], 
+   [PrimaryMOSID], 
+   [AddtlMOSID1], 
+   [AddtlMOSID2], 
+   [PresentRUCID], 
+   [DateRECC], 
+   [DateEndAc.veService], 
+   [MCC], 
+   [ReserveRUCID], 
+   [MaritalStatusID], 
+   [NumberDependents], 
+   [CompositeScore], 
+   [DrawCaseCode], 
+   [ConductAvgService], 
+   [Pro.ciencyAvgService], 
+   [ReEnlistmentCode], 
+   [DateCRCRCer..ca.on], 
+   [SatYears], 
+   [DateEnteredArmedForces], 
+   [DatePayEntryBase], 
+   [DateArmedForcesAc.veDutyBase], 
+   [DateHIVScreen], 
+   [Gender], 
+   [DateMostCurrentPHA], 
+   [DateMostCurrentPhysical], 
+   [Separa.onCode], 
+   null, 
+   null, 
+   null, 
+   null, 
+   null, 
+   null, 
+   null, 
+   null, 
+   @NewAssignedRecruiterID, 
+   GETDATE(), 
+   @NewPSRSSID, 
+   [ComponentCode], 
+   [ReserveComponentCode] 
+  FROM Lead 
+  WHERE [LeadID] = @OldCurrentLeadID 
+  
+  INSERT INTO Address (AddressID, LeadID, Street1, Street2, CityID, StateID, CountyID, ZipCode, CountryID) 
+  SELECT NEWID(), @NewLeadID, Street1, Street2, CityID, StateID, CountyID, ZipCode, CountryID 
+   FROM Address where LeadID = @OldCurrentLeadID 
+   
+  INSERT INTO EmailAddress (EmailAddressID, LeadID, EmailAddressTypeID, Email, DateUpdated, IsCurrent) 
+  SELECT NEWID(), @NewLeadID, EmailAddressTypeID, Email, DateUpdated, IsCurrent 
+   FROM EmailAddress where LeadID = @OldCurrentLeadID  
+   
+  INSERT INTO LeadPhones (LeadPhonesID, LeadID, PrimaryPhone, SecondaryPhone, Ter.aryPhone, NOK1, NOK2) 
+  SELECT NEWID(), @NewLeadID, PrimaryPhone, SecondaryPhone, Ter.aryPhone, NOK1, NOK2 
+   FROM LeadPhones where LeadID = @OldCurrentLeadID 
+ 
+  INSERT INTO ASVABResult (ASVABResultID, LeadID, GT, EL, CL, MM) 
+  SELECT NEWID(), @NewLeadID, GT, EL, CL, MM 
+   FROM ASVABResult where LeadID = @OldCurrentLeadID 
+ 
+  SELECT @AssignedDisposi.on =  
+   CASE WHEN Lead.DateEndAc.veService < GETDATE() OR Lead.DateEndAc.veService IS NULL 
+   THEN 'All Other Leads' 
+    WHEN Lead.DateEndAc.veService >= GETDATE() 
+   THEN 'Ac.ve Component' 
+   END 
+  FROM Lead where LeadID = @NewLeadID 
+    
+  SELECT @AssignedStatusDisposi.onID = StatusDisposi.onID 
+  FROM StatusDisposi.on, Status, Disposi.on 
+  WHERE StatusDisposi.on.StatusID = Status.StatusID 
+  AND StatusDisposi.on.Disposi.onID = Disposi.on.Disposi.onID 
+  AND Status.Descrip.on = 'Assigned' AND Disposi.on.Descrip.on = @AssignedDisposi.on 
+   
+  INSERT INTO LeadStatusDisposi.on (LeadStatusDisposi.onID, StatusDisposi.onID, LeadID, DateUpdated, UserGUID) 
+  VALUES (NEWID(), @AssignedStatusDisposi.onID, @NewLeadID, GETDATE(), @UserID) 
+   
+  UPDATE RecruitCurrentLead 
+  SET LeadID = @NewLeadID 
+  WHERE RecruitID = @RecruitID 
+ END 
+  
+    -- Rollback the transac.on if there were any errors 
+ IF @@ERROR <> 0 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+  
+  -- Raise an error and return 
+  RAISERROR ('Error occurred while performing the change.', 16, 1) 
+  RETURN 
+ END 
+  
+ -- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+ IF @@ROWCOUNT > 1 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+  
+  -- Raise an error and return 
+  RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+  RETURN 
+ END 
+  
+ -- If we reach this point, the commands completed successfully. 
+ COMMIT TRANSACTION 
+END]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,71 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetTotalContractsNWAs]" directorySegmentName="seg_21" id="6F77372D-A3A5-DEF3-A34F-2A8F47D7D624">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@Organiza.onID as integer,  
+ @Ac.vityDate as date.me,  
+ @Ac.vityEndDate as date.me 
+AS 
+SET NOCOUNT ON 
+ 
+DECLARE @Organiza.onType as Varchar(3) 
+ 
+SET @Organiza.onID = COALESCE(@Organiza.onID, 900) 
+SET @Organiza.onType = (SELECT ORGANIZATION_TYPE FROM RECRUITING_ORGANIZATION WHERE ORGANIZATION_ID = @Organiza.onID) 
+ 
+SELECT * INTO #SUBORGS FROM dbo.GetOrgHierarchy(@Organiza.onID) 
+ 
+IF (SELECT CONVERT(CHAR(8), @Ac.vityEndDate, 108)) = '00:00:00' 
+BEGIN 
+ SELECT @Ac.vityEndDate = DATEADD(MILLISECOND, -10, DATEADD(DAY, 1, @Ac.vityEndDate)) 
+END 
+ 
+--- GET CONTRACTS 
+SELECT  
+ SO.ORG_ID AS ORGANIZATION_ID, SO.LONG_NAME AS NAME, 
+ 1 AS ACTIVITY_TYPE, 
+ COUNT(C.CONTRACT_ID) AS ACTIVITY_COUNT 
+FROM 
+ #SUBORGS SO 
+ INNER JOIN NWA N ON 
+  (SO.ORG_ID = N.ORGANIZATION_OF_RECORD_ID AND 
+  COALESCE(N.COMP_CHANGE_FLAG, 'N') != 'Y') 
+ INNER JOIN CONTRACT C ON  
+  (N.NWA_ID = C.NWA_ID AND 
+  DATEDIFF(DAY, @Ac.vityDate, C.CONTRACT_BEGIN_DATE) >= 0 AND 
+  DATEDIFF(DAY, C.CONTRACT_BEGIN_DATE, @Ac.vityEndDate) >= 0) 
+WHERE 
+ SO.ORG_TYPE = 'RSS' AND 
+ DATEDIFF(MONTH, SO.EFFECTIVE_DATE, @Ac.vityDate) >= 0 
+GROUP BY 
+ SO.ORG_ID, SO.LONG_NAME 
+ 
+UNION 
+ 
+--- GET NWAs 
+SELECT 
+ SO.ORG_ID AS ORGANIZATION_ID, SO.LONG_NAME AS NAME, 
+ 2 AS ACTIVITY_TYPE, COUNT(N.NWA_ID) AS ACTIVITY_COUNT 
+FROM 
+ #SUBORGS SO 
+ INNER JOIN NWA N ON  
+  (SO.ORG_ID = N.ORGANIZATION_OF_RECORD_ID AND   
+  DATEDIFF(DAY, @Ac.vityDate, N.NWA_DECLARED_DATE) >= 0 AND 
+  DATEDIFF(DAY, N.NWA_DECLARED_DATE, @Ac.vityEndDate) >= 0 AND 
+  COALESCE(N.COMP_CHANGE_FLAG, 'N') != 'Y') 
+WHERE 
+ SO.ORG_TYPE = 'RSS' AND 
+ DATEDIFF(MONTH, SO.EFFECTIVE_DATE, @Ac.vityDate) >= 0 
+GROUP BY 
+ SO.ORG_ID, SO.LONG_NAME 
+ORDER BY  
+ SO.LONG_NAME, ACTIVITY_TYPE 
+ 
+--- CLEAN UP 
+DROP TABLE #SUBORGS 
+SET NOCOUNT OFF]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

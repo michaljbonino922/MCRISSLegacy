@@ -1,0 +1,60 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateRSSAc.vityGradSenior]" directorySegmentName="seg_26" id="507905DC-C1B3-4C00-D1F6-F644C504D548">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@OrgID int, 
+ @Ac.vityDate date.me, 
+ @GradInterviews int, 
+ @SeniorInterviews int, 
+ @GradAppointments int, 
+ @SeniorAppointments int, 
+ @UserLogin varchar(15) 
+AS 
+SET NOCOUNT ON 
+ 
+IF NOT EXISTS (SELECT 1 FROM RSS_ACTIVITY_GRAD_SENIOR WHERE @OrgID = ORGANIZATION_ID AND @Ac.vityDate = ACTIVITY_DATE) 
+BEGIN 
+ IF @GradInterviews != 0 OR @SeniorInterviews != 0 OR @GradAppointments != 0 OR @SeniorAppointments != 0 
+ BEGIN 
+  INSERT INTO RSS_ACTIVITY_GRAD_SENIOR( 
+   ORGANIZATION_ID, 
+   ACTIVITY_DATE, 
+   GRAD_INTERVIEWS, 
+   GRAD_APPOINTMENTS, 
+   SENIOR_INTERVIEWS, 
+   SENIOR_APPOINTMENTS, 
+   USER_LOGIN, 
+   UPDATE_DATE) 
+  VALUES( 
+   @OrgID, 
+   @Ac.vityDate, 
+   @GradInterviews, 
+   @GradAppointments, 
+   @SeniorInterviews, 
+   @SeniorAppointments, 
+   @UserLogin, 
+   getdate()) 
+ END 
+END 
+ELSE 
+BEGIN 
+ UPDATE 
+  RSS_ACTIVITY_GRAD_SENIOR 
+ SET 
+  GRAD_INTERVIEWS = @GradInterviews, 
+  GRAD_APPOINTMENTS = @GradAppointments, 
+  SENIOR_INTERVIEWS = @SeniorInterviews, 
+  SENIOR_APPOINTMENTS = @SeniorAppointments, 
+  USER_LOGIN = @UserLogin, 
+  UPDATE_DATE = getdate() 
+ WHERE 
+  ORGANIZATION_ID = @OrgID AND 
+  ACTIVITY_DATE = @Ac.vityDate 
+END 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

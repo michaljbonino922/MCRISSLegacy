@@ -1,0 +1,54 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetProspect]" directorySegmentName="seg_5" id="E28BCA61-549A-4491-1956-AF1FAC22C0DF">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@ID   uniqueidentifier 
+ 
+AS 
+BEGIN 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+ SELECT  
+   PR.ProspectId,  
+   PR.PersonId,  
+   PR.Recrui.ngOrganiza.onId, 
+   PR.Recrui.ngPersonId,   
+   PR.ProspectDisposi.onId, 
+   PR.Ac.vity, 
+   PR.Ac.vityDate, 
+   PR.CareerDecision, 
+   PR.Ini.alContactType, 
+   PR.ASVABDate, 
+   PR.Source, 
+   PR.NochildLe.BehindOp.n, 
+   PR.Suppression, 
+   PR.ContactTimeIndicator, 
+   PR.Note, 
+   PR.PACCreateDate, 
+   PR.Gradua.onYear, 
+   PR.LastUpdateUserId, 
+   PR.SubSta.onType, 
+   CASE 
+    WHEN RP.RANK_CODE IS NOT NULL AND PERSON.LAST_NAME IS NOT NULL AND PERSON.FIRST_NAME IS NOT NULL AND PERSON.LEGAL_MIDDLE_NAME IS NOT NULL  
+     THEN LTRIM(RTRIM(RP.RANK_CODE)) + ' ' + LTRIM(RTRIM(PERSON.LAST_NAME)) + ' ' + LTRIM(RTRIM(PERSON.FIRST_NAME)) + ' ' + LTRIM(RTRIM(PERSON.LEGAL_MIDDLE_NAME)) 
+    WHEN RP.RANK_CODE IS NOT NULL AND PERSON.LAST_NAME IS NOT NULL AND PERSON.FIRST_NAME IS NOT NULL AND PERSON.LEGAL_MIDDLE_NAME IS NULL  
+     THEN LTRIM(RTRIM(RP.RANK_CODE)) + ' ' + LTRIM(RTRIM(PERSON.LAST_NAME)) + ' ' + LTRIM(RTRIM(PERSON.FIRST_NAME))  
+    WHEN RP.RANK_CODE IS NOT NULL AND PERSON.LAST_NAME IS NOT NULL AND PERSON.FIRST_NAME IS NULL  
+     THEN LTRIM(RTRIM(RP.RANK_CODE)) + ' ' + LTRIM(RTRIM(PERSON.LAST_NAME))  
+    ELSE LTRIM(RTRIM(RP.RANK_CODE)) 
+   END AS Recruiter, 
+   PR.NwaId 
+    
+  FROM  
+   Prospect AS PR  
+   LEFT OUTER JOIN [MCRISS-VDB01\PROCESSING].[mcriss].[dbo].[RECRUITING_PERSON] RP on (PR.Recrui.ngPersonId = RP.rowguid) 
+   LEFT OUTER JOIN [MCRISS-VDB01\PROCESSING].[mcriss].[dbo].[PERSON] PERSON on (RP.RECRUITING_PERSON_ID=PERSON.PERSON_ID) 
+  WHERE 
+   PR.ProspectId = @ID 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

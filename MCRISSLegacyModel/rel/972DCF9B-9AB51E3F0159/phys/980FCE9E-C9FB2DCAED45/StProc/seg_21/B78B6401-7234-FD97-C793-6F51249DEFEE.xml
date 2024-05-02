@@ -1,0 +1,88 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_mg_Commissionee]" directorySegmentName="seg_21" id="B78B6401-7234-FD97-C793-6F51249DEFEE">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[as 
+declare  
+  @user_login varchar(15), 
+  @update_date date.me, 
+  @cadb char(6), 
+  @cadb_d date.me, 
+  @fy_cadb int, 
+  @comm_dte char(6), 
+  @comm_dte_d date.me, 
+  @ssn char(9), 
+  @contract_id int, 
+  @ocs_id int, 
+  @nwa_id int 
+ 
+declare cur_arms cursor for 
+  select ssn, 
+    cadb, 
+    comm_dte 
+    from AO2 
+ 
+  set @user_login = 'o_migra.on' 
+  set @update_date = getdate() 
+   
+  open cur_arms 
+  fetch cur_arms into 
+    @ssn, 
+    @cadb, 
+    @comm_dte 
+ 
+while (@@FETCH_STATUS = 0) 
+begin 
+    set @contract_id = (select top 1 contract_id from o.cer_contract c inner join nwa n 
+      on c.nwa_id = n.nwa_id inner join person p 
+      on n.marine_candidate_id = p.person_id 
+      where p.social_security_number = @ssn 
+      order by contract_id desc) 
+ 
+    set @nwa_id = (select top 1 nwa_id from  nwa n 
+      inner join person p 
+      on n.marine_candidate_id = p.person_id 
+      where p.social_security_number = @ssn 
+      order by nwa_id desc) 
+ 
+ 
+ 
+ --   set @ocs_id = (select top 1 ocs_id from ocs where contract_id = @contract_id order by ocs_id desc) 
+   set @ocs_id = (select top 1 ocs_id from ocs where nwa_id = @nwa_id order by ocs_id desc) 
+ 
+    set @cadb_d = mcriss.dbo.sp_mg_GetDate(@cadb)     
+    set @fy_cadb = mcriss.dbo.sp_mg_GetFY(@cadb_d) 
+    set @comm_dte_d = mcriss.dbo.sp_mg_GetDate(@comm_dte)     
+ 
+    /* Error Handling */ 
+     
+    /* Do Insert Here */ 
+ 
+  insert into commissionee ( 
+    fy_ac.ve_duty_assignment, 
+    commission_date, 
+    contract_id, 
+    ocs_id, 
+    user_login, 
+    update_date) 
+  values ( 
+    @fy_cadb, 
+    @comm_dte_d, 
+    @contract_id, 
+    @ocs_id, 
+    @user_login, 
+    @update_date) 
+ 
+  fetch cur_arms into 
+    @ssn, 
+    @cadb, 
+    @comm_dte 
+end     
+ 
+close cur_arms 
+deallocate cur_arms]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

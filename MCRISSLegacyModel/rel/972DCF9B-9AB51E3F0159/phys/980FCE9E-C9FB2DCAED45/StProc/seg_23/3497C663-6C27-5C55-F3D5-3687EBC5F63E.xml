@@ -1,0 +1,364 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_TestAddNWAs]" directorySegmentName="seg_23" id="3497C663-6C27-5C55-F3D5-3687EBC5F63E">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@LastName  varchar(20), 
+ @FirstName  varchar(20), 
+ @MiddleName  varchar(20),  
+ @RS   varchar(3), 
+ @RSS   varchar(2), 
+ @SSNPre.x  varchar(9),   
+ @CategoryCode    char(1),  
+ @Ci.zenship  varchar(2) = 'CA', 
+ --- @RecruiterSSN char(9), 
+ @NumberToAdd  int, 
+ @NWADeclaredDate  date.me = NULL, 
+ @DateOfBirth   date.me = NULL, 
+ @RaceCode     char(1) = NULL,  
+ @MEPCOMRaceCategoryCode  char(1) = NULL,  
+ @EthnicCode    char(1) = NULL,  
+ @MEPCOMEthnicCategoryCode  char(1) = NULL,  
+ @MEPSProcessingStatus  char(1) = NULL, 
+ @UserLogin   varchar(15) = 'SA' 
+AS 
+ 
+DECLARE @DBID   int 
+DECLARE @DBNAME  nvarchar(128) 
+ 
+DECLARE @i  int 
+DECLARE @RSID   int 
+DECLARE @RSSID   int 
+DECLARE @RecruiterID int 
+ 
+DECLARE @PersonID int 
+DECLARE @NWAID  int 
+DECLARE @ScheduleID int 
+ 
+DECLARE @LenSSNPre.x   int 
+DECLARE @SSN   char(9) 
+ 
+DECLARE @Now  date.me 
+DECLARE @SchoolEndDate  date.me 
+DECLARE @ProcessingDate date.me 
+DECLARE @ArrivalDate date.me 
+DECLARE @ExamDate date.me 
+ 
+DECLARE @StreetAddress varchar(50) 
+ 
+DECLARE @MWF  int 
+DECLARE @ErrMsg  varchar(100) 
+ 
+DECLARE @FirstSSN char(9) 
+DECLARE @LastSSN char(9) 
+DECLARE @SSNMessage varchar(100) 
+ 
+ 
+SET NOCOUNT ON  
+ 
+SELECT  
+ @DBID  = DB_ID(),  
+ @DBNAME = DB_NAME() 
+ 
+ 
+--- MAKE SURE THE NUMBER OF PEOPLE TO BE ADDED IS BETWEEN 1 AND 9999 
+IF @NumberToAdd NOT BETWEEN 1 AND 9999 
+BEGIN 
+ RAISERROR ('You must enter a number between 1 and 9999.', 16, 1, @DBID, @DBNAME) 
+ RETURN  
+END 
+ 
+ 
+--- MAKE SURE THE RS EXISTS 
+IF EXISTS (SELECT 1 FROM RECRUITING_ORGANIZATION RO WHERE RO.SHORT_NAME = @RS AND RO.ORGANIZATION_TYPE = 'RS') 
+BEGIN 
+ SELECT @RSID = RO.ORGANIZATION_ID FROM RECRUITING_ORGANIZATION RO  
+  WHERE RO.SHORT_NAME = @RS AND RO.ORGANIZATION_TYPE = 'RS' 
+END 
+ELSE 
+BEGIN 
+ RAISERROR ('The RS you entered is not valid.', 16, 2, @DBID, @DBNAME) 
+ RETURN  
+END 
+ 
+ 
+--- MAKE SURE THE RSS EXISTS 
+IF EXISTS (SELECT 1 FROM RECRUITING_ORGANIZATION RO WHERE RO.SHORT_NAME = @RSS AND RO.ORGANIZATION_TYPE = 'RSS') 
+BEGIN 
+ SELECT @RSSID = RO.ORGANIZATION_ID FROM RECRUITING_ORGANIZATION RO  
+  INNER JOIN ORGANIZATION_MAP OM ON RO.ORGANIZATION_ID = OM.CHILD_ORGANIZATION_ID 
+  WHERE RO.SHORT_NAME = @RSS AND RO.ORGANIZATION_TYPE = 'RSS' AND 
+  OM.PARENT_ORGANIZATION_ID = @RSID  
+END 
+ELSE 
+BEGIN 
+ RAISERROR ('The RSS you entered is not valid.', 16, 3, @DBID, @DBNAME) 
+ RETURN  
+END 
+ 
+ 
+--- MAKE SURE A RECRUITER EXISTS FOR THE RSS 
+IF EXISTS (SELECT TOP 1 RP.RECRUITING_PERSON_ID FROM RECRUITING_PERSON RP  
+   INNER JOIN PERSON P ON RP.RECRUITING_PERSON_ID = P.PERSON_ID 
+   WHERE RP.ORGANIZATION_ID = @RSSID AND 
+   RP.TOUR_END_DATE IS NULL) 
+BEGIN 
+ --- GET THE RECRUITER ID FOR THE RSS 
+ SET @RecruiterID = (SELECT TOP 1 RP.RECRUITING_PERSON_ID FROM RECRUITING_PERSON RP  
+    INNER JOIN PERSON P ON RP.RECRUITING_PERSON_ID = P.PERSON_ID 
+    WHERE RP.ORGANIZATION_ID = @RSSID AND 
+    RP.TOUR_END_DATE IS NULL) 
+END 
+ELSE 
+BEGIN 
+ RAISERROR ('There is no ac.ve recruiter for the RSS you entered.', 16, 4, @DBID, @DBNAME) 
+ RETURN  
+END 
+ 
+--- MAKE SURE THE SSN PREFIX IS 6 CHARACTERS LONG 
+SET @LenSSNPre.x = LEN(@SSNPre.x) 
+ 
+--- IF THE SSN PREFIX IS LESS THAN 5 CHARACTERS LONG, APPEND 0's UNTIL IT'S 5 CHARACTERS LONG 
+IF @LenSSNPre.x < 5 
+BEGIN 
+ SET @SSNPre.x = RTRIM(@SSNPre.x) + REPLICATE('0', 5 - LEN(@SSNPre.x)) 
+END 
+ 
+ 
+--- INITIALIZE THE COUNTER 
+SET @i = 1 
+ 
+DECLARE @Ini.alSSN char(9) 
+ 
+SET @Ini.alSSN = CASE  
+   WHEN LEN(@SSNPre.x) = 9 THEN @SSNPre.x 
+   WHEN EXISTS (SELECT 1 FROM PERSON P WHERE P.SOCIAL_SECURITY_NUMBER LIKE @SSNPre.x + '%') 
+    THEN  
+     CONVERT(CHAR(9), CONVERT(INT, (SELECT MAX(P.SOCIAL_SECURITY_NUMBER) FROM PERSON P  
+       WHERE P.SOCIAL_SECURITY_NUMBER LIKE @SSNPre.x + '%') + 1)) 
+   ELSE @SSNPre.x + '0000' 
+   END 
+ 
+ 
+--- MAKE SURE WE DON'T LOSE ANY LEADING 0's 
+IF LEN(@Ini.alSSN) < 9 
+BEGIN 
+ SET @Ini.alSSN = REPLICATE('0', 9 - LEN(@Ini.alSSN)) + @Ini.alSSN 
+END 
+ 
+ 
+--- IF THE RS, RSS AND RECRUITER SSN EXIST AND ARE VALID, PROCEED WITH THE INSERTS 
+WHILE @i <= @NumberToAdd 
+BEGIN 
+ --- DEFINE THE SSN FOR THE PERSON TO BE ADDED 
+ SET @SSN = CONVERT(CHAR(9), CONVERT(INT, @Ini.alSSN) + (@i - 1)) 
+ 
+ --- MAKE SURE WE DON'T LOSE ANY LEADING 0's 
+ IF LEN(@SSN) < 9 
+ BEGIN 
+  SET @SSN = REPLICATE('0', 9 - LEN(@SSN)) + @SSN 
+ END 
+ 
+ --- DEFINE THE DATES 
+ SET @Now = GETDATE() 
+ SET @MWF = MONTH(@Now) 
+ SET @NWADeclaredDate = COALESCE(@NWADeclaredDate, @Now) 
+ SET @SchoolEndDate = DATEADD(YEAR, -2, @Now) 
+ SET @ProcessingDate = @NWADeclaredDate 
+ SET @ArrivalDate = @NWADeclaredDate 
+ SET @ExamDate = DATEADD(YEAR, -1, @SchoolEndDate) 
+ SET @DateOfBirth = COALESCE(@DateOfBirth, DATEADD(YEAR, -20, @Now)) 
+ 
+ --- START THE TRANSACTION 
+ BEGIN TRANSACTION 
+ 
+ --- ADD THE PERSON AND RETRIEVE THEIR PERSON ID  
+ EXEC sp_UpdatePerson @PersonID = 0, @SocialSecurityNumber = @SSN, @FirstName = @FirstName, 
+    @LegalMiddleName = @MiddleName, @LastName = @LastName, 
+    @Su.xCD = NULL, @UserLogin = @UserLogin, @ID = @PersonID OUTPUT 
+ 
+ IF @@ERROR != 0  
+ BEGIN 
+  ROLLBACK TRANSACTION 
+  SET @ErrMsg = 'An error occurred adding the NWA person record at insert # ' + convert(varchar(4), @i) + '.' 
+  RAISERROR (@ErrMsg, 16, 5, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ 
+ --- ADD THE MARINE CANDIDATE DATA 
+ EXEC sp_UpdateMarineCandidate @PersonID = @PersonID, @MaritalStatusCode = 'S', @RaceCode = @RaceCode,  
+  @MEPCOMRaceCategoryCode = @MEPCOMRaceCategoryCode,  
+  @EthnicCode = @EthnicCode, @MEPCOMEthnicCategoryCode = @MEPCOMEthnicCategoryCode,  
+  @GenderCode = 'M', @ReligionCode = NULL, @Popula.onGroupCode = NULL, @DateOfBirth = @DateOfBirth,  
+  @Ci.zenship = @Ci.zenship, @CountryOfOrigin  = 'US',  
+  @DriverLicenseState  = NULL, @DriverLicenseNum = NULL, @DriverLicenseExp = NULL, 
+  @InterviewDate  = NULL, @UserLogin = @UserLogin 
+ 
+ IF @@ERROR != 0  
+ BEGIN 
+  ROLLBACK TRANSACTION 
+  SET @ErrMsg = 'An error occurred adding the marine candidate record at insert # ' + convert(varchar(4), @i) + '.' 
+  RAISERROR (@ErrMsg, 16, 6, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ 
+ --- ADD THE NWA DATA 
+ EXEC sp_UpdateNWA @PersonID = @PersonID, @NWAID = 0, @NWADeclaredDate = @NWADeclaredDate , @NWADateStartedWorking = @NWADeclaredDate, 
+    @ParentalConsent  = NULL, @ProjectedShipMonth = @MWF, @NWALogNotes = NULL, 
+    @ProjectProgramChoice1 = NULL, @ProjectProgramChoice2 = NULL, @ProjectProgramChoice3 = NULL, 
+    @Ac.vityCode = 'AC', @SourceCode = 'CAN', @SourceCodeDual = NULL,  
+    @RecruiterofRecordID = @RecruiterID, @Organiza.onofRecordID = @RSSID, 
+    @WorkingRecruiterID = @RecruiterID, @CategoryCode = @CategoryCode,  
+    @Educa.onLevel = NULL, @Educa.onCode = NULL, @PPC = NULL,  
+    @CompChangeFlag = NULL, @BachGradYear = NULL,  
+    @UserLogin = @UserLogin, @ID = @NWAID OUTPUT 
+ 
+ 
+ IF @@ERROR != 0  
+ BEGIN 
+  ROLLBACK TRANSACTION 
+  SET @ErrMsg = 'An error occurred adding the NWA record at insert # ' + convert(varchar(4), @i) + '.' 
+  RAISERROR (@ErrMsg, 16, 7, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ 
+ 
+ --- ADD THE STATUS RECORD (MAKE THE APPLICANT NWA/WORKING) 
+ EXEC sp_UpdateCandidateStatus @NWAID = @NWAID, @StatusE.ec.veDate = @NWADeclaredDate,  
+     @StatusType = 'E', @StatusCode = 'A', @Disposi.onCode = 'F',  
+     @UserLogin = @UserLogin 
+ 
+ IF @@ERROR != 0  
+ BEGIN 
+  ROLLBACK TRANSACTION 
+  SET @ErrMsg = 'An error occurred adding the status record at insert # ' + convert(varchar(4), @i) + '.' 
+  RAISERROR (@ErrMsg, 16, 8, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ 
+ --- ADD EDUCATION DATA 
+ EXEC sp_UpdateCandidateEduca.on @PersonID = @PersonID, @SchoolEndDate = @SchoolEndDate, @Educa.onLevel = '12',  
+     @Educa.onCode = 'L', @SchoolCode = 33970, @CivilianEduca.onMajorCode = NULL, 
+     @Veri.ca.on = 'PENDING', @UserLogin = 'sa' 
+ 
+ 
+ IF @@ERROR != 0  
+ BEGIN 
+  ROLLBACK TRANSACTION 
+  SET @ErrMsg = 'An error occurred adding the educa.on record at insert # ' + convert(varchar(4), @i) + '.' 
+  RAISERROR (@ErrMsg, 16, 9, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ 
+ --- ADD MEPS SCHEDULE 
+ SELECT @MEPSProcessingStatus = COALESCE(@MEPSProcessingStatus, 'P') 
+  
+ EXEC sp_UpdateMEPSSchedule @ScheduleID = 0, @NWAID = @NWAID, @ProcessingDate = @ProcessingDate, 
+  @MEPSOrganiza.onID = 500, @ArrivalDate = @ArrivalDate, @Transporta.onRequired = 'N', 
+  @LodgingRequired = 'N', @LastProcessedFor = NULL, @ASVABRequired = 'N', 
+  @SpecialExamRequired = 'N', @SpecialExamType = NULL, @CompletePhysical = 'N', 
+  @Inspec.onPhysical = 'N', @Consulta.onPhysical = 'N', @Consulta.onType = NULL, 
+  @Contract = 'Y', @Ship = 'N', @OtherProcessing = 'N', @ProcessingStatus = @MEPSProcessingStatus,  
+  @ProcessingNotes = NULL, @UserLogin = @UserLogin, @ID = @ScheduleID OUTPUT 
+ 
+ 
+ IF @@ERROR != 0  
+ BEGIN 
+  ROLLBACK TRANSACTION 
+  SET @ErrMsg = 'An error occurred adding the MEPS Schedule record at insert # ' + convert(varchar(4), @i) + '.' 
+  RAISERROR (@ErrMsg, 16, 10, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ 
+ 
+ --- ADD PROFESSED EXAM 
+ EXEC sp_UpdateCandidateProfessedExam @PersonID = @PersonID, @ExamDate = @ExamDate, @ProfessedExamType = 'S', 
+  @ExamEnteredDate = @Now, @ExamScore = 1100, @UserLogin = @UserLogin 
+ 
+ IF @@ERROR != 0  
+ BEGIN 
+  ROLLBACK TRANSACTION 
+  SET @ErrMsg = 'An error occurred adding the Professed Exam record at insert # ' + convert(varchar(4), @i) + '.' 
+  RAISERROR (@ErrMsg, 16, 11, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ 
+ 
+ --- ADD ADDRESS DATA 
+ SELECT @StreetAddress = CONVERT(VARCHAR(4), @i) + ' TEST SCRIPT AVE.' 
+ 
+ EXEC sp_UpdateCandidateAddress @PersonID = @PersonID, @AddressType = 'C', @StreetAddress = @StreetAddress, 
+     @CityCode = '0050', @CountyCode = '510', @StateCode = '24', 
+     @ZipCode = '23456', @UserLogin = @UserLogin 
+ 
+ 
+ IF @@ERROR != 0  
+ BEGIN 
+  ROLLBACK TRANSACTION 
+  SET @ErrMsg = 'An error occurred adding the CUR address record at insert # ' + convert(varchar(4), @i) + '.' 
+  RAISERROR (@ErrMsg, 16, 12, @DBID, @DBNAME) 
+  RETURN 
+ END 
+  
+ 
+ EXEC sp_UpdateCandidateAddress @PersonID = @PersonID, @AddressType = 'H', @StreetAddress = @StreetAddress, 
+     @CityCode = '0050', @CountyCode = '510', @StateCode = '24', 
+     @ZipCode = '23456', @UserLogin = @UserLogin 
+ 
+ IF @@ERROR != 0  
+ BEGIN 
+  ROLLBACK TRANSACTION 
+  SET @ErrMsg = 'An error occurred adding the HOR address record at insert # ' + convert(varchar(4), @i) + '.' 
+  RAISERROR (@ErrMsg, 16, 13, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ 
+ --- IF WE MAKE IT HERE COMMIT THE TRANSACTION AND MOVE TO THE NEXT RECORD 
+ COMMIT TRANSACTION 
+ 
+ --- RESET VARIABLES AND MOVE TO NEXT RECORD 
+ SELECT  
+  @PersonID = NULL, 
+  @NWAID = NULL, 
+  @Now = NULL,  
+  @MWF = NULL,  
+  @SchoolEndDate = NULL, 
+  @ScheduleID = NULL, 
+  @StreetAddress = NULL 
+ 
+ 
+ 
+ SELECT 
+  @FirstSSN = CASE @i 
+    WHEN 1 THEN @SSN 
+    ELSE @FirstSSN 
+    END, 
+  @LastSSN = CASE  
+    WHEN @i BETWEEN 1 AND @NumberToAdd THEN @SSN 
+    ELSE @LastSSN  
+    END 
+  
+ --- INCREMENT THE COUNTER 
+ SET @i = @i + 1 
+END 
+ 
+ 
+SET NOCOUNT OFF 
+ 
+--- DEFINE THE MESSAGE TO DISPLAY 
+SET @SSNMessage = CASE  
+   WHEN (@FirstSSN IS NOT NULL AND LEN(@FirstSSN) = 9) AND 
+    (@LastSSN IS NOT NULL AND LEN(@LastSSN) = 9)  
+   THEN 
+    'The NWAs entered range from SSN ' + @FirstSSN + ' to ' + @LastSSN + '.' 
+   ELSE SPACE(0) 
+   END 
+ 
+IF @SSNMessage IS NOT NULL AND LEN(@SSNMessage) > 0 
+BEGIN 
+ PRINT @SSNMessage 
+END]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

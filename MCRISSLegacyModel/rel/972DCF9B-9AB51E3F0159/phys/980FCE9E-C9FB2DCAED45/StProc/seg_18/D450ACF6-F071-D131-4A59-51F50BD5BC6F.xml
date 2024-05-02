@@ -1,0 +1,151 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetMudHistory]" directorySegmentName="seg_18" id="D450ACF6-F071-D131-4A59-51F50BD5BC6F">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@OrgId as Int = 0 
+AS 
+ 
+SET NOCOUNT ON 
+ 
+ 
+---SELECT * FROM MUD_HISTORY 
+--- TRUNCATE TABLE MUD_HISTORY 
+ 
+DECLARE @CNT INT, 
+  @CntUserLogin VARCHAR(15), 
+  @CtrOrgId as int 
+ 
+SET @CNT = 1 
+ 
+--- CREATE TOP 3 HISTORY TABLE 
+/**/ 
+CREATE TABLE #MUD_HISTORY 
+( 
+ [ID] [int] IDENTITY(1,1) NOT NULL, 
+ [ORG_ID] [int] NOT NULL, 
+ [USER_LOGIN] [varchar](15) COLLATE SQL_La.n1_General_CP1_CI_AS NULL, 
+ [UPDATE_DATE] [date.me] NULL 
+) ON [PRIMARY] 
+ 
+ 
+--- CREATE ENTIRE HISTORY TABLE 
+CREATE TABLE #TEMP_ALL_HISTORY 
+( 
+ORG_ID INT NULL, 
+MUD_USER_LOGIN VARCHAR(15) NULL, 
+UPDATE_DATE DATETIME NULL 
+) 
+ 
+/* 
+ 
+select * from mud_.le 
+where user_login = 'mcd1mktg' 
+*/ 
+ 
+WHILE @CNT <= (SELECT COUNT(ORG_ID) FROM MUD_USER_DATA) 
+BEGIN 
+ 
+ SET @CntUserLogin = (SELECT MUD_USER_LOGIN FROM MUD_USER_DATA WHERE ID = @CNT) 
+ SET @CtrOrgId = (SELECT ORG_ID FROM MUD_USER_DATA WHERE ID = @CNT) 
+ 
+ INSERT INTO #TEMP_ALL_HISTORY 
+ 
+ SELECT   
+  ORG_ID,  
+  USER_LOGIN, 
+  UPDATE_DATE 
+ FROM  
+  MUD_HISTORY 
+ WHERE  
+  ORG_ID = @CtrOrgId 
+    ---@CntUserLogin 
+  ---ORDER BY MF.UPDATE_DATE DESC 
+  
+ 
+ UNION 
+ 
+ /* 
+ SELECT ORG_ID, MUD_USER_LOGIN, QC_DATE 
+ FROM MUD_USER_DATA 
+ WHERE  
+  MUD_USER_LOGIN = @CntUserLogin AND 
+  QC_DATE IS NOT NULL 
+ ---ORDER BY QC_DATE 
+ */ 
+ 
+ /**/ 
+ SELECT TOP 3 ORG_ID, USER_LOGIN, QC_DATE 
+ FROM MUD_QC_DATE 
+ WHERE  
+  USER_LOGIN = @CntUserLogin AND 
+  QC_DATE IS NOT NULL 
+  
+ 
+ UNION 
+ 
+ --- GET MUD FILE UPLOAD LOG DATA 
+ SELECT 
+  TOP 3 ORG_ID, USER_LOGIN, UPDATE_DATE 
+ FROM  
+  MUD_FILE_UPLOAD_LOG 
+ WHERE 
+  USER_LOGIN = @CntUserLogin AND 
+  UPDATE_DATE IS NOT NULL   
+ 
+ 
+ --- POPULATE LAST 3 SAVED DATES 
+ INSERT INTO #MUD_HISTORY 
+ 
+ SELECT TOP 3 ORG_ID, MUD_USER_LOGIN, UPDATE_DATE 
+ FROM  
+  #TEMP_ALL_HISTORY 
+ WHERE 
+  ORG_ID = @CtrOrgId 
+ ORDER BY UPDATE_DATE DESC 
+ 
+ TRUNCATE TABLE #TEMP_ALL_HISTORY 
+ 
+ 
+ SET @CNT = @CNT + 1  
+END  
+ 
+--- RETURN DATA 
+IF @OrgId = 0 
+BEGIN 
+ SELECT 
+  ORG_ID,  
+  USER_LOGIN,  
+  UPDATE_DATE 
+ FROM 
+  #MUD_HISTORY 
+ WHERE 
+  UPDATE_DATE IS NOT NULL 
+ ORDER BY 
+  ORG_ID, USER_LOGIN, UPDATE_DATE DESC 
+END 
+ELSE 
+BEGIN 
+ SELECT 
+  ORG_ID,  
+  USER_LOGIN,  
+  UPDATE_DATE 
+ FROM 
+  #MUD_HISTORY 
+ WHERE 
+  ORG_ID = @OrgId AND 
+  UPDATE_DATE IS NOT NULL 
+ ORDER BY 
+  ORG_ID, USER_LOGIN, UPDATE_DATE DESC 
+END 
+ 
+--- CLEAN UP 
+DROP TABLE #TEMP_ALL_HISTORY 
+DROP TABLE #MUD_HISTORY 
+ 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

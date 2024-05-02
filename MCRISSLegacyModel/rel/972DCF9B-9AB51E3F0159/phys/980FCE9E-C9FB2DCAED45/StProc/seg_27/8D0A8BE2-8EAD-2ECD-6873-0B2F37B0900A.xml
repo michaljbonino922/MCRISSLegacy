@@ -1,0 +1,69 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateO.cerMissionPlan]" directorySegmentName="seg_27" id="8D0A8BE2-8EAD-2ECD-6873-0B2F37B0900A">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@Organiza.onID  int, 
+ @ShipYear   int = 0, 
+ @SourceCode   varchar(8), 
+ @GradYear   int = 0, 
+ @ClassNumber   int = 0, 
+ @NFOMission   int, 
+ @NAMission   int, 
+ @GroundMission   int, 
+ @PLCRGroundMission  int = NULL, 
+ @OCCRGroundMission int = NULL, 
+ @FemaleMission   int, 
+ @Law1Mission   int = NULL, 
+ @Law2Mission   int = NULL, 
+ @Law3Mission   int = NULL, 
+ @BlackMission   int, 
+ @HispanicMission int, 
+ @OtherMission   int, 
+ @UserLogin   varchar(15) 
+AS 
+ 
+IF EXISTS (SELECT 1 FROM OFFICER_MISSION_PLAN WHERE ORGANIZATION_ID = @Organiza.onID AND  
+  OFFICER_SOURCE_CODE = @SourceCode AND  
+  ((@SourceCode = 'OCC' AND OCC_CLASS_NUMBER = @ClassNumber) OR  
+  (@SourceCode = 'PLC' AND FISCAL_YEAR = @ShipYear AND GRAD_YEAR = @GradYear))) 
+ 
+BEGIN   
+ UPDATE  
+  OFFICER_MISSION_PLAN  
+ SET 
+  GROUND_MISSION = @GroundMission, 
+  PLCR_GROUND_MISSION = @PLCRGroundMission, 
+  OCCR_GROUND_MISSION = @OCCRGroundMission, 
+  NFO_MISSION = @NFOMission, 
+  NAVAL_AIR_MISSION = @NAMission, 
+  BLACK_MISSION = @BlackMission, 
+  HISPANIC_MISSION = @HispanicMission, 
+  OTHER_MISSION = @OtherMission, 
+  FEMALE_MISSION = @FemaleMission, 
+  LAW1_MISSION = @Law1Mission, 
+  LAW2_MISSION = @Law2Mission, 
+  LAW3_MISSION = @Law3Mission, 
+  USER_LOGIN = @UserLogin,  
+  UPDATE_DATE = GETDATE()  
+  WHERE  
+  ORGANIZATION_ID = @Organiza.onID AND  
+  OFFICER_SOURCE_CODE = @SourceCode AND  
+  ((@SourceCode = 'OCC' AND OCC_CLASS_NUMBER = @ClassNumber) OR  
+  (@SourceCode = 'PLC' AND FISCAL_YEAR = @ShipYear AND GRAD_YEAR = @GradYear)) 
+ 
+END 
+ELSE 
+BEGIN 
+ INSERT INTO OFFICER_MISSION_PLAN (ORGANIZATION_ID, FISCAL_YEAR, OFFICER_SOURCE_CODE, GRAD_YEAR,  
+  OCC_CLASS_NUMBER, GROUND_MISSION, PLCR_GROUND_MISSION, OCCR_GROUND_MISSION, NFO_MISSION, NAVAL_AIR_MISSION, BLACK_MISSION,  
+  HISPANIC_MISSION, OTHER_MISSION, FEMALE_MISSION,  
+  LAW1_MISSION, LAW2_MISSION, LAW3_MISSION, USER_LOGIN, UPDATE_DATE) 
+ VALUES (@Organiza.onID, @ShipYear, @SourceCode, @GradYear,  
+  @ClassNumber, @GroundMission,  @PLCRGroundMission, @OCCRGroundMission, @NFOMission, @NAMission, @BlackMission, @HispanicMission, @OtherMission,  
+  @FemaleMission, @Law1Mission, @Law2Mission, @Law3Mission, @UserLogin, GETDATE()) 
+END]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

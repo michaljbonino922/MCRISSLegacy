@@ -1,0 +1,39 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetAllEduca.onMajor]" directorySegmentName="seg_2" id="1EEB6442-5E33-1E10-4F01-58C1B5740CE6">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[AS 
+--create a table variable to hold the majors 
+DECLARE @educa.oncodes table 
+ (ID int 
+ ,code varchar(2) 
+ ,[descrip.on] varchar(80)) 
+--Insert major code 00 .rst so it defaults to this. 
+insert into @educa.oncodes 
+ SELECT 
+  -1 AS ID 
+  ,[CIV_EDUCATION_MAJOR_CODE] AS Code 
+  ,[CIV_EDUCATION_MAJOR_DESCRIPT] AS Descrip.on 
+ FROM 
+  [dbo].[CIV_EDUCATION_MAJOR] WITH (NOLOCK) 
+ WHERE 
+  [CIV_EDUCATION_MAJOR_CODE] = '00' 
+--Insert the other majors in alphabe.cal order 
+insert into @educa.oncodes 
+SELECT 
+ -1 AS ID 
+ ,[CIV_EDUCATION_MAJOR_CODE] AS Code 
+ ,[CIV_EDUCATION_MAJOR_DESCRIPT] AS Descrip.on 
+FROM 
+ [dbo].[CIV_EDUCATION_MAJOR] WITH (NOLOCK) 
+WHERE 
+ [CIV_EDUCATION_MAJOR_CODE] <> '00' 
+ORDER BY 
+ [CIV_EDUCATION_MAJOR_DESCRIPT] 
+--return the table variable 
+select * from @educa.oncodes]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

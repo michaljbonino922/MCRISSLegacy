@@ -1,0 +1,91 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetEnlistedPoolBoardFiscalYearSummary]" directorySegmentName="seg_5" id="7B83A82B-DAE6-ABC2-9A74-2B257F9E8107">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[(@BeginDate date.me 
+ ,@OrgId int 
+ ) 
+ 
+AS 
+ 
+DECLARE @Poolees TABLE 
+ (ContractId int 
+ ,MarineCandidateId int 
+ ,ProjectedShipDate date.me 
+ ,AfqtScore int 
+ ,ReferralCount int 
+ ,CategoryCode varchar(6) 
+ ,GenderCode char 
+ ) 
+  
+INSERT INTO @Poolees 
+ SELECT 
+  c.[CONTRACT_ID] AS ContractId 
+  ,n.[MARINE_CANDIDATE_ID] AS MarineCandidateId 
+  ,case when EXISTS (SELECT PROJECTED_SHIP_DATE FROM MCRISS.dbo.CONTRACT WHERE NWA_ID = n.NWA_ID) then c.PROJECTED_SHIP_DATE else mi.PROJECTED_SHIP_DATE end AS ProjectedShipDate 
+  ,(SELECT TOP 1  
+    [AFQT_SCORE] 
+   FROM  
+    [dbo].[CANDIDATE_ASVAB] ca 
+   WHERE  
+    ca.[MARINE_CANDIDATE_ID] = n.[MARINE_CANDIDATE_ID] 
+            ORDER BY ASVAB_DATE DESC) AS AfqtScore 
+  ,(SELECT  
+   COUNT(*) 
+  FROM  
+   [dbo].[REFERRAL] r  
+  WHERE 
+   r.[DEP_CONTRACT_ID] = c.[CONTRACT_ID] OR  
+   r.[MARINE_ID] = n.[MARINE_CANDIDATE_ID]) AS ReferralCount 
+  ,n.[CATEGORY_CODE] AS CategoryCode 
+  ,mc.[GENDER_CODE] AS GenderCode 
+ FROM  
+  [dbo].[NWA] n 
+ INNER JOIN [dbo].[MIContract] mi ON mi.NWA_ID = n.NWA_ID 
+ LEFT JOIN [dbo].[CONTRACT] c ON c.[NWA_ID] = n.[NWA_ID] 
+ INNER JOIN [dbo].[MARINE_CANDIDATE] mc ON n.[MARINE_CANDIDATE_ID] = mc.[MARINE_CANDIDATE_ID] 
+ INNER JOIN CANDIDATE_STATUS CS on n.nwa_id = cs.nwa_id 
+         and cs.candidate_status_id in (select max(cs2.candidate_status_id) 
+                 from candidate_status cs2 
+                 where cs2.nwa_id = cs.nwa_id) 
+ WHERE 
+  n.[ORGANIZATION_OF_RECORD_ID] = @OrgId 
+  AND CS.STATUS_TYPE + CS.STATUS_CODE + CS.DISPOSITION_CODE IN ('EBK','EBM') 
+  AND 
+  ( 
+  (c.[PROJECTED_SHIP_DATE] > LEFT(GetDate() -1,11)) --BETWEEN @BeginDate AND DATEADD(d, -1, DATEADD(month, 14, @BeginDate)) 
+  OR 
+  (NOT EXISTS (SELECT CONTRACT_ID FROM MCRISS.dbo.CONTRACT WHERE NWA_ID = n.NWA_ID) AND mi.CONTRACT_BEGIN_DATE > LEFT(GetDate() -1,11)) 
+  ) 
+   
+ ORDER BY  
+  c.[PROJECTED_SHIP_DATE] 
+   
+DECLARE @TotalInPool int 
+SELECT @TotalInPool = COUNT(*) FROM @Poolees 
+ 
+SELECT 
+ @TotalInPool AS TotalInPool 
+ ,(SELECT COUNT(*) FROM @Poolees WHERE CategoryCode = 'R' AND GenderCode = 'M') AS RegularMaleNonPriorServiceCount 
+ ,(SELECT COUNT(*) FROM @Poolees WHERE CategoryCode = 'R' AND GenderCode = 'F') AS RegularFemaleNonPriorServiceCount 
+ ,(SELECT COUNT(*) FROM @Poolees WHERE CategoryCode = 'G' AND GenderCode = 'M') AS MaleReserveGroundCount 
+ ,(SELECT COUNT(*) FROM @Poolees WHERE CategoryCode = 'A' AND GenderCode = 'M') AS MaleReserveAirCount 
+ ,(SELECT COUNT(*) FROM @Poolees WHERE CategoryCode IN ('G', 'A') AND GenderCode = 'F') AS FemaleReserveGroundAndAirCount 
+ ,(SELECT COUNT(*) FROM @Poolees WHERE CategoryCode = 'P') AS PriorServiceCount 
+ ,(SELECT COUNT(*) FROM @Poolees WHERE AfqtScore BETWEEN 93 AND 99) AS Cat1Count 
+ ,(SELECT COUNT(*) FROM @Poolees WHERE AfqtScore BETWEEN 65 AND 92) AS Cat2Count 
+ ,(SELECT COUNT(*) FROM @Poolees WHERE AfqtScore BETWEEN 50 AND 64) AS Cat3ACount 
+ ,(SELECT COUNT(*) FROM @Poolees WHERE AfqtScore BETWEEN 31 AND 49) AS Cat3BCount 
+ ,(SELECT COUNT(*) FROM @Poolees WHERE AfqtScore BETWEEN 21 AND 30) AS Cat4Count 
+ ,(SELECT COUNT(*) FROM @Poolees WHERE ReferralCount = 1) AS WithOneRefCount 
+ ,(SELECT COUNT(*) FROM @Poolees WHERE ReferralCount = 2) AS WithTwoRefCount 
+ ,(SELECT COUNT(*) FROM @Poolees WHERE ReferralCount >= 3) AS WithThreeOrMoreRefCount 
+ ,CASE  
+  WHEN @TotalInPool = 0 THEN 0 
+  ELSE (SELECT CAST(ROUND(COUNT(*) / CAST(@TotalInPool AS decimal) * 100, 0) AS int) FROM @Poolees WHERE ReferralCount >= 1) 
+  END AS PercentWorking]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

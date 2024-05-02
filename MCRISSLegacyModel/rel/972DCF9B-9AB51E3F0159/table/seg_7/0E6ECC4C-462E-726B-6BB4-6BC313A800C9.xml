@@ -1,0 +1,120 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_7" id="0E6ECC4C-462E-726B-6BB4-6BC313A800C9" schemaObject="2A6D9360-3BB2-5CEA-6E99-790D76996FDF" name="USER_TRANS_LOG">
+<sourceDDLFile>create UserMgmt script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>ECCCEA7D-C0C2-9583-1D0B-516E765B979E</importedID>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="TRANSACTION_ID" id="3A09C3C3-E8BF-251D-B953-14C1F1684118">
+<sourceDDLFile>create UserMgmt script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:51 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>2F6F17BB-96F5-1C56-213C-A586214617AE</importedID>
+<use>0</use>
+<domain>8C77819C-1B2F-24A0-C36D-F924235A9668</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementColumn>true</autoIncrementColumn>
+<identityColumn>true</identityColumn>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="UserID" id="8E3C7832-DFE7-B391-D24A-DAAAD93CCA68">
+<sourceDDLFile>create UserMgmt script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:51 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>49173F2E-A900-9549-0AEF-881A28267760</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>8C77819C-1B2F-24A0-C36D-F924235A9668</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="Username" id="3D575A05-B371-35F9-707E-8014538563AF">
+<sourceDDLFile>create UserMgmt script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:51 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>23ED358A-8FC7-68CF-8A19-D602D367CEC0</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>2E8EE7FC-99CE-D4AE-132C-50F4AADCC1F4</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="TRAN_TYPE" id="95C79CD3-844C-278A-157B-E00C62BA138C">
+<sourceDDLFile>create UserMgmt script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:51 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>3D09503B-B4D7-1B3B-C463-3625F87381FB</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>FE83DFFA-9B1F-A4B4-9720-4461C50F7960</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="TRAN_NAME" id="63486108-EA91-EE9D-60B3-FCDB86A388D0">
+<sourceDDLFile>create UserMgmt script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:51 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>1CA2C360-FAB1-D567-E068-E89860833B56</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>A0FE852E-18A7-9062-C9E8-5EE5EF5D0284</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="NEW_TRAN_VALUE" id="D102DD43-0DBE-AFC5-078B-AF6D74A9B497">
+<sourceDDLFile>create UserMgmt script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:51 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>A23C6D5B-09DE-4EB4-248E-E0B258ED5580</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>3675D3ED-F0D8-C0EF-3661-B1FEEDD44817</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="OLD_TRAN_VALUE" id="0879C786-C77A-B4E3-E2E7-620F0D5DF455">
+<sourceDDLFile>create UserMgmt script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:51 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>58097901-7A4E-5D4F-F7B3-A1DCF50B7A9D</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>3675D3ED-F0D8-C0EF-3661-B1FEEDD44817</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="USER_LOGIN" id="476B8A46-3F18-64A9-CB3B-2F39D25C8DFD">
+<sourceDDLFile>create UserMgmt script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:51 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>70826E87-6BC6-8236-0F8A-8624FBFCE007</importedID>
+<use>0</use>
+<domain>2E8EE7FC-99CE-D4AE-132C-50F4AADCC1F4</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="TRANSACTION_DATE" id="B2AFDE2C-E643-6BAE-C664-F852FC8C5617">
+<sourceDDLFile>create UserMgmt script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:51 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>135097FE-2487-8C85-B8B9-DFAE92338D0F</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+</columns>
+</Table>

@@ -1,0 +1,46 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetPastProduc.vityDetailReport]" directorySegmentName="seg_13" id="F1B2B47F-A92B-956D-DFE2-0A056951FD91">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@startYear date.me, 
+ @endYear date.me, 
+ @OrgId int = null 
+ 
+AS 
+BEGIN 
+  
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+SELECT  
+ c.LAST_NAME + ', ' + c.FIRST_NAME + ' ' +  SUBSTRING(ISNULL(c.MIDDLE_NAME, ''), 1, 1) AS Full_Name, 
+ n.MARINE_CANDIDATE_ID, 
+ c.DEP_DATE AS DOE, 
+ ( 
+  SELECT STATUS_DESCRIPTION  
+  FROM MCRISS.dbo.STATUS_DISPOSITION 
+  WHERE  
+   STATUS_TYPE = cs.STATUS_TYPE 
+   AND STATUS_CODE = cs.STATUS_CODE 
+   AND DISPOSITION_CODE = cs.DISPOSITION_CODE 
+ )  
+ AS DISPOSITION_DESCRIPTION, 
+ n.NWA_ID, 
+ n.rowguid 
+  
+  
+FROM MCRISS.dbo.Contract ct 
+INNER JOIN MCRISS_OLAP.dbo.CONTRACTS c ON ct.CONTRACT_ID = c.CONTRACT_ID 
+INNER JOIN MCRISS.dbo.NWA n ON n.NWA_ID = ct.NWA_ID 
+INNER JOIN MCRISS.dbo.CANDIDATE_STATUS cs ON cs.NWA_ID = n.NWA_ID AND 
+           cs.CANDIDATE_STATUS_ID IN ( SELECT MAX(cs2.CANDIDATE_STATUS_ID) 
+                  FROM MCRISS.dbo.CANDIDATE_STATUS cs2 
+                  WHERE cs2.NWA_ID = cs.NWA_ID) 
+WHERE ( (c.RPT_YEAR = YEAR(@startYear) AND c.RPT_MONTH IN (10,11,12)) OR (c.RPT_YEAR = YEAR(@endYear) AND c.RPT_MONTH < 10) ) 
+AND c.RSS_ORG_ID = @OrgID 
+                       
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

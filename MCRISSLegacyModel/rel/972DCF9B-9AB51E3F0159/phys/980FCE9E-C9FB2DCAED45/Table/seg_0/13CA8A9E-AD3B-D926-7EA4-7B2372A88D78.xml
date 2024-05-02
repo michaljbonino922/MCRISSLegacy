@@ -1,0 +1,49 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="MIRS_IMPORT_ERROR" directorySegmentName="seg_0" id="13CA8A9E-AD3B-D926-7EA4-7B2372A88D78">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<schemaObject>2A6D9360-3BB2-5CEA-6E99-790D76996FDF</schemaObject>
+<database>24B9F7BA-5DD4-EAB5-4EB1-35B911743E85</database>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="UPDATE_DATE" id="14B52D0A-3C96-1318-492C-D16643F2CDC9">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:15 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<defaultValue>(getdate())</defaultValue>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="MIRS_IMPORT_ID" id="AF9DF885-5DA8-ED18-0B1F-1C889DAA6E9D">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:15 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="ERROR_LOG_ID" id="D571AD94-6073-96B1-079D-84C4D325ECBB">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:15 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+</columnProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="FK_MIRSIMPORTERR_MIRSLOG" id="801F02B7-A792-2F5C-6B53-E6BEBFC03F2A">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:17 UTC</createdTime>
+<ownerDesignName>create MCRISS_ERROR script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="FK_MIRSIMPORTERR_ERRLOG" id="B778EE4B-3282-25AE-2114-4A82E1FA69A3">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:17 UTC</createdTime>
+<ownerDesignName>create MCRISS_ERROR script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="PK_MIRSIMPORT_ERROR" id="0DB2600E-802F-E537-A1FF-86CA775849E4">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:15 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<clustered>true</clustered>
+<fillFactor>90</fillFactor>
+<partitioningColumn>79D037A8-4897-519A-D353-4A2BE8B6A963</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+</TableProxySqlServerv2k5>

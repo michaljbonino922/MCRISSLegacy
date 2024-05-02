@@ -1,0 +1,38 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateShippingPeriods]" directorySegmentName="seg_28" id="B5D76058-C978-2EFD-83A6-BF05C79E6FC1">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@OrgID  int, 
+ @Month int, 
+ @FiscalYear  int, 
+ @BeginDate date.me, 
+ @EndDate date.me, 
+ @UserLogin varchar(15)  
+AS 
+ 
+IF EXISTS (SELECT * FROM SHIPPING_PERIOD WHERE ORGANIZATION_ID = @OrgID AND  
+  FISCAL_YEAR = @FiscalYear AND MONTH_CODE = @Month) 
+ BEGIN 
+ UPDATE SHIPPING_PERIOD  
+ SET ORGANIZATION_ID = @OrgID, 
+ MONTH_CODE = @Month, 
+ FISCAL_YEAR = @FiscalYear, 
+ BEGIN_DATE = @BeginDate, 
+ END_DATE = @EndDate, 
+ USER_LOGIN = @UserLogin, 
+ UPDATE_DATE = GETDATE() 
+ WHERE ORGANIZATION_ID = @OrgID AND  
+ FISCAL_YEAR = @FiscalYear AND  
+ MONTH_CODE = @Month 
+ END 
+ELSE 
+ BEGIN 
+ INSERT INTO SHIPPING_PERIOD (ORGANIZATION_ID, MONTH_CODE, FISCAL_YEAR,  
+   BEGIN_DATE, END_DATE, USER_LOGIN, UPDATE_DATE) 
+ VALUES (@OrgID, @Month, @FiscalYear, @BeginDate, @EndDate, @UserLogin, GETDATE()) 
+ END]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

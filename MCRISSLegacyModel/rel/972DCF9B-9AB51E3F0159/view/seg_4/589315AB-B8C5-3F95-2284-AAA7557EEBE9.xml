@@ -1,0 +1,65 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_4" id="589315AB-B8C5-3F95-2284-AAA7557EEBE9" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="_dta_mv_368">
+<sourceDDLFile>create Prospecting script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:27 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>5A6B3C8B-262F-8733-A639-A4A930EB37D7</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  [USMC].[ImportPerson].[ImportPersonStatusTypeId] as _col_1,  [USMC].[ImportPerson].[PersonId] as _col_2,  [USMC].[ImportPerson].[ImportPersonId] as _col_3,  count_big(*) as _col_4 FROM  [USMC].[ImportPerson],  [USMC].[ImportEvent]   WHERE  [USMC].[ImportPerson].[ChildImportEventID] = [USMC].[ImportEvent].[ImportEventId]  GROUP BY  [USMC].[ImportPerson].[ImportPersonStatusTypeId],  [USMC].[ImportPerson].[PersonId],  [USMC].[ImportPerson].[ImportPersonId]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[ImportPersonStatusTypeId]" id="36971C2F-50C3-0962-F74F-6D479B16B27C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:27 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_1</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_1</headerAlias>
+<expression>[ImportPersonStatusTypeId]</expression>
+<reference>false</reference>
+<viewID>589315AB-B8C5-3F95-2284-AAA7557EEBE9</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[PersonId]" id="CC0699B0-F755-6E82-CB2B-A6B05E735D7B">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:27 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_2</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_2</headerAlias>
+<expression>[PersonId]</expression>
+<reference>false</reference>
+<viewID>589315AB-B8C5-3F95-2284-AAA7557EEBE9</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[ImportPersonId]" id="30983A32-2B95-D065-3A81-532C7E23E9D7">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:27 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_3</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_3</headerAlias>
+<expression>[ImportPersonId]</expression>
+<reference>false</reference>
+<viewID>589315AB-B8C5-3F95-2284-AAA7557EEBE9</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="count_big(*)" id="A3AD7377-694F-4470-67DF-5B6FBBD617D1">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:27 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_4</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_4</headerAlias>
+<expression>count_big(*)</expression>
+<reference>false</reference>
+<viewID>589315AB-B8C5-3F95-2284-AAA7557EEBE9</viewID>
+</viewElement>
+</viewElements>
+</TableView>

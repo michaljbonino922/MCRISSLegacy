@@ -1,0 +1,152 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_CreateQsnImportTables]" directorySegmentName="seg_14" id="A114A8E2-91A8-F814-69AC-3C0BFA91D5B3">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[As 
+ 
+ 
+-- CREATE THE TEMP_QSN TABLE 
+IF NOT EXISTS (SELECT * FROM DBO.SYSOBJECTS WHERE ID = OBJECT_ID(N'[DBO].[TEMP_QSN]') AND OBJECTPROPERTY(ID, N'ISUSERTABLE') = 1) 
+BEGIN 
+ PRINT 'PREPARING TO CREATE THE TEMP_QSN TABLE' 
+ 
+ --- CREATE TABLE  
+ 
+ 
+ CREATE TABLE [dbo].[TEMP_QSN] ( 
+  [FISCAL_YEAR] [int] NULL, 
+  [DATEANDTIME] [varchar] (20) NULL, 
+  [IMPORTED] [bit] NULL, 
+  [ERROR_PIVDATE] [bit] NULL, 
+  [ERROR_MOS] [bit] NULL, 
+  [ERROR_QSNID] [bit] NULL, 
+  [ERROR_RESRUC] [bit] NULL, 
+  [ERROR_DISTRICT] [bit] NULL, 
+  [ERROR_RS] [bit] NULL, 
+  [ERROR_SEX] [bit] NULL, 
+  [ERROR_MSC] [bit] NULL, 
+  [ERROR_IIADT] [bit] NULL, 
+  [ERROR_COMPCODE] [bit] NULL, 
+  [QSN] [nvarchar] (9) COLLATE SQL_La.n1_General_CP1_CI_AS NULL , 
+  [IMOS] [nvarchar] (4) COLLATE SQL_La.n1_General_CP1_CI_AS NULL , 
+  [RESRUC] [nvarchar] (5) COLLATE SQL_La.n1_General_CP1_CI_AS NULL , 
+  [DISTRICT] [nvarchar] (9) COLLATE SQL_La.n1_General_CP1_CI_AS NULL , 
+  [RS] [nvarchar] (9) COLLATE SQL_La.n1_General_CP1_CI_AS NULL , 
+  [SEX] [nvarchar] (1) COLLATE SQL_La.n1_General_CP1_CI_AS NULL , 
+  [IIADT] [nvarchar] (1) COLLATE SQL_La.n1_General_CP1_CI_AS NULL , 
+  [PIVDATE] [nvarchar] (9) COLLATE SQL_La.n1_General_CP1_CI_AS NULL , 
+  [COMPCODE] [nvarchar] (2) COLLATE SQL_La.n1_General_CP1_CI_AS NULL , 
+  [MSC_CODE] [nvarchar] (3) COLLATE SQL_La.n1_General_CP1_CI_AS NULL , 
+  [ASSIGNED_ORG_ID] [int] NULL , 
+  [MCC_CODE] [varchar] (3) COLLATE SQL_La.n1_General_CP1_CI_AS NULL , 
+  [RECRUITING_ORGANIZATION_ID] [int] NULL  
+ ) ON [PRIMARY] 
+ 
+ 
+ PRINT 'CREATED THE TEMP_QSN TABLE FOR STORING NEW QSNs' 
+END 
+ELSE 
+BEGIN 
+ PRINT 'THE TEMP_QSN TABLE ALREADY EXISTS SO WE WILL TRUNCATE IT' 
+ DELETE TEMP_QSN 
+END 
+ 
+ 
+-- CREATE THE TEMP_BAD_QSN TABLE 
+IF NOT EXISTS (SELECT * FROM DBO.SYSOBJECTS WHERE ID = OBJECT_ID(N'[DBO].[TEMP_BAD_QSN]') AND OBJECTPROPERTY(ID, N'ISUSERTABLE') = 1) 
+BEGIN 
+ PRINT 'PREPARING TO CREATE THE TEMP_BAD_QSN TABLE' 
+ 
+ 
+ CREATE TABLE [dbo].[TEMP_BAD_QSN] ( 
+  [FISCAL_YEAR] [int] NULL, 
+  [DATEANDTIME] [varchar] (20) NULL, 
+  [IMPORTED] [bit] NULL, 
+  [ERROR_PIVDATE] [bit] NULL, 
+  [ERROR_MOS] [bit] NULL, 
+  [ERROR_QSNID] [bit] NULL, 
+  [ERROR_RESRUC] [bit] NULL, 
+  [ERROR_DISTRICT] [bit] NULL, 
+  [ERROR_RS] [bit] NULL, 
+  [ERROR_SEX] [bit] NULL, 
+  [ERROR_MSC] [bit] NULL, 
+  [ERROR_IIADT] [bit] NULL, 
+  [ERROR_COMPCODE] [bit] NULL, 
+  [QSN] [nvarchar] (9) COLLATE SQL_La.n1_General_CP1_CI_AS NULL , 
+  [IMOS] [nvarchar] (4) COLLATE SQL_La.n1_General_CP1_CI_AS NULL , 
+  [RESRUC] [nvarchar] (5) COLLATE SQL_La.n1_General_CP1_CI_AS NULL , 
+  [DISTRICT] [nvarchar] (9) COLLATE SQL_La.n1_General_CP1_CI_AS NULL , 
+  [RS] [nvarchar] (9) COLLATE SQL_La.n1_General_CP1_CI_AS NULL , 
+  [SEX] [nvarchar] (1) COLLATE SQL_La.n1_General_CP1_CI_AS NULL , 
+  [IIADT] [nvarchar] (1) COLLATE SQL_La.n1_General_CP1_CI_AS NULL , 
+  [PIVDATE] [nvarchar] (9) COLLATE SQL_La.n1_General_CP1_CI_AS NULL , 
+  [COMPCODE] [nvarchar] (2) COLLATE SQL_La.n1_General_CP1_CI_AS NULL , 
+  [MSC_CODE] [nvarchar] (3) COLLATE SQL_La.n1_General_CP1_CI_AS NULL , 
+  [ASSIGNED_ORG_ID] [int] NULL , 
+  [MCC_CODE] [varchar] (3) COLLATE SQL_La.n1_General_CP1_CI_AS NULL , 
+  [RECRUITING_ORGANIZATION_ID] [int] NULL  
+ ) ON [PRIMARY] 
+ 
+ 
+ 
+ PRINT 'CREATED THE TEMP_BAD_QSN TABLE FOR STORING NEW QSNs' 
+END 
+ELSE 
+BEGIN 
+ PRINT 'THE TEMP_BAD_QSN TABLE ALREADY EXISTS SO WE WILL TRUNCATE IT' 
+ DELETE TEMP_BAD_QSN 
+END 
+ 
+ 
+ 
+ 
+-- CREATE THE READY_TO_IMPORT_QSN TABLE 
+IF NOT EXISTS (SELECT * FROM DBO.SYSOBJECTS WHERE ID = OBJECT_ID(N'[DBO].[READY_TO_IMPORT_QSN]') AND OBJECTPROPERTY(ID, N'ISUSERTABLE') = 1) 
+ 
+BEGIN 
+ PRINT 'PREPARING TO CREATE THE READY_TO_IMPORT_QSN TABLE' 
+ 
+ 
+ CREATE TABLE [dbo].[READY_TO_IMPORT_QSN] ( 
+  [FISCAL_YEAR] [int] NULL, 
+  [DATEANDTIME] [varchar] (20) NULL, 
+  [IMPORTED] [bit] NULL, 
+  [ERROR_PIVDATE] [bit] NULL, 
+  [ERROR_MOS] [bit] NULL, 
+  [ERROR_QSNID] [bit] NULL, 
+  [ERROR_RESRUC] [bit] NULL, 
+  [ERROR_DISTRICT] [bit] NULL, 
+  [ERROR_RS] [bit] NULL, 
+  [ERROR_SEX] [bit] NULL, 
+  [ERROR_MSC] [bit] NULL, 
+  [ERROR_IIADT] [bit] NULL, 
+  [ERROR_COMPCODE] [bit] NULL, 
+  [QSN] [nvarchar] (9) COLLATE SQL_La.n1_General_CP1_CI_AS NULL , 
+  [IMOS] [nvarchar] (4) COLLATE SQL_La.n1_General_CP1_CI_AS NULL , 
+  [RESRUC] [nvarchar] (5) COLLATE SQL_La.n1_General_CP1_CI_AS NULL , 
+  [DISTRICT] [nvarchar] (9) COLLATE SQL_La.n1_General_CP1_CI_AS NULL , 
+  [RS] [nvarchar] (9) COLLATE SQL_La.n1_General_CP1_CI_AS NULL , 
+  [SEX] [nvarchar] (1) COLLATE SQL_La.n1_General_CP1_CI_AS NULL , 
+  [IIADT] [nvarchar] (1) COLLATE SQL_La.n1_General_CP1_CI_AS NULL , 
+  [PIVDATE] [nvarchar] (9) COLLATE SQL_La.n1_General_CP1_CI_AS NULL , 
+  [COMPCODE] [nvarchar] (2) COLLATE SQL_La.n1_General_CP1_CI_AS NULL , 
+  [MSC_CODE] [nvarchar] (3) COLLATE SQL_La.n1_General_CP1_CI_AS NULL , 
+  [ASSIGNED_ORG_ID] [int] NULL , 
+  [MCC_CODE] [varchar] (3) COLLATE SQL_La.n1_General_CP1_CI_AS NULL , 
+  [RECRUITING_ORGANIZATION_ID] [int] NULL  
+ ) ON [PRIMARY] 
+ 
+ 
+ 
+ PRINT 'CREATED THE READY_TO_IMPORT_QSN TABLE FOR STORING NEW QSNs' 
+END 
+ELSE 
+BEGIN 
+ PRINT 'THE READY_TO_IMPORT_QSN TABLE ALREADY EXISTS SO WE WILL TRUNCATE IT' 
+ 
+END]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

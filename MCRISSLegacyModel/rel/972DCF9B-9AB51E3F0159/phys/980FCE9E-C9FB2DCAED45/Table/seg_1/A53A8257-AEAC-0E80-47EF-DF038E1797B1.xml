@@ -1,0 +1,69 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="ProgramDocument" directorySegmentName="seg_1" id="A53A8257-AEAC-0E80-47EF-DF038E1797B1">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<schemaObject>454547C7-2829-9C8F-6E0C-35E4CFDC8E47</schemaObject>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="LastUpdatedBy" id="1ADDD4F5-D1D4-D22B-75F8-EF20525C61C0">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:05 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="FileName" id="30D97CFA-2772-E8ED-8563-A79B5F2488BD">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:05 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="ProgramDocumentGroupID" id="3A04B27E-BAE1-DCBB-EC9F-BCEE25FE2361">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:05 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="Title" id="644BE117-0E48-E65C-C17E-3DCC29A13386">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:05 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="Descrip.on" id="8AE4EE05-38BB-4332-3CC3-DF5DFEEF6561">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:05 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="Keywords" id="D2146631-AED8-F2F1-C793-656A3A39F04C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:05 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="LastUpdatedDate" id="DB6BEAFA-6F21-7D6A-A3A9-D04678377706">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:05 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="ID" id="F2ED66E6-C7C8-A6C0-0657-0EFC6A13A9B7">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:05 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<defaultValue>(newid())</defaultValue>
+</ColumnProxy>
+</columnProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="FK_ProgramDocument_ProgramDocumentGroup1" id="32F267FA-CD9B-6C4A-1CBE-E4D7A4241DAE">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="PK_ProgramDocument" id="012A0054-3678-0433-24B6-CE27F7B3C712">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:05 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<clustered>true</clustered>
+<fillFactor>100</fillFactor>
+<partitioningColumn>EFC1C3A0-E2D3-374A-ACA3-B322F3BEB012</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+</TableProxySqlServerv2k5>

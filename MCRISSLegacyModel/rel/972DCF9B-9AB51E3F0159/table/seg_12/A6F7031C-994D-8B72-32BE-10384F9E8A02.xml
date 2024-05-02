@@ -1,0 +1,227 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_12" id="A6F7031C-994D-8B72-32BE-10384F9E8A02" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="Form">
+<sourceDDLFile>create AFP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:58:59 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>66F1910D-DC3C-3A8E-FEEA-41429EFEABC6</importedID>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="FormId" id="96CFD838-7625-CFB2-005D-C34002764E18">
+<sourceDDLFile>create AFP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:58:59 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>B6001267-067A-B712-A6AF-4377EB4BE900</importedID>
+<use>0</use>
+<usesDefaultValue>true</usesDefaultValue>
+<defaultValue>(newid())</defaultValue>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="PersonId" id="7DE1FCE7-F3ED-EB7D-0629-2860B4820A5C">
+<sourceDDLFile>create AFP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:58:59 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>57BC0FAB-2600-9A3A-D8FB-703DD6179032</importedID>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="0FBF4122-5B5E-0212-A2AF-71E20242C164" referredColumn="3FB95A6E-FB77-7FCE-6185-9B905E5F3D97"/>
+</associations>
+</Column>
+<Column name="Sec.onId" id="9A008625-4CF1-2B0B-5C99-1C5B82C46EF3">
+<sourceDDLFile>create AFP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:58:59 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>E9F4A7B0-5D84-F5AC-B5AB-E86D39216A13</importedID>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="FolderId" id="F09EBDAA-F4D9-D13A-F0AC-A2D6FD1AAD24">
+<sourceDDLFile>create AFP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:58:59 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>B802C89B-E438-2A9F-3763-3FFDB8C3E223</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="FormTemplateId" id="1B55B9CC-D673-6CC8-4487-241C13866872">
+<sourceDDLFile>create AFP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>617CCA29-5D48-22B2-9C03-341D5745CF37</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="FriendlyName" id="501E5715-CE3C-F34C-CC2F-0EBBE11E08BA">
+<sourceDDLFile>create AFP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>564844D6-7044-B7C4-5FFB-38F3D635A117</importedID>
+<use>0</use>
+<domain>2E8EE7FC-99CE-D4AE-132C-50F4AADCC1F4</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="Extension" id="E40A732C-C13B-E186-B470-FF3C61B6E127">
+<sourceDDLFile>create AFP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>86429A41-03A1-E761-D4AC-43F3BF93BAB4</importedID>
+<use>0</use>
+<domain>53DEF873-7E25-39BC-FEDB-36F739165577</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="FileSize" id="A0AA9208-FADA-8A30-D329-DC3299AF5355">
+<sourceDDLFile>create AFP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>355081CF-FC7A-4AAD-EEE6-81CC8AB13D2F</importedID>
+<use>0</use>
+<domain>B1FCF7E5-9C86-3C59-C257-45849D02BF35</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="IsValidated" id="C9723892-2ADC-BFD4-7937-3568968EA1B6">
+<sourceDDLFile>create AFP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>11D0097B-79EE-AE82-FC96-444E452ABF53</importedID>
+<use>0</use>
+<domain>91FEE8D3-8598-AD10-5F0A-90AD41572AF8</domain>
+<usesDefaultValue>true</usesDefaultValue>
+<defaultValue>((0))</defaultValue>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="IsSigned" id="C155484B-FC78-20A6-DB8D-7E322341DEAB">
+<sourceDDLFile>create AFP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>A07A9E59-F561-71AF-A672-D367B99B53C3</importedID>
+<use>0</use>
+<domain>91FEE8D3-8598-AD10-5F0A-90AD41572AF8</domain>
+<usesDefaultValue>true</usesDefaultValue>
+<defaultValue>((0))</defaultValue>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="IsDeleted" id="3C346016-FCA2-0EF6-2917-6B9E5F3C7AD7">
+<sourceDDLFile>create AFP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>4AA295C6-3CDA-B24D-2C9C-6D44EC1AACDC</importedID>
+<use>0</use>
+<domain>91FEE8D3-8598-AD10-5F0A-90AD41572AF8</domain>
+<usesDefaultValue>true</usesDefaultValue>
+<defaultValue>((0))</defaultValue>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="UploadedBy" id="24A69070-FCDC-368B-BBE5-8E9A38AFB8EA">
+<sourceDDLFile>create AFP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>4658A79D-E862-3085-7CC2-73802BD8CFB3</importedID>
+<use>0</use>
+<domain>2E8EE7FC-99CE-D4AE-132C-50F4AADCC1F4</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="DateUploaded" id="3AB86668-4553-BFAF-8908-419DFFF2DB8E">
+<sourceDDLFile>create AFP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>9C92790C-37E5-DC48-22FB-84C33C99985A</importedID>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="Data" id="B8E91B9C-5C40-4234-DA79-A789E5D45526">
+<sourceDDLFile>create AFP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>C7E503EF-CAAB-1D27-7D6D-3AC54FCEA486</importedID>
+<use>0</use>
+<domain>CB30D4CD-6C8E-B803-95E0-7228D24ED310</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="3D1FC197-4441-AC53-5E9D-AA365F76FBA9" name="FORM_PK">
+<sourceDDLFile>create AFP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>1F070372-8F53-CC05-2868-4F5ABBBB31EE</importedID>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="96CFD838-7625-CFB2-005D-C34002764E18"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="FE7D98E5-5A9D-6DB7-C7D9-BF0D5CA86087" name="IX_PERSONIDv2">
+<sourceDDLFile>create AFP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>428406C5-F54D-21BA-8A73-209330B9E03C</importedID>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="7DE1FCE7-F3ED-EB7D-0629-2860B4820A5C"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="67FDAE0D-BBD4-F349-4B37-78315B2F66D1" name="FK_Form_Package">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="7DE1FCE7-F3ED-EB7D-0629-2860B4820A5C"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+<tableCheckConstraints itemClass="oracle.dbtools.crest.model.design.constraint.TableLevelConstraint">
+<tableCheckConstraint name="[USMC].[Form]" directorySegmentName="seg_10" id="2AE09E06-19EE-5CE8-838C-3AAA795CFA17">
+<sourceDDLFile>create AFP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:00 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>D3CF4614-CFBB-402F-E384-C1283B8AF76D</importedID>
+<rule><![CDATA[CONSTRAINT [FK_Form_Package]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITH" directorySegmentName="seg_10" id="121CB9CA-5583-FA06-F86F-878A137266D4">
+<sourceDDLFile>create AFP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:00 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>D61F1F38-9E01-AFA9-CECC-526F93511EBD</importedID>
+</tableCheckConstraint>
+</tableCheckConstraints>
+</Table>

@@ -1,0 +1,49 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateCandidateProfessedExam]" directorySegmentName="seg_24" id="6C18D7F9-6DCF-CDBE-8E6E-09FF9848E62C">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@PersonID   int, 
+ @ExamDate   date.me, 
+ @ProfessedExamType  char(1), 
+ @ExamEnteredDate  date.me, 
+ @ExamScore   .oat, 
+ @ExamScore2    int = NULL, 
+ @ExamScore3    int = NULL, 
+ @UserLogin   varchar(15) 
+AS 
+ 
+IF EXISTS (SELECT 1 FROM CANDIDATE_PROFESSED_EXAM WHERE MARINE_CANDIDATE_ID = @PersonID AND  
+  PROFESSED_EXAM_TYPE = @ProfessedExamType AND  
+  EXAM_DATE = @ExamDate AND  
+  EXAM_ENTERED_DATE = @ExamEnteredDate) 
+BEGIN 
+ --- UPDATE THE EXAM 
+ UPDATE   
+  CANDIDATE_PROFESSED_EXAM 
+ SET   
+  EXAM_SCORE  = @ExamScore, 
+  EXAM_SCORE2  = @ExamScore2, 
+  EXAM_SCORE3 = @ExamScore3, 
+  USER_LOGIN  = @UserLogin,  
+  UPDATE_DATE  = GETDATE() 
+ WHERE   
+  MARINE_CANDIDATE_ID = @PersonID AND 
+  PROFESSED_EXAM_TYPE  = @ProfessedExamType AND  
+  EXAM_DATE   = @ExamDate AND  
+  EXAM_ENTERED_DATE  = @ExamEnteredDate 
+END 
+ELSE 
+BEGIN 
+ --- INSERT THE EXAM 
+ INSERT INTO CANDIDATE_PROFESSED_EXAM  
+  (MARINE_CANDIDATE_ID, PROFESSED_EXAM_TYPE, EXAM_DATE, EXAM_ENTERED_DATE, 
+  EXAM_SCORE, EXAM_SCORE2, EXAM_SCORE3, USER_LOGIN, UPDATE_DATE)  
+ VALUES  
+  (@PersonID, @ProfessedExamType, @ExamDate, @ExamEnteredDate, 
+  @ExamScore, @ExamScore2, @ExamScore3, @UserLogin, GETDATE())   
+END]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

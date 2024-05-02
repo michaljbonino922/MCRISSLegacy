@@ -1,0 +1,39 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_4" id="A7F564A5-5A31-F045-E9FC-D51CACBED71B" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="_dta_mv_352">
+<sourceDDLFile>create Prospecting script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>B4C179E1-BE92-F218-AC21-DCC684E5725D</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  [USMC].[PersonPhone].[PersonId] as _col_1,  count_big(*) as _col_2 FROM  [USMC].[Person],  [USMC].[PersonPhone],  [USMC].[Prospect]   WHERE  [USMC].[Person].[PersonId] = [USMC].[PersonPhone].[PersonId]  AND  [USMC].[PersonPhone].[PersonId] = [USMC].[Prospect].[PersonId]  GROUP BY  [USMC].[PersonPhone].[PersonId]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[PersonId]" id="3B954A7B-8A6A-F365-14C4-9C83A0708270">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_1</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_1</headerAlias>
+<expression>[PersonId]</expression>
+<reference>false</reference>
+<viewID>A7F564A5-5A31-F045-E9FC-D51CACBED71B</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="count_big(*)" id="3A90ACF6-3FAF-CAC2-3741-605C5DF1E7AF">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_2</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_2</headerAlias>
+<expression>count_big(*)</expression>
+<reference>false</reference>
+<viewID>A7F564A5-5A31-F045-E9FC-D51CACBED71B</viewID>
+</viewElement>
+</viewElements>
+</TableView>

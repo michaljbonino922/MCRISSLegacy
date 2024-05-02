@@ -1,0 +1,41 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetMEPSOrgByCode]" directorySegmentName="seg_6" id="9DDEB235-EFFF-4A48-97EA-7ADC1D3582C0">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( @Code VARCHAR(3) ) 
+AS 
+    SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED; 
+ 
+    SELECT 
+        [MEPS_ORGANIZATION_ID], 
+        [STATE_CODE], 
+        [MEPS_NAME] AS [NAME], 
+        [MCC_CODE], 
+        [STREET], 
+        [STREET2], 
+        [CITY], 
+        [ZIP_CODE], 
+        [MEPS_CODE], 
+        [MEPS_IP_ADDRESS], 
+        [MEPS_IPADDRESS_USER], 
+        [MEPS_IPADDRESS_PWD], 
+        [USER_LOGIN], 
+        [UPDATE_DATE], 
+        [rowguid], 
+        [OrgUnitId], 
+        [EFFECTIVE_DATE], 
+        [ISOPEN], 
+        [CLOSED_DATE], 
+        [MEPS_CUTOFF_TIME], 
+  [CITY_CODE], 
+  [COUNTY_CODE], 
+  [STATE_GEO_CODE] 
+    FROM 
+        [MCRISS].[dbo].[MEPS_ORGANIZATION_LOOKUP] 
+    WHERE 
+        [MEPS_CODE] = @Code;]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

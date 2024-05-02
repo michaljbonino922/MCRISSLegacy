@@ -1,0 +1,20 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SelectFormData]" directorySegmentName="seg_30" id="0B2681CD-728E-C920-ABCE-05A44E1CB3B8">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:39 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @Sec.onItemId uniqueiden..er 
+) 
+AS 
+ 
+SELECT 
+ f.[Data] 
+FROM  
+ [ACP].[Form] f 
+WHERE 
+ f.[Sec.onItemId] = @Sec.onItemId]]></body>
+<schema>569A41D8-8F40-0619-141C-F4C9436AAF46</schema>
+<database>2D7ED536-DF8E-3523-7DC3-4228EBAF5F66</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,250 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetDataSheetRowData]" directorySegmentName="seg_2" id="3D03B015-631E-C071-ECF5-629E2B606539">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@OrgID int , 
+ @FiscalYear int  
+ 
+AS 
+BEGIN 
+  
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+  
+DECLARE @FY_BEGIN_DATE DATETIME, 
+ @END_DATE DATETIME, 
+ @CURRENT_DATE date.me; 
+ SET @CURRENT_DATE = GetDate(); 
+  
+ DECLARE @Current_Month DATETIME; 
+ SET @Current_Month = CAST( CONVERT(varchar(4), Year(@CURRENT_DATE))   + '-' + CONVERT(varchar(2), Month(@CURRENT_DATE)) + '-1' as Date.me); 
+ 
+ DECLARE @CurrentFiscalYear int 
+ SET @CurrentFiscalYear = YEAR(@CURRENT_DATE) 
+ 
+ IF MONTH(@CURRENT_DATE) = 10 OR 
+    MONTH(@CURRENT_DATE) = 11 OR 
+    MONTH(@CURRENT_DATE) = 12 
+ BEGIN  
+  SET @CurrentFiscalYear = @CurrentFiscalYear + 1 
+ END 
+  
+ SET @FY_BEGIN_DATE =  CAST( CONVERT(varchar(4), @FiscalYear-1) + '-10-1' as Date.me); 
+ 
+ IF @CurrentFiscalYear = @FiscalYear 
+ BEGIN 
+  SET @END_DATE = DATEADD(month, 1, @Current_Month); 
+ END 
+ ELSE 
+ BEGIN 
+  SET @END_DATE = CAST( CONVERT(varchar(4), @FiscalYear) + '-10-1' as Date.me); 
+ END 
+   
+ 
+-- Begin Get Educa.on Codes 
+SELECT   
+ CASE WHEN EDUCATION_CODE IN ('11S','11M') THEN 'SENIOR' 
+              ELSE 'GRAD' END AS EDUCATION_LEVEL 
+  ,COUNT(EDUCATION_CODE) AS EDUCATION_COUNT 
+  ,RPT_MONTH AS MONTH 
+INTO #EDUCATION_CODES 
+FROM [MCRISS_OLAP].[dbo].CONTRACTS c 
+WHERE  RSS_ORG_ID = @OrgID  
+AND ((RPT_YEAR = @FiscalYear-1 AND RPT_MONTH IN (10,11,12)) OR (RPT_YEAR = @FiscalYear AND RPT_MONTH < 10)) 
+GROUP BY EDUCATION_CODE, RPT_MONTH 
+-- End Get Educa.on Codes 
+ 
+-- Begin Get Contracts Achieved 
+SELECT  
+ RPT_MONTH AS [Month] 
+ ,RMNPS_GROSS_CONT + PR_SVC_GROSS_CONT AS [RmnpsContractsAchieved] 
+ ,RFNPS_GROSS_CONT AS [RfnpsContractsAchieved] 
+ ,RESMG_GROSS_CONT+ RESMA_GROSS_CONT + RESMNA_GROSS_CONT + RESF_GROSS_CONT AS [ReserveContractsAchieved] 
+ ,TOTAL_MG_I + TOTAL_MG_II + TOTAL_MG_IIIA AS [Alpha] 
+ ,TOTAL_MG_IIIB + TOTAL_MG_IV AS [Bravo] 
+ ,RMNPS_DEP_DISCHARGE AS [RmnpsPoolDischarge]  
+ ,RFNPS_DEP_DISCHARGE AS [RfnpsPoolDischarge] 
+ ,RESMG_DEP_DISCHARGE+ RESMA_DEP_DISCHARGE + RESMNA_DEP_DISCHARGE + RESF_DEP_DISCHARGE AS [ReservePoolDischarge] 
+ ,TOTAL_DEP_DISCHARGE AS [PoolDischarge] 
+INTO #CONTRACT_DATA 
+FROM [MCRISS_OLAP].[dbo].[CAR_CONTRACT] 
+WHERE ( (RPT_YEAR = @FiscalYear-1 AND RPT_MONTH IN (10,11,12)) OR (RPT_YEAR = @FiscalYear AND RPT_MONTH < 10) ) 
+AND ORG_ID = @OrgID 
+-- End Get Contracts Achieved 
+ 
+-- Begin Get Shipments Achieved 
+SELECT  
+ RPT_MONTH AS [Month] 
+ ,RMNPS_ACHIEVED AS [RmnpsShipmentsAchieved] 
+ ,RFNPS_ACHIEVED AS [RfnpsShipmentsAchieved] 
+ ,RESMG_ACHIEVED + RESMA_ACHIEVED + RESF_ACHIEVED AS [ReserveShipmentsAchieved] 
+ ,PS_ACHIEVED AS ReenlistmentAchieved 
+ ,TOTAL_MCRD_DISCHARGE AS [McrdDischarge] 
+INTO #SHIPPER_DATA 
+FROM [MCRISS_OLAP].[dbo].[CAR_SHIPPER] 
+WHERE ( (RPT_YEAR = @FiscalYear-1 AND RPT_MONTH IN (10,11,12)) OR (RPT_YEAR = @FiscalYear AND RPT_MONTH < 10) ) 
+AND ORG_ID = @OrgID 
+-- End Get Shipments Achieved 
+ 
+-- Begin Monthly In Pool Data 
+SELECT   
+ [Month] 
+ ,SUM(RmnpsInPool) AS RmnpsInPool 
+ ,SUM(RfnpsInPool) AS RfnpsInPool 
+ ,SUM(ReservesInPool) AS ReservesInPool 
+INTO #POOL_DATA 
+FROM  
+( 
+ SELECT 
+  RPT_YEAR  
+  ,RPT_MONTH  
+  ,CASE  
+   WHEN RPT_MONTH + 1 = 13 THEN 1  
+   ELSE RPT_MONTH + 1  
+   END AS [Month] 
+  ,GENDER_CODE 
+  ,COMPONENT_CODE 
+  ,Padd_Date 
+  ,CASE  
+   WHEN  
+    ( ( GENDER_CODE = 'M' AND COMPONENT_CODE IN ('K5','PO') )  
+      OR COMPONENT_CODE = '11'  
+    ) 
+    AND  
+    ( YEAR(Padd_Date) = CASE  
+           WHEN RPT_MONTH + 1 = 10 OR RPT_MONTH + 1 = 11 OR RPT_MONTH + 1 = 12 THEN @FiscalYear-1  
+           ELSE @FiscalYear  
+          END  
+     AND MONTH(Padd_Date) = CASE  
+            WHEN RPT_MONTH + 1 = 13 THEN 1  
+            ELSE RPT_MONTH + 1  
+           END  
+    )  THEN 1  
+   ELSE 0  
+   END AS [RmnpsInPool] 
+  
+  ,CASE  
+   WHEN  
+    GENDER_CODE = 'F' AND COMPONENT_CODE IN ('K5','PO')  
+    AND  
+    ( YEAR(Padd_Date) = CASE  
+           WHEN RPT_MONTH + 1 = 10 OR RPT_MONTH + 1 = 11 OR RPT_MONTH + 1 = 12 THEN @FiscalYear-1  
+           ELSE @FiscalYear  
+          END  
+     AND MONTH(Padd_Date) = CASE  
+            WHEN RPT_MONTH + 1 = 13 THEN 1  
+            ELSE RPT_MONTH + 1  
+           END  
+    )  THEN 1  
+   ELSE 0  
+   END AS [RfnpsInPool] 
+  
+  ,CASE  
+   WHEN  
+    COMPONENT_CODE IN ('K4','K8','K9','B5')  
+    AND  
+    ( YEAR(Padd_Date) = CASE  
+           WHEN RPT_MONTH + 1 = 10 OR RPT_MONTH + 1 = 11 OR RPT_MONTH + 1 = 12 THEN @FiscalYear-1  
+           ELSE @FiscalYear  
+          END  
+     AND MONTH(Padd_Date) = CASE  
+            WHEN RPT_MONTH + 1 = 13 THEN 1  
+            ELSE RPT_MONTH + 1  
+           END  
+    )  THEN 1  
+   ELSE 0  
+   END AS [ReservesInPool] 
+  
+ FROM [MCRISS_OLAP].[dbo].POOLEES_DATASHEET 
+ WHERE RSS_ORG_ID = @OrgID 
+  AND ( (RPT_YEAR = @FiscalYear-1 AND RPT_MONTH IN (9,10,11,12)) OR (RPT_YEAR = @FiscalYear AND RPT_MONTH < 9) ) 
+  AND COMPONENT_CODE IN ('K5','PO','K4','K8','K9','B5','11') 
+  
+) AS T 
+GROUP BY [Month] 
+ORDER BY [MONTH] 
+ 
+ 
+SELECT DISTINCT 
+ s.RPT_MONTH AS [Month] 
+ ,SUM(CASE WHEN (s.GENDER_CODE = 'M' AND s.COMPONENT_CODE IN ('K5','PO')) OR (s.COMPONENT_CODE = '11') THEN 1  
+   ELSE 0 END) AS [RmnpsInPool] 
+ ,SUM(CASE WHEN (s.GENDER_CODE = 'F' AND s.COMPONENT_CODE IN ('K5','PO')) THEN 1  
+   ELSE 0 END) AS [RfnpsInPool] 
+ ,SUM(CASE WHEN (s.COMPONENT_CODE IN ('K4','K8','K9','B5')) THEN 1  
+   ELSE 0 END) AS [ReservesInPool] 
+INTO #POOL_DATA_SHIPPERS 
+FROM [MCRISS_OLAP].[dbo].SHIPPERS s 
+INNER JOIN MCRISS_OLAP.dbo.Contracts c ON (c.PERSON_ID = s.PERSON_ID 
+             AND c.CONTRACT_ID IN (SELECT MAX(c2.CONTRACT_ID) 
+                 FROM MCRISS_OLAP.dbo.Contracts c2 
+                 WHERE c2.PERSON_ID = c.PERSON_ID 
+                 ) 
+            ) 
+WHERE s.RSS_ORG_ID = @OrgID 
+ AND s.SHIP_DATE >= @FY_BEGIN_DATE 
+ AND s.SHIP_DATE < @END_DATE 
+ AND s.COMPONENT_CODE IN ('K5','PO','K4','K8','K9','B5','11') 
+GROUP BY s.RPT_MONTH 
+-- End Monthly In Pool Data 
+ 
+-- Begin End of Month Pool Data 
+SELECT 
+ [RPT_YEAR] AS Year, 
+ [RPT_MONTH] AS Month, 
+ SUM([RMNPS]) AS RmnpsInEndOfMonthPool, 
+ SUM([RFNPS]) AS RfnpsInEndOfMonthPool, 
+ SUM([RESM] + [RESF]) AS ReservesInEndOfMonthPool 
+INTO #END_OF_MONTH_POOL 
+FROM 
+ [MCRISS_OLAP].[dbo].[CAR_POOL_DATASHEET] (nolock) 
+WHERE ( (RPT_YEAR = @FiscalYear-1 AND RPT_MONTH IN (10,11,12)) OR (RPT_YEAR = @FiscalYear AND RPT_MONTH < 10) ) 
+AND ORG_ID = @OrgID 
+GROUP BY RPT_YEAR, RPT_MONTH 
+-- End End of Month Pool Data 
+ 
+SELECT 
+ cd.Month 
+ ,cd.RmnpsContractsAchieved 
+ ,cd.RfnpsContractsAchieved 
+ ,cd.ReserveContractsAchieved 
+ ,cd.Alpha 
+ ,cd.Bravo 
+ ,(SELECT 
+  SUM(ec.EDUCATION_COUNT) 
+  FROM #EDUCATION_CODES ec 
+  WHERE ec.Month = cd.Month AND ec.EDUCATION_LEVEL = 'SENIOR') AS Seniors 
+ ,(SELECT 
+  SUM(ec.EDUCATION_COUNT) 
+  FROM #EDUCATION_CODES ec 
+  WHERE ec.Month = cd.Month AND ec.EDUCATION_LEVEL = 'GRAD') AS Grads 
+ ,pd.RmnpsInPool  
+ ,pd.RfnpsInPool 
+ ,pd.ReservesInPool 
+ ,sd.RmnpsShipmentsAchieved 
+ ,sd.RfnpsShipmentsAchieved 
+ ,sd.ReserveShipmentsAchieved 
+ ,sd.ReenlistmentAchieved 
+ ,cd.PoolDischarge 
+ ,sd.McrdDischarge 
+ ,eom.RmnpsInEndOfMonthPool 
+ ,eom.RfnpsInEndOfMonthPool 
+ ,eom.ReservesInEndOfMonthPool 
+FROM #CONTRACT_DATA cd 
+INNER JOIN #POOL_DATA pd ON pd.Month = cd.Month 
+LEFT JOIN #POOL_DATA_SHIPPERS pds ON pds.Month = cd.Month 
+INNER JOIN #SHIPPER_DATA sd ON sd.Month = cd.Month 
+INNER JOIN #END_OF_MONTH_POOL eom ON eom.Month = cd.Month 
+ 
+DROP TABLE #EDUCATION_CODES 
+DROP TABLE #POOL_DATA 
+DROP TABLE #POOL_DATA_SHIPPERS 
+DROP TABLE #CONTRACT_DATA 
+DROP TABLE #SHIPPER_DATA 
+DROP TABLE #END_OF_MONTH_POOL 
+   
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,34 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_0" id="C1210F35-6C18-6168-3946-F84E9F2EFD26" schemaObject="2A6D9360-3BB2-5CEA-6E99-790D76996FDF" name="SELECTION_BOARD_CURRENT_VOTE">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>CB255D85-B927-1392-3121-E5AFF7738630</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT SELECTION_BOARD_VOTE.* FROM SELECTION_BOARD_VOTE,  
+(  
+ SELECT BOARD_ID, NWA_ID, VOTER_ID, MAX(VOTE_ORDER) AS CURRENT_MAX_VOTE_ORDER  
+ FROM SELECTION_BOARD_VOTE  
+ GROUP BY BOARD_ID, NWA_ID, VOTER_ID  
+) SELECTION_BOARD_MAX_VOTE_ORDER  
+WHERE SELECTION_BOARD_VOTE.BOARD_ID = SELECTION_BOARD_MAX_VOTE_ORDER.BOARD_ID  
+AND SELECTION_BOARD_VOTE.NWA_ID = SELECTION_BOARD_MAX_VOTE_ORDER.NWA_ID  
+AND SELECTION_BOARD_VOTE.VOTER_ID = SELECTION_BOARD_MAX_VOTE_ORDER.VOTER_ID  
+AND SELECTION_BOARD_VOTE.VOTE_ORDER = SELECTION_BOARD_MAX_VOTE_ORDER.CURRENT_MAX_VOTE_ORDER]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="SELECTION_BOARD_VOTE.*" id="CB413F3A-9BEE-7B41-0B61-23C65C76E495">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>SELECTION_BOARD_VOTE.*</alias>
+<dataType>UNKNOWN</dataType>
+<expression>SELECTION_BOARD_VOTE.*</expression>
+<reference>false</reference>
+<viewID>C1210F35-6C18-6168-3946-F84E9F2EFD26</viewID>
+</viewElement>
+</viewElements>
+</TableView>

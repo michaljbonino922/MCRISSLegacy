@@ -1,0 +1,78 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertRecrui.ngOrganiza.on]" directorySegmentName="seg_11" id="42A0DB2E-654B-E0A1-870B-BAD365D6EF60">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @ParentOrgID as integer = 0, 
+ @Organiza.onID as integer = 0, 
+ @Organiza.onType as varchar(3) = NULL, 
+ @IsOpen as Char(1), 
+ @Name as varchar(45), 
+ @ShortName as varchar(15), 
+ @MCCCode as varchar(5), 
+ @Street as varchar(40), 
+ @Street2 as varchar(40) = NULL, 
+ @City as varchar(20), 
+ @StateCode as varchar(2), 
+ @Zipcode as varchar(9), 
+ @MepsOrganiza.onID as integer = NULL, 
+ @E.ec.veDate as date.me,   
+ @UserLogin as varchar(50), 
+ @OrgUnitId int 
+) 
+AS 
+ 
+INSERT INTO RECRUITING_ORGANIZATION ( 
+ STATE_CODE,  
+ ORGANIZATION_TYPE,  
+ MEPS_ORGANIZATION_ID, 
+ [NAME],  
+ SHORT_NAME,  
+ MCC_CODE,  
+ STREET,  
+ STREET2,  
+ CITY,  
+ ZIP_CODE,  
+ ISOPEN,  
+ IS_ASSIGNED,  
+ DELETED,  
+ EFFECTIVE_DATE,  
+ USER_LOGIN,  
+ UPDATE_DATE, 
+ OrgUnitId)  
+VALUES( 
+ @StateCode,  
+ @Organiza.onType,  
+ @MepsOrganiza.onID,  
+ @Name,  
+ @ShortName,  
+ @MCCCode, 
+ @Street,  
+ @Street2,  
+ @City,  
+ @Zipcode,  
+ @IsOpen,  
+ 'Y',  
+ 'N',  
+ @E.ec.veDate,  
+ @UserLogin,  
+ GETDATE(), 
+ @OrgUnitId) 
+ 
+INSERT INTO ORGANIZATION_MAP ( 
+ PARENT_ORGANIZATION_ID,  
+ CHILD_ORGANIZATION_ID,  
+ EFFECTIVE_DATE,  
+ USER_LOGIN,  
+ UPDATE_DATE)  
+VALUES( 
+ @ParentOrgID,  
+ @@IDENTITY,  
+ @E.ec.veDate,  
+ @UserLogin,  
+ GETDATE())]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

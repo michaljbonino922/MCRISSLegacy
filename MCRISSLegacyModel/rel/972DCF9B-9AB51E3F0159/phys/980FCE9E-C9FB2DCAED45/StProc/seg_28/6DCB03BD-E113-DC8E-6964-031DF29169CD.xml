@@ -1,0 +1,19 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetGenders]" directorySegmentName="seg_28" id="6DCB03BD-E113-DC8E-6964-031DF29169CD">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:58:46 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[AS 
+ 
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+select 
+ gender_code as Code, 
+ gender_code_descrip.on as Descrip.on 
+from 
+ mcriss.dbo.gender 
+FOR XML PATH('Gender'), ROOT('Genders')]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>DC23F770-7DD9-7021-9572-6AE599ACA3AE</database>
+</StoredProcedureSqlServerv2k5>

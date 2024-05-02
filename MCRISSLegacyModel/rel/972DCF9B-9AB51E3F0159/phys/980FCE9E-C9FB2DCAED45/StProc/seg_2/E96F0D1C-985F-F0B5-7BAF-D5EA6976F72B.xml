@@ -1,0 +1,42 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetHsCcVisitCardAc.onEventsBySchoolId]" directorySegmentName="seg_2" id="E96F0D1C-985F-F0B5-7BAF-D5EA6976F72B">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@SubjectId uniqueidentifier 
+AS 
+BEGIN 
+ DECLARE 
+ @EventSourceId   int, 
+ @EventSourceTypeId  int 
+ 
+ SET @EventSourceId = 19; --HS/CC Visit 
+ SET @EventSourceTypeId = 2; -- S&R Book 
+  
+ SELECT    
+  e.EventTypeId,  
+  et.Type AS EventTypeName, 
+  e.StartDate,  
+  e.Comments,  
+  e.ID,  
+  @SubjectId as SubjectId, 
+  @EventSourceId AS EventSourceId, 
+  null as NumberOfSeniors, 
+  null as NumberOfJuniors, 
+  null as NumberOfMaleStudents 
+ FROM  
+  [RSSOSS].[USMC].[Event] E 
+  INNER JOIN [RSSOSS].[USMC].[EventSubject] ESub ON E.ID = ESub.Even.d 
+  INNER JOIN [RSSOSS].[USMC].[EventType] et ON e.EventTypeId = et.Id 
+    
+ WHERE  
+  ESub.SubjectId = @SubjectId AND  
+  E.EventSourceId = @EventSourceId 
+ ORDER BY  
+  StartDate DESC 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

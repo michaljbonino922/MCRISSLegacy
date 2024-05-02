@@ -1,0 +1,92 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertOrUpdateMCFOPMassEventUsingGuid]" directorySegmentName="seg_11" id="9A8EC74C-39E8-48CE-E3E3-9354F0189FD7">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@MCFOPEventID  uniqueiden..er, 
+        @Organiza.onEventID uniqueiden..er, 
+        --@Organiza.onID int, 
+        @SchoolCode uniqueiden..er, 
+        @FiscalYear int, 
+        --@EventDate date.me,     
+        @AirportName varchar(50), 
+        @Remarks varchar(80), 
+        --@MediaTypeID smallint, 
+        --@Adver.singInfo varchar(200), 
+        @PointOfContactID  uniqueiden..er, 
+        @UserLogin varchar(50) 
+AS 
+SET NOCOUNT ON 
+ 
+ 
+DECLARE @EventName varchar(30) 
+ 
+DECLARE @EventDate DateTime 
+ 
+SELECT @EventName = 'Mass MCFOP' 
+ 
+DECLARE @SchoolCodeint int 
+ 
+Select @SchoolCodeint  = School_Code FROM High_School hs where hs.rowguid = @SchoolCode 
+ 
+-- IMPORTANT NOTE - Add begin/end commit/rollback transac.on 
+  
+ 
+  -- informa.on for an exisi.ng record can be inserted. 
+IF EXISTS (SELECT '1' from [MCRISS].[USMC].[MCFOPMassEvent]  
+   
+            where MCFOPMassEventID = @MCFOPEventID 
+              and @MCFOPEventID IS NOT NULL) 
+             
+           
+  -- then update the exisi.ng record 
+  BEGIN 
+   
+   UPDATE [MCRISS].[USMC].[Organiza.onEvent] 
+   --SchoolCode and FiscalYear cannot be edited 
+   SET   
+     [Remarks]=@Remarks, 
+     [UserLogin] = @UserLogin, 
+     [UpdateDate] = GetDate() 
+       
+   WHERE Organiza.onEventID = @Organiza.onEventID 
+ 
+ 
+     
+   UPDATE [MCRISS].[USMC].[MCFOPMassEvent] 
+   --SchoolCode and FiscalYear cannot be edited 
+   SET  [AirportName] = @AirportName 
+     where [MCFOPMassEventID] = @MCFOPEventID 
+ 
+   END   
+  ELSE 
+  BEGIN 
+ 
+    
+   SELECT @EventDate = GetDate() -- this needs to be corrected for all events 
+ 
+   INSERT INTO [MCRISS].[USMC].[Organiza.onEvent] 
+     ([Organiza.onEventID],[EventID],[CollegeID],[EventDate], [Remarks],[PointOfContactID],  
+     [UserLogin] ,[UpdateDate],[FiscalYear])                    
+   SELECT @Organiza.onEventID, ev.EventID, @SchoolCodeint,  @EventDate, @Remarks, @PointOfContactID,  
+     @UserLogin, GetDate(),@FiscalYear 
+           
+   FROM  [MCRISS].[USMC].[EventType] ev 
+   WHERE ltrim(rtrim([EventName]))='Mass MCFOP'                      
+ 
+   INSERT INTO [MCRISS].[USMC].[MCFOPMassEvent] 
+     ([MCFOPMassEventID],[Organiza.onEventID],[AirportName],[MediaTypeID],[Adver.singInfo], [UserLogin],[UpdateDate]) 
+   VALUES 
+            (@MCFOPEventID,@Organiza.onEventID, @AirportName, '','', @UserLogin, GetDate()) 
+            --Replace above '' with  --@MediaTypeID, @Adver.singInfo) 
+ 
+  END  -- end insert college pro.le rotc*/ 
+    
+ --END -- If exists in POC 
+  
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

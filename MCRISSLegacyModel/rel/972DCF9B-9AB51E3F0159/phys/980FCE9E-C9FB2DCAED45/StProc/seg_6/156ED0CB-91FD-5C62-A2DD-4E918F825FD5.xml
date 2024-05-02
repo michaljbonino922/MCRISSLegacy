@@ -1,0 +1,251 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetMissionBoardRollupPlanDataByOrgFY]" directorySegmentName="seg_6" id="156ED0CB-91FD-5C62-A2DD-4E918F825FD5">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@Organiza.onID as integer,  
+ @FiscalYear   int 
+  
+AS 
+SET NOCOUNT ON 
+DECLARE @Organiza.onType varchar(3) 
+DECLARE @ChildOrgType varchar(3) 
+ 
+-- At present this defaults to OSS as the requirement do not state it to passed as an input parameter 
+-- remove this comment a.er organiza.on Type is tested 
+-- SELECT @Organiza.onType = 'OSS' 
+ 
+SELECT  @Organiza.onType = Organiza.on_Type from recrui.ng_organiza.on RO 
+        where RO.Organiza.on_ID = @Organiza.onID 
+  
+ 
+ 
+SET @ChildOrgType = CASE @Organiza.onType 
+   WHEN 'H' THEN 'R' 
+   WHEN 'R' THEN 'D' 
+   WHEN 'D' THEN 'RS' 
+   WHEN 'RS' THEN 'OSS' 
+   ELSE 'OSS' 
+   END 
+ 
+ 
+CREATE TABLE #ORG  
+( 
+ORG_ID INT,  
+SHORT_NAME varchar(15), 
+NAME varchar(45),  
+ORG_TYPE varchar(3) DEFAULT 'D' 
+) 
+ 
+-- need to check if the case for child organiza.on id is needed 
+ 
+--IF @Organiza.onType IN ('H', 'R', 'D', 'RS') 
+--BEGIN 
+ --- GET CHILD ORGS 
+ --INSERT INTO #ORG 
+ --EXEC sp_GetChildOrgs @Organiza.onID, @ChildOrgType 
+  
+ 
+--END  
+ 
+-- .x this if condi.on based on the above scenerio for non-oss organiza.ons 
+--IF @Organiza.onType = 'OSS' 
+BEGIN 
+ --- INSERT ONLY THE ORG ID 
+ INSERT INTO #ORG (ORG_ID) VALUES (@Organiza.onID) 
+END 
+ 
+  
+--- RETRIEVE THE MISSION PLAN DATA FOR PLC 
+--- SHIP MISSION 
+IF EXISTS  ( 
+ 
+SELECT '1'  
+ FROM  
+  RECRUITING_ORGANIZATION RO INNER JOIN #ORG O ON RO.ORGANIZATION_ID = O.ORG_ID 
+  INNER JOIN OFFICER_SHIP_MISSION_PLAN OMP ON 
+   (RO.ORGANIZATION_ID = OMP.ORGANIZATION_ID AND 
+   OMP.FISCAL_YEAR = @FiscalYear AND 
+   OMP.OFFICER_SOURCE_CODE = 'PLC') 
+ WHERE 
+   -- mission years can be only three consecu.ve years from the .scal year 
+   OMP.GRAD_YEAR BETWEEN @FiscalYear AND (@FiscalYear + 3))  
+BEGIN 
+ 
+ SELECT  
+  'PLC' AS OFFICER_SOURCE_CODE,OMP.GRAD_YEAR AS MISSION_YEAR, 
+ 
+  CASE  
+   WHEN OMP.GRAD_YEAR = @FiscalYear + 1  Then  1  
+   WHEN OMP.GRAD_YEAR = @FiscalYear + 2  Then  2  
+   WHEN OMP.GRAD_YEAR = @FiscalYear + 3  Then  3 
+   --ELSE 0 there should be only three consecu.ve mission years for a .scal years.  
+   -- all other records should be ignored and they are ignored in the where clause below 
+  END AS DATA_TABLE_NUM, 
+   
+  COALESCE(OMP.NFO_MISSION, 0) AS NUM_NFO,  
+  COALESCE(OMP.NAVAL_AIR_MISSION, 0) AS NUM_AIR,  
+  COALESCE(OMP.GROUND_MISSION, 0) AS NUM_GROUND, 
+  COALESCE(OMP.PLCR_GROUND_MISSION, 0) AS NUM_PLCR_GROUND,  
+  0 AS NUM_OCCR_GROUND,  
+  COALESCE(OMP.FEMALE_MISSION, 0) AS NUM_WOMEN,  
+ 
+  --not use data_table_num as it may go away a.er code review. Also need to somehow combine this case statement  
+  --with the above case statement for performance reasons. 
+  /*CASE  
+   WHEN OMP.GRAD_YEAR = @FiscalYear + 1  then   IsNull(OMP.LAW1_MISSION ,0)  
+   WHEN OMP.GRAD_YEAR = @FiscalYear + 2  then   IsNull(OMP.LAW2_MISSION ,0)  
+   WHEN OMP.GRAD_YEAR = @FiscalYear + 3  then  IsNull(OMP.LAW3_MISSION ,0)  
+  ELSE 0  --there should be no law 4 
+  END AS NUM_LAW,*/ 
+   
+  CASE  
+   WHEN OMP.GRAD_YEAR = @FiscalYear + 1  then   IsNull(OMP.LAW1_MISSION ,0) 
+ 
+   WHEN OMP.GRAD_YEAR = @FiscalYear + 2  then (select OMP2.LAW2_MISSION from OFFICER_SHIP_MISSION_PLAN OMP2  
+              where OMP2.ORGANIZATION_ID = @Organiza.onID  
+              and OMP2.FISCAL_YEAR = @FiscalYear 
+              and OMP2.GRAD_YEAR = @FiscalYear + 1) 
+   WHEN OMP.GRAD_YEAR = @FiscalYear + 3  then (select OMP3.LAW3_MISSION from OFFICER_SHIP_MISSION_PLAN OMP3  
+              where OMP3.ORGANIZATION_ID = @Organiza.onID  
+              and OMP3.FISCAL_YEAR = @FiscalYear 
+              and OMP3.GRAD_YEAR = @FiscalYear + 1) 
+  ELSE 0  --there should be no law 4 
+  END AS NUM_LAW, 
+   
+  COALESCE(OMP.BLACK_MISSION, 0) AS NUM_BLACK,  
+  COALESCE(OMP.HISPANIC_MISSION, 0) AS NUM_HISPANIC,  
+  COALESCE(OMP.OTHER_MISSION, 0) AS NUM_OTHER 
+  
+ FROM  
+  RECRUITING_ORGANIZATION RO INNER JOIN #ORG O ON RO.ORGANIZATION_ID = O.ORG_ID 
+  INNER JOIN OFFICER_SHIP_MISSION_PLAN OMP ON 
+   (RO.ORGANIZATION_ID = OMP.ORGANIZATION_ID AND 
+   OMP.FISCAL_YEAR = @FiscalYear AND 
+   OMP.OFFICER_SOURCE_CODE = 'PLC') 
+ WHERE 
+  -- mission years can be only three consecu.ve years from the .scal year 
+     OMP.GRAD_YEAR BETWEEN @FiscalYear AND (@FiscalYear + 3) 
+ ORDER BY 
+  OMP.GRAD_YEAR 
+ 
+END 
+ 
+-- there is no plan  
+ELSE 
+BEGIN 
+ 
+ SELECT top 1  'PLC' AS OFFICER_SOURCE_CODE, 0 AS CLASS_NUMBER, 1 AS DATA_TABLE_NUM,  
+     @FiscalYear +1  AS MISSION_YEAR, 
+     0 AS NUM_NFO, 0 AS NUM_AIR, 0 AS NUM_GROUND, 0 AS NUM_PLCR_GROUND, 0 AS NUM_OCCR_GROUND,  0 AS NUM_WOMEN,  
+     0 AS NUM_LAW,  0 AS NUM_BLACK, 0 AS NUM_HISPANIC,  0 AS NUM_OTHER 
+ FROM  OCS_CLASS OC WHERE FISCAL_YEAR  = @FiscalYear and  training_type_code  =  'PLCCOMB' 
+ UNION 
+ SELECT top 1  'PLC' AS OFFICER_SOURCE_CODE, 0 AS CLASS_NUMBER, 2 AS DATA_TABLE_NUM,  
+     @FiscalYear +2  AS MISSION_YEAR, 
+     0 AS NUM_NFO, 0 AS NUM_AIR, 0 AS NUM_GROUND, 0 AS NUM_PLCR_GROUND, 0 AS NUM_OCCR_GROUND,  0 AS NUM_WOMEN,  
+     0 AS NUM_LAW,  0 AS NUM_BLACK, 0 AS NUM_HISPANIC,  0 AS NUM_OTHER 
+ FROM  OCS_CLASS OC WHERE FISCAL_YEAR  = @FiscalYear and  training_type_code  =  'PLCSR' 
+ UNION 
+ SELECT top 1  'PLC' AS OFFICER_SOURCE_CODE, 0 AS CLASS_YEAR, 3 AS DATA_TABLE_NUM,  
+     @FiscalYear +3  AS MISSION_NUMBER, 
+     0 AS NUM_NFO, 0 AS NUM_AIR, 0 AS NUM_GROUND, 0 AS NUM_PLCR_GROUND, 0 AS NUM_OCCR_GROUND,  0 AS NUM_WOMEN,  
+     0 AS NUM_LAW,  0 AS NUM_BLACK, 0 AS NUM_HISPANIC,  0 AS NUM_OTHER 
+ FROM  OCS_CLASS OC WHERE FISCAL_YEAR  = @FiscalYear and  training_type_code  =  'PLCJR' 
+ 
+  
+   
+END 
+ 
+ 
+--- SHIP MISSION 
+IF EXISTS (SELECT '1' 
+ FROM  
+  RECRUITING_ORGANIZATION RO INNER JOIN #ORG O ON RO.ORGANIZATION_ID = O.ORG_ID 
+  INNER JOIN OFFICER_SHIP_MISSION_PLAN OMP ON 
+   (RO.ORGANIZATION_ID = OMP.ORGANIZATION_ID AND 
+   OMP.OFFICER_SOURCE_CODE = 'OCC') 
+  INNER JOIN OCS_CLASS OC ON OC.CLASS_NUMBER = OMP.OCC_CLASS_NUMBER AND OC.FISCAL_YEAR = @FiscalYear ) 
+ 
+BEGIN 
+ SELECT  
+  'OCC' AS OFFICER_SOURCE_CODE, OMP.OCC_CLASS_NUMBER, 
+  -- In a given .scal year there will be only three semesters fall, winter and summer 
+  -- for OCC source code the ship mission plan has a .scal year or 0 therefore 
+  -- the .scal year is retreived from ocs_class table 
+ /*    CASE    
+    WHEN datepart(mm, OC.CLASS_BEGIN_DATE) >=1 and datepart(mm, OC.CLASS_BEGIN_DATE) <=4 then  2 --  winter 
+    WHEN datepart(mm, OC.CLASS_BEGIN_DATE) >=5 and datepart(mm, OC.CLASS_BEGIN_DATE) <=8 then  3 --  summer  
+    WHEN datepart(mm, OC.CLASS_BEGIN_DATE) >=9 and datepart(mm, OC.CLASS_BEGIN_DATE) <=12 then 1 --  fall 
+  --ELSE 0 
+  END  AS DATA_TABLE_NUM, */ 
+  -- this is a temporory .x as the class_begin_date is null. In order for a class to be fall, winter or spring 
+  --it must have a class_begin_date. The analyst are working on ge.ng this corrected. Once .xed the  case statement 
+  --above should be used for data table num 
+  CASE 
+   WHEN OC.CLASS_NUMBER = (SELECT MIN (OC.CLASS_NUMBER) FROM OCS_CLASS OC WHERE OC.FISCAL_YEAR =  @FiscalYear and TRAINING_TYPE_CODE = 'OCC') THEN 1 
+   WHEN OC.CLASS_NUMBER = ( SELECT MAX (OC.CLASS_NUMBER) FROM OCS_CLASS OC WHERE OC.FISCAL_YEAR = @FiscalYear and TRAINING_TYPE_CODE = 'OCC') THEN 3 
+   WHEN (OC.CLASS_NUMBER > (SELECT MIN (OC.CLASS_NUMBER) FROM OCS_CLASS OC WHERE OC.FISCAL_YEAR =  @FiscalYear and TRAINING_TYPE_CODE = 'OCC')  
+     AND OC.CLASS_NUMBER < (SELECT MAX (OC.CLASS_NUMBER) FROM OCS_CLASS OC WHERE OC.FISCAL_YEAR = @FiscalYear and TRAINING_TYPE_CODE = 'OCC')) THEN 2 
+  -- ELSE there should be no else 
+  END AS DATA_TABLE_NUM, 
+ 
+  COALESCE(OMP.NFO_MISSION, 0) AS NUM_NFO,  
+  COALESCE(OMP.NAVAL_AIR_MISSION, 0) AS NUM_AIR,  
+  COALESCE(OMP.GROUND_MISSION, 0) AS NUM_GROUND, 
+  0 AS NUM_PLCR_GROUND,  
+  COALESCE(OMP.OCCR_GROUND_MISSION, 0) AS NUM_OCCR_GROUND,  
+  COALESCE(OMP.FEMALE_MISSION, 0) AS NUM_WOMEN,  
+ 
+  --not use data_table_num as it  may go away a.er code review. Also need to somehow combine this case statement  
+  --with the above case statement for performance reasons. 
+  /*CASE    
+    WHEN datepart(mm, OC.CLASS_BEGIN_DATE) >=1 and datepart(mm, OC.CLASS_BEGIN_DATE) <=4 then  IsNull(OMP.LAW2_MISSION ,0) --winter 
+    WHEN datepart(mm, OC.CLASS_BEGIN_DATE) >=5 and datepart(mm, OC.CLASS_BEGIN_DATE) <=8 then  IsNull(OMP.LAW3_MISSION ,0) --summer 
+    WHEN datepart(mm, OC.CLASS_BEGIN_DATE) >=9 and datepart(mm, OC.CLASS_BEGIN_DATE) <=12 then  IsNull(OMP.LAW1_MISSION ,0)-- fall 
+  ELSE 0  --there should be no law 4 
+  END AS NUM_LAW, */ 
+ 
+  -- this is a temporory .x as the class_begin_date is null. In order for a class to be fall, winter or spring 
+  --it must have a class_begin_date. The analyst are working on ge.ng this corrected. Once .xed the  case statement 
+  --above should be used for num_law 
+   
+  COALESCE(OMP.LAW1_MISSION ,0) AS NUM_LAW,  
+  COALESCE(OMP.BLACK_MISSION, 0) AS NUM_BLACK,  
+  COALESCE(OMP.HISPANIC_MISSION, 0) AS NUM_HISPANIC,  
+  COALESCE(OMP.OTHER_MISSION, 0) AS NUM_OTHER 
+ 
+ FROM  
+  RECRUITING_ORGANIZATION RO INNER JOIN #ORG O ON RO.ORGANIZATION_ID = O.ORG_ID 
+  INNER JOIN OFFICER_SHIP_MISSION_PLAN OMP ON 
+   (RO.ORGANIZATION_ID = OMP.ORGANIZATION_ID AND 
+   OMP.OFFICER_SOURCE_CODE = 'OCC') 
+  INNER JOIN OCS_CLASS OC ON OC.CLASS_NUMBER = OMP.OCC_CLASS_NUMBER AND OC.FISCAL_YEAR = @FiscalYear  
+   
+ ORDER BY 
+  OMP.OCC_CLASS_NUMBER 
+END 
+-- there is no plan 
+ELSE 
+BEGIN 
+ SELECT  
+  'OCC' AS OFFICER_SOURCE_CODE, OC.CLASS_NUMBER AS OCC_CLASS_NUMBER, '0' AS MISSION_YEAR,  
+  CASE 
+   WHEN OC.CLASS_NUMBER = (SELECT MIN (OC.CLASS_NUMBER) FROM OCS_CLASS OC WHERE OC.FISCAL_YEAR =  @FiscalYear and TRAINING_TYPE_CODE = 'OCC') THEN 1 
+   WHEN OC.CLASS_NUMBER = ( SELECT MAX (OC.CLASS_NUMBER) FROM OCS_CLASS OC WHERE OC.FISCAL_YEAR = @FiscalYear and TRAINING_TYPE_CODE = 'OCC') THEN 3 
+  ELSE 2 
+  END AS DATA_TABLE_NUM, 
+  0 AS NUM_NFO, 0 AS NUM_AIR, 0 AS NUM_GROUND, 0 AS NUM_PLCR_GROUND, 0 AS NUM_OCCR_GROUND,  0 AS NUM_WOMEN,  
+  0 AS NUM_LAW,  0 AS NUM_BLACK, 0 AS NUM_HISPANIC,  0 AS NUM_OTHER 
+  FROM  OCS_CLASS OC WHERE FISCAL_YEAR  = @FiscalYear and  training_type_code  = 'OCC' 
+  ORDER BY DATA_TABLE_NUM 
+   
+ END   
+ 
+--- CLEAN UP 
+DROP TABLE #ORG 
+SET NOCOUNT OFF]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

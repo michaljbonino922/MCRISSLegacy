@@ -1,0 +1,50 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUpdateSF86SignatureSeparatePage]" directorySegmentName="seg_12" id="4D6387A1-D135-3703-5ED0-A32FD31DECD6">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@SF86SignatureID uniqueiden..er,  
+ @FormID    uniqueiden..er, 
+ @PageType   varchar(3), 
+ @FileName   varchar(200),  
+ @IsCurrent   bit 
+ 
+AS 
+BEGIN 
+ 
+IF EXISTS(SELECT ID FROM [USMC].[SF86SignatureSeparatePage] WHERE ID = @SF86SignatureID) 
+BEGIN 
+ UPDATE  
+  [USMC].[SF86SignatureSeparatePage] 
+    SET FormID = @FormID, 
+        FileName = @FileName, 
+  PageType = @PageType, 
+        IsCurrent = @IsCurrent, 
+        LastUpdateDate = GETDATE() 
+ WHERE  
+  ID = @SF86SignatureID 
+END 
+ELSE 
+BEGIN 
+ INSERT INTO [USMC].[SF86SignatureSeparatePage] 
+           (ID, 
+            FormID, 
+   PageType, 
+            FileName, 
+            IsCurrent, 
+            LastUpdateDate) 
+     VALUES 
+           (@SF86SignatureID, 
+            @FormID, 
+   @PageType, 
+            @FileName, 
+            @IsCurrent, 
+            GETDATE()) 
+             
+END 
+ 
+END]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

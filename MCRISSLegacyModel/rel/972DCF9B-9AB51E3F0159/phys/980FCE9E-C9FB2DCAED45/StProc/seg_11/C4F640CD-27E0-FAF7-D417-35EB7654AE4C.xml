@@ -1,0 +1,739 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertPreviousBillet]" directorySegmentName="seg_11" id="C4F640CD-27E0-FAF7-D417-35EB7654AE4C">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@PersonID int, 
+ @Organiza.onID int,  
+ @BilletBeginDate date.me, 
+ @BilletEndDate date.me, 
+ @BilletDesc varchar(15),  
+ @UserLogin varchar(15), 
+ @result varchar(500) OUTPUT 
+AS 
+ 
+SET NOCOUNT ON 
+ 
+ Create Table #temp( 
+ OLevel  varchar(30) NOT NULL, 
+ Name  varchar(90) NULL 
+ ) 
+ Insert #Temp(OLevel) 
+ Values ('H') 
+ Insert #Temp(OLevel) 
+ Values  ('R') 
+ Insert #Temp(OLevel) 
+ Values  ('D') 
+ Insert #Temp(OLevel) 
+ Values  ('RS') 
+ Insert #Temp(OLevel) 
+ Values  ('RSS') 
+ Insert #Temp(OLevel) 
+ Values  ('OSS') 
+  
+  
+ Declare @Level varchar(20) 
+ Declare @OrgIdCounter int 
+ 
+ Select  @OrgIdCounter = @Organiza.onID 
+ Select  @Level = ro.Organiza.on_Type 
+ From Recrui.ng_Organiza.on ro 
+ Where ro.Organiza.on_Id = @Organiza.onID  
+  
+ While (@Level != 'H') 
+  Begin 
+   Update #Temp 
+   Set Name = Short_Name 
+   From Recrui.ng_Organiza.on 
+   Where @OrgIdCounter = Organiza.on_Id 
+    and OLevel = @Level 
+ 
+   Select @OrgIdCounter = Parent_Organiza.on_Id 
+   From Organiza.on_Map 
+   Where Child_Organiza.on_Id = @OrgIdCounter 
+ 
+   Select  @Level = Organiza.on_Type 
+   From Recrui.ng_Organiza.on 
+   Where Organiza.on_Id = @OrgIdCounter 
+  End 
+ 
+ Update #Temp 
+ Set Name = Short_Name 
+ From Recrui.ng_Organiza.on 
+ Where @OrgIdCounter = Organiza.on_Id 
+  and OLevel = @Level  
+   
+ 
+DECLARE  
+@hq_name_1 varchar(20), 
+@region_name_1 varchar(20), 
+@district_name_1 varchar(20), 
+@rs_name_1 varchar(20), 
+@rss_name_1 varchar(20), 
+@billet_desc_1 varchar(20), 
+@billet_begin_date_1 date.me, 
+@billet_end_date_1 date.me, 
+@organiza.on_type_1 varchar(3), 
+@recruiterHistoryId_1 int, 
+@hq_name_2 varchar(20), 
+@region_name_2 varchar(20), 
+@district_name_2 varchar(20), 
+@rs_name_2 varchar(20), 
+@rss_name_2 varchar(20), 
+@billet_desc_2 varchar(20), 
+@billet_begin_date_2 date.me, 
+@billet_end_date_2 date.me, 
+@organiza.on_type_2 varchar(3), 
+@recruiterHistoryId_2 int, 
+@status_1 int, 
+@status_2 int, 
+@hq_name varchar(20), 
+@region_name varchar(20), 
+@district_name varchar(20),  
+@rs_name varchar(20),  
+@rss_name varchar(20), 
+@organiza.on_type varchar(3), 
+@days int, 
+@recruiterHistoryId int, 
+@MaxBilletEndDate date.me 
+ 
+SET @result='' 
+SELECT TOP 1 @MaxBilletEndDate=BILLET_END_DATE, @recruiterHistoryId=RecruiterHistoryID 
+FROM Recruiter_History  
+WHERE Recrui.ng_Person_Id = @PersonId 
+ORDER BY BILLET_END_DATE DESC 
+ 
+DECLARE @daysOverlapBeginDate int 
+DECLARE @daysOverlapEndDate int 
+ 
+SELECT @daysOverlapBeginDate = DATEDIFF(DAY, BILLET_BEGIN_DATE, @BilletBeginDate) 
+FROM dbo.RECRUITING_PERSON 
+WHERE RECRUITING_PERSON_ID = @PersonId 
+ 
+IF @daysOverlapBeginDate >= 0 
+ BEGIN 
+  SET @result = 'Billet Begin Date cannot overlap an exis.ng billet. ' 
+ END 
+ 
+SELECT @daysOverlapEndDate = DATEDIFF(DAY, BILLET_BEGIN_DATE, @BilletEndDate) 
+FROM dbo.RECRUITING_PERSON 
+WHERE RECRUITING_PERSON_ID = @PersonId   
+ 
+IF @daysOverlapEndDate >= 0 
+ BEGIN 
+  SET @result = @result + 'Billet End Date cannot overlap an exis.ng billet.' 
+ END 
+ 
+-- No overlapping with current billet begin date 
+IF @result = ''  
+BEGIN 
+ 
+ IF DATEDIFF(DAY, @MaxBilletEndDate, @BilletBeginDate) > 1 
+  BEGIN   
+      
+   IF @daysOverlapBeginDate < 0 AND @daysOverlapEndDate < 0 
+    BEGIN 
+     --Insert previous billet 
+     Select  
+      @hq_name = t1.Name, 
+      @region_name = t2.Name, 
+      @district_name = t3.Name, 
+      @rs_name =t4.Name, 
+      @rss_name = 
+      case when t6.Name IS NULL then t5.Name 
+      else t6.Name 
+      End, 
+      @organiza.on_type=ro.Organiza.on_Type 
+     from     
+      Recrui.ng_Organiza.on ro, 
+      #Temp t1, 
+      #Temp t2, 
+      #Temp t3, 
+      #Temp t4, 
+      #Temp t5, 
+      #Temp t6 
+     Where t1.OLevel = 'H' 
+      and t2.OLevel = 'R' 
+      and t3.OLevel = 'D' 
+      and t4.OLevel = 'RS' 
+      and t5.OLevel = 'RSS' 
+      and t6.OLevel = 'OSS' 
+      and ro.Organiza.on_Id = @Organiza.onID 
+     --Insert the previous billet    
+     Insert Into   Recruiter_History( 
+          Recrui.ng_Person_Id, 
+          E.ec.ve_Date, 
+          Billet_Begin_Date, 
+          Billet_End_Date, 
+          Billet_Desc, 
+          HQ_Name, 
+          Region_Name, 
+          District_Name, 
+          RS_Name, 
+          RSS_Name, 
+          Organiza.on_Type, 
+          User_Login, 
+          Update_Date 
+        ) 
+     VALUES( 
+       @PersonID, 
+       @BilletBeginDate, 
+       @BilletBeginDate, 
+       @BilletEndDate, 
+       @BilletDesc,         
+       @hq_name, 
+       @region_name, 
+       @district_name, 
+       @rs_name, 
+       @rss_name, 
+       @organiza.on_type, 
+       @UserLogin, 
+       getdate() 
+      ) 
+     --Check if there is gap needs to be .lled in 
+     --Check and .ll in the gap between the begin date and the previous end date 
+     SELECT  TOP 1 @days = DATEDIFF(day,BILLET_END_DATE, @BilletBeginDate), @recruiterHistoryId=RecruiterHistoryID   
+     FROM dbo.RECRUITER_HISTORY  
+     WHERE RECRUITING_PERSON_ID=@PersonID AND (DATEDIFF(day, BILLET_END_DATE, @BilletBeginDate) >= 1) 
+     ORDER BY DATEDIFF(day,BILLET_END_DATE, @BilletBeginDate) 
+      
+     IF(@days > 1)     
+      BEGIN 
+       Insert Into Recruiter_History( 
+           Recrui.ng_Person_Id, 
+           E.ec.ve_Date, 
+           Billet_Begin_Date, 
+           Billet_End_Date, 
+           Billet_Desc, 
+           HQ_Name, 
+           Region_Name, 
+           District_Name, 
+           RS_Name, 
+           RSS_Name, 
+           Organiza.on_Type, 
+           User_Login, 
+           Update_Date 
+        ) 
+       SELECT  Recrui.ng_Person_Id,  
+         DATEADD(day,-(@days-1),@BilletBeginDate),  
+         DATEADD(day,-(@days-1),@BilletBeginDate),  
+         DATEADD(day,-1,@BilletBeginDate),  
+         'Other', 
+         HQ_Name, 
+         Region_Name, 
+         District_Name, 
+         RS_Name, 
+         RSS_Name, 
+         Organiza.on_Type, 
+         User_Login, 
+         getdate() 
+       FROM dbo.RECRUITER_HISTORY  
+       WHERE RecruiterHistoryID=@recruiterHistoryId 
+      END 
+      --Check and .ll in the gap between the end date and the next begin date  
+      SELECT @days = DATEDIFF(day,@BilletEndDate, BILLET_BEGIN_DATE)   
+      FROM dbo.RECRUITING_PERSON  
+      WHERE RECRUITING_PERSON_ID=@PersonID AND (DATEDIFF(day, @BilletEndDate, BILLET_BEGIN_DATE) >= 1) 
+       
+      IF(@days > 1)     
+       BEGIN 
+        Insert Into Recruiter_History( 
+            Recrui.ng_Person_Id, 
+            E.ec.ve_Date, 
+            Billet_Begin_Date, 
+            Billet_End_Date, 
+            Billet_Desc, 
+            HQ_Name, 
+            Region_Name, 
+            District_Name, 
+            RS_Name, 
+            RSS_Name, 
+            Organiza.on_Type, 
+            User_Login, 
+            Update_Date 
+         ) 
+        SELECT  TOP 1 Recrui.ng_Person_Id,  
+          DATEADD(day,1,@BilletEndDate),  
+          DATEADD(day,1,@BilletEndDate),  
+          DATEADD(day,@days-1,@BilletEndDate),  
+          'Other', 
+          HQ_Name, 
+          Region_Name, 
+          District_Name, 
+          RS_Name, 
+          RSS_Name, 
+          Organiza.on_Type, 
+          User_Login, 
+          getdate() 
+        FROM dbo.RECRUITER_HISTORY  
+        WHERE BILLET_BEGIN_DATE=@BilletBeginDate AND BILLET_END_DATE=@BilletEndDate  
+       END 
+     SET @result = 'SUCCESS'    
+    END                   
+  END 
+ 
+ ELSE 
+  BEGIN  
+   DECLARE search_begin_date_cursor CURSOR FOR  
+   SELECT HQ_NAME,REGION_NAME,DISTRICT_NAME,RS_NAME,RSS_NAME,BILLET_DESC,BILLET_BEGIN_DATE,BILLET_END_DATE,ORGANIZATION_TYPE,RecruiterHistoryID 
+   FROM dbo.RECRUITER_HISTORY  
+   WHERE RECRUITING_PERSON_ID=@PersonID  
+      AND (DATEDIFF(day, BILLET_BEGIN_DATE, @BilletBeginDate) >= 0 AND 
+        DATEDIFF(day, @BilletBeginDate, BILLET_END_DATE) >= 0) 
+         
+   DECLARE search_end_date_cursor CURSOR FOR  
+   SELECT HQ_NAME,REGION_NAME,DISTRICT_NAME,RS_NAME,RSS_NAME,BILLET_DESC,BILLET_BEGIN_DATE,BILLET_END_DATE,ORGANIZATION_TYPE,RecruiterHistoryID 
+   FROM dbo.RECRUITER_HISTORY  
+   WHERE RECRUITING_PERSON_ID=@PersonID  
+      AND (DATEDIFF(day, BILLET_BEGIN_DATE, @BilletEndDate) >= 0 AND 
+        DATEDIFF(day, @BilletEndDate, BILLET_END_DATE) >= 0)    
+         
+   OPEN search_begin_date_cursor  
+   FETCH next from search_begin_date_cursor INTO @hq_name_1,@region_name_1,@district_name_1,@rs_name_1,@rss_name_1,@billet_desc_1,@billet_begin_date_1,@billet_end_date_1,@organiza.on_type_1,@recruiterHistoryId_1 
+ 
+   SET @status_1 = @@fetch_status  
+   CLOSE search_begin_date_cursor 
+   DEALLOCATE search_begin_date_cursor 
+ 
+   OPEN search_end_date_cursor 
+   FETCH next from search_end_date_cursor INTO @hq_name_2,@region_name_2,@district_name_2,@rs_name_2,@rss_name_2,@billet_desc_2,@billet_begin_date_2,@billet_end_date_2,@organiza.on_type_2,@recruiterHistoryId_2 
+ 
+   SET @status_2 = @@fetch_status  
+   CLOSE search_end_date_cursor 
+   DEALLOCATE search_end_date_cursor 
+ 
+    
+ 
+   -- No overlap found 
+   IF @status_1=-1 AND @status_2=-1 
+    BEGIN    
+            
+     Select  
+      @hq_name = t1.Name, 
+      @region_name = t2.Name, 
+      @district_name = t3.Name, 
+      @rs_name =t4.Name, 
+      @rss_name = 
+      case when t6.Name IS NULL then t5.Name 
+      else t6.Name 
+      End, 
+      @organiza.on_type=ro.Organiza.on_Type 
+     from     
+      Recrui.ng_Organiza.on ro, 
+      #Temp t1, 
+      #Temp t2, 
+      #Temp t3, 
+      #Temp t4, 
+      #Temp t5, 
+      #Temp t6 
+     Where t1.OLevel = 'H' 
+      and t2.OLevel = 'R' 
+      and t3.OLevel = 'D' 
+      and t4.OLevel = 'RS' 
+      and t5.OLevel = 'RSS' 
+      and t6.OLevel = 'OSS' 
+      and ro.Organiza.on_Id = @Organiza.onID 
+     --Insert the previous billet    
+     Insert Into Recruiter_History( 
+           Recrui.ng_Person_Id, 
+           E.ec.ve_Date, 
+           Billet_Begin_Date, 
+           Billet_End_Date, 
+           Billet_Desc, 
+           HQ_Name, 
+           Region_Name, 
+           District_Name, 
+           RS_Name, 
+           RSS_Name, 
+           Organiza.on_Type, 
+           User_Login, 
+           Update_Date 
+        ) 
+     VALUES( 
+       @PersonID, 
+       @BilletBeginDate, 
+       @BilletBeginDate, 
+       @BilletEndDate, 
+       @BilletDesc,         
+       @hq_name, 
+       @region_name, 
+       @district_name, 
+       @rs_name, 
+       @rss_name, 
+       @organiza.on_type, 
+       @UserLogin, 
+       getdate() 
+     ) 
+     --Check if there is gap needs to be .lled in 
+     --Check and .ll in the gap between the begin date and the previous end date 
+     SELECT  TOP 1 @days = DATEDIFF(day,BILLET_END_DATE, @BilletBeginDate), @recruiterHistoryId=RecruiterHistoryID   
+     FROM dbo.RECRUITER_HISTORY  
+     WHERE RECRUITING_PERSON_ID=@PersonID AND (DATEDIFF(day, BILLET_END_DATE, @BilletBeginDate) >= 1) 
+     ORDER BY DATEDIFF(day,BILLET_END_DATE, @BilletBeginDate) 
+      
+     IF(@days > 1)     
+      BEGIN 
+       Insert Into Recruiter_History( 
+           Recrui.ng_Person_Id, 
+           E.ec.ve_Date, 
+           Billet_Begin_Date, 
+           Billet_End_Date, 
+           Billet_Desc, 
+           HQ_Name, 
+           Region_Name, 
+           District_Name, 
+           RS_Name, 
+           RSS_Name, 
+           Organiza.on_Type, 
+           User_Login, 
+           Update_Date 
+        ) 
+       SELECT  Recrui.ng_Person_Id,  
+         DATEADD(day,-(@days-1),@BilletBeginDate),  
+         DATEADD(day,-(@days-1),@BilletBeginDate),  
+         DATEADD(day,-1,@BilletBeginDate),  
+         'Other', 
+         HQ_Name, 
+         Region_Name, 
+         District_Name, 
+         RS_Name, 
+         RSS_Name, 
+         Organiza.on_Type, 
+         User_Login, 
+         getdate() 
+       FROM dbo.RECRUITER_HISTORY  
+       WHERE RecruiterHistoryID=@recruiterHistoryId 
+      END 
+     --Check and .ll in the gap between the end date and the next begin date  
+     SELECT  TOP 1 @days = DATEDIFF(day,@BilletEndDate, BILLET_BEGIN_DATE), @recruiterHistoryId=RecruiterHistoryID   
+     FROM dbo.RECRUITER_HISTORY  
+     WHERE RECRUITING_PERSON_ID=@PersonID AND (DATEDIFF(day, @BilletEndDate, BILLET_BEGIN_DATE) >= 1) 
+     ORDER BY DATEDIFF(day,@BilletEndDate, BILLET_BEGIN_DATE) 
+      
+     IF(@days > 1)     
+      BEGIN 
+       Insert Into Recruiter_History( 
+           Recrui.ng_Person_Id, 
+           E.ec.ve_Date, 
+           Billet_Begin_Date, 
+           Billet_End_Date, 
+           Billet_Desc, 
+           HQ_Name, 
+           Region_Name, 
+           District_Name, 
+           RS_Name, 
+           RSS_Name, 
+           Organiza.on_Type, 
+           User_Login, 
+           Update_Date 
+        ) 
+       SELECT  Recrui.ng_Person_Id,  
+         DATEADD(day,1,@BilletEndDate),  
+         DATEADD(day,1,@BilletEndDate),  
+         DATEADD(day,@days-1,@BilletEndDate),  
+         'Other', 
+         HQ_Name, 
+         Region_Name, 
+         District_Name, 
+         RS_Name, 
+         RSS_Name, 
+         Organiza.on_Type, 
+         User_Login, 
+         getdate() 
+       FROM dbo.RECRUITER_HISTORY  
+       WHERE RecruiterHistoryID=@recruiterHistoryId 
+      END 
+         
+     --Check and .ll in the gap between the end date and the current billet start date if this is the .rst record  
+     SELECT @MaxBilletEndDate = Max(Billet_End_Date) FROM dbo.RECRUITER_HISTORY WHERE RECRUITING_PERSON_ID=@PersonID 
+      
+     SELECT @days = DATEDIFF(day,@MaxBilletEndDate, BILLET_BEGIN_DATE)   
+     FROM dbo.RECRUITING_PERSON  
+     WHERE  
+      RECRUITING_PERSON_ID=@PersonID  
+      AND (DATEDIFF(day, @MaxBilletEndDate, BILLET_BEGIN_DATE) >= 1) 
+ 
+      
+     IF( @days > 1)     
+      BEGIN 
+        
+       SELECT @recruiterHistoryId = Max(RecruiterHistoryID)  
+       FROM  
+        MCRISS.dbo.RECRUITER_HISTORY  
+          WHERE  
+        RECRUITING_PERSON_ID=@PersonID 
+           
+       Insert Into Recruiter_History( 
+           Recrui.ng_Person_Id, 
+           E.ec.ve_Date, 
+           Billet_Begin_Date, 
+           Billet_End_Date, 
+           Billet_Desc, 
+           HQ_Name, 
+           Region_Name, 
+           District_Name, 
+           RS_Name, 
+           RSS_Name, 
+           Organiza.on_Type, 
+           User_Login, 
+           Update_Date 
+        ) 
+       SELECT  Recrui.ng_Person_Id,  
+         DATEADD(day,1,@BilletEndDate),  
+         DATEADD(day,1,@BilletEndDate),  
+         DATEADD(day,@days-1,@BilletEndDate),  
+         'Other', 
+         HQ_Name, 
+         Region_Name, 
+         District_Name, 
+         RS_Name, 
+         RSS_Name, 
+         Organiza.on_Type, 
+         User_Login, 
+         getdate() 
+       FROM dbo.RECRUITER_HISTORY  
+       WHERE RecruiterHistoryID=@recruiterHistoryId  
+      END 
+        
+     SET @result = 'SUCCESS' 
+    END 
+        
+ 
+   -- Has overlap 
+     
+   --Overlap an exis.ng billet that is NOT a 'Non-Recrui.ng Assignment'  
+   IF @status_1=0 AND @billet_desc_1 <> 'Other' 
+    BEGIN 
+     SET @result = 'Billet Begin Date cannot overlap an exis.ng billet. ' 
+    END 
+   --Overlap an exis.ng billet that is not a 'Non-Recrui.ng Assignment'   
+   IF @status_2=0 AND @billet_desc_2 <> 'Other' 
+    BEGIN 
+     SET @result = @result + 'Billet End Date cannot overlap an exis.ng billet.' 
+    END 
+ 
+   --Overlap an exis.ng billet that is a 'Non-Recrui.ng Assignment'  
+   IF (@status_1=-1 AND (@status_2=0 AND @billet_desc_2 = 'Other')) 
+    OR (@status_2=-1 AND (@status_1=0 AND @billet_desc_1 = 'Other')) 
+    OR ((@status_1=0 AND @billet_desc_1 = 'Other') AND (@status_2=0 AND @billet_desc_2 = 'Other')) 
+    BEGIN         
+     Select  
+      @hq_name = t1.Name, 
+      @region_name = t2.Name, 
+      @district_name = t3.Name, 
+      @rs_name =t4.Name, 
+      @rss_name = 
+      case when t6.Name IS NULL then t5.Name 
+      else t6.Name 
+      End, 
+      @organiza.on_type=ro.Organiza.on_Type 
+     from     
+      Recrui.ng_Organiza.on ro, 
+      #Temp t1, 
+      #Temp t2, 
+      #Temp t3, 
+      #Temp t4, 
+      #Temp t5, 
+      #Temp t6 
+     Where t1.OLevel = 'H' 
+      and t2.OLevel = 'R' 
+      and t3.OLevel = 'D' 
+      and t4.OLevel = 'RS' 
+      and t5.OLevel = 'RSS' 
+      and t6.OLevel = 'OSS' 
+      and ro.Organiza.on_Id = @Organiza.onID 
+     --Insert the previous billet    
+     Insert Into Recruiter_History( 
+           Recrui.ng_Person_Id, 
+           E.ec.ve_Date, 
+           Billet_Begin_Date, 
+           Billet_End_Date, 
+           Billet_Desc, 
+           HQ_Name, 
+           Region_Name, 
+           District_Name, 
+           RS_Name, 
+           RSS_Name, 
+           Organiza.on_Type, 
+           User_Login, 
+           Update_Date 
+        ) 
+     VALUES( 
+       @PersonID, 
+       @BilletBeginDate, 
+       @BilletBeginDate, 
+       @BilletEndDate, 
+       @BilletDesc,         
+       @hq_name, 
+       @region_name, 
+       @district_name, 
+       @rs_name, 
+       @rss_name, 
+       @organiza.on_type, 
+       @UserLogin, 
+       getdate() 
+     )  
+     --Fill in Gap   
+     IF (@status_1=-1 AND (@status_2=0 AND @billet_desc_2 = 'Other')) 
+      BEGIN 
+       --Fill in gap between the previous billet end date and the begin date  
+       SELECT  TOP 1 @days = DATEDIFF(day,BILLET_END_DATE, @BilletBeginDate), @recruiterHistoryId=RecruiterHistoryID   
+       FROM dbo.RECRUITER_HISTORY  
+       WHERE RECRUITING_PERSON_ID=@PersonID AND (DATEDIFF(day, BILLET_END_DATE, @BilletBeginDate) >= 1) 
+       ORDER BY DATEDIFF(day,BILLET_END_DATE, @BilletBeginDate) 
+      
+       IF(@days > 1)     
+        BEGIN 
+         Insert Into Recruiter_History( 
+             Recrui.ng_Person_Id, 
+             E.ec.ve_Date, 
+             Billet_Begin_Date, 
+             Billet_End_Date, 
+             Billet_Desc, 
+             HQ_Name, 
+             Region_Name, 
+             District_Name, 
+             RS_Name, 
+             RSS_Name, 
+             Organiza.on_Type, 
+             User_Login, 
+             Update_Date 
+          ) 
+         SELECT  Recrui.ng_Person_Id,  
+           DATEADD(day,-(@days-1),@BilletBeginDate),  
+           DATEADD(day,-(@days-1),@BilletBeginDate),  
+           DATEADD(day,-1,@BilletBeginDate),  
+           'Other', 
+           HQ_Name, 
+           Region_Name, 
+           District_Name, 
+           RS_Name, 
+           RSS_Name, 
+           Organiza.on_Type, 
+           User_Login, 
+           getdate() 
+         FROM dbo.RECRUITER_HISTORY  
+         WHERE RecruiterHistoryID=@recruiterHistoryId 
+        END 
+        
+       --Update the next begin date 
+       UPDATE dbo.RECRUITER_HISTORY  
+       SET BILLET_BEGIN_DATE = DATEADD(day,1,@BilletEndDate) 
+       WHERE RecruiterHistoryID=@recruiterHistoryId_2               
+      END  
+     IF (@status_2=-1 AND (@status_1=0 AND @billet_desc_1 = 'Other'))  
+      BEGIN 
+       --Fill in gap between the begin date and the previous end date  
+       SELECT  TOP 1 @days = DATEDIFF(day,@BilletEndDate, BILLET_BEGIN_DATE), @recruiterHistoryId=RecruiterHistoryID   
+       FROM dbo.RECRUITER_HISTORY  
+       WHERE RECRUITING_PERSON_ID=@PersonID AND (DATEDIFF(day, @BilletEndDate, BILLET_BEGIN_DATE) >= 1) 
+       ORDER BY DATEDIFF(day,@BilletEndDate, BILLET_BEGIN_DATE) 
+      
+       IF(@days > 1)     
+        BEGIN 
+         Insert Into Recruiter_History( 
+             Recrui.ng_Person_Id, 
+             E.ec.ve_Date, 
+             Billet_Begin_Date, 
+             Billet_End_Date, 
+             Billet_Desc, 
+             HQ_Name, 
+             Region_Name, 
+             District_Name, 
+             RS_Name, 
+             RSS_Name, 
+             Organiza.on_Type, 
+             User_Login, 
+             Update_Date 
+          ) 
+         SELECT  Recrui.ng_Person_Id,  
+           DATEADD(day,1,@BilletEndDate),  
+           DATEADD(day,1,@BilletEndDate),  
+           DATEADD(day,@days-1,@BilletEndDate),  
+           'Other', 
+           HQ_Name, 
+           Region_Name, 
+           District_Name, 
+           RS_Name, 
+           RSS_Name, 
+           Organiza.on_Type, 
+           User_Login, 
+           getdate() 
+         FROM dbo.RECRUITER_HISTORY  
+         WHERE RecruiterHistoryID=@recruiterHistoryId 
+        END 
+       --Update the previous end date  
+       UPDATE dbo.RECRUITER_HISTORY  
+       SET BILLET_END_DATE = DATEADD(day,-1,@BilletBeginDate) 
+       WHERE RecruiterHistoryID=@recruiterHistoryId_1               
+      END  
+     IF ((@status_1=0 AND @billet_desc_1 = 'Other') AND (@status_2=0 AND @billet_desc_2 = 'Other')) 
+      BEGIN 
+       --Update the previous billet end date and the next billet begin date 
+       IF @recruiterHistoryId_1 <> @recruiterHistoryId_2 
+        BEGIN 
+         UPDATE dbo.RECRUITER_HISTORY  
+         SET BILLET_END_DATE = DATEADD(day,-1,@BilletBeginDate) 
+         WHERE RecruiterHistoryID=@recruiterHistoryId_1  
+          
+         UPDATE dbo.RECRUITER_HISTORY  
+         SET BILLET_BEGIN_DATE = DATEADD(day,1,@BilletEndDate) 
+         WHERE RecruiterHistoryID=@recruiterHistoryId_2 
+        END 
+       --The begin date and end date within the same Non-Recrui.ng Assignment 
+       IF @recruiterHistoryId_1 = @recruiterHistoryId_2 
+        BEGIN        
+         SET @days = DATEDIFF(day, @billet_begin_date_1, @BilletBeginDate)         
+         IF(@days > 1)                      
+          UPDATE dbo.RECRUITER_HISTORY  
+          SET BILLET_BEGIN_DATE = @billet_begin_date_1, BILLET_END_DATE=DATEADD(day,-1,@BilletBeginDate) 
+          WHERE RecruiterHistoryID=@recruiterHistoryId_1 
+         SET @days = DATEDIFF(day, @BilletEndDate, @billet_end_date_1)  
+         IF(@days > 1) 
+          BEGIN 
+           Insert Into Recruiter_History( 
+              Recrui.ng_Person_Id, 
+              E.ec.ve_Date, 
+              Billet_Begin_Date, 
+              Billet_End_Date, 
+              Billet_Desc, 
+              HQ_Name, 
+              Region_Name, 
+              District_Name, 
+              RS_Name, 
+              RSS_Name, 
+              Organiza.on_Type, 
+              User_Login, 
+              Update_Date 
+          ) 
+           SELECT  Recrui.ng_Person_Id,  
+             DATEADD(day,1,@BilletEndDate),  
+             DATEADD(day,1,@BilletEndDate),  
+             @billet_end_date_1,  
+             'Other', 
+             HQ_Name, 
+             Region_Name, 
+             District_Name, 
+             RS_Name, 
+             RSS_Name, 
+             Organiza.on_Type, 
+             User_Login, 
+             getdate() 
+           FROM dbo.RECRUITER_HISTORY  
+           WHERE RecruiterHistoryID=@recruiterHistoryId_1 
+          END 
+         DELETE FROM dbo.RECRUITER_HISTORY where recruiterHistoryID=@recruiterHistoryId_1 
+        END 
+      END           
+     SET @result = 'SUCCESS'    
+    END 
+  END 
+END 
+-- Select the result 
+Drop Table #temp 
+ 
+SELECT @result]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

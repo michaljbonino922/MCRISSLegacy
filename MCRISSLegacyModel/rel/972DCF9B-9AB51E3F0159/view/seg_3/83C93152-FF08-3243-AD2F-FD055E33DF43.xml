@@ -1,0 +1,78 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_3" id="83C93152-FF08-3243-AD2F-FD055E33DF43" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="_dta_mv_269">
+<sourceDDLFile>create Prospecting script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>9895AC3D-B516-C620-A5A9-BFA46C83CF6F</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  [USMC].[Prospect].[ProspectDisposi.onId] as _col_1,  [USMC].[Prospect].[ProspectId] as _col_2,  [USMC].[Prospect].[NwaId] as _col_3,  [USMC].[Prospect].[Recrui.ngPersonId] as _col_4,  count_big(*) as _col_5 FROM  [USMC].[Person],  [USMC].[Prospect]   WHERE  [USMC].[Person].[PersonId] = [USMC].[Prospect].[PersonId]  GROUP BY  [USMC].[Prospect].[ProspectDisposi.onId],  [USMC].[Prospect].[ProspectId],  [USMC].[Prospect].[NwaId],  [USMC].[Prospect].[Recrui.ngPersonId]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[ProspectDisposi.onId]" id="B249D747-A058-DC1E-F03D-6A1ECCC4FD0D">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_1</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_1</headerAlias>
+<expression>[ProspectDisposi.onId]</expression>
+<reference>false</reference>
+<viewID>83C93152-FF08-3243-AD2F-FD055E33DF43</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[ProspectId]" id="BDB401C6-0A44-1A48-500E-7F0E68AEB16C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_2</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_2</headerAlias>
+<expression>[ProspectId]</expression>
+<reference>false</reference>
+<viewID>83C93152-FF08-3243-AD2F-FD055E33DF43</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[NwaId]" id="433834ED-4EC0-2614-6A33-B81EB8DFD157">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_3</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_3</headerAlias>
+<expression>[NwaId]</expression>
+<reference>false</reference>
+<viewID>83C93152-FF08-3243-AD2F-FD055E33DF43</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[Recrui.ngPersonId]" id="06439CEA-32C4-A460-2013-F1BB74E561C7">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_4</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_4</headerAlias>
+<expression>[Recrui.ngPersonId]</expression>
+<reference>false</reference>
+<viewID>83C93152-FF08-3243-AD2F-FD055E33DF43</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="count_big(*)" id="4F5EF2CC-CD35-4B44-1163-606ACF9DBAE1">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_5</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_5</headerAlias>
+<expression>count_big(*)</expression>
+<reference>false</reference>
+<viewID>83C93152-FF08-3243-AD2F-FD055E33DF43</viewID>
+</viewElement>
+</viewElements>
+</TableView>

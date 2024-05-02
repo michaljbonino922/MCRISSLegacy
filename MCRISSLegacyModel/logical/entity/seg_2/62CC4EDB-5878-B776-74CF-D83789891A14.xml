@@ -1,0 +1,82 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Entity class="oracle.dbtools.crest.model.design.logical.Entity" directorySegmentName="seg_2" id="62CC4EDB-5878-B776-74CF-D83789891A14" name="LSI SERVICE">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:55 UTC</createdTime>
+<generatorID>FBA0E9B7-96DA-84DD-CA2F-3734291C0CC6</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<adequatelyNormalized>NO</adequatelyNormalized>
+<expectedVolumes>0</expectedVolumes>
+<fwdEngineeringStrategyName>Single Table</fwdEngineeringStrategyName>
+<growthPercent>0</growthPercent>
+<growthType>Year</growthType>
+<maxVolumes>9999999</maxVolumes>
+<minVolumes>0</minVolumes>
+<normalForm>Third</normalForm>
+<attributes itemClass="oracle.dbtools.crest.model.design.logical.Attribute">
+<Attribute name="SERVICE ID" id="22F85C2E-497E-E049-D430-3DDC2A1F425D">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:55 UTC</createdTime>
+<generatorID>B330C9FC-9873-13FF-AB94-C54962D21160</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<use>0</use>
+<domain>8C77819C-1B2F-24A0-C36D-F924235A9668</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="SERVICE" id="5C42A429-EE7B-42EA-2649-A78E36A0660F">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:55 UTC</createdTime>
+<generatorID>98C4A8DA-35D2-43FF-AF72-2B5DB45B3A02</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<use>0</use>
+<domain>18AB29FF-FAA1-30F1-B305-EF92220B6279</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="USER LOGIN" id="0A54EF5E-6D76-F9F5-372C-65D25D45BB49">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:55 UTC</createdTime>
+<generatorID>444CDF63-B180-66DE-763F-26068AE36780</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<use>0</use>
+<domain>2E8EE7FC-99CE-D4AE-132C-50F4AADCC1F4</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="UPDATE DATE" id="9779B09F-659D-8C35-A440-851C7AF6CD6E">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:55 UTC</createdTime>
+<generatorID>8C5C7D27-A076-903F-729E-9FD57B6E6401</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+</attributes>
+<identifiers itemClass="oracle.dbtools.crest.model.design.logical.CandidateKey">
+<identifier id="2A3067E8-E113-7C63-06F3-BAF87E4844DA" name="PK LSI SERVICE">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:55 UTC</createdTime>
+<generatorID>459BCE8F-5EB8-E677-9E5B-36CCE9135753</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<pk>true</pk>
+<usedAttributes>
+<attributeRef>22F85C2E-497E-E049-D430-3DDC2A1F425D</attributeRef>
+</usedAttributes>
+</identifier>
+</identifiers>
+</Entity>

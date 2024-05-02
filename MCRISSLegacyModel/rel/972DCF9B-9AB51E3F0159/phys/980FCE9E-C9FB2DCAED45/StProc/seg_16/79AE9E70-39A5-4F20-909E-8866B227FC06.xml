@@ -1,0 +1,27 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetCandidateProgramCriteriaWaiver]" directorySegmentName="seg_16" id="79AE9E70-39A5-4F20-909E-8866B227FC06">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@CandidateWaiverID int 
+AS 
+ 
+SELECT 
+ CPCW.WAIVER_ID AS WaiverID, 
+ WC.WAIVER_CATEGORY_CODE AS WaiverCategoryCode, 
+ WT.WAIVER_TYPE_CODE AS WaiverTypeCode, 
+ WL.WAIVER_LEVEL_CODE AS WaiverLevelCode 
+FROM 
+ CANDIDATE_PROGRAM_CRITERIA_WAIVER CPCW INNER JOIN WAIVER W ON  
+  (CPCW.WAIVER_ID = W.WAIVER_ID AND  
+  CPCW.CANDIDATE_WAIVER_ID = @CandidateWaiverID) 
+ INNER JOIN WAIVER_CATEGORY WC ON W.WAIVER_CATEGORY_ID = WC.WAIVER_CATEGORY_ID  
+ INNER JOIN WAIVER_TYPE WT ON W.WAIVER_TYPE_ID = WT.WAIVER_TYPE_ID  
+ INNER JOIN WAIVER_LEVEL WL ON W.WAIVER_LEVEL_ID = WL.WAIVER_LEVEL_ID 
+ORDER BY 
+ WC.WAIVER_CATEGORY_CODE, WT.WAIVER_TYPE_CODE,  
+ WL.WAIVER_LEVEL_CODE, CPCW.WAIVER_ID]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

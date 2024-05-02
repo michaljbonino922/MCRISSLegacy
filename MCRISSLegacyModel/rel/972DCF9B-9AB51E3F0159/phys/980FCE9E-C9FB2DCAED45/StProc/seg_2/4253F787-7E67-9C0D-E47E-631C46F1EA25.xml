@@ -1,0 +1,163 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetEventsLite_org]" directorySegmentName="seg_2" id="4253F787-7E67-9C0D-E47E-631C46F1EA25">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@StartDate    date.me, 
+ @EndDate    date.me, 
+ @EventSourceId   int, 
+ @EventSourceTypeId  int = 1, 
+ @EventTypeId   int, 
+ @Organiza.onId   int, 
+ @SubjectId    uniqueidentifier = null, 
+ @RecruiterId   uniqueidentifier = null, 
+ @IsEventOwnerOnly  bit = 0 
+WITH RECOMPILE 
+AS 
+BEGIN 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+ IF (@Organiza.onId = 0 AND @SubjectId IS NULL AND @RecruiterId IS NULL) 
+ BEGIN 
+  SELECT 
+     NULL AS ID, 
+     NULL AS Organiza.onId, 
+     NULL AS Loca.on, 
+     NULL AS Comments, 
+     NULL AS IsComplete, 
+     NULL AS StartDate, 
+     NULL AS EndDate, 
+     NULL AS EventTypeOther, 
+     NULL AS LastUpdateDate, 
+     NULL AS LastUpdateUserId, 
+     NULL AS Remarks, 
+     NULL AS EventPrecision, 
+     NULL AS MISApprovedEventStartDate, 
+     NULL AS MISApprovedEventEndDate, 
+     NULL AS WISApprovedEventStartDate, 
+     NULL AS WISApprovedEventEndDate, 
+     NULL AS EventSourceId, 
+     NULL AS EventSourceName, 
+     NULL AS EventTypeId, 
+     NULL AS EventTypeName, 
+     NULL AS EventSubjects, 
+     NULL AS EventOwners, 
+     NULL AS EventPersonVisibili.es, 
+     NULL AS EventOutcomes 
+  WHERE 1 = 2 
+ END 
+ ELSE 
+ BEGIN 
+ 
+  SELECT DISTINCT e.ID 
+  INTO #EventList 
+  FROM  
+   [RSSOSS].[USMC].[Event] E 
+   INNER JOIN [RSSOSS].[USMC].[EventSubject] ESub ON E.ID = ESub.Even.d 
+   INNER JOIN [RSSOSS].[USMC].[EventSource] ES ON E.EventSourceId = ES.ID 
+   INNER JOIN [RSSOSS].[USMC].[EventType] ET ON E.EventTypeId = ET.ID 
+   
+  WHERE  
+   ((@SubjectId = ESub.SubjectId AND @SubjectId IS NOT NULL) OR (@SubjectId IS NULL)) and 
+   (@EventTypeId = 0 or (E.EventTypeId = @EventTypeId)) and 
+   (@EventSourceId = 0 or (E.EventSourceId = @EventSourceId)) and  
+   ES.EventSourceTypeId = @EventSourceTypeId and 
+   (@Organiza.onId = 0 or (E.Organiza.onId = @Organiza.onId)) and 
+   ( ( @StartDate is null AND @EndDate is null) OR 
+     ( (E.StartDate <= @EndDate AND @EndDate IS NOT NULL)  AND (E.EndDate >= @StartDate AND @StartDate IS NOT NULL ) ) 
+   ) 
+ 
+  SELECT 
+     E.ID, 
+     E.Organiza.onId, 
+     E.Loca.on, 
+     E.Comments, 
+     E.IsComplete, 
+     E.StartDate, 
+     E.EndDate, 
+     E.EventTypeOther, 
+     E.LastUpdateDate, 
+     E.LastUpdateUserId, 
+     E.Remarks, 
+     E.EventPrecision, 
+     EA.MISApprovedEventStartDate, 
+     EA.MISApprovedEventEndDate, 
+     EA.WISApprovedEventStartDate, 
+     EA.WISApprovedEventEndDate, 
+     ES.Id EventSourceId, 
+     ES.Name EventSourceName, 
+     ET.Id EventTypeId, 
+     ET.Type EventTypeName, 
+     (SELECT SubjectId AS '@SubjectId', SubjectName AS '@SubjectName' FROM USMC.EventSubject 
+   WHERE EventId = E.ID FOR XML PATH('EventSubject'), TYPE, ROOT('EventSubjects') 
+     ) AS 'EventSubjects', 
+     (SELECT DISTINCT 
+    RTrim(rp.Rank_Code) as '@RankCode',  
+    RTrim(p.Last_Name) as '@LastName', 
+    RTrim(p.First_Name) as '@FirstName',  
+    RTrim(p.LEGAL_MIDDLE_NAME) as '@MiddleName',  
+    rp.rowguid as '@RecruiterID' 
+   FROM USMC.EventOwners eo 
+    INNER JOIN MCRISS.dbo.Recrui.ng_Person rp  ON rp.rowguid = eo.OwnerId 
+    INNER JOIN MCRISS.dbo.Person p ON rp.Recrui.ng_Person_ID = p.Person_ID   
+   WHERE  eo.EventId = E.ID FOR XML PATH('Owner'), TYPE, ROOT('Owners')   
+     ) AS 'EventOwners', 
+     (SELECT Recrui.ngPersonId as '@Recrui.ngPersonId', 
+     RTrim(rp.Rank_Code) + ' ' + 
+        RTrim(p.Last_Name) + ' ' + 
+        RTrim(p.First_Name) + ' ' +  
+        LEFT(RTrim(p.LEGAL_MIDDLE_NAME),1) as '@DisplayName'  
+      FROM  
+    USMC.EventPersonVisibility epv 
+    INNER JOIN MCRISS.dbo.Recrui.ng_Person rp  ON rp.rowguid = epv.Recrui.ngPersonId 
+    INNER JOIN MCRISS.dbo.Person p ON rp.Recrui.ng_Person_ID = p.Person_ID 
+   WHERE  EventId = E.ID FOR XML PATH('Visibility'), TYPE, ROOT('Visibili.es')   
+     ) AS 'EventPersonVisibili.es', 
+     (SELECT  
+    eo.ID AS '@EventOutcomeId' 
+    ,eo.AppointmentOutcomeId AS '@AppointmentOutcomeId' 
+    ,ao.Type AS '@AppointmentOutcomeType' 
+    ,eo.InterviewOutcomeId AS '@InterviewOutcomeId' 
+    ,ino.Type AS '@InterviewOutcomeType' 
+    ,( SELECT  
+      eb.ID AS '@ID' 
+     ,Comment AS '@Comment' 
+     ,Bene.tPriority AS '@Bene.tPriority' 
+     ,ebt.ID AS '@TypeId'  
+     ,ebt.Name AS '@TypeName' 
+       FROM USMC.EventBene.t eb 
+      INNER JOIN USMC.EventBene.tType ebt ON ebt.ID = eb.Bene.tTypeId 
+       WHERE eb.EventOutcomeId = eo.ID FOR XML PATH('EventBene.t'), TYPE 
+     ) AS 'EventBene.ts' 
+      
+   FROM USMC.EventOutcome eo 
+    LEFT OUTER JOIN USMC.AppointmentOutcome ao  
+     ON eo.AppointmentOutcomeId = ao.ID 
+    LEFT OUTER JOIN USMC.InterviewOutcome ino 
+     ON eo.InterviewOutcomeId = ino.ID 
+   WHERE 
+    EventId = E.ID FOR XML PATH('EventOutcome'), TYPE, ROOT('EventOutcomes') 
+   ) AS 'EventOutcomes' 
+     
+  FROM [RSSOSS].[USMC].[Event] E 
+  INNER JOIN #EventList el ON E.ID = el.ID 
+  INNER JOIN [RSSOSS].[USMC].[EventSource] ES ON E.EventSourceId = ES.ID 
+  INNER JOIN [RSSOSS].[USMC].[EventType] ET ON E.EventTypeId = ET.ID 
+  LEFT OUTER JOIN [RSSOSS].[USMC].[EventApproval] EA on E.ID = EA.ID 
+  WHERE  
+   (@EventTypeId = 0 or (E.EventTypeId = @EventTypeId)) and 
+   (@EventSourceId = 0 or (E.EventSourceId = @EventSourceId)) and  
+   ES.EventSourceTypeId = @EventSourceTypeId and 
+   (@Organiza.onId = 0 or (E.Organiza.onId = @Organiza.onId)) and 
+   ( ( @StartDate is null AND @EndDate is null) OR 
+     ( (E.StartDate <= @EndDate AND @EndDate IS NOT NULL)  AND (E.EndDate >= @StartDate AND @StartDate IS NOT NULL ) ) 
+   ) 
+  ORDER BY E.StartDate desc 
+ END 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

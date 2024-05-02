@@ -1,0 +1,62 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetAllContactCardData]" directorySegmentName="seg_1" id="C00517A3-F97D-0D9C-A3F4-7F4E07279940">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@Organiza.onID  as integer,  
+ @FiscalYear   as integer 
+AS 
+BEGIN 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+SELECT CC.ContactCardId, 
+       CC.Title, 
+    CC.ContactFName, 
+    CC.ContactMName, 
+    CC.ContactLName, 
+    CC.Nickname, 
+    CC.DatePrepared, 
+       CC.FaxNumber, 
+       CC.email, 
+       CC.VoiceMail, 
+       CC.CellPhone, 
+       CC.FamilyInfo, 
+       CC.Needs, 
+       CC.DirectSupport, 
+       CC.USMC, 
+       CC.Rank, 
+       CC.Other, 
+       CC.SupportValue, 
+       CC.ReferalLName, 
+       CC.ReferalFName, 
+       CC.ReferalMName, 
+       CC.ReferalSSN, 
+       CC.Ac.onDate, 
+       CC.Results, 
+       CC.Hobbies, 
+       CC.Organiza.on_Id, 
+       CC.FiscalYear, 
+       B.ID BusID, 
+    B.Street1 BusStreet1, 
+    B.Street2 BusStreet2, 
+    B.City BusCity, 
+    B.County BusCounty, 
+    B.State BusState, 
+    B.Zip BusZip, 
+    B.Phone BusPhone, 
+    CC.Notes AS Notes, 
+    B.CITY_CODE BusCityCode, 
+    B.COUNTY_CODE BusCountyCode, 
+    B.STATE_CODE BusStateCode 
+FROM USMC.ContactCard CC 
+ INNER JOIN USMC.ContactCardAddress B ON B.ID = CC.BusinessAddressID 
+ INNER JOIN RECRUITING_ORGANIZATION RO ON RO.ORGANIZATION_ID = CC.Organiza.on_Id 
+WHERE  CC.Organiza.on_Id = @Organiza.onID and 
+    CC.FiscalYear= @FiscalYear 
+ 
+END]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

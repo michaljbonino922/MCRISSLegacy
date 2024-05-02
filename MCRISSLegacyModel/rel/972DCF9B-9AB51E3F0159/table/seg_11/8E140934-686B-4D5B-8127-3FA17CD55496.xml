@@ -1,0 +1,125 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_11" id="8E140934-686B-4D5B-8127-3FA17CD55496" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="TakeOneCard">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:56 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>D872A75B-65FB-BA5A-527D-0674A3CDE00D</importedID>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="ID" id="9310B0CC-91B8-BD33-6A8C-4DACEAC3FB85">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:08 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>8E63938D-92E3-0BB1-C1DA-8AEC7D68EF79</importedID>
+<use>0</use>
+<domain>5B1C7CF5-EF3B-C5B8-1E76-224B54D9B1CB</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="DatePrepared" id="2DF93AA1-14FC-3CB3-2E8F-F3CE44E39CB1">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:08 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>1A3A221F-2B0B-CAB2-F1CE-1EEE7C65665E</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="FY" id="5C6CA675-FAC7-AC58-ED40-47AAA566D039">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:08 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>BBADE234-627E-CC73-B087-8C1A67A285F1</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>4A3667D3-413C-B205-EB46-C0C547E3C433</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="SectorID" id="BAB49118-4D0D-882E-1801-29BA45405986">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:08 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>F0F82E5D-4980-4EB6-49E6-15AD1B57EEB7</importedID>
+<use>0</use>
+<domain>5B1C7CF5-EF3B-C5B8-1E76-224B54D9B1CB</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="49AFA18D-FAD0-B4B7-3ADF-5D24ED6C03A3" referredColumn="FA06B8C1-8FF7-3E0E-CE2B-7A0606B2FFF2"/>
+</associations>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="7F46D8A1-F40F-717A-91B8-B541CEF903AD" name="pk_TakeOneCard">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:08 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>5C65CBE4-9659-001B-F87D-F6E6EE1C0F34</importedID>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="9310B0CC-91B8-BD33-6A8C-4DACEAC3FB85"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="0FE084A3-7E6F-A702-0E36-72754FA33962" name="IDX_TakeOneCard_RCTAPI_SectorID">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:08 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>6448094A-1314-0992-7899-824040DB45FF</importedID>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="BAB49118-4D0D-882E-1801-29BA45405986"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="C7899CBF-4853-DD5B-985F-6940AD661B32" name="TakeOneCard_SectorID_12_4_17">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:08 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>4C803628-38F7-F74E-3FEF-43D08EAB75AF</importedID>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="BAB49118-4D0D-882E-1801-29BA45405986"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="521E0120-5DC5-2FEA-F64F-E7683603719D" name="pk_TakeOneCard_Sector">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="BAB49118-4D0D-882E-1801-29BA45405986"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+<tableCheckConstraints itemClass="oracle.dbtools.crest.model.design.constraint.TableLevelConstraint">
+<tableCheckConstraint name="[USMC].[TakeOneCard]" directorySegmentName="seg_8" id="07268D83-CE92-0B09-D884-A0FA4EBF6FEE">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:08 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>38CECD3B-A513-83E6-F5EA-DEA0C2448AC9</importedID>
+<rule><![CDATA[CONSTRAINT [pk_TakeOneCard_Sector]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITH" directorySegmentName="seg_8" id="81673DD2-5C44-11F7-EF4D-DB7F3B48D7E8">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:08 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>9EC598B9-30B0-56DB-9B97-9ED1BF0671C0</importedID>
+</tableCheckConstraint>
+</tableCheckConstraints>
+</Table>

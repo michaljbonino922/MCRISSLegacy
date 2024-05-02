@@ -1,0 +1,37 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetOrdersRequestByID]" directorySegmentName="seg_8" id="3ADEF0AD-934B-D445-4B03-9292334DDB6C">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @ID  int 
+) 
+AS 
+ 
+SELECT  
+ ORDERS_REQUEST_ID, 
+ NWA_ID, 
+ ORDERS_TYPE_ID, 
+ ORDERS_REQUEST_STATUS_ID, 
+ REQUEST_DATE, 
+ LOA, 
+ SDN, 
+ CIC, 
+ TRAVEL, 
+ SIGNATURE, 
+ SIGNATURE_BY_DIR, 
+ SHIP_TO_ADDRESS_TYPE, 
+ SHIP_FROM_ADDRESS_TYPE, 
+ GENERATED_DATE, 
+ CANCELLED_DATE, 
+ COMPLETED_DATE, 
+ USE_CUSTOM_REPORT_DATE, 
+ CUSTOM_REPORT_DATE 
+FROM  
+ USMC.ORDERS_REQUEST 
+WHERE  
+ ORDERS_REQUEST_ID = @ID]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

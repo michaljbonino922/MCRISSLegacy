@@ -1,0 +1,66 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetO.cerProspectPACData]" directorySegmentName="seg_4" id="7733B5F8-91C2-DD7F-C38B-82F61F5931A0">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@ProspectId   uniqueidentifier 
+  
+AS 
+BEGIN 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+ SELECT  
+   OPP.O.cerProspectPacId, 
+   OPP.ProspectId, 
+   OPP.Recorder, 
+   OPP.Ci.zen, 
+   OPP.Diversity, 
+   OPP.Needs, 
+   OPP.BestTimeToContact, 
+   OPP.Program, 
+   OPP.ProjCommFiscalYear, 
+   OPP.CurrentEmployer, 
+   OPP.WorkScheduleDetails, 
+   OPP.Height, 
+   OPP.Weight, 
+   OPP.MaxWeight, 
+   OPP.VisionCorrected, 
+   OPP.VisionProblemDetails, 
+   OPP.AsthmaAllergyDetails, 
+   OPP.Medica.onDetails, 
+   OPP.DiseaseDetails, 
+   OPP.ApplicantConcerns, 
+   OPP.Hospitaliza.onDetails, 
+   OPP.DoctorVisitDetails, 
+   OPP.TatooAndPiercingsDetails, 
+   OPP.Tra.cTicketDetails, 
+   OPP.ArrestDetails, 
+   OPP.HighSchoolAc.vi.es, 
+   OPP.DrugUsageDetails, 
+   OPP.MaritalStatus, 
+   OPP.ReserveUnitDetails, 
+   OPP.Exercises, 
+   OPP.ExerciseDetails, 
+   OPP.CollegeAc.vi.es,    
+   OPP.HasPriorService, 
+   OPP.ReenlistmentCode, 
+   OPP.Rank, 
+   OPP.Mos, 
+   OPP.DateIni.alContact, 
+   OPP.DateStartedWorking, 
+   OPP.FutureAc.onDate, 
+   OPP.LastUpdateUserId, 
+   OPP.AFQT, 
+   OPP.EthnicCode 
+  FROM  
+   [USMC].O.cerProspectPac OPP 
+    
+  WHERE 
+   OPP.ProspectId = @ProspectId  
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

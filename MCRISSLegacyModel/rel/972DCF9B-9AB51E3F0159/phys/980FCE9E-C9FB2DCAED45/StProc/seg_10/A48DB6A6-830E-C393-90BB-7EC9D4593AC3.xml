@@ -1,0 +1,101 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertGenerator]" directorySegmentName="seg_10" id="A48DB6A6-830E-C393-90BB-7EC9D4593AC3">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[(@tableName varchar(100)) as 
+BEGIN 
+--Declare a cursor to retrieve column speci.c informa.on  
+--for the speci.ed table 
+DECLARE cursCol CURSOR FAST_FORWARD FOR  
+SELECT column_name,data_type FROM informa.on_schema.columns  
+    WHERE table_name = @tableName 
+OPEN cursCol 
+DECLARE @string nvarchar(3000) --for storing the .rst half  
+                               --of INSERT statement 
+DECLARE @stringData nvarchar(3000) --for storing the data  
+                                   --(VALUES) related statement 
+DECLARE @dataType nvarchar(1000) --data types returned  
+                                 --for respec.ve columns 
+SET @string='INSERT '+@tableName+'(' 
+SET @stringData='' 
+ 
+DECLARE @colName nvarchar(50) 
+ 
+FETCH NEXT FROM cursCol INTO @colName,@dataType 
+ 
+IF @@fetch_status<>0 
+    begin 
+    print 'Table '+@tableName+' not found, processing skipped.' 
+    close curscol 
+    deallocate curscol 
+    return 
+END 
+ 
+WHILE @@FETCH_STATUS=0 
+BEGIN 
+IF @dataType in ('varchar','char','nchar','nvarchar') 
+BEGIN 
+    SET @stringData=@stringData+'''''''''+ 
+            isnull('+@colName+','''')+'''''',''+' 
+END 
+ELSE 
+if @dataType in ('text','ntext') --if the datatype  
+                                 --is text or something else  
+BEGIN 
+    SET @stringData=@stringData+'''''''''+ 
+          isnull(cast('+@colName+' as varchar(2000)),'''')+'''''',''+' 
+END 
+ELSE 
+IF @dataType = 'money' --because money doesn't get converted  
+                       --from varchar implicitly 
+BEGIN 
+    SET @stringData=@stringData+'''convert(money,''''''+ 
+        isnull(cast('+@colName+' as varchar(200)),''0.0000'')+''''''),''+' 
+END 
+ELSE  
+IF @dataType='date.me' 
+BEGIN 
+    SET @stringData=@stringData+'''convert(date.me,''''''+ 
+        isnull(cast('+@colName+' as varchar(200)),''0'')+''''''),''+' 
+END 
+ELSE  
+IF @dataType='image'  
+BEGIN 
+    SET @stringData=@stringData+'''''''''+ 
+       isnull(cast(convert(varbinary,'+@colName+')  
+       as varchar(6)),''0'')+'''''',''+' 
+END 
+ELSE --presuming the data type is int,bit,numeric,decimal  
+BEGIN 
+    SET @stringData=@stringData+'''''''''+ 
+          isnull(cast('+@colName+' as varchar(200)),''0'')+'''''',''+' 
+END 
+ 
+SET @string=@string+@colName+',' 
+ 
+FETCH NEXT FROM cursCol INTO @colName,@dataType 
+END 
+ 
+DECLARE @Query nvarchar(4000) -- provide for the whole query,  
+                              -- you may increase the size 
+ 
+SET @query ='SELECT '''+substring(@string,0,len(@string)) + ')  
+    VALUES(''+ ' + substring(@stringData,0,len(@stringData)-2)+'''+'')''  
+    FROM '+@tableName 
+exec sp_executesql @query --load and run the built queryEventually, close and de-allocate the cursor created for columns informa.on. 
+ 
+ 
+CLOSE cursCol 
+DEALLOCATE cursColA.er 
+ 
+END 
+ 
+--USE pubs 
+--GO 
+--InsertGenerator employee  
+--GO]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

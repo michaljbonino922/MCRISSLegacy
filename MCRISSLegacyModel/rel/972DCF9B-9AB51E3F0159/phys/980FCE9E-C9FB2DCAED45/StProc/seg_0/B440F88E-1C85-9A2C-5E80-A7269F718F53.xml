@@ -1,0 +1,18 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="Proc30" directorySegmentName="seg_0" id="B440F88E-1C85-9A2C-5E80-A7269F718F53">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:44 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @UserID int 
+) 
+AS 
+ 
+SELECT p.ID, p.RoleID, p.OrgUnitID, p.IsPSROrgUnit 
+FROM [Post] p WITH (NOLOCK) 
+ INNER JOIN [UserPost] up on up.PostID = p.ID 
+WHERE up.UserID = @UserID]]></body>
+<schema>83D3778E-22FC-1B9B-E3A5-96CA5869EFE3</schema>
+<database>30378C7E-748C-F803-F9A3-93DBFA86C9A7</database>
+</StoredProcedureSqlServerv2k5>

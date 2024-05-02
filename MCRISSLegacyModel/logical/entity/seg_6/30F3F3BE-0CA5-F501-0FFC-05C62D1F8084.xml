@@ -1,0 +1,93 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Entity class="oracle.dbtools.crest.model.design.logical.Entity" directorySegmentName="seg_6" id="30F3F3BE-0CA5-F501-0FFC-05C62D1F8084" name="SHIP">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>20F157B5-F2A1-56CE-C201-6E67F81D4ECD</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<adequatelyNormalized>NO</adequatelyNormalized>
+<expectedVolumes>0</expectedVolumes>
+<fwdEngineeringStrategyName>Single Table</fwdEngineeringStrategyName>
+<growthPercent>0</growthPercent>
+<growthType>Year</growthType>
+<maxVolumes>9999999</maxVolumes>
+<minVolumes>0</minVolumes>
+<normalForm>Third</normalForm>
+<attributes itemClass="oracle.dbtools.crest.model.design.logical.Attribute">
+<Attribute name="SHIP TYPE" id="D66E98FF-5A20-49F7-823D-F6F0BA6FAB59">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>0AAA0290-C276-EF37-D09F-1523DAB69945</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<use>0</use>
+<domain>0A4E1FA5-207F-B2A4-511D-636304ED74D7</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="SHIP DESCRIPTION" id="19011988-2423-3F1E-955F-4C6BE513E43B">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>DE4BCBB7-7629-21C0-2190-656C79116E4D</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<use>0</use>
+<domain>2E8EE7FC-99CE-D4AE-132C-50F4AADCC1F4</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="USER LOGIN" id="44AF7190-F90D-518B-1189-19B540D05ED8">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>39C8961F-91E9-D3EB-9273-9B325DC62240</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<use>0</use>
+<domain>2E8EE7FC-99CE-D4AE-132C-50F4AADCC1F4</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="UPDATE DATE" id="3A89E5EC-B78C-4597-8A00-6787AFB92656">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>98C788B0-8825-F9D2-B0D2-B8D8FAA425D5</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="rowguid" id="A90D2BDA-1EC9-F794-3DA4-308C8581F2DF">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>31856B18-57EF-994F-B741-DFA285058959</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+</attributes>
+<identifiers itemClass="oracle.dbtools.crest.model.design.logical.CandidateKey">
+<identifier id="61B81D04-438D-6264-A6B0-79120D30B8C0" name="PK SHIP TYPE">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>4D0A6410-6A12-B584-94FA-3D8D57B1516E</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<pk>true</pk>
+<usedAttributes>
+<attributeRef>D66E98FF-5A20-49F7-823D-F6F0BA6FAB59</attributeRef>
+</usedAttributes>
+</identifier>
+</identifiers>
+</Entity>

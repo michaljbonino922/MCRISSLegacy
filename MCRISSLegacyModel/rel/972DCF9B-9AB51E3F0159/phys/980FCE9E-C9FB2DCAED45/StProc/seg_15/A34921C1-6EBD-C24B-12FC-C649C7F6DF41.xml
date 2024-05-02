@@ -1,0 +1,143 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_DeleteNWA]" directorySegmentName="seg_15" id="A34921C1-6EBD-C24B-12FC-C649C7F6DF41">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@NWAID  int, 
+ @UserLogin varchar(15) 
+AS 
+ 
+DECLARE @DBID    int 
+DECLARE @DBNAME   sysname 
+DECLARE @ErrMsg   varchar(100) 
+ 
+DECLARE @SSN    char(9) 
+ 
+SET NOCOUNT ON 
+ 
+SELECT  
+ @DBID  = DB_ID(),  
+ @DBNAME = DB_NAME() 
+ 
+--- GET THE APPLICANT'S SSN 
+SELECT  
+ @SSN = P.SOCIAL_SECURITY_NUMBER  
+FROM  
+ PERSON P INNER JOIN NWA N ON  
+  (P.PERSON_ID = N.MARINE_CANDIDATE_ID AND 
+  N.NWA_ID = @NWAID) 
+ 
+ 
+IF EXISTS (SELECT 1 FROM NWA WHERE NWA_ID = @NWAID) 
+BEGIN 
+ --- DELETE CANDIDATE STATUS RECORDS 
+ IF EXISTS (SELECT 1 FROM CANDIDATE_STATUS WHERE NWA_ID = @NWAID) 
+ BEGIN 
+  --- UPDATE THE APPLICANT'S CANDIDATE_STATUS RECORDS WITH THE USER LOGIN AND CURRENT DATE/TIME 
+  --- BEFORE DELETING 
+  UPDATE 
+   CANDIDATE_STATUS 
+  SET 
+   USER_LOGIN  = @UserLogin, 
+   UPDATE_DATE = GETDATE() 
+  WHERE 
+   NWA_ID   = @NWAID 
+ 
+ 
+  DECLARE @StatusRecordCount int   
+  SELECT @StatusRecordCount = COUNT(CS.CANDIDATE_STATUS_ID) FROM CANDIDATE_STATUS CS WHERE CS.NWA_ID = @NWAID 
+ 
+  DELETE FROM CANDIDATE_STATUS WHERE NWA_ID = @NWAID 
+ 
+  --- CHECK FOR ERRORS AND VERIFY THE NUMBER OF RECORDS DELETED 
+  IF @@ERROR != 0 OR @@ROWCOUNT != @StatusRecordCount 
+  BEGIN 
+   SET @ErrMsg = 'An error occurred deletIng the Status/Disposi.on record(s) for SSN ' + @SSN + '.'  
+   RAISERROR (@ErrMsg, 16, 1, @DBID, @DBNAME) 
+   RETURN 
+  END 
+ END 
+ 
+ --- DELETE MEPS SCHEDULE RECORDS 
+ IF EXISTS (SELECT 1 FROM MEPS_SCHEDULE WHERE NWA_ID = @NWAID) 
+ BEGIN 
+  --- UPDATE THE APPLICANT'S CANDIDATE_STATUS RECORDS WITH THE USER LOGIN AND CURRENT DATE/TIME 
+  --- BEFORE DELETING 
+  UPDATE 
+   MEPS_SCHEDULE 
+  SET 
+   USER_LOGIN  = @UserLogin, 
+   UPDATE_DATE = GETDATE() 
+  WHERE 
+   NWA_ID   = @NWAID 
+ 
+ 
+  DECLARE @MEPSScheduleRecordCount int   
+  SELECT @MEPSScheduleRecordCount = COUNT(MS.SCHEDULE_ID) FROM MEPS_SCHEDULE MS WHERE MS.NWA_ID = @NWAID 
+ 
+  DELETE FROM MEPS_SCHEDULE WHERE NWA_ID = @NWAID 
+ 
+  --- CHECK FOR ERRORS AND VERIFY THE NUMBER OF RECORDS DELETED 
+  IF @@ERROR != 0 OR @@ROWCOUNT != @MEPSScheduleRecordCount 
+  BEGIN 
+   SET @ErrMsg = 'An error occurred deletIng the MEPS Schedule record(s) for SSN ' + @SSN + '.'  
+   RAISERROR (@ErrMsg, 16, 2, @DBID, @DBNAME) 
+   RETURN 
+  END 
+ END 
+ 
+ --- DELETE WAIVER RECORDS 
+ IF EXISTS (SELECT 1 FROM CANDIDATE_WAIVER WHERE NWA_ID = @NWAID) 
+ BEGIN 
+  --- UPDATE THE APPLICANT'S CANDIDATE_STATUS RECORDS WITH THE USER LOGIN AND CURRENT DATE/TIME 
+  --- BEFORE DELETING 
+  UPDATE 
+   CANDIDATE_WAIVER 
+  SET 
+   USER_LOGIN  = @UserLogin, 
+   UPDATE_DATE = GETDATE() 
+  WHERE 
+   NWA_ID   = @NWAID 
+ 
+ 
+ 
+  DECLARE @WaiverCount int   
+  SELECT @WaiverCount = COUNT(CW.CANDIDATE_WAIVER_ID) FROM CANDIDATE_WAIVER CW WHERE CW.NWA_ID = @NWAID 
+ 
+  DELETE FROM CANDIDATE_WAIVER WHERE NWA_ID = @NWAID 
+ 
+  --- CHECK FOR ERRORS AND VERIFY THE NUMBER OF RECORDS DELETED 
+  IF @@ERROR != 0 OR @@ROWCOUNT != @WaiverCount 
+  BEGIN 
+   SET @ErrMsg = 'An error occurred deletIng the Waiver record(s) for SSN ' + @SSN + '.'  
+   RAISERROR (@ErrMsg, 16, 3, @DBID, @DBNAME) 
+   RETURN 
+  END 
+ END 
+ 
+ --- UPDATE THE APPLICANT'S NWA RECORD WITH THE USER LOGIN AND CURRENT DATE/TIME 
+ --- BEFORE DELETING 
+ UPDATE 
+  NWA 
+ SET 
+  USER_LOGIN  = @UserLogin, 
+  UPDATE_DATE = GETDATE() 
+ WHERE 
+  NWA_ID   = @NWAID 
+ 
+ --- DELETE THE NWA RECORD 
+ DELETE FROM NWA WHERE NWA_ID = @NWAID 
+ 
+ IF @@ERROR != 0 OR @@ROWCOUNT != 1 
+ BEGIN 
+  SET @ErrMsg = 'An error occurred deletIng the NWA record for SSN ' + @SSN + '.'  
+  RAISERROR (@ErrMsg, 16, 4, @DBID, @DBNAME) 
+  RETURN 
+ END 
+END 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

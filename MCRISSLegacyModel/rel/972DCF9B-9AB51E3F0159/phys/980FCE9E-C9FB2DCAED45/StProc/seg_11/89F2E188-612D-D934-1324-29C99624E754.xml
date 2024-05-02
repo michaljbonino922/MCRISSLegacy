@@ -1,0 +1,115 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SaveRecruiter]" directorySegmentName="seg_11" id="89F2E188-612D-D934-1324-29C99624E754">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:37 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @RecruiterID uniqueiden..er, 
+    @Organiza.onID int, 
+    @PersonID uniqueiden..er, 
+    @RankID int = null, 
+    @TourBeginDate date.me = null, 
+    @TourEndDate date.me = null, 
+    @BilletID int = null, 
+    @BilletMOS varchar(4) = null, 
+    @PrimaryMOS varchar(4) = null, 
+    @BilletBeginDate date.me = null, 
+    @BilletEndDate date.me = null, 
+    @CurrentProduc.onStatusID uniqueiden..er = null, 
+    @OnProduc.on bit = 0, 
+    @UpdatedByUser uniqueiden..er 
+) 
+AS 
+BEGIN 
+ 
+ BEGIN TRANSACTION 
+  
+ IF EXISTS(SELECT RecruiterID FROM [dbo].[Recruiter] WHERE [RecruiterID] = @RecruiterID) 
+ BEGIN 
+  UPDATE 
+   [dbo].[Recruiter] 
+  SET  
+   [Organiza.onID] = @Organiza.onID, 
+   [PersonID] = @PersonID, 
+   [RankID] = @RankID, 
+   [TourBeginDate] = @TourBeginDate, 
+   [TourEndDate] = @TourEndDate, 
+   [BilletID] = @BilletID, 
+   [BilletMOS] = @BilletMOS, 
+   [PrimaryMOS] = @PrimaryMOS, 
+   [BilletBeginDate] = @BilletBeginDate, 
+   [BilletEndDate] = @BilletEndDate, 
+   [CurrentProduc.onStatusHistoryID] = @CurrentProduc.onStatusID, 
+   [UpdatedByUser] = @UpdatedByUser, 
+   [DateUpdated] = GETDATE() 
+  WHERE  
+   [RecruiterID] = @RecruiterID 
+ END 
+ ELSE 
+ BEGIN 
+  INSERT INTO [dbo].[Recruiter] 
+        ( 
+   [RecruiterID], 
+   [Organiza.onID], 
+   [PersonID], 
+   [RankID], 
+   [TourBeginDate], 
+   [TourEndDate], 
+   [Es.matedTourEndDate], 
+   [BilletID], 
+   [BilletMOS], 
+   [PrimaryMOS], 
+   [BilletBeginDate], 
+   [BilletEndDate], 
+   [CurrentProduc.onStatusHistoryID], 
+   [UpdatedByUser], 
+   [DateUpdated]) 
+  VALUES 
+        ( 
+   @RecruiterID, 
+            @Organiza.onID, 
+            @PersonID, 
+            @RankID, 
+            @TourBeginDate, 
+            @TourEndDate, 
+            null, 
+            @BilletID, 
+            @BilletMOS, 
+            @PrimaryMOS, 
+            @BilletBeginDate, 
+            @BilletEndDate, 
+            @CurrentProduc.onStatusID, 
+            @UpdatedByUser, 
+            GETDATE() 
+         ) 
+ END 
+  
+ -- Rollback the transac.on if there were any errors 
+ IF @@ERROR <> 0 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+  
+  -- Raise an error and return 
+  RAISERROR ('Error occurred while performing the change.', 16, 1) 
+  RETURN 
+ END 
+  
+ -- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+ IF @@ROWCOUNT > 1 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+  
+  -- Raise an error and return 
+  RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+  RETURN 
+ END 
+  
+ -- If we reach this point, the commands completed successfully. 
+ COMMIT TRANSACTION 
+END]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+</StoredProcedureSqlServerv2k5>

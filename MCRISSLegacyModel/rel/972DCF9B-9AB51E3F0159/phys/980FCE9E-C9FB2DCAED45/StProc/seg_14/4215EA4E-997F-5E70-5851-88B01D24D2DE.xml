@@ -1,0 +1,369 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetProspectHighSchoolResults]" directorySegmentName="seg_14" id="4215EA4E-997F-5E70-5851-88B01D24D2DE">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @SchoolIds xml = null,  
+ @ZipCodes xml = null, 
+ @Gender varchar(1) = null, 
+ @Gradua.onYear int = null, 
+ @OrgId uniqueiden..er = NULL 
+) 
+AS 
+BEGIN 
+ 
+ SET NOCOUNT ON 
+ SET ArithAbort ON 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+  
+ CREATE TABLE #RESULTS 
+ ( 
+  ProspectId uniqueiden..er, 
+  NwaId int, 
+  LastName varchar(75), 
+  FirstName varchar(75),  
+  MiddleName varchar(75),  
+  Gender varchar(1),   
+  PrimaryPhoneNumber varchar(25), 
+  ProspectStatus varchar(40), 
+  ProspectDisposi.on varchar(40), 
+  Source varchar(10), 
+  Ac.vity varchar(10), 
+  ASVABDate date.me, 
+  ASVABCareerDec varchar(25), 
+  ASVABScore int, 
+  O.cerASVABScore .oat,   
+  O.cerASVABDate date.me,   
+  CareerDecision varchar(50), 
+  PrimaryEmailAddress varchar(256), 
+  RANK_CODE varchar(10), 
+  RecruiterLastName varchar(20), 
+  RecruiterFirstName varchar(20), 
+  RecruiterMiddleName varchar(20), 
+  CellPhoneNumber varchar(25) 
+ ) 
+ 
+ CREATE TABLE #Prospect 
+ ( 
+  [ProspectId]    uniqueiden..er NOT NULL PRIMARY Key, 
+  [PersonId]     uniqueiden..er NOT NULL,  
+  [Recrui.ngOrganiza.onId] uniqueiden..er NOT NULL, 
+  [Recrui.ngPersonId]  uniqueiden..er, 
+  [Gradua.onYear]   smallint, 
+  [ProspectDisposi.onId]  smallint, 
+  [Ac.vity]     varchar(10), 
+  [CareerDecision]   varchar(50), 
+  [Source]     varchar(10), 
+  [NwaId]      uniqueiden..er 
+ ) 
+ 
+ CREATE TABLE #Person 
+ (  
+  [PersonId]  uniqueiden..er NOT NULL PRIMARY Key, 
+  [LastName]  varchar(75) NOT NULL,  
+  [FirstName]  varchar(75), 
+  [MiddleName] varchar(75), 
+  [Gender]  char(1) 
+ ) 
+ 
+ IF @OrgId IS NOT NULL AND @Gradua.onYear IS NOT NULL  
+ BEGIN 
+  INSERT INTO #Prospect 
+  SELECT 
+   [ProspectId]     
+   ,[PersonId]      
+   ,[Recrui.ngOrganiza.onId]  
+   ,[Recrui.ngPersonId]   
+   ,[Gradua.onYear]    
+   ,[ProspectDisposi.onId]   
+   ,[Ac.vity]      
+   ,[CareerDecision]    
+   ,[Source]      
+   ,[NwaId] 
+  FROM PROSPECTING.USMC.Prospect pr 
+  WHERE 
+   pr.Recrui.ngOrganiza.onId = @OrgId 
+   AND pr.Gradua.onYear = @Gradua.onYear 
+ END 
+ ELSE IF @OrgId IS NOT NULL 
+ BEGIN 
+  INSERT INTO #Prospect 
+  SELECT 
+   [ProspectId]     
+   ,[PersonId]      
+   ,[Recrui.ngOrganiza.onId]  
+   ,[Recrui.ngPersonId]   
+   ,[Gradua.onYear]    
+   ,[ProspectDisposi.onId]   
+   ,[Ac.vity]      
+   ,[CareerDecision]    
+   ,[Source]      
+   ,[NwaId] 
+  FROM PROSPECTING.USMC.Prospect pr 
+  WHERE 
+   pr.Recrui.ngOrganiza.onId = @OrgId 
+ END 
+ ELSE IF @Gradua.onYear IS NOT NULL 
+ BEGIN 
+  INSERT INTO #Prospect 
+  SELECT 
+   [ProspectId]     
+   ,[PersonId]      
+   ,[Recrui.ngOrganiza.onId]  
+   ,[Recrui.ngPersonId]   
+   ,[Gradua.onYear]    
+   ,[ProspectDisposi.onId]   
+   ,[Ac.vity]      
+   ,[CareerDecision]    
+   ,[Source]      
+   ,[NwaId] 
+  FROM PROSPECTING.USMC.Prospect pr 
+  WHERE 
+   pr.Gradua.onYear = @Gradua.onYear 
+ END 
+ 
+ IF @Gender IS NOT NULL 
+ BEGIN 
+  INSERT INTO #Person 
+  SELECT 
+    p.[PersonId]  
+   ,[LastName]  
+   ,[FirstName]  
+   ,[MiddleName] 
+   ,[Gender] 
+  FROM  
+   PROSPECTING.USMC.Person p 
+   INNER JOIN #Prospect pr ON p.PersonId = pr.PersonId 
+  WHERE 
+   p.Gender = @Gender    
+ END 
+ ELSE 
+ BEGIN 
+  INSERT INTO #Person 
+  SELECT 
+    p.[PersonId]  
+   ,[LastName]  
+   ,[FirstName]  
+   ,[MiddleName] 
+   ,[Gender] 
+  FROM  
+   PROSPECTING.USMC.Person p 
+   INNER JOIN #Prospect pr ON p.PersonId = pr.PersonId 
+ END 
+ 
+ IF @SchoolIDs IS NOT NULL 
+ BEGIN 
+  CREATE TABLE #SchoolsTable (ID uniqueiden..er) 
+  INSERT INTO #SchoolsTable (ID) 
+  SELECT ParamValues.ID.value('.','VARCHAR(36)') 
+  FROM @SchoolIds.nodes('/Schools/id') as ParamValues(ID) 
+    
+  INSERT INTO #RESULTS 
+  SELECT DISTINCT 
+   Pr.ProspectId, 
+   nwa1.Nwa_Id AS NwaId, 
+   P.LastName, 
+   P.FirstName,  
+   P.MiddleName, 
+   P.Gender, 
+   PP_PRIMARY.PhoneNumber as PrimaryPhoneNumber, 
+   'Prospect' AS ProspectStatus, 
+   pdt.ProspectDisposi.onType AS ProspectDisposi.on, 
+   pr.Source, 
+   pr.Ac.vity, 
+   (SELECT Top 1 [ExamDate] FROM  [PROSPECTING].[USMC].[ProspectNonMEPSProfessedExam] 
+    WHERE [ProspectID] = pr.[ProspectID] 
+    AND [ExamType] = 'A' 
+    AND ExamDate = (SELECT Max(ExamDate) FROM [PROSPECTING].[USMC].[ProspectNonMEPSProfessedExam]  
+        WHERE [ExamType] = 'A' AND [ProspectID] = pr.[ProspectID]) 
+   ) as ASVABDate,  
+    (SELECT Top 1 [CareerDecision] FROM  [PROSPECTING].[USMC].[ProspectNonMEPSProfessedExam] 
+    WHERE [ProspectID] = pr.[ProspectID] 
+    AND [ExamType] = 'A' 
+    AND ExamDate = (SELECT Max(ExamDate) FROM [PROSPECTING].[USMC].[ProspectNonMEPSProfessedExam]  
+         WHERE [ExamType] = 'A' AND [ProspectID] = pr.[ProspectID]) 
+   ) as ASVABCareerDec,    
+   (SELECT Top 1 [Score] FROM  [PROSPECTING].[USMC].[ProspectNonMEPSProfessedExam] 
+    WHERE [ProspectID] = pr.[ProspectID] 
+    AND [ExamType] = 'A' 
+    AND ExamDate = (SELECT Max(ExamDate) FROM [PROSPECTING].[USMC].[ProspectNonMEPSProfessedExam]  
+              WHERE [ExamType] = 'A' AND [ProspectID] = pr.[ProspectID]) 
+   ) as ASVABScore, 
+   (SELECT Top 1 [Score1] FROM  [PROSPECTING].[USMC].[ProspectProfessedExam] 
+    WHERE [ProspectID] = pr.[ProspectID] 
+    AND [ProspectProfessedExamType] = 'A'     
+   ) as O.cerASVABScore, 
+   (SELECT Top 1 [ExamDate] FROM  [PROSPECTING].[USMC].[ProspectProfessedExam] 
+    WHERE [ProspectID] = pr.[ProspectID] 
+    AND [ProspectProfessedExamType] = 'A'     
+   ) as O.cerASVABDate,     
+   pr.CareerDecision as CareerDecision,    
+   PE_PRIMARY.EmailAddress as PrimaryEmailAddress, 
+   RP.RANK_CODE, 
+   PERSON.LAST_NAME as RecruiterLastName, 
+   PERSON.FIRST_NAME as RecruiterFirstName, 
+   PERSON.LEGAL_MIDDLE_NAME as RecruiterMiddleName, 
+   PP_CELL.PhoneNumber as CellPhoneNumber           
+  FROM  
+   #Person p 
+   INNER JOIN #Prospect pr on (p.PersonID = pr.PersonID)    
+   INNER JOIN [usmc].[ProspectSchool] ps on (pr.ProspectId = ps.ProspectId)   
+   INNER JOIN #SchoolsTable st ON st.ID = ps.SchoolId   
+   INNER JOIN [usmc].[ProspectDisposi.on] pdt on (pr.ProspectDisposi.onId = pdt.ProspectDisposi.onId) 
+   INNER JOIN MCRISS.dbo.RECRUITING_PERSON RP on (Pr.Recrui.ngPersonId = RP.rowguid)       
+   LEFT OUTER JOIN MCRISS.dbo.Person PERSON on (RP.RECRUITING_PERSON_ID=PERSON.PERSON_ID) 
+   LEFT OUTER JOIN [USMC].[PersonPhone] PP_PRIMARY ON ((PP_PRIMARY.PersonId = P.PersonId) AND (PP_PRIMARY.PersonPhoneTypeId = 1)) 
+   LEFT OUTER JOIN [USMC].[PersonPhone] PP_CELL ON ((PP_CELL.PersonId = P.PersonId) AND (PP_CELL.PersonPhoneTypeId = 3)) 
+   LEFT OUTER JOIN [USMC].[PersonEmail] PE_PRIMARY ON ((PE_PRIMARY.PersonId = P.PersonId) AND (PE_PRIMARY.PersonEmailTypeId = 1)) 
+   LEFT OUTER JOIN MCRISS.dbo.NWA nwa1 ON pr.NwaId = nwa1.rowguid   
+       
+  DROP TABLE #SchoolsTable   
+ END 
+ELSE IF @ZipCodes IS NOT null 
+ BEGIN 
+  CREATE TABLE #ZipCodesTable (ID varchar(5))   
+  INSERT INTO #ZipCodesTable (ID) 
+  SELECT ParamValues.ID.value('.','VARCHAR(5)') 
+  FROM @ZipCodes.nodes('ZipCodes/id') as ParamValues(ID)  
+   
+  INSERT INTO #RESULTS 
+  SELECT DISTINCT 
+   Pr.ProspectId, 
+   nwa1.Nwa_Id AS NwaId, 
+   P.LastName, 
+   P.FirstName,  
+   P.MiddleName, 
+   P.Gender, 
+   PP_PRIMARY.PhoneNumber as PrimaryPhoneNumber, 
+   'Prospect' AS ProspectStatus, 
+   pdt.ProspectDisposi.onType AS ProspectDisposi.on, 
+   pr.Source, 
+   pr.Ac.vity, 
+   (SELECT Top 1 [ExamDate] FROM  [PROSPECTING].[USMC].[ProspectNonMEPSProfessedExam] 
+    WHERE [ProspectID] = pr.[ProspectID] 
+    AND [ExamType] = 'A' 
+    AND ExamDate = (SELECT Max(ExamDate) FROM [PROSPECTING].[USMC].[ProspectNonMEPSProfessedExam]  
+        WHERE [ExamType] = 'A' AND [ProspectID] = pr.[ProspectID]) 
+   ) as ASVABDate,  
+    (SELECT Top 1 [CareerDecision] FROM  [PROSPECTING].[USMC].[ProspectNonMEPSProfessedExam] 
+    WHERE [ProspectID] = pr.[ProspectID] 
+    AND [ExamType] = 'A' 
+    AND ExamDate = (SELECT Max(ExamDate) FROM [PROSPECTING].[USMC].[ProspectNonMEPSProfessedExam]  
+         WHERE [ExamType] = 'A' AND [ProspectID] = pr.[ProspectID]) 
+   ) as ASVABCareerDec,    
+   (SELECT Top 1 [Score] FROM  [PROSPECTING].[USMC].[ProspectNonMEPSProfessedExam] 
+    WHERE [ProspectID] = pr.[ProspectID] 
+    AND [ExamType] = 'A' 
+    AND ExamDate = (SELECT Max(ExamDate) FROM [PROSPECTING].[USMC].[ProspectNonMEPSProfessedExam]  
+              WHERE [ExamType] = 'A' AND [ProspectID] = pr.[ProspectID]) 
+   ) as ASVABScore, 
+   (SELECT Top 1 [Score1] FROM  [PROSPECTING].[USMC].[ProspectProfessedExam] 
+    WHERE [ProspectID] = pr.[ProspectID] 
+    AND [ProspectProfessedExamType] = 'A'     
+   ) as O.cerASVABScore, 
+   (SELECT Top 1 [ExamDate] FROM  [PROSPECTING].[USMC].[ProspectProfessedExam] 
+    WHERE [ProspectID] = pr.[ProspectID] 
+    AND [ProspectProfessedExamType] = 'A'     
+   ) as O.cerASVABDate,       
+   pr.CareerDecision as CareerDecision,    
+   PE_PRIMARY.EmailAddress as PrimaryEmailAddress, 
+   RP.RANK_CODE, 
+   PERSON.LAST_NAME as RecruiterLastName, 
+   PERSON.FIRST_NAME as RecruiterFirstName, 
+   PERSON.LEGAL_MIDDLE_NAME as RecruiterMiddleName, 
+   PP_CELL.PhoneNumber as CellPhoneNumber 
+  FROM  
+   #Person P  
+   INNER JOIN #Prospect pr on (p.PersonID = pr.PersonID) 
+   INNER JOIN [usmc].[ProspectSchool] ps on (pr.ProspectId = ps.ProspectId)   
+   INNER JOIN mcriss.dbo.high_SCHOOL hs on hs.rowguid = ps.SchoolId 
+   INNER JOIN #ZipCodesTable zt ON zt.ID = Le.(HS.ZIP_CODE,5) 
+   INNER JOIN [usmc].[ProspectDisposi.on] pdt on (pr.ProspectDisposi.onId = pdt.ProspectDisposi.onId) 
+   INNER JOIN MCRISS.dbo.RECRUITING_PERSON RP on (Pr.Recrui.ngPersonId = RP.rowguid) 
+   LEFT OUTER JOIN [PROSPECTING].[USMC].[ProspectNonMEPSProfessedExam] pe on (pr.ProspectId = pe.ProspectId)  
+   LEFT OUTER JOIN MCRISS.dbo.Person PERSON on (RP.RECRUITING_PERSON_ID=PERSON.PERSON_ID) 
+   LEFT OUTER JOIN [USMC].[PersonPhone] PP_PRIMARY ON ((PP_PRIMARY.PersonId = P.PersonId) AND (PP_PRIMARY.PersonPhoneTypeId = 1)) 
+   LEFT OUTER JOIN [USMC].[PersonPhone] PP_CELL ON ((PP_CELL.PersonId = P.PersonId) AND (PP_CELL.PersonPhoneTypeId = 3)) 
+   LEFT OUTER JOIN [USMC].[PersonEmail] PE_PRIMARY ON ((PE_PRIMARY.PersonId = P.PersonId) AND (PE_PRIMARY.PersonEmailTypeId = 1)) 
+   LEFT OUTER JOIN MCRISS.dbo.NWA nwa1 ON pr.NwaId = nwa1.rowguid   
+     
+  DROP TABLE #ZipCodesTable 
+ END 
+ 
+ SELECT cs.NWA_ID, MAX(cs.CANDIDATE_STATUS_ID) as CANDIDATE_STATUS_ID 
+ INTO #CandidateMaxStatus 
+ FROM  
+  MCRISS.dbo.CANDIDATE_STATUS cs 
+  INNER JOIN #RESULTS n 
+   ON n.NwaId = cs.NWA_ID 
+ GROUP BY cs.NWA_ID 
+ 
+ SELECT cs.*  
+ INTO #CandidateStatus 
+ FROM  
+  MCRISS.dbo.CANDIDATE_STATUS cs 
+  INNER JOIN #CandidateMaxStatus cs2 
+   ON cs.CANDIDATE_STATUS_ID = cs2.CANDIDATE_STATUS_ID 
+ 
+ /* Add prospect comments and status/disposi.on */ 
+ SELECT  ROW_NUMBER() OVER(Order By R.LASTNAME, R.FIRSTNAME), 
+   R.*, 
+   ProspectStatus AS Status, 
+   ProspectDisposi.on AS Disposi.on, 
+   pct.ProspectCommentDescrip.on AS Comment, 
+   pc.ProspectDate AS LastCommentDate, 
+   pc.Comment as Notes 
+ FROM #RESULTS r   
+  LEFT OUTER JOIN USMC.ProspectComment pc ON r.ProspectId = pc.ProspectId  AND (pc.ProspectDate IN 
+                       ( 
+                       SELECT MAX(pc2.ProspectDate) 
+                       FROM USMC.ProspectComment pc2 
+                       WHERE pc2.ProspectId = pc.ProspectId 
+                       AND pc2.ProspectId IS NOT null 
+                       AND pc2.ProspectDate IS NOT NULL 
+                       ) 
+                      ) 
+  LEFT JOIN USMC.ProspectAc.vityComment pac on pac.ProspectAc.vityCommentId = pc.ProspectAc.vityCommentId 
+  LEFT JOIN USMC.ProspectCommentType pct on pct.ProspectCommentTypeId = pac.ProspectCommentTypeId  
+ WHERE r.NwaId IS NULL 
+  
+ UNION ALL 
+  
+ SELECT  ROW_NUMBER() OVER(Order By R.LASTNAME, R.FIRSTNAME), 
+   R.*, 
+   sd.Status_Descrip.on AS Status, 
+   sd.Disposi.on_Descrip.on AS Disposi.on, 
+   pct.ProspectCommentDescrip.on AS Comment, 
+   pc.ProspectDate AS LastCommentDate, 
+   pc.Comment as Notes 
+ FROM #RESULTS r   
+  LEFT OUTER JOIN USMC.ProspectComment pc ON r.ProspectId = pc.ProspectId AND (pc.ProspectDate IN 
+                       ( 
+                       SELECT MAX(pc2.ProspectDate) 
+                       FROM USMC.ProspectComment pc2 
+                       WHERE pc2.ProspectId = pc.ProspectId 
+                       AND pc2.ProspectId IS NOT null 
+                       AND pc2.ProspectDate IS NOT NULL 
+                       ) 
+                      ) 
+  LEFT JOIN USMC.ProspectAc.vityComment pac on pac.ProspectAc.vityCommentId = pc.ProspectAc.vityCommentId 
+  LEFT JOIN USMC.ProspectCommentType pct on pct.ProspectCommentTypeId = pac.ProspectCommentTypeId 
+  INNER JOIN #CandidateStatus cs ON r.NwaId = cs.NWA_ID 
+  INNER JOIN  MCRISS.dbo.Status_Disposi.on sd on sd.Status_Type = cs.Status_Type AND  
+                sd.Disposi.on_Code = cs.Disposi.on_Code 
+ WHERE r.NwaId IS NOT NULL 
+   
+ DROP TABLE #RESULTS 
+ DROP TABLE #CandidateStatus 
+ DROP TABLE #CandidateMaxStatus 
+  
+ DROP TABLE #Person 
+ DROP TABLE #Prospect 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

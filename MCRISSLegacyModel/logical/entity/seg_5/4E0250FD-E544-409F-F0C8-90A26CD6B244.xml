@@ -1,0 +1,159 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Entity class="oracle.dbtools.crest.model.design.logical.Entity" directorySegmentName="seg_5" id="4E0250FD-E544-409F-F0C8-90A26CD6B244" name="PRODUCTION STATUS HISTORY">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>FB156469-5AC2-B864-DDB2-F9ADB841400B</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<adequatelyNormalized>NO</adequatelyNormalized>
+<expectedVolumes>0</expectedVolumes>
+<fwdEngineeringStrategyName>Single Table</fwdEngineeringStrategyName>
+<growthPercent>0</growthPercent>
+<growthType>Year</growthType>
+<maxVolumes>9999999</maxVolumes>
+<minVolumes>0</minVolumes>
+<normalForm>Third</normalForm>
+<attributes itemClass="oracle.dbtools.crest.model.design.logical.Attribute">
+<Attribute name="PERSON ID" id="D17B497C-6AF6-2B37-C949-DAC54D08E9D7">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>DF7CD109-1437-9C77-2B0E-875C473E03EA</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<use>0</use>
+<domain>8C77819C-1B2F-24A0-C36D-F924235A9668</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="MONTH CODE" id="881F607F-40D7-FB71-CDF6-592C0776B82A">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>E61AF265-5BD8-1239-159F-AC7305C592B0</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<use>0</use>
+<domain>8C77819C-1B2F-24A0-C36D-F924235A9668</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="CALENDAR YEAR" id="0D0539E4-5ECF-8268-B6B0-B3E8C57D4ED8">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>9651966B-7BEC-8AA3-3310-24E991A22F34</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<use>0</use>
+<domain>8C77819C-1B2F-24A0-C36D-F924235A9668</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="ORGANIZATION ID" id="3D9A5415-C159-F627-6B16-0BF0EA35DCAE">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>6B22DC18-97C6-557E-2192-EFD43370FC44</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>8C77819C-1B2F-24A0-C36D-F924235A9668</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="ON PRODUCTION" id="30F8E499-EE12-0093-EB90-26602F2FC599">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>96C0553C-E23A-608A-6E16-4670DD29ED8B</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>91FEE8D3-8598-AD10-5F0A-90AD41572AF8</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="NON PROD REASON CODE" id="D8C6F15E-F9F9-1589-9564-96B6D1AFBC8A">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>821815FE-D363-2B36-B434-FC12FE4E82D2</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>887F9BB6-613E-46F2-A5D1-7E71EAB553DB</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="USER LOGIN" id="7DD46B77-C63B-47A4-82A3-E7B97203B0CB">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>604AF039-C059-9DB9-3FC5-92CE60DC403C</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<use>0</use>
+<domain>2E8EE7FC-99CE-D4AE-132C-50F4AADCC1F4</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="UPDATE DATE" id="834DC527-77E1-7625-9C2A-253252785E5F">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>EA44431E-8350-B696-412A-F61C9A52CE19</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="rowguid" id="2FA863BA-46A7-218C-3DB5-F01D57088227">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>CD9B35D8-7CE6-8D48-AB4A-3EB5102F7BDB</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="OTHER REASON DETAIL" id="D7E9F993-3BB1-08A2-B041-B2986C5454CC">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>D95DE119-267E-3312-25B0-65E4EF45A624</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>2E8EE7FC-99CE-D4AE-132C-50F4AADCC1F4</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+</attributes>
+<identifiers itemClass="oracle.dbtools.crest.model.design.logical.CandidateKey">
+<identifier id="E82B7B32-2BCC-73C6-7B39-19AE7517A1A1" name="PK PRODUCTION HISTORY STATUS">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>C9667D26-FBAA-1C94-2E95-A7E0C800279A</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<pk>true</pk>
+<usedAttributes>
+<attributeRef>D17B497C-6AF6-2B37-C949-DAC54D08E9D7</attributeRef>
+<attributeRef>881F607F-40D7-FB71-CDF6-592C0776B82A</attributeRef>
+<attributeRef>0D0539E4-5ECF-8268-B6B0-B3E8C57D4ED8</attributeRef>
+</usedAttributes>
+</identifier>
+</identifiers>
+</Entity>

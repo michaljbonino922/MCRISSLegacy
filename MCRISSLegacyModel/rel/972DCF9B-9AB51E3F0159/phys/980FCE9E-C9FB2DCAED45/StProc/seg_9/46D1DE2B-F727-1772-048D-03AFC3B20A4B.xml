@@ -1,0 +1,28 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetProgramDataByNwaID]" directorySegmentName="seg_9" id="46D1DE2B-F727-1772-048D-03AFC3B20A4B">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @NWA_ID int 
+) 
+AS 
+ 
+SELECT      
+ pa.PROGRAM_AVAILABILITY_ID, 
+ n.NWA_ID,  
+ p.PROGRAM_ID,  
+ p.PROGRAM_DESCRIPTION,  
+ p.PROGRAM_TYPE,  
+ n.DUTY_PREFERENCE1,  
+ n.DUTY_PREFERENCE2,  
+ n.DUTY_PREFERENCE3,  
+ pa.PROGRAM_ASSIGNMENT_DATE 
+FROM dbo.NWA n  WITH (NOLOCK) 
+ INNER JOIN dbo.PROGRAM_AVAILABILITY pa ON n.NWA_ID = pa.NWA_ID  
+ INNER JOIN dbo.PROGRAM p ON pa.PROGRAM_ID = p.PROGRAM_ID 
+WHERE n.NWA_ID = @NWA_ID]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

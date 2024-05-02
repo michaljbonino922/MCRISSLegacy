@@ -1,0 +1,50 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateCandidateProgramCriteriaWaiver]" directorySegmentName="seg_24" id="37106171-59CD-736C-D7E6-4B799A841210">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@CandidateWaiverID   AS INT, 
+ @WaiverID    AS INT, 
+ @AddCriteria    AS CHAR(1), 
+ @UserLogin    AS VARCHAR(15) 
+AS 
+ 
+SET NOCOUNT ON 
+ 
+IF NOT EXISTS (SELECT 1 FROM CANDIDATE_PROGRAM_CRITERIA_WAIVER CPCW WHERE  
+  CPCW.CANDIDATE_WAIVER_ID = @CandidateWaiverID AND 
+  CPCW.WAIVER_ID = @WaiverID) 
+BEGIN 
+ ------------------------ 
+ -- If the record does not exist and the user is trying to add a record, 
+ -- then perform the insert. 
+ ------------------------ 
+ IF @AddCriteria = 'Y' 
+ BEGIN 
+  INSERT INTO CANDIDATE_PROGRAM_CRITERIA_WAIVER  
+   (CANDIDATE_WAIVER_ID, WAIVER_ID, USER_LOGIN) 
+  VALUES  
+   (@CandidateWaiverID, @WaiverID, @UserLogin) 
+ END 
+END 
+ELSE 
+BEGIN 
+ ------------------------ 
+ -- If the record does exist and the user is not trying to add a record, 
+ -- then perform the delete. 
+ ------------------------ 
+ IF @AddCriteria = 'N' 
+ BEGIN 
+  DELETE FROM CANDIDATE_PROGRAM_CRITERIA_WAIVER WHERE CANDIDATE_WAIVER_ID = @CandidateWaiverID AND WAIVER_ID = @WaiverID 
+ END 
+END 
+ 
+------------------------ 
+-- Otherwise, there is nothing to be done. 
+------------------------ 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

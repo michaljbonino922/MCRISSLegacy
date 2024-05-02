@@ -1,0 +1,94 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Entity class="oracle.dbtools.crest.model.design.logical.Entity" directorySegmentName="seg_2" id="360D78CA-9012-ABB5-FB2C-92BB6C03552C" name="HIGH SCHOOL PLAN TYPE">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:55 UTC</createdTime>
+<generatorID>0D70075E-E16F-64FD-CFFA-CB81A34F543D</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<adequatelyNormalized>NO</adequatelyNormalized>
+<expectedVolumes>0</expectedVolumes>
+<fwdEngineeringStrategyName>Single Table</fwdEngineeringStrategyName>
+<growthPercent>0</growthPercent>
+<growthType>Year</growthType>
+<maxVolumes>9999999</maxVolumes>
+<minVolumes>0</minVolumes>
+<normalForm>Third</normalForm>
+<attributes itemClass="oracle.dbtools.crest.model.design.logical.Attribute">
+<Attribute name="PLAN TYPE" id="B9F29570-20E2-7E3E-81B1-E2B204E664FC">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:55 UTC</createdTime>
+<generatorID>B41FD7D9-0AA5-8632-B68E-589700415D80</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<use>0</use>
+<domain>3C0E82BD-C068-0C4C-5228-A7D4F1457B97</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="SHORT DESCRIPTION" id="59EEEC97-3EEE-95A4-1093-6540B6B95761">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:55 UTC</createdTime>
+<generatorID>9795C8A1-AAE8-53EF-A2BE-69B27B4CEE27</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>6E97A10C-696E-8780-B0C0-FA2FE4939478</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="USER LOGIN" id="AB3B51E6-6A73-D3E5-A0C7-E729ABAC50F1">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:55 UTC</createdTime>
+<generatorID>14D8BE66-B041-FC4C-FF46-C213A84E94A2</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<use>0</use>
+<domain>2E8EE7FC-99CE-D4AE-132C-50F4AADCC1F4</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="UPDATE DATE" id="BCC82FB3-4E7E-0CD6-E2B0-60D966ED5484">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:55 UTC</createdTime>
+<generatorID>1073F1D1-3465-83ED-9669-CF22B5F397EB</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="rowguid" id="24371A90-90CD-BD7F-63FB-30409F811547">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:55 UTC</createdTime>
+<generatorID>B276F5A4-41FA-6C41-2FCF-7EC9FA7335DC</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+</attributes>
+<identifiers itemClass="oracle.dbtools.crest.model.design.logical.CandidateKey">
+<identifier id="C19919EE-2F06-4CE5-AC42-810947C681E7" name="PK HS PLAN TYPE">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:55 UTC</createdTime>
+<generatorID>8E132B51-6CDC-E042-BC1D-1F3F6DD769AB</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<pk>true</pk>
+<usedAttributes>
+<attributeRef>B9F29570-20E2-7E3E-81B1-E2B204E664FC</attributeRef>
+</usedAttributes>
+</identifier>
+</identifiers>
+</Entity>

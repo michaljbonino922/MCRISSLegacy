@@ -1,0 +1,104 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_5" id="640D01D8-FD48-9016-8D93-5DE9038B7FBB" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="_dta_mv_6">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>3C41B97E-9178-9BD7-111D-527E7EFB278E</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  [USMC].[Event].[IsApproved] as _col_1,  [USMC].[EventOutcome].[InterviewOutcomeId] as _col_2,  [USMC].[Event].[EventTypeId] as _col_3,  [USMC].[Event].[ID] as _col_4,  [USMC].[EventSubject].[Id] as _col_5,  [USMC].[EventSubject].[SubjectId] as _col_6,  [USMC].[EventOutcome].[ID] as _col_7 FROM  [USMC].[Event],  [USMC].[EventSubject],  [USMC].[EventOutcome]   WHERE  [USMC].[Event].[ID] = [USMC].[EventOutcome].[EventId]  AND  [USMC].[EventSubject].[EventId] = [USMC].[EventOutcome].[EventId]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[IsApproved]" id="55E4BC77-B897-F187-1BBD-650C8AF49D16">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_1</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_1</headerAlias>
+<expression>[IsApproved]</expression>
+<reference>false</reference>
+<viewID>640D01D8-FD48-9016-8D93-5DE9038B7FBB</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[InterviewOutcomeId]" id="D3288649-4A83-D3D1-B1FB-A92CFD0A909F">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_2</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_2</headerAlias>
+<expression>[InterviewOutcomeId]</expression>
+<reference>false</reference>
+<viewID>640D01D8-FD48-9016-8D93-5DE9038B7FBB</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[EventTypeId]" id="06B1E610-9BAE-C4ED-939F-CD15F67185B2">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_3</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_3</headerAlias>
+<expression>[EventTypeId]</expression>
+<reference>false</reference>
+<viewID>640D01D8-FD48-9016-8D93-5DE9038B7FBB</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[ID]" id="EA5A1929-CBB0-9FC1-EAB6-EB025A3D3A37">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_4</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_4</headerAlias>
+<expression>[ID]</expression>
+<reference>false</reference>
+<viewID>640D01D8-FD48-9016-8D93-5DE9038B7FBB</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_2560" id="79EB36AB-02D8-3DE8-4006-29498B43594F">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_5</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_5</headerAlias>
+<expression>[Id]</expression>
+<reference>false</reference>
+<viewID>640D01D8-FD48-9016-8D93-5DE9038B7FBB</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[SubjectId]" id="71E4F729-084C-5BE4-3ED9-19FED9DCD8C5">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_6</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_6</headerAlias>
+<expression>[SubjectId]</expression>
+<reference>false</reference>
+<viewID>640D01D8-FD48-9016-8D93-5DE9038B7FBB</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_2562" id="131FF46F-D320-F7A9-DDE0-F01A3131B2CA">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_7</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_7</headerAlias>
+<expression>[ID]</expression>
+<reference>false</reference>
+<viewID>640D01D8-FD48-9016-8D93-5DE9038B7FBB</viewID>
+</viewElement>
+</viewElements>
+</TableView>

@@ -1,0 +1,22 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetQSNBonusData]" directorySegmentName="seg_20" id="19FDDBC5-696A-C1AD-2EB1-E44921FD1711">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@ContractID  int, 
+ @MOS  varchar(4)  
+AS 
+ 
+SELECT  
+ ISNULL (BONUS_CONTROL_NUMBER, '') AS BONUS_CONTROL_NUMBER,  
+ ISNULL (CONVERT(VARCHAR, BONUS_AMOUNT), '') AS BONUS_AMOUNT, 
+ ISNULL (KICKER_CONTROL, '') AS KICKER_CONTROL 
+FROM  
+ QSN 
+WHERE  
+ QSN.CONTRACT_ID = @ContractID AND 
+ QSN.MOS = @MOS]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

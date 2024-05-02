@@ -1,0 +1,44 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetPtadPraspRequestsByDateAndOrg]" directorySegmentName="seg_5" id="FE5DBCC5-76C8-0342-CE29-C303E031E1A9">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+    @Organiza.onId  int 
+) 
+AS 
+ 
+BEGIN 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+ DECLARE @BeginDate date.me 
+ SET @BeginDate = DATEADD(year, -7, GetDate()) 
+  
+  
+SELECT 
+       R.RequestId, 
+       R.OriginatorUserId, 
+       RT.RequestTypeId, 
+       RT.RequestType, 
+       RT.XsdFileName, 
+       RT.RequestTypeID, 
+       RAS.RequestApprovalStatus, 
+       R.RequestDate, 
+       R.RequestXML, 
+       '' as RSS_NAME, 
+       '' as ApplicantName 
+FROM  USMC.Request R 
+ INNER JOIN USMC.RequestType RT ON RT.RequestTypeID = R.RequestTypeId 
+ INNER JOIN USMC.RequestApproval ra ON ra.RequestId = r.RequestId 
+ INNER JOIN USMC.RequestApprovalStatus ras ON ras.RequestApprovalStatusId = ra.RequestApprovalStatusId 
+WHERE (RequestType = 'Prasp' OR RequestType = 'Ptad') 
+  AND r.RequestDate > @BeginDate 
+  AND ra.RequestApprovalStatusId != 1 
+ORDER BY r.RequestDate DESC 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

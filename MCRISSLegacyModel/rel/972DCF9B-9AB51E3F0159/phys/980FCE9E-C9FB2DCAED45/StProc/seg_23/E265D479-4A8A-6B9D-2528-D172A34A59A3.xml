@@ -1,0 +1,38 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_ToolboxUpdateCandidateWaiver]" directorySegmentName="seg_23" id="E265D479-4A8A-6B9D-2528-D172A34A59A3">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@CandidateWaiverID int, 
+ @WaiverID int, 
+ @WaiverStatusCode char(1), 
+ @WaiverSubmissionDate date.me, 
+ @WaiverDetails varchar(255) = null, 
+ @ApprovalNumber int = null, 
+ @ApprovalDate date.me = null, 
+ @OccasionID int, 
+ @UserLogin varchar(15) 
+AS 
+ 
+IF EXISTS (SELECT 1  
+    FROM   CANDIDATE_WAIVER 
+           WHERE  CANDIDATE_WAIVER_ID = @CandidateWaiverID)  
+ 
+ BEGIN   
+   
+ UPDATE  CANDIDATE_WAIVER 
+ SET  WAIVER_ID = @WaiverID, 
+  WAIVER_STATUS_CODE = @WaiverStatusCode, 
+  WAIVER_SUBMISSION_DATE = @WaiverSubmissionDate, 
+  WAIVER_DETAILS = @WaiverDetails, 
+  APPROVAL_NUMBER = @ApprovalNumber, 
+  APPROVAL_DATE = @ApprovalDate, 
+  OCCASION_ID = @OccasionID, 
+  USER_LOGIN = @UserLogin, 
+  UPDATE_DATE = GETDATE() 
+ WHERE CANDIDATE_WAIVER_ID = @CandidateWaiverID 
+ END]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,31 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetChildOrgsExtra]" directorySegmentName="seg_16" id="91D23E3C-7C59-ABEA-51FE-4F1D1E2D29BB">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@ParentOrgID  int,   
+ @OrgType  varchar(3) = NULL   
+   
+AS   
+   
+SELECT    
+ DISTINCT RO.ORGANIZATION_ID,    
+ RO.SHORT_NAME,   
+ RO.NAME,    
+ RO.ORGANIZATION_TYPE,   
+ MD.MUD_ORG_NAME   
+FROM    
+ RECRUITING_ORGANIZATION RO INNER JOIN ORGANIZATION_MAP OM ON    
+  (RO.ORGANIZATION_ID = OM.CHILD_ORGANIZATION_ID AND   
+  OM.PARENT_ORGANIZATION_ID = @ParentOrgID AND   
+  ((@OrgType = 'OSS' AND RO.ORGANIZATION_TYPE = 'OSS')    
+   OR (COALESCE(@OrgType, SPACE(0)) != 'OSS' AND RO.ORGANIZATION_TYPE != 'OSS')) AND   
+  RO.ISOPEN = 'Y')   
+  LEFT OUTER JOIN MUD_USER_DATA MD ON   
+  MD.ORG_ID = RO.ORGANIZATION_ID   
+ORDER BY    
+ RO.ORGANIZATION_ID]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

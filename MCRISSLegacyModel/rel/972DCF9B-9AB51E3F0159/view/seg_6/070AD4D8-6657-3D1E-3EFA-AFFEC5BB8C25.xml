@@ -1,0 +1,246 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_6" id="070AD4D8-6657-3D1E-3EFA-AFFEC5BB8C25" schemaObject="B106B664-0C0B-E788-08ED-5CF8E449BE22" name="vwAddress">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>C6120F86-BA3B-7F9F-8212-5CBAA300FFF4</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT 
+ a.[PersonId], 
+ a.[Type], 
+ a.[AddressId], 
+ c.[Code] AS [CountryCode], 
+ c.[Name] AS [CountryName], 
+ s.[Code] AS [StateCode], 
+ s.[Name] AS [StateName], 
+ c2.[Code] AS [CountyCode], 
+ c2.[Name] AS [CountyName], 
+ c3.[Code] AS [CityCode], 
+ c3.[Name] AS [CityName], 
+ a.[Street1], 
+ a.[Street2], 
+ a.[ZipCode], 
+ a.[FromDate], 
+ a.[ToDate] 
+FROM [ACP].[Address] a 
+ LEFT JOIN MCRISS.USMC.vwCountries c ON c.[Code] = a.[CountryCode] 
+ LEFT JOIN MCRISS.USMC.vwStatesWithTerritories s ON s.[Code] = a.[StateCode] 
+ LEFT JOIN MCRISS.USMC.vwCoun.es c2 ON c2.[Code] = a.[CountyCode] AND (c2.[StateCode] = a.[CountryCode] OR c2.[StateCode] = a.[StateCode]) 
+ LEFT JOIN MCRISS.USMC.vwCi.es c3 ON c3.[Code] = a.[CityCode] AND c3.[CountyCode] = a.[CountyCode] AND (c3.[StateCode] = a.[CountryCode] OR c3.[StateCode] = a.[StateCode]) 
+WHERE  
+ a.CountryCode = 'US' 
+UNION 
+SELECT 
+ a.[PersonId], 
+ a.[Type], 
+ a.[AddressId], 
+ g.[STATE_CODE] AS [CountryCode], 
+ g.[COUNTRY_DESCRIPTION] AS [CountryName], 
+ g.[STATE_CODE] AS [StateCode], 
+ g.[STATE_TEXT] AS [StateName], 
+ g.[COUNTY_CODE] AS [CountyCode], 
+ g.[COUNTY_TEXT] AS [CountyName], 
+ g.[CITY_CODE] AS [CityCode], 
+ g.[CITY_TEXT] AS [CityName], 
+ a.[Street1], 
+ a.[Street2], 
+ a.[ZipCode], 
+ a.[FromDate], 
+ a.[ToDate] 
+FROM [ACP].[Address] a 
+ LEFT JOIN MCRISS.dbo.GEO_LOCATION g ON g.STATE_CODE = a.[CountryCode] AND g.[CITY_CODE] = a.[CityCode] 
+WHERE  
+ a.CountryCode IS NULL OR a.CountryCode != 'US']]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[PersonId]" id="3D5E7AD9-47B8-BDCF-1BAD-F1442AFC57D4">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>[PersonId]</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[PersonId]</expression>
+<reference>false</reference>
+<viewID>070AD4D8-6657-3D1E-3EFA-AFFEC5BB8C25</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[Type]" id="EB2BB8DE-E10B-7759-679C-6F31A92A2880">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>[Type]</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[Type]</expression>
+<reference>false</reference>
+<viewID>070AD4D8-6657-3D1E-3EFA-AFFEC5BB8C25</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[AddressId]" id="495AFE82-F15E-8A59-780A-E05105EB3A20">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>[AddressId]</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[AddressId]</expression>
+<reference>false</reference>
+<viewID>070AD4D8-6657-3D1E-3EFA-AFFEC5BB8C25</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[Code]" id="5E19BF1A-93BB-422E-06F9-C868666F7889">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>CountryCode</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>CountryCode</headerAlias>
+<expression>[Code]</expression>
+<reference>false</reference>
+<viewID>070AD4D8-6657-3D1E-3EFA-AFFEC5BB8C25</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[Name]" id="BA638021-F9A7-D1F6-FB9D-C29E67F8984F">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>CountryName</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>CountryName</headerAlias>
+<expression>[Name]</expression>
+<reference>false</reference>
+<viewID>070AD4D8-6657-3D1E-3EFA-AFFEC5BB8C25</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_2757" id="8D2BBD14-874C-7464-6A52-BD32A4766FD6">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>StateCode</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>StateCode</headerAlias>
+<expression>[Code]</expression>
+<reference>false</reference>
+<viewID>070AD4D8-6657-3D1E-3EFA-AFFEC5BB8C25</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_2758" id="9F339346-92CC-927B-3776-7D9EFF6A9E0B">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>StateName</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>StateName</headerAlias>
+<expression>[Name]</expression>
+<reference>false</reference>
+<viewID>070AD4D8-6657-3D1E-3EFA-AFFEC5BB8C25</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_2759" id="997ECF51-6582-EFB5-D29A-BF778344B44F">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>CountyCode</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>CountyCode</headerAlias>
+<expression>[Code]</expression>
+<reference>false</reference>
+<viewID>070AD4D8-6657-3D1E-3EFA-AFFEC5BB8C25</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_2760" id="BB38FEEC-D856-680F-CD6F-664409807001">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>CountyName</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>CountyName</headerAlias>
+<expression>[Name]</expression>
+<reference>false</reference>
+<viewID>070AD4D8-6657-3D1E-3EFA-AFFEC5BB8C25</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_2761" id="857D26E6-524F-D02B-50A0-9BB667864549">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>CityCode</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>CityCode</headerAlias>
+<expression>[Code]</expression>
+<reference>false</reference>
+<viewID>070AD4D8-6657-3D1E-3EFA-AFFEC5BB8C25</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_2762" id="8161792A-44AF-5507-1FDB-820A0729E507">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>CityName</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>CityName</headerAlias>
+<expression>[Name]</expression>
+<reference>false</reference>
+<viewID>070AD4D8-6657-3D1E-3EFA-AFFEC5BB8C25</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[Street1]" id="003A87D6-A844-4642-0203-0957D6208A94">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>[Street1]</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[Street1]</expression>
+<reference>false</reference>
+<viewID>070AD4D8-6657-3D1E-3EFA-AFFEC5BB8C25</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[Street2]" id="66070BA2-A30E-44C0-B472-3C935F41FE41">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>[Street2]</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[Street2]</expression>
+<reference>false</reference>
+<viewID>070AD4D8-6657-3D1E-3EFA-AFFEC5BB8C25</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[ZipCode]" id="9EDDEE3F-7F0E-ABE7-7D1E-6786B098486A">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>[ZipCode]</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[ZipCode]</expression>
+<reference>false</reference>
+<viewID>070AD4D8-6657-3D1E-3EFA-AFFEC5BB8C25</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[" id="48112DF5-5914-001E-8D37-C4AA0327A495">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>[</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[</expression>
+<reference>false</reference>
+<viewID>070AD4D8-6657-3D1E-3EFA-AFFEC5BB8C25</viewID>
+</viewElement>
+</viewElements>
+</TableView>

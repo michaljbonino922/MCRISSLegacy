@@ -1,0 +1,39 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="Recruiter" directorySegmentName="seg_7" id="D60E1752-7AE8-DDD3-F799-8F9F76A98FE5">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:58:59 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<schemaObject>454547C7-2829-9C8F-6E0C-35E4CFDC8E47</schemaObject>
+<database>DC23F770-7DD9-7021-9572-6AE599ACA3AE</database>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="RecruiterId" id="15988D73-C494-393E-BC32-CDF80988B9C9">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<defaultValue>(newid())</defaultValue>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="Data" id="3878E0F9-B6A2-7C20-EF01-084026CF40EC">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+</columnProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="._Recruiter_SourceSystem" id="44A1935C-F76A-24B9-8A04-A754AB18194A">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>create MCRISS_ERROR script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="PK_Recruiter" id="46F0610B-390B-3979-B13D-A5196C4EF62A">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<clustered>true</clustered>
+<fillFactor>90</fillFactor>
+<partitioningColumn>2652F651-BD81-131A-095E-A9D6CC502EAE</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+</TableProxySqlServerv2k5>

@@ -1,0 +1,102 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetCalendarDisplayItems]" directorySegmentName="seg_9" id="E9221298-8B17-3B6E-5D0A-CA03297EE111">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:37 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @StartDateTime date.me, 
+ @EndDateTime date.me, 
+ @OrgUnitID int 
+) 
+AS 
+ 
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+SELECT 
+ [CalendarItemID], 
+ [dbo].[CalendarItem].[CalendarItemTypeID] as CalendarItemType, 
+ [ScheduledEventID], 
+ [dbo].[ScheduledEventType].[Descrip.on] as EventTypeDescrip.on,  
+ [Loca.on], 
+ [StartDateTime], 
+ [EndDateTime], 
+ [dbo].[ScheduledEvent].[IsComplete], 
+ [dbo].[ScheduledEvent].[ScheduledAppointmentOutcomeID], 
+ [dbo].[CalendarItem].[RecruiterID] as RecruiterID, 
+ PersonRecruiter.[LastName] as RecruiterLastName, 
+ PersonRecruiter.[FirstName] as RecruiterFirstName, 
+ PersonRecruiter.[MiddleName] as RecruiterMiddleName, 
+ [dbo].[Rank].[Abbr] as RecruiterRank, 
+ [dbo].[ScheduledEvent].[LeadID], 
+ PersonLead.[LastName] as LeadLastName, 
+ PersonLead.[FirstName] as LeadFirstName, 
+ PersonLead.[MiddleName] as LeadMiddleName, 
+ Convert(varchar(max),[Notes]) as Notes 
+FROM  
+ [dbo].[CalendarItem], [dbo].[CalendarItemType], [dbo].[Recruiter], [dbo].[Person] PersonRecruiter, [dbo].[Rank], 
+ [dbo].[ScheduledEvent], [dbo].[ScheduledEventType], [dbo].[Lead], [dbo].[Recruit], [dbo].[Person] PersonLead 
+  
+WHERE  
+ [dbo].[CalendarItem].[CalendarItemTypeID] = [dbo].[CalendarItemType].[CalendarItemTypeID] AND 
+ ([StartDateTime] >= @StartDateTime OR @StartDateTime is null) AND 
+ ([EndDateTime] <= @EndDateTime OR @EndDateTime is null) AND 
+ [dbo].[CalendarItem].[RecruiterID] = [dbo].[Recruiter].[RecruiterID] AND 
+ [dbo].[Recruiter].[Organiza.onID] in 
+  (select root from [dbo].[vwOrgUnitIDs] where RSS = @OrgUnitID UNION 
+   select root from [dbo].[vwOrgUnitIDs] where RS = @OrgUnitID UNION 
+   select root from [dbo].[vwOrgUnitIDs] where Region = @OrgUnitID UNION 
+   select root from [dbo].[vwOrgUnitIDs] where HQ = @OrgUnitID) AND 
+ [dbo].[Recruiter].[PersonID] = PersonRecruiter.[PersonID] AND 
+ [dbo].[Recruiter].[RankID] = [dbo].[Rank].[RankID] AND 
+ [dbo].[ScheduledEvent].[ScheduledEventTypeID] = [dbo].[ScheduledEventType].[ScheduledEventTypeID] AND 
+ [dbo].[ScheduledEvent].[CalendarItemEventID] = [dbo].[CalendarItem].[CalendarItemID] AND 
+ [dbo].[ScheduledEvent].[LeadID] = [dbo].[Lead].[LeadID] AND 
+ [dbo].[Lead].[RecruitID] = [dbo].[Recruit].[RecruitID] AND 
+ [dbo].[Recruit].[PersonID] = PersonLead.[PersonID] 
+ 
+UNION 
+ 
+SELECT 
+ [CalendarItemID], 
+ [dbo].[CalendarItem].[CalendarItemTypeID] as CalendarItemType, 
+ [ScheduledEventID], 
+ [dbo].[FollowUpAc.on].[Descrip.on] as EventTypeDescrip.on,  
+ [Loca.on], 
+ [StartDateTime], 
+ [EndDateTime], 
+ NULL, 
+ NULL, 
+ [dbo].[CalendarItem].[RecruiterID] as RecruiterID, 
+ PersonRecruiter.[LastName] as RecruiterLastName, 
+ PersonRecruiter.[FirstName] as RecruiterFirstName, 
+ PersonRecruiter.[MiddleName] as RecruiterMiddleName, 
+ [dbo].[Rank].[Abbr] as RecruiterRank, 
+ [dbo].[ScheduledEvent].[LeadID], 
+ PersonLead.[LastName] as LeadLastName, 
+ PersonLead.[FirstName] as LeadFirstName, 
+ PersonLead.[MiddleName] as LeadMiddleName, 
+ Convert(varchar(max),[Notes]) as Notes 
+FROM  
+ [dbo].[CalendarItem], [dbo].[CalendarItemType], [dbo].[Recruiter], [dbo].[Person] PersonRecruiter, [dbo].[Rank], 
+ [dbo].[ScheduledEvent], [dbo].[FollowUpAc.on], [dbo].[Lead], [dbo].[Recruit], [dbo].[Person] PersonLead 
+WHERE  
+ [dbo].[CalendarItem].[CalendarItemTypeID] = [dbo].[CalendarItemType].[CalendarItemTypeID] AND 
+ ([StartDateTime] >= @StartDateTime OR @StartDateTime is null) AND 
+ ([EndDateTime] <= @EndDateTime OR @EndDateTime is null) AND 
+ [dbo].[CalendarItem].[RecruiterID] = [dbo].[Recruiter].[RecruiterID] AND 
+ [dbo].[Recruiter].[Organiza.onID] in 
+  (select root from [dbo].[vwOrgUnitIDs] where RSS = @OrgUnitID UNION 
+   select root from [dbo].[vwOrgUnitIDs] where RS = @OrgUnitID UNION 
+   select root from [dbo].[vwOrgUnitIDs] where Region = @OrgUnitID UNION 
+   select root from [dbo].[vwOrgUnitIDs] where HQ = @OrgUnitID) AND 
+ [dbo].[Recruiter].[PersonID] = PersonRecruiter.[PersonID] AND 
+ [dbo].[Recruiter].[RankID] = [dbo].[Rank].[RankID] AND 
+ [dbo].[ScheduledEvent].[FollowUpAc.onID] = [dbo].[FollowUpAc.on].[FollowUpAc.onID] AND 
+ [dbo].[ScheduledEvent].[CalendarItemAc.onID] = [dbo].[CalendarItem].[CalendarItemID] AND 
+ [dbo].[ScheduledEvent].[LeadID] = [dbo].[Lead].[LeadID] AND 
+ [dbo].[Lead].[RecruitID] = [dbo].[Recruit].[RecruitID] AND 
+ [dbo].[Recruit].[PersonID] = PersonLead.[PersonID]]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+</StoredProcedureSqlServerv2k5>

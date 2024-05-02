@@ -1,0 +1,34 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetJoinHistory]" directorySegmentName="seg_9" id="F893A371-3329-DB89-C9C8-0F546175327A">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:37 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @RecruitID uniqueiden..er 
+) 
+AS 
+ 
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED  
+ 
+SELECT 
+ l.LeadID as LeadID, 
+ ruc.Descrip.on as RUC, 
+ ru.Descrip.on as ReserveUnit, 
+ qsn.SerialNumber as QSN, 
+ ap.DateJoinCredit as UnitJoinDate, 
+ l.DropDischargeUnitDate as UnitDischargeDate 
+FROM  
+ [dbo].[Recruit] r 
+ INNER JOIN [dbo].[Lead] l ON r.RecruitID = l.RecruitID 
+ INNER JOIN [dbo].[ApplicantPackage] ap ON ap.LeadID = l.LeadID 
+ INNER JOIN [dbo].[QSN] qsn ON ap.QSNID = qsn.QSNID 
+ INNER JOIN [dbo].[RUCReserveUnit] rru ON rru.RUCReserveUnitID = qsn.RUCReserveUnitID 
+ INNER JOIN [dbo].[RUC] ruc ON ruc.RUCID = rru.RUCID 
+ INNER JOIN [dbo].[ReserveUnit] ru ON ru.ReserveUnitID = rru.ReserveUnitID 
+WHERE 
+ r.RecruitID = @RecruitID and ap.DateJoinCredit is not null 
+ORDER BY ap.DateJoinCredit Desc]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+</StoredProcedureSqlServerv2k5>

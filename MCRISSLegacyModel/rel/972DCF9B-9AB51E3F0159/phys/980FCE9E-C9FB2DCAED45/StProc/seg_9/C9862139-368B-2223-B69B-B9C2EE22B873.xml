@@ -1,0 +1,23 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetQsnDataByContractID]" directorySegmentName="seg_9" id="C9862139-368B-2223-B69B-B9C2EE22B873">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @ContractID int 
+) 
+AS 
+ 
+SELECT  
+ QSN_ID, 
+ CONTRACT_ID, 
+ MOS, 
+ BONUS_CONTROL_NUMBER, 
+ BONUS_AMOUNT, 
+ KICKER_CONTROL 
+FROM QSN WITH (NOLOCK) 
+WHERE CONTRACT_ID = @ContractID]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

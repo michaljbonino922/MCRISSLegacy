@@ -1,0 +1,21 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetQSNRSPivotDate]" directorySegmentName="seg_20" id="4F2ADA4C-DBA7-B569-DC57-E2C257E2BEE9">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@QSNID char(9), 
+ @Organiza.onID int OUTPUT, 
+ @QSNPivotDate date.me OUTPUT 
+AS 
+ 
+SELECT  
+ @Organiza.onID = RECRUITING_ORGANIZATION_ID, 
+ @QSNPivotDate = QSN_PIVOT_DATE 
+FROM  
+ QSN 
+WHERE  
+ QSN_ID = @QSNID]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,81 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetWFVTakeOneLoca.onRows]" directorySegmentName="seg_14" id="58807FC5-585C-F73C-8082-E715439CE383">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:56 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[(  
+ @OrgId uniqueiden..er = null, 
+ @RecruiterId uniqueiden..er = null, 
+ @ScheduledEventsStart date.me, 
+ @ScheduledEventsEnd date.me, 
+ @EventTypeId int = null, 
+ @OnlyNextScheduledEvent bit = 1 
+) 
+ 
+AS 
+ 
+ DECLARE @Organiza.onID INT  
+ SELECT @Organiza.onID = ORGANIZATION_ID FROM MCRISS.DBO.RECRUITING_ORGANIZATION WHERE rowguid = @orgid   
+  
+ SELECT 
+  rp.RECRUITING_PERSON_ID,  
+  rp.rowguid, 
+  rp.RANK_CODE, 
+  rcrtr.LAST_NAME, 
+  rcrtr.FIRST_NAME, 
+  rcrtr.LEGAL_MIDDLE_NAME 
+ INTO #Recrui.ngPerson 
+ FROM [MCRISS].[dbo].[RECRUITING_PERSON] rp  
+ INNER JOIN [MCRISS].[dbo].[PERSON] rcrtr ON rp.RECRUITING_PERSON_ID = rcrtr.PERSON_ID  
+ WHERE ((rp.RowGuid = @RecruiterId AND @RecruiterId IS NOT NULL) OR (@RecruiterId IS NULL))  
+   
+SELECT 
+  tol.ID AS ApplicantAssetId    
+  ,tol.ID AS TakeOneLoca.onId 
+  ,toc.DatePrepared AS CreateDate 
+  ,tol.Loca.onName AS ApplicantAssetName  
+  ,COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+  COALESCE(RTRIM(rp.LAST_NAME), SPACE(0))  + SPACE(1) +  
+  COALESCE(RTRIM(rp.FIRST_NAME), SPACE(0)) + SPACE(1) +  
+  COALESCE(RTRIM(rp.LEGAL_MIDDLE_NAME), SPACE(0)) AS Recruiter 
+  ,COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+  COALESCE(RTRIM(rp.LAST_NAME), SPACE(0)) AS RecruiterShortName 
+  ,rp.[rowguid] AS RecruiterID 
+  ,tole.EventID AS EventID 
+  ,tole.StartDate AS EventDate 
+FROM [RSSOSS].[USMC].[TakeOneLoca.on] tol 
+  INNER JOIN RSSOSS.USMC.TakeOneCard toc ON toc.Id = tol.TakeOneCardID 
+  INNER JOIN RSSOSS.USMC.MapsSector ms ON ms.SectorID = toc.SectorID 
+  INNER JOIN RSSOSS.USMC.MapsSectorRecruiter msr ON ms.SectorID = msr.SectorID 
+             AND msr.LastUpdateDate IN ( SELECT MAX(msr2.LastUpdateDate) 
+                    FROM RSSOSS.USMC.MapsSectorRecruiter msr2 
+                    WHERE msr.SectorID = msr2.SectorID) 
+  INNER JOIN MCRISS.dbo.RECRUITING_ORGANIZATION ro ON ms.Recrui.ngOrganiza.onId = ro.rowguid 
+  INNER JOIN #Recrui.ngPerson rp ON msr.Recrui.ngPersonID = rp.rowguid 
+  INNER JOIN ( SELECT es.SubjectID, 
+       e.ID AS EventID, 
+       e.StartDate, 
+       e.EventTypeId 
+      FROM [RSSOSS].[USMC].[TakeOneLoca.on] tol2 
+      INNER JOIN RSSOSS.USMC.EventSubject es ON es.SubjectId = tol2.ID 
+      INNER JOIN RSSOSS.USMC.Event e ON e.id = es.even.d 
+              AND (e.StartDate IN ( SELECT MIN(e2.StartDate) 
+                   FROM [RSSOSS].[USMC].[Event] e2 
+                   INNER JOIN [RSSOSS].[USMC].EventSubject es2 ON e2.id = es2.even.d 
+                   WHERE es2.SubjectID = es.SubjectID                    
+                   AND e2.StartDate >= GetDate() 
+                   )  
+                  OR (@OnlyNextScheduledEvent = 0 AND e.StartDate >= GetDate()) 
+               ) 
+     ) tole ON tole.SubjectID = tol.ID   
+WHERE (rp.RowGuid = @RecruiterId OR @RecruiterId IS NULL) 
+ AND (ro.ORGANIZATION_ID = @Organiza.onID OR @Organiza.onID = NULL) 
+ AND tole.StartDate >= @ScheduledEventsStart 
+ AND tole.StartDate < @ScheduledEventsEnd 
+ AND (tole.EventTypeId = @EventTypeId OR @EventTypeId IS NULL) 
+   
+DROP TABLE #Recrui.ngPerson]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

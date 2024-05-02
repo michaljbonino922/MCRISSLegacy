@@ -1,0 +1,121 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SetUserStatus_Step_5]" directorySegmentName="seg_0" id="D0345530-AD63-B3EA-71CA-20C8B56D9F4D">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:44 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[AS 
+ 
+ 
+/* 
+ 
+EMAIL STATUS 
+0 Ac.vity present in the past 23 days 
+1 No ac.vity for 23 days / email warning about DEACTIVATION in 7 days 
+2 No ac.vity for 30 days / user account deac.vated / record isAc.ve set to 0 
+3 No ac.vity for 90 days / .rst email warning about DELETION in 90 days 
+4 No ac.vity for 173 days / second email warning about DELETION in 7 days 
+5 No ac.vity for 180 days / user record deleted 
+ 
+JOB STEP 5: 
+Handle users with no ac.vity for 173 to 180 days 
+ 
+BASIC LOGIC 
+Get all users from the UserStatus view that have no ac.vity for 173 days to 180 days. 
+If the user's current email status is 4, then do nothing. 
+If the user's current email status is NULL or not 4, then insert a new status record with email status of 4 and send email. 
+ 
+SQL LOGIC 
+Temp table of users from the UserStatus view 
+where DATEDIFF(day,LastAc.vityDate,GETDATE()) > 173 
+and DATEDIFF(day,LastAc.vityDate,GETDATE()) <= 180 
+and (UDD_EmailStatus is NULL or UDD_EmailStatus <> 4) 
+ 
+For those users send second warning email about DELETION in 7 days. 
+For those users insert a new status record with email status of 4. 
+ 
+*/ 
+ 
+ 
+SELECT * 
+INTO #temp_UserStatus 
+FROM [UserMgmt].[dbo].[vwUserStatus] 
+where DATEDIFF(day,LastAc.vityDate,GETDATE()) > 173 
+and DATEDIFF(day,LastAc.vityDate,GETDATE()) <= 180 
+and (UDD_EmailStatus is NULL or UDD_EmailStatus <> 4) 
+ 
+ 
+/* 
+DECLARE @Receipientlist varchar(max),@ReceipientlistPJ varchar(50) 
+Set @ReceipientlistPJ=';Paul.Jemiolo.ctr@marines.usmc.mil' 
+SET @ReceipientList = STUFF((SELECT ';' + email FROM #temp_UserStatus 
+Where Email is not null and right(email,3)='mil'FOR XML PATH('')),1,1,'') 
+Set Concat_NULL_yields_null o. 
+select  @ReceipientList=@ReceipientList  --+ @ReceipientlistPJ 
+select  @ReceipientList 
+ 
+If @ReceipientList is not null 
+Begin 
+EXEC msdb.dbo.sp_send_dbmail     
+@pro.le_name = 'MCRISS Do Not Reply' 
+,@blind_copy_recipients=  @Receipientlist --''Paul.Jemiolo.ctr@marines.usmc.mil'' -- 
+,@subject = 'Your MCRISS user account has not been accessed in 173 days' 
+,@body= 
+'Hello, 
+This is a system generated email regarding your MCRISS user account. 
+The purpose of this email is to no.fy users that their MCRISS user  
+account has been inac.ve for 173 days and will be deleted following  
+another 7 days of inac.vity. 
+   
+Your MCRISS user account has not been accessed in 173 days.   
+Per NIST SP-800-53 guidelines, your account will be deleted in 7 days.  
+  
+If you require your account to be ac.ve, please contact the Enterprise Service  
+Desk and have a trouble .cket opened in order to re-enable your MCRISS user account. 
+ 
+Thank You  
+MCRISS' 
+End 
+*/ 
+ 
+ 
+Insert Into Usermgmt.dbo.UserDeac.va.on_Dele.on ( 
+ UserID, 
+ Username ,  
+ [Last_Log_On_Date ([LastAc.vityDate]])],  
+ Title ,  
+ FirstName ,  
+ LastName ,  
+ MiddleName ,  
+ Email , 
+ Phone,  
+ UserTypeID ,  
+ IsAc.ve ,  
+ LastEditBy ,  
+ LastEditDate ,  
+ UserGuid, 
+ EmailStatus 
+ ) 
+SELECT   
+ U.id, 
+ U.Username ,  
+ U.LastAc.vityDate ,  
+ U.Title ,  
+ U.FirstName ,  
+ U.LastName ,  
+ U.MiddleName ,  
+ U.Email ,  
+ U.Phone ,  
+ U.UserTypeID ,  
+ U.IsAc.ve ,  
+ U.LastEditBy ,  
+ U.LastEditDate ,  
+ U.UserID, 
+ 4 
+ FROM #temp_UserStatus AS U  
+ 
+ 
+DROP TABLE #temp_UserStatus]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>30378C7E-748C-F803-F9A3-93DBFA86C9A7</database>
+</StoredProcedureSqlServerv2k5>

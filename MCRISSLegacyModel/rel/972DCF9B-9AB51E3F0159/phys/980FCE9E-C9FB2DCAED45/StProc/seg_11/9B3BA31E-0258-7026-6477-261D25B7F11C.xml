@@ -1,0 +1,101 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertOrUpdateROTCUsingGuid]" directorySegmentName="seg_11" id="9B3BA31E-0258-7026-6477-261D25B7F11C">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@ROTCID  uniqueiden..er, 
+       @PointOfContactID  uniqueiden..er, 
+       @SchoolCode uniqueiden..er, 
+       @FiscalYear int,        
+       @Service varchar(3), 
+       @Popula.on smallint, 
+       @CollegePro.leID  uniqueiden..er, 
+       @RankCode varchar(10), 
+       @UserLogin varchar(50) 
+            
+        
+AS 
+SET NOCOUNT ON 
+ 
+DECLARE @SchoolCodeint int 
+ 
+ 
+BEGIN TRANSACTION 
+ 
+Select @SchoolCodeint  = School_Code FROM High_School hs where hs.rowguid = @SchoolCode 
+ 
+  
+   
+    
+ IF NOT EXISTS (SELECT '1' from [USMC].[CollegePro.le]  where CollegePro.leID = @CollegePro.leID 
+               and @CollegePro.leID IS NOT NULL) 
+ 
+ 
+ BEGIN 
+    INSERT INTO [MCRISS].[USMC].[CollegePro.le] 
+         ([CollegePro.leID],[SCHOOL_CODE], [FiscalYear], 
+     [UserLogin], [UpdateDate]) 
+      VALUES          
+         (@CollegePro.leID,@SchoolCodeint,@FiscalYear,  
+     @UserLogin, GetDate())   
+ END 
+   
+   
+  -- informa.on for an exisi.ng record can be inserted. 
+  IF EXISTS (SELECT '1' from [MCRISS].[USMC].[CollegePro.leROTC]  
+             where CollegePro.leROTCID = @ROTCID 
+             and  @ROTCID IS NOT NULL) 
+   
+              
+  -- then update the exisi.ng record 
+  BEGIN 
+   
+   UPDATE [MCRISS].[USMC].[CollegePro.leROTC] 
+    
+   SET   
+     [Service] = @Service, 
+     [Popula.on] = @Popula.on, 
+     [RankCode] = @RankCode, 
+     [UserLogin] = @UserLogin, 
+     [CollegePro.leID] = @CollegePro.leID, 
+     [UpdateDate] = GetDate() 
+       
+   WHERE  CollegePro.leROTCID = @ROTCID 
+      
+     
+   
+  END -- If exists in College Pro.le ROTC  
+  ELSE 
+  BEGIN 
+   --insert into college pro.le ROTC    
+    INSERT INTO [MCRISS].[USMC].[CollegePro.leROTC] 
+      ([CollegePro.leROTCID],[Service],[Popula.on],[PointOfContactID] 
+      ,[RankCode],[CollegePro.leID],[UserLogin] ,[UpdateDate]) 
+    VALUES   
+      (@ROTCID, @Service, @Popula.on, @PointOfContactID, 
+       @RankCode, @CollegePro.leID,@UserLogin,GetDate()) 
+  END  -- end insert college pro.le rotc 
+   
+ 
+ 
+-- Rollback the transac.on if there were any errors 
+IF @@ERROR <> 0 
+ BEGIN 
+    -- Rollback the transac.on 
+    ROLLBACK TRANSACTION 
+ 
+    -- Raise an error and return 
+    RAISERROR ('Error occurred while performing the change.', 16, 1) 
+    RETURN 
+ END 
+  
+  
+ COMMIT TRANSACTION 
+  
+   
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,111 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetCollegeViewByZipCodes]" directorySegmentName="seg_4" id="53B97A47-A352-2562-1179-EF7E30E36673">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@XmlZipCodes as XML, 
+      @FiscalYear as Int, 
+      @MarketAnalysisView bit = 0 
+   
+AS 
+ 
+DECLARE @DocZipDocs int 
+EXEC sp_xml_preparedocument @DocZipDocs OUTPUT, @XmlZipCodes 
+  
+SELECT  
+  [CollegePro.leID] 
+  ,hs.[SCHOOL_CODE] AS SchoolCode 
+  ,hs.[RowGuid] as SchoolRowGuid 
+  ,hs.highschool_name AS CollegeName 
+  ,FiscalYear 
+  ,cp.PriorityCode AS Priority 
+  ,cp.BarronsIndex AS BarronIndex 
+  ,cp.NumMale 
+  ,cp.NumFemale 
+  ,cp.NumAfricanAmerican 
+  ,cp.NumHispanic 
+  ,cp.NumOther 
+  ,ISNULL(PercentQuali.ed,0) AS PercentQuali.ed  
+  ,ISNULL(NumQCPMale,0) AS NumQCPM 
+  ,ISNULL(NumQCPFemale,0) AS NumQCPF     
+  ,ISNULL(NumDQCPMale,0) AS NumDQCPM 
+  ,ISNULL(NumDQCPFemale,0) AS NumDQCPF 
+  ,0 AS NumPool 
+  ,0 AS  NumAEV    
+  ,TimeToCollegeInMinutes 
+  ,DistanceToCollege   
+INTO #Colleges 
+FROM [MCRISS].[dbo].High_School hs     
+LEFT OUTER JOIN [MCRISS].[USMC].[CollegePro.le] cp on cp.school_code = hs.school_code and cp.FiscalYear = @FiscalYear  
+WHERE LEFT(HS.ZIP_CODE, 5) IN(Select ZipCode from  OPENXML(@DocZipDocs, '/ZipCodeList/ZipCodeData') WITH (ZipCode varchar(5)) ) 
+ AND hs.school_type <> 'HS' 
+  
+ORDER BY cp.[SCHOOL_CODE] 
+ 
+IF @MarketAnalysisView = 0 
+BEGIN 
+ SELECT * 
+ FROM #Colleges 
+END 
+ELSE 
+BEGIN 
+ SELECT  
+  cp.SCHOOL_CODE 
+  ,cvd.NumVisitsPlanned 
+  ,cvd.ContractGoal 
+ INTO #OlderCollegePro.les1 
+ FROM MCRISS.USMC.CollegePro.le cp 
+ INNER JOIN MCRISS.dbo.High_School hs on cp.school_code = hs.school_code 
+ INNER JOIN [MCRISS].[USMC].[CollegeVisitDetail] cvd ON cp.CollegePro.leID = cvd.CollegePro.leID  
+ WHERE FiscalYear IN (@FiscalYear - 3)  
+  
+ SELECT  
+  cp.SCHOOL_CODE 
+  ,cvd.NumVisitsPlanned 
+  ,cvd.ContractGoal 
+ INTO #OlderCollegePro.les2 
+ FROM MCRISS.USMC.CollegePro.le cp 
+ INNER JOIN MCRISS.dbo.High_School hs on cp.school_code = hs.school_code 
+ INNER JOIN [MCRISS].[USMC].[CollegeVisitDetail] cvd ON cp.CollegePro.leID = cvd.CollegePro.leID  
+ WHERE FiscalYear IN (@FiscalYear - 2) 
+  
+ SELECT  
+  cp.SCHOOL_CODE 
+  ,cvd.NumVisitsPlanned 
+  ,cvd.ContractGoal 
+ INTO #OlderCollegePro.les3 
+ FROM MCRISS.USMC.CollegePro.le cp 
+ INNER JOIN MCRISS.dbo.High_School hs on cp.school_code = hs.school_code 
+ INNER JOIN [MCRISS].[USMC].[CollegeVisitDetail] cvd ON cp.CollegePro.leID = cvd.CollegePro.leID  
+ WHERE FiscalYear IN (@FiscalYear - 1) 
+ 
+ SELECT * 
+ ,ISNULL(cvd.NumVisitsPlanned,0) AS NumFYPlannedVisits  
+    ,ISNULL(cvd.ContractGoal,0) AS NumFYContractGoal     
+    ,ISNULL(cp1.NumVisitsPlanned,0) AS NumFYPlannedVisits1  
+    ,ISNULL(cp1.ContractGoal,0) AS NumFYContractGoal1     
+ ,ISNULL(cp2.NumVisitsPlanned,0) AS NumFYPlannedVisits2 
+    ,ISNULL(cp2.ContractGoal,0) AS NumFYContractGoal2     
+ ,ISNULL(cp3.NumVisitsPlanned,0) AS NumFYPlannedVisits3  
+    ,ISNULL(cp3.ContractGoal,0) AS NumFYContractGoal3      
+ FROM #Colleges c 
+ LEFT OUTER JOIN [MCRISS].[USMC].[CollegeVisitDetail] cvd ON c.CollegePro.leID = cvd.CollegePro.leID  
+ LEFT OUTER JOIN #OlderCollegePro.les1 cp1 ON cp1.school_code = c.SchoolCode 
+ LEFT OUTER JOIN #OlderCollegePro.les2 cp2 ON cp2.school_code = c.SchoolCode 
+ LEFT OUTER JOIN #OlderCollegePro.les3 cp3 ON cp3.school_code = c.SchoolCode 
+  
+ DROP TABLE #OlderCollegePro.les1 
+ DROP TABLE #OlderCollegePro.les2 
+ DROP TABLE #OlderCollegePro.les3 
+END 
+ 
+DROP TABLE #Colleges 
+ 
+EXEC sp_xml_removedocument @DocZipDocs                
+                                 
+  
+SET NOCOUNT OFF]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

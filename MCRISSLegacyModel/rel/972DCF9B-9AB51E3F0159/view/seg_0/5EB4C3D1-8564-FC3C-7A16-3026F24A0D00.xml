@@ -1,0 +1,82 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_0" id="5EB4C3D1-8564-FC3C-7A16-3026F24A0D00" schemaObject="2A6D9360-3BB2-5CEA-6E99-790D76996FDF" name="View_Enlisted_Export_PJ">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>E39C2E7E-BE07-E48F-BAA8-418D79D836A9</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT     TOP (100) PERCENT N.MARINE_CANDIDATE_ID, N.NWA_ID, C.CONTRACT_ID, NULL AS Expr1, N.ORGANIZATION_OF_RECORD_ID AS RSS_ID 
+FROM         dbo.CONTRACT AS C INNER JOIN 
+                      dbo.NWA AS N ON C.NWA_ID = N.NWA_ID AND DATEDIFF(DAY, GETDATE(), C.PROJECTED_SHIP_DATE) BETWEEN - 7 AND 15 AND  
+                      C.PROJECTED_TRAINING_ORG_ID IN (1, 2) AND C.COMPONENT_CODE IN ('B5', 'K4', 'K5', 'K8', 'K9') AND C.DISCHARGE_DATE IS NULL LEFT OUTER JOIN 
+                      dbo.ENLISTED_EXPORT AS EE ON C.CONTRACT_ID = EE.CONTRACT_ID 
+WHERE     (DATEDIFF(DAY, GETDATE(), C.PROJECTED_SHIP_DATE) BETWEEN - 7 AND 15) AND (EE.CONTRACT_ID IS NULL) 
+ORDER BY N.MARINE_CANDIDATE_ID]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="100) PERCENT" id="0A5D126F-1A0E-AD86-66FA-C7993385EFCC">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>N.MARINE_CANDIDATE_ID</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>N.MARINE_CANDIDATE_ID</headerAlias>
+<expression>100) PERCENT</expression>
+<reference>false</reference>
+<viewID>5EB4C3D1-8564-FC3C-7A16-3026F24A0D00</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="NWA_ID" id="A4E964AA-1A3C-9E10-8776-8CD3C73DC721">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>NWA_ID</alias>
+<dataType>UNKNOWN</dataType>
+<expression>NWA_ID</expression>
+<reference>false</reference>
+<viewID>5EB4C3D1-8564-FC3C-7A16-3026F24A0D00</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="CONTRACT_ID" id="51934F95-0461-F329-DE4C-1F221654820B">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>CONTRACT_ID</alias>
+<dataType>UNKNOWN</dataType>
+<expression>CONTRACT_ID</expression>
+<reference>false</reference>
+<viewID>5EB4C3D1-8564-FC3C-7A16-3026F24A0D00</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="NULL" id="F380ED56-E58F-6846-33AF-2303972E0654">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Expr1</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>Expr1</headerAlias>
+<expression>NULL</expression>
+<reference>false</reference>
+<viewID>5EB4C3D1-8564-FC3C-7A16-3026F24A0D00</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ORGANIZATION_OF_RECORD_ID" id="97B87482-999B-2228-E827-063AFA486438">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>RSS_ID</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>RSS_ID</headerAlias>
+<expression>ORGANIZATION_OF_RECORD_ID</expression>
+<reference>false</reference>
+<viewID>5EB4C3D1-8564-FC3C-7A16-3026F24A0D00</viewID>
+</viewElement>
+</viewElements>
+</TableView>

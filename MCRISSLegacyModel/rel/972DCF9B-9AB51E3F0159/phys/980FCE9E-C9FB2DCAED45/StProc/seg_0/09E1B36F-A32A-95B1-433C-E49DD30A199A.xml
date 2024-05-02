@@ -1,0 +1,24 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_MIGetReprocessRecords]" directorySegmentName="seg_0" id="09E1B36F-A32A-95B1-433C-E49DD30A199A">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:09 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@SSN char(9) 
+AS 
+ 
+SELECT DISTINCT 
+ MIL.MIRS_IMPORT_ID, MIL.FOURK  
+FROM  
+ MIRS_IMPORT_LOG MIL INNER JOIN MIRS_IMPORT_ERROR MIE ON 
+  (MIL.SSN = @SSN AND 
+  MIL.MIRS_IMPORT_ID = MIE.MIRS_IMPORT_ID) 
+ INNER JOIN ERROR_LOG EL ON  
+  (MIE.ERROR_LOG_ID = EL.ERROR_LOG_ID AND 
+  EL.REPROCESS = 'Y' AND 
+  EL.STATUS = 'UNRESOLVED') 
+ORDER BY 
+ MIL.MIRS_IMPORT_ID]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>24B9F7BA-5DD4-EAB5-4EB1-35B911743E85</database>
+</StoredProcedureSqlServerv2k5>

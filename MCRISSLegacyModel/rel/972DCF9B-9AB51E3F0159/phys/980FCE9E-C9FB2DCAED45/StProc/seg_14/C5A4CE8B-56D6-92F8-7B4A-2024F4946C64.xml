@@ -1,0 +1,708 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_DBADeleteAllSSN2]" directorySegmentName="seg_14" id="C5A4CE8B-56D6-92F8-7B4A-2024F4946C64">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@ssn varchar(9) 
+   
+as 
+ 
+BEGIN 
+ 
+ declare @personid varchar(20), @marineid varchar(20) 
+ 
+ set @personid = (select person_id from person 
+   where social_security_number = @ssn) 
+ 
+ set @marineid = (select person_id from person 
+   where social_security_number = @ssn) 
+ 
+ BEGIN TRY 
+  --- delete from CANDIDATE_ADDRESS 
+ 
+    if exists (select 1 from CANDIDATE_ADDRESS 
+     where marine_candidate_id = @marineid) 
+ 
+   begin 
+    delete from CANDIDATE_ADDRESS where marine_candidate_id = @marineid 
+ 
+    print @marineid + ' has been deleted from CANDIDATE_ADDRESS' 
+   end 
+ 
+ 
+  --- delete from CANDIDATE_ASVAB 
+ 
+    if exists (select 1 from CANDIDATE_ASVAB 
+     where marine_candidate_id = @marineid) 
+ 
+   begin 
+    delete from CANDIDATE_ASVAB where marine_candidate_id = @marineid 
+ 
+    print @marineid + ' has been deleted from CANDIDATE_ASVAB' 
+   end 
+ 
+ 
+ 
+  --- delete from CANDIDATE_COMMENT 
+ 
+    if exists (select 1 from CANDIDATE_COMMENT 
+     where marine_candidate_id = @marineid) 
+ 
+   begin 
+    delete from CANDIDATE_COMMENT where marine_candidate_id = @marineid 
+ 
+    print @marineid + ' has been deleted from CANDIDATE_COMMENT' 
+   end 
+ 
+ 
+  --- delete from CANDIDATE_DEPENDENT 
+ 
+    if exists (select 1 from CANDIDATE_DEPENDENT 
+     where marine_candidate_id = @marineid) 
+ 
+   begin 
+    delete from CANDIDATE_COMMENT where marine_candidate_id = @marineid 
+ 
+    print @marineid + ' has been deleted from CANDIDATE_DEPENDENT' 
+   end 
+ 
+ 
+ 
+  --- delete from CANDIDATE_EDUCATION 
+ 
+    if exists (select 1 from CANDIDATE_EDUCATION 
+     where marine_candidate_id = @marineid) 
+ 
+   begin 
+    delete from CANDIDATE_EDUCATION where marine_candidate_id = @marineid 
+ 
+    print @marineid + ' has been deleted from CANDIDATE_EDUCATION' 
+   end 
+ 
+ 
+  --- delete from CANDIDATE_LANGUAGE 
+ 
+    if exists (select 1 from CANDIDATE_LANGUAGE 
+     where marine_candidate_id = @marineid) 
+ 
+   begin 
+    delete from CANDIDATE_LANGUAGE where marine_candidate_id = @marineid 
+ 
+    print @marineid + ' has been deleted from CANDIDATE_LANGUAGE' 
+   end 
+ 
+ 
+  --- delete from CANDIDATE_MEDICAL_EXAM 
+ 
+    if exists (select 1 from CANDIDATE_MEDICAL_EXAM 
+     where marine_candidate_id = @marineid) 
+ 
+   begin 
+    delete from CANDIDATE_MEDICAL_EXAM where marine_candidate_id = @marineid 
+ 
+    print @marineid + ' has been deleted from CANDIDATE_MEDICAL_EXAM' 
+   end 
+ 
+ 
+ 
+  --- delete from CANDIDATE_PRIOR_SERVICE 
+ 
+    if exists (select 1 from CANDIDATE_PRIOR_SERVICE 
+     where marine_candidate_id = @marineid) 
+ 
+   begin 
+    delete from CANDIDATE_PRIOR_SERVICE where marine_candidate_id = @marineid 
+ 
+    print @marineid + ' has been deleted from CANDIDATE_PRIOR_SERVICE' 
+   end 
+ 
+ 
+ 
+  --- delete from CANDIDATE_PROFESSED_EXAM 
+ 
+    if exists (select 1 from CANDIDATE_PROFESSED_EXAM 
+     where marine_candidate_id = @marineid) 
+ 
+   begin 
+    delete from CANDIDATE_PROFESSED_EXAM where marine_candidate_id = @marineid 
+ 
+    print @marineid + ' has been deleted from CANDIDATE_PROFESSED_EXAM' 
+   end 
+ 
+ 
+ 
+  --- delete from CANDIDATE_SPECIAL_EXAM 
+ 
+    if exists (select 1 from CANDIDATE_SPECIAL_EXAM 
+     where marine_candidate_id = @marineid) 
+ 
+   begin 
+    delete from CANDIDATE_SPECIAL_EXAM where marine_candidate_id = @marineid 
+ 
+    print @marineid + ' has been deleted from CANDIDATE_SPECIAL_EXAM' 
+   end 
+ 
+ 
+ 
+  --- delete from CANDIDATE_STATUS 
+ 
+    if exists (select 1 from CANDIDATE_STATUS 
+     where nwa_id in (select nwa_id from 
+    nwa where marine_candidate_id = @marineid)) 
+ 
+   begin 
+    delete from CANDIDATE_STATUS where nwa_id in (select nwa_id from 
+    nwa where marine_candidate_id = @marineid) 
+ 
+    print @marineid + ' has been deleted from CANDIDATE_STATUS' 
+   end 
+ 
+ 
+  --- delete from CANDIDATE_TELEPHONE 
+ 
+    if exists (select 1 from CANDIDATE_TELEPHONE 
+     where marine_candidate_id = @marineid) 
+ 
+   begin 
+    delete from CANDIDATE_TELEPHONE where marine_candidate_id = @marineid 
+ 
+    print @marineid + ' has been deleted from CANDIDATE_TELEPHONE' 
+   end 
+ 
+ 
+  --- delete from CANDIDATE_WAIVER 
+ 
+    if exists (select 1 from CANDIDATE_WAIVER 
+     where nwa_id in (select nwa_id from 
+    nwa where marine_candidate_id = @marineid)) 
+ 
+   begin 
+    delete from CANDIDATE_WAIVER where nwa_id in (select nwa_id from 
+    nwa where marine_candidate_id = @marineid) 
+ 
+    print @marineid + ' has been deleted from CANDIDATE_WAIVER' 
+   end 
+ 
+  --- delete from OFFICER WAIVER 
+ 
+    if exists (select 1 from OFFICER_WAIVER_ATTACHMENT 
+     where OFFICER_WAIVER_ID IN (select OFFICER_WAIVER_ID from OFFICER_WAIVER 
+     where nwa_id in (select nwa_id from nwa 
+     where marine_candidate_id = @marineid))) 
+ 
+   begin 
+     delete from OFFICER_WAIVER_ATTACHMENT 
+     where OFFICER_WAIVER_ID IN (select OFFICER_WAIVER_ID from OFFICER_WAIVER 
+     where nwa_id in (select nwa_id from nwa 
+     where marine_candidate_id = @marineid)) 
+ 
+    print @marineid + ' has been deleted from OFFICER_WAIVER' 
+   end 
+ 
+  --- delete from OFFICER_WAIVER_WEIGHTS 
+ 
+    if exists (select 1 from OFFICER_WAIVER_WEIGHTS 
+     where nwa_id in (select nwa_id from nwa 
+     where marine_candidate_id = @marineid)) 
+ 
+   begin 
+    delete from OFFICER_WAIVER_WEIGHTS where nwa_id in (select nwa_id from nwa 
+     where marine_candidate_id = @marineid) 
+ 
+    print @marineid + ' has been deleted from OFFICER_WAIVER' 
+   end 
+ 
+  --- delete from OFFICER_WAIVER_LETTER 
+ 
+    if exists (select 1 from OFFICER_WAIVER_LETTER where o.cer_waiver_id in  
+     (select o.cer_waiver_id from OFFICER_WAIVER where nwa_id in (select nwa_id from nwa 
+     where marine_candidate_id = @marineid))) 
+ 
+   begin 
+    delete from OFFICER_WAIVER_LETTER where o.cer_waiver_id in  
+     (select o.cer_waiver_id from OFFICER_WAIVER where nwa_id in (select nwa_id from nwa 
+     where marine_candidate_id = @marineid)) 
+ 
+    print @marineid + ' has been deleted from OFFICER_WAIVER_LETTER' 
+   end 
+ 
+  --- delete from OFFICER WAIVER 
+ 
+    if exists (select 1 from OFFICER_WAIVER 
+     where nwa_id in (select nwa_id from nwa 
+     where marine_candidate_id = @marineid)) 
+ 
+   begin 
+    delete from OFFICER_WAIVER where nwa_id in (select nwa_id from nwa 
+     where marine_candidate_id = @marineid) 
+ 
+    print @marineid + ' has been deleted from OFFICER_WAIVER' 
+   end 
+ 
+  --- delete from MIRS_EXPORT 
+ 
+    if exists (select 1 from MIRS_EXPORT 
+     where person_id = @personid) 
+ 
+   begin 
+    delete from MIRS_EXPORT where person_id = @personid 
+ 
+    print @personid + ' has been deleted from MIRS_EXPORT' 
+   end 
+ 
+  --- delete from RECRUIT TRAINING 
+ 
+   if exists (select 1 from RECRUIT_TRAINING 
+      where ship_id in (select ship_id from SHIPPER 
+     where contract_id in (select contract_id from 
+     contract where nwa_id in (select nwa_id from  
+     nwa where marine_candidate_id = @marineid)))) 
+ 
+   begin 
+    delete from RECRUIT_TRAINING 
+      where ship_id in (select ship_id from SHIPPER 
+     where contract_id in (select contract_id from 
+     contract where nwa_id in (select nwa_id from  
+     nwa where marine_candidate_id = @marineid))) 
+ 
+    print @marineid + ' has been deleted from SHIPPER' 
+   end 
+ 
+  --- delete from SHIPPER 
+ 
+   if exists (select 1 from SHIPPER 
+     where contract_id in (select contract_id from 
+     contract where nwa_id in (select nwa_id from  
+     nwa where marine_candidate_id = @marineid))) 
+ 
+   begin 
+    delete from SHIPPER where contract_id in (select contract_id from 
+     contract where nwa_id in (select nwa_id from  
+     nwa where marine_candidate_id = @marineid)) 
+ 
+    print @marineid + ' has been deleted from SHIPPER' 
+   end 
+ 
+  --- delete from COMMISSIONEE 
+ 
+   if exists (select 1 from COMMISSIONEE 
+     where contract_id in (select contract_id from 
+     o.cer_contract where nwa_id in (select nwa_id from  
+     nwa where marine_candidate_id = @marineid))) 
+ 
+   begin 
+    delete from COMMISSIONEE 
+     where contract_id in (select contract_id from 
+     o.cer_contract where nwa_id in (select nwa_id from  
+     nwa where marine_candidate_id = @marineid)) 
+ 
+    print @marineid + ' has been deleted from COMMISSIONEE' 
+   end 
+ 
+ 
+  --- delete from PADD HISTORY 
+ 
+    if exists (select 1 from PADD_HISTORY where contract_id 
+     in (select contract_id from contract  
+     where nwa_id in (select nwa_id from nwa 
+     where marine_candidate_id = @marineid))) 
+ 
+   begin 
+    delete from PADD_HISTORY where contract_id 
+     in (select contract_id from contract  
+     where nwa_id in (select nwa_id from nwa 
+     where marine_candidate_id = @marineid)) 
+ 
+    print @marineid + ' has been deleted from PADD HISTORY' 
+   end 
+ 
+  --- delete from OCS 
+ 
+    if exists (select 1 from OCS 
+     where nwa_id in (select nwa_id from nwa 
+     where marine_candidate_id = @marineid)) 
+ 
+   begin 
+    delete from OCS where nwa_id in (select nwa_id from nwa 
+     where marine_candidate_id = @marineid) 
+ 
+    print @marineid + ' has been deleted from OCS' 
+   end 
+ 
+  --- delete from PRECOMMISSION_DATA 
+ 
+    if exists (select 1 from PRECOMMISSION_DATA 
+     where nwa_id in (select nwa_id from nwa 
+     where marine_candidate_id = @marineid)) 
+ 
+   begin 
+    delete from PRECOMMISSION_DATA where nwa_id in (select nwa_id from nwa 
+     where marine_candidate_id = @marineid) 
+ 
+    print @marineid + ' has been deleted from PRECOMMISSION_DATA' 
+   end 
+ 
+  --- delete from NROTC_CONTRACT 
+ 
+    if exists (select 1 from NROTC_CONTRACT 
+     where nwa_id in (select nwa_id from nwa 
+     where marine_candidate_id = @marineid)) 
+ 
+   begin 
+    delete from NROTC_CONTRACT where nwa_id in (select nwa_id from nwa 
+     where marine_candidate_id = @marineid) 
+ 
+    print @marineid + ' has been deleted from NROTC_CONTRACT' 
+   end 
+ 
+  --- delete from PROGRAM_MOS_CODES 
+ 
+    if exists (select 1 from PROGRAM_MOS_CODES 
+     where contract_id in ( select contract_id 
+           from contract c 
+           inner join nwa n on n.nwa_id = c.nwa_id 
+           where marine_candidate_id = @marineid)) 
+ 
+   begin 
+    delete from PROGRAM_MOS_CODES 
+     where contract_id in ( select contract_id 
+           from contract c 
+           inner join nwa n on n.nwa_id = c.nwa_id 
+           where marine_candidate_id = @marineid) 
+ 
+    print @marineid + ' has been deleted from PROGRAM_MOS_CODES' 
+   end 
+ 
+  --- delete from REFERRAL 
+ 
+    if exists (select 1 from REFERRAL 
+     where dep_contract_id in ( select contract_id 
+           from contract c 
+           inner join nwa n on n.nwa_id = c.nwa_id 
+           where marine_candidate_id = @marineid)) 
+ 
+   begin 
+    delete from REFERRAL 
+     where dep_contract_id in ( select contract_id 
+           from contract c 
+           inner join nwa n on n.nwa_id = c.nwa_id 
+           where marine_candidate_id = @marineid) 
+ 
+    print @marineid + ' has been deleted from REFERRAL' 
+   end 
+ 
+   if exists (select 1 from REFERRAL 
+     where contract_id in ( select contract_id 
+           from contract c 
+           inner join nwa n on n.nwa_id = c.nwa_id 
+           where marine_candidate_id = @marineid)) 
+ 
+   begin 
+    delete from REFERRAL 
+     where contract_id in ( select contract_id 
+           from contract c 
+           inner join nwa n on n.nwa_id = c.nwa_id 
+           where marine_candidate_id = @marineid) 
+ 
+    print @marineid + ' has been deleted from REFERRAL' 
+   end 
+ 
+   if exists (select 1 from REFERRAL 
+     where marine_id = @marineid) 
+ 
+   begin 
+    delete from REFERRAL 
+     where marine_id = @marineid 
+ 
+    print @marineid + ' has been deleted from REFERRAL' 
+   end 
+ 
+  --- delete from CONTRACT 
+ 
+    if exists (select 1 from CONTRACT 
+     where nwa_id in (select nwa_id from nwa 
+     where marine_candidate_id = @marineid)) 
+ 
+   begin 
+ 
+    update program_availability set contract_id = null 
+    where contract_id in (select contract_id from CONTRACT where nwa_id in (select nwa_id from nwa 
+     where marine_candidate_id = @marineid)) 
+     
+    delete from CONTRACT where nwa_id in (select nwa_id from nwa 
+     where marine_candidate_id = @marineid) 
+ 
+    print @marineid + ' has been deleted from CONTRACT' 
+   end 
+ 
+  --- delete from SELECTION_BOARD_OSO_WORKSHEET 
+ 
+    if exists (select 1 from SELECTION_BOARD_OSO_WORKSHEET 
+     where nwa_id in (select nwa_id from nwa 
+     where marine_candidate_id = @marineid)) 
+ 
+   begin 
+    delete from SELECTION_BOARD_OSO_WORKSHEET where nwa_id in (select nwa_id from nwa 
+     where marine_candidate_id = @marineid) 
+ 
+    print @marineid + ' has been deleted from SELECTION_BOARD_OSO_WORKSHEET' 
+   end 
+ 
+  --- delete from SELECTION_BOARD_VOTE 
+ 
+    if exists (select 1 from SELECTION_BOARD_VOTE 
+     where nwa_id in (select nwa_id from nwa 
+     where marine_candidate_id = @marineid)) 
+ 
+   begin 
+    delete from SELECTION_BOARD_VOTE where nwa_id in (select nwa_id from nwa 
+     where marine_candidate_id = @marineid) 
+ 
+    print @marineid + ' has been deleted from SELECTION_BOARD_VOTE' 
+   end 
+ 
+  --- delete from OFFICER_CONTRACT_BOARD_STATUS_HISTORY 
+ 
+    if exists (select 1 from OFFICER_CONTRACT_BOARD_STATUS_HISTORY 
+     where o.cer_contract_id in (select contract_id from OFFICER_CONTRACT 
+     where nwa_id in (select nwa_id from nwa 
+     where marine_candidate_id = @marineid))) 
+ 
+   begin 
+    delete from OFFICER_CONTRACT_BOARD_STATUS_HISTORY 
+     where o.cer_contract_id in (select contract_id from OFFICER_CONTRACT 
+     where nwa_id in (select nwa_id from nwa 
+     where marine_candidate_id = @marineid)) 
+ 
+    print @marineid + ' has been deleted from OFFICER_CONTRACT_BOARD_STATUS_HISTORY' 
+   end 
+ 
+  --- delete from OFFICER_CONTRACT_BOARD 
+ 
+    if exists (select 1 from OFFICER_CONTRACT_BOARD 
+     where o.cer_contract_id in (select contract_id from OFFICER_CONTRACT 
+     where nwa_id in (select nwa_id from nwa 
+     where marine_candidate_id = @marineid))) 
+ 
+   begin 
+    delete from OFFICER_CONTRACT_BOARD 
+     where o.cer_contract_id in (select contract_id from OFFICER_CONTRACT 
+     where nwa_id in (select nwa_id from nwa 
+     where marine_candidate_id = @marineid)) 
+ 
+    print @marineid + ' has been deleted from OFFICER_CONTRACT' 
+   end 
+ 
+  --- delete from OFFICER_CONTRACT 
+ 
+    if exists (select 1 from OFFICER_CONTRACT 
+     where nwa_id in (select nwa_id from nwa 
+     where marine_candidate_id = @marineid)) 
+ 
+   begin 
+    delete from OFFICER_CONTRACT where nwa_id in (select nwa_id from nwa 
+     where marine_candidate_id = @marineid) 
+ 
+    print @marineid + ' has been deleted from OFFICER_CONTRACT' 
+   end 
+ 
+  --- delete from CANDIDATE_CRITERIA_WAIVER 
+ 
+    if exists( select 1  
+       from CANDIDATE_CRITERIA_WAIVER 
+       where candidate_waiver_id in (select candidate_waiver_id from CANDIDATE_WAIVER 
+       where nwa_id in ( select nwa_id from nwa where marine_candidate_id = @marineid))) 
+    begin 
+     delete from CANDIDATE_CRITERIA_WAIVER 
+       where candidate_waiver_id in (select candidate_waiver_id from CANDIDATE_WAIVER 
+       where nwa_id in ( select nwa_id from nwa where marine_candidate_id = @marineid)) 
+ 
+     print @marineid + ' has been deleted from CANDIDATE_CRITERIA_WAIVER' 
+      
+    end 
+ 
+  --- delete from CANDIDATE_WAIVER 
+ 
+    if exists( select 1  
+       from CANDIDATE_WAIVER 
+       where nwa_id in ( select nwa_id  
+            from nwa 
+            where marine_candidate_id = @marineid)) 
+    begin 
+     delete from CANDIDATE_WAIVER  
+     where nwa_id in ( select nwa_id  
+          from nwa 
+          where marine_candidate_id = @marineid) 
+ 
+     print @marineid + ' has been deleted from CANDIDATE_WAIVER' 
+      
+    end 
+ 
+  --- delete from APPLICATION_CHECKLIST 
+ 
+    if exists (select 1 from APPLICATION_CHECKLIST 
+     where nwa_id in (select nwa_id from nwa 
+     where marine_candidate_id = @marineid)) 
+ 
+   begin 
+    delete from APPLICATION_CHECKLIST where nwa_id in (select nwa_id from nwa 
+     where marine_candidate_id = @marineid) 
+ 
+    print @marineid + ' has been deleted from APPLICATION_CHECKLIST' 
+   end 
+ 
+  --- delete from PFT 
+ 
+    if exists (select 1 from PFT 
+     where nwa_id in (select nwa_id from nwa 
+     where marine_candidate_id = @marineid)) 
+ 
+   begin 
+    delete from PFT where nwa_id in (select nwa_id from nwa 
+     where marine_candidate_id = @marineid) 
+ 
+    print @marineid + ' has been deleted from PFT' 
+   end 
+ 
+  --- delete from OFFICER_PROGRAM_HISTORY 
+ 
+    if exists (select 1 from OFFICER_PROGRAM_HISTORY 
+     where nwa_id in (select nwa_id from nwa 
+     where marine_candidate_id = @marineid)) 
+ 
+   begin 
+    delete from OFFICER_PROGRAM_HISTORY where nwa_id in (select nwa_id from nwa 
+     where marine_candidate_id = @marineid) 
+ 
+    print @marineid + ' has been deleted from OFFICER_PROGRAM_HISTORY' 
+   end 
+ 
+  --- delete from ORDERS_REQUEST 
+ 
+    if exists (select 1 from USMC.ORDERS_REQUEST where NWA_ID IN (select NWA_ID from NWA where marine_candidate_id = @marineid)) 
+ 
+   begin 
+    delete USMC.ORDERS_REQUEST where NWA_ID IN (select NWA_ID from NWA where marine_candidate_id = @marineid) 
+ 
+    print @marineid + ' has been deleted from ORDERS_REQUEST' 
+   end 
+ 
+  --- delete from NWA 
+ 
+    if exists (select 1 from NWA 
+     where marine_candidate_id = @marineid) 
+ 
+   begin 
+    delete from NWA where marine_candidate_id = @marineid 
+ 
+    print @marineid + ' has been deleted from NWA' 
+   end 
+ 
+  --- delete from STIPEND 
+ 
+    if exists (select 1 from STIPEND 
+     where marine_candidate_id = @marineid) 
+ 
+   begin 
+    delete from STIPEND where marine_candidate_id = @marineid 
+ 
+    print @marineid + ' has been deleted from STIPEND' 
+   end 
+ 
+  --- delete from BANK 
+ 
+    if exists (select 1 from BANK 
+     where marine_candidate_id = @marineid) 
+ 
+   begin 
+    delete from BANK where marine_candidate_id = @marineid 
+ 
+    print @marineid + ' has been deleted from BANK' 
+   end 
+ 
+  --- delete from CANDIDATE DEPENDENT 
+ 
+    if exists (select 1 from CANDIDATE_DEPENDENT 
+     where MARINE_CANDIDATE_ID = @marineid) 
+ 
+   begin 
+    delete from CANDIDATE_DEPENDENT where MARINE_CANDIDATE_ID = @marineid 
+ 
+    print @marineid + ' has been deleted from CandidateLegalO.ense' 
+   end 
+ 
+  --- delete from CandidateLegalO.ense 
+ 
+    if exists (select 1 from usmc.CandidateLegalO.ense 
+     where personid = @marineid) 
+ 
+   begin 
+    delete from usmc.CandidateLegalO.ense where personid = @marineid 
+ 
+    print @marineid + ' has been deleted from CandidateLegalO.ense' 
+   end 
+ 
+  --- delete from MARINE_CANDIDATE 
+ 
+    if exists (select 1 from MARINE_CANDIDATE 
+     where marine_candidate_id = @marineid) 
+ 
+   begin 
+    delete from MARINE_CANDIDATE where marine_candidate_id = @marineid 
+ 
+    print @marineid + ' has been deleted from MARINE_CANDIDATE' 
+   end 
+ 
+ 
+  --- delete from MARINE 
+ 
+    if exists (select 1 from MARINE 
+     where marine_id = @marineid) 
+ 
+   begin 
+    delete from MARINE where marine_id = @marineid 
+ 
+    print @marineid + ' has been deleted from MARINE' 
+   end 
+ 
+ 
+  --- delete from LSI_HISTORY 
+ 
+    if exists (select 1 from LSI_HISTORY 
+     where person_id = @marineid) 
+ 
+   begin 
+    delete from LSI_HISTORY where person_id = @marineid 
+ 
+    print @marineid + ' has been deleted from LSI_HISTORY' 
+   end 
+ 
+  --- delete from PERSON 
+ 
+    if exists (select 1 from PERSON 
+     where person_id = @personid) 
+ 
+   begin 
+    delete from PERSON where person_id = @personid 
+ 
+    print @personid + ' has been deleted from PERSON' 
+   end 
+ END TRY 
+ BEGIN CATCH 
+  print 'ERROR DELETING SSN ' + @ssn 
+ 
+  SELECT ERROR_NUMBER() AS ErrorNumber 
+    ,ERROR_MESSAGE() AS ErrorMessage 
+    
+ 
+  RETURN 
+ END CATCH 
+ 
+ print 'DELETION OF CANDIDATE COMPLETED SUCCESSFULLY' 
+ RETURN 
+ 
+END]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

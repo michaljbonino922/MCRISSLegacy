@@ -1,0 +1,63 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_ToolboxUpdateCandidateASVAB]" directorySegmentName="seg_23" id="4D78BC3C-7BC0-7581-91AD-F76674DD717D">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@MarineCandidateID int, 
+ @Version varchar(3), 
+ @ASVABDate date.me, 
+ @GS varchar(2), 
+ @AR varchar(2), 
+ @WK varchar(2), 
+ @PC varchar(2), 
+ @NO varchar(2), 
+ @CS varchar(2), 
+ @AS varchar(2), 
+ @MK varchar(2), 
+ @MC varchar(2), 
+ @EI varchar(2), 
+ @VE varchar(2), 
+ @AFQT int, 
+ @GT int, 
+ @EL int, 
+ @CL int, 
+ @MM int, 
+ @MEPSOrgID int, 
+ @UserLogin varchar(15) 
+AS 
+ 
+IF EXISTS (SELECT 1  
+    FROM   CANDIDATE_ASVAB  
+           WHERE  MARINE_CANDIDATE_ID = @MarineCandidateID AND 
+                  ASVAB_DATE = @ASVABDate)  
+ BEGIN   
+   
+ UPDATE  CANDIDATE_ASVAB 
+ SET  VERSION = @Version, 
+  GS_SUBTEST = @GS, 
+  AR_SUBTEST = @AR, 
+  WK_SUBTEST = @WK, 
+  PC_SUBTEST = @PC, 
+  NO_SUBTEST = @NO, 
+  CS_SUBTEST = @CS, 
+  AS_SUBTEST = @AS, 
+  MK_SUBTEST = @MK, 
+  MC_SUBTEST = @MC, 
+  EI_SUBTEST = @EI, 
+  VE_SUBTEST = @VE, 
+  AFQT_SCORE = @AFQT, 
+  GT_SCORE = @GT, 
+  EL_SCORE = @EL, 
+  CL_SCORE = @CL, 
+  MM_SCORE = @MM, 
+  MEPS_ORGANIZATION_ID = @MEPSOrgID, 
+  USER_LOGIN = @UserLogin, 
+  UPDATE_DATE = GETDATE() 
+ WHERE MARINE_CANDIDATE_ID = @MarineCandidateID AND 
+  ASVAB_DATE = @ASVABDate 
+ 
+ END]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

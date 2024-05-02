@@ -1,0 +1,111 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetMIContractGoalViewForMCRC]" directorySegmentName="seg_6" id="EB4B6F40-65DB-7F9C-CBDD-73F368CD2695">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[(@FiscalYear INT) 
+AS 
+   IF (SELECT COUNT (cmp.ORGANIZATION_ID) 
+         FROM MCRISS.dbo.CONTRACTING_MISSION_PLAN_MICONTRACT cmp 
+              INNER JOIN MCRISS.dbo.MONTH_CODE mc 
+                 ON     cmp.FISCAL_YEAR = @FiscalYear 
+                    AND cmp.CONTRACTING_MISSION_TYPE = 'CMC' 
+                    AND cmp.MONTH_CODE = mc.MONTH_CODE 
+                    AND cmp.MONTH_CODE > 0 
+              INNER JOIN MCRISS.dbo.ORGANIZATION_MAP omr 
+                 ON omr.PARENT_ORGANIZATION_ID = 900 
+              INNER JOIN MCRISS.dbo.ORGANIZATION_MAP omd 
+                 ON     omd.PARENT_ORGANIZATION_ID = 
+                           omr.CHILD_ORGANIZATION_ID 
+                    AND omd.CHILD_ORGANIZATION_ID = cmp.ORGANIZATION_ID 
+              INNER JOIN MCRISS.dbo.RECRUITING_ORGANIZATION ro 
+                 ON     ro.ORGANIZATION_ID = omd.CHILD_ORGANIZATION_ID 
+                    AND ro.ORGANIZATION_TYPE = 'D') > 0 
+      BEGIN 
+         SELECT @FiscalYear AS FiscalYear, 
+                ORGANIZATION_ID AS OrgID, 
+                SHORT_NAME AS OrgName, 
+                CONTRACTING_MISSION_TYPE AS Contrac.ngMissionType, 
+                ISNULL ([1], 0) AS [January], 
+                ISNULL ([2], 0) AS [February], 
+                ISNULL ([3], 0) AS [March], 
+                ISNULL ([4], 0) AS [April], 
+                ISNULL ([5], 0) AS [May], 
+                ISNULL ([6], 0) AS [June], 
+                ISNULL ([7], 0) AS [July], 
+                ISNULL ([8], 0) AS [August], 
+                ISNULL ([9], 0) AS [September], 
+                ISNULL ([10], 0) AS [October], 
+                ISNULL ([11], 0) AS [November], 
+                ISNULL ([12], 0) AS [December] 
+           FROM (SELECT ro.ORGANIZATION_ID, 
+                        ro.SHORT_NAME, 
+                        cmp.CONTRACTING_MISSION_TYPE, 
+                        mc.MONTH_CODE, 
+                        cmp.MISSION_VALUE 
+                   FROM MCRISS.dbo.CONTRACTING_MISSION_PLAN_MICONTRACT cmp WITH (NOLOCK) 
+                        INNER JOIN MCRISS.dbo.MONTH_CODE mc 
+                           ON     cmp.FISCAL_YEAR = @FiscalYear 
+                              AND cmp.CONTRACTING_MISSION_TYPE = 'CMC' 
+                              AND cmp.MONTH_CODE = mc.MONTH_CODE 
+                              AND cmp.MONTH_CODE > 0 
+                        INNER JOIN MCRISS.dbo.ORGANIZATION_MAP omr 
+                           ON omr.PARENT_ORGANIZATION_ID = 900 
+                        INNER JOIN MCRISS.dbo.ORGANIZATION_MAP omd 
+                           ON     omd.PARENT_ORGANIZATION_ID = 
+                                     omr.CHILD_ORGANIZATION_ID 
+                              AND omd.CHILD_ORGANIZATION_ID = 
+                                     cmp.ORGANIZATION_ID 
+                        INNER JOIN MCRISS.dbo.RECRUITING_ORGANIZATION ro 
+                           ON     ro.ORGANIZATION_ID = 
+                                     omd.CHILD_ORGANIZATION_ID 
+                              AND ro.ORGANIZATION_TYPE = 'D') t PIVOT (SUM ( 
+                                                                          MISSION_VALUE) 
+                                                                FOR MONTH_CODE 
+                                                                IN ([1], 
+                                                                    [2], 
+                                                                    [3], 
+                                                                    [4], 
+                                                                    [5], 
+                                                                    [6], 
+                                                                    [7], 
+                                                                    [8], 
+                                                                    [9], 
+                                                                    [10], 
+                                                                    [11], 
+                                                                    [12])) p 
+      END 
+   ELSE 
+      SELECT DISTINCT @FiscalYear AS FiscalYear, 
+                      ro.ORGANIZATION_ID AS OrgID, 
+                      ro.SHORT_NAME AS OrgName, 
+                      'CMC' AS Contrac.ngMissionType, 
+                      0 AS [January], 
+                      0 AS [February], 
+                      0 AS [March], 
+                      0 AS [April], 
+                      0 AS [May], 
+                      0 AS [June], 
+                      0 AS [July], 
+                      0 AS [August], 
+                      0 AS [September], 
+                      0 AS [October], 
+                      0 AS [November], 
+                      0 AS [December] 
+        FROM MCRISS.dbo.CONTRACTING_MISSION_PLAN_MICONTRACT cmp 
+             INNER JOIN MCRISS.dbo.MONTH_CODE mc 
+                ON     cmp.CONTRACTING_MISSION_TYPE = 'CMC' 
+                   AND cmp.MONTH_CODE = mc.MONTH_CODE 
+                   AND cmp.MONTH_CODE > 0 
+             INNER JOIN MCRISS.dbo.ORGANIZATION_MAP omr 
+                ON omr.PARENT_ORGANIZATION_ID = 900 
+             INNER JOIN MCRISS.dbo.ORGANIZATION_MAP omd 
+                ON     omd.PARENT_ORGANIZATION_ID = omr.CHILD_ORGANIZATION_ID 
+                   AND omd.CHILD_ORGANIZATION_ID = cmp.ORGANIZATION_ID 
+             INNER JOIN MCRISS.dbo.RECRUITING_ORGANIZATION ro 
+                ON     ro.ORGANIZATION_ID = omd.CHILD_ORGANIZATION_ID 
+                   AND ro.ORGANIZATION_TYPE = 'D']]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

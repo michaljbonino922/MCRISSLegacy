@@ -1,0 +1,20 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_DBAUpdateRecuiterOnNWA]" directorySegmentName="seg_14" id="BE8171C0-2B86-677E-5BDD-86563BB67124">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@NWA_ID INT, 
+@RECRUITING_PERSON_ID INT, 
+@USER_LOGIN VARCHAR(15) 
+AS 
+ 
+UPDATE  NWA 
+SET  RECRUITER_OF_RECORD_ID=@RECRUITING_PERSON_ID, 
+  WORKING_RECRUITER_ID=@RECRUITING_PERSON_ID, 
+  USER_LOGIN=@USER_LOGIN, 
+  UPDATE_DATE=GETDATE() 
+WHERE  NWA_ID=@NWA_ID]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,159 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[DeleteTrainingFile]" directorySegmentName="seg_1" id="E8456A27-E226-8BA4-0FE9-7CFA36AEB13D">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@TrainingFileId uniqueidentifier 
+AS 
+ 
+ 
+BEGIN 
+    
+-- STEP 1: Start the transac.on - 1 failure could leave orphan child records out there 
+BEGIN TRANSACTION 
+     
+ declare @evalTaskID uniqueidentifier 
+ declare @groupID int 
+ declare @trainingEvalID uniqueidentifier 
+ declare @mul.MonthEvalua.onID uniqueidentifier 
+ declare @mul.MonthSummaryID uniqueidentifier 
+ declare @monthSummaryID uniqueidentifier 
+  
+ SELECT @trainingEvalID = id FROM USMC.TrainingEvalua.on WHERE TrainingFileid = @TrainingFileId  
+ SELECT @evalTaskID = TrainingEvalID FROM USMC.TrainingEvalTask WHERE trainingEvalID = @trainingEvalID 
+  
+ --MAYBE NOT NEEDED ??? SELECT @groupID = TaskGroupID FROM USMC.TrainingEvalTask WHERE trainingEvalID = @trainingEvalID  
+   
+ SELECT @mul.MonthEvalua.onID = ID FROM USMC.Mul.MonthEvalua.on WHERE TrainingFileid = @TrainingFileId  
+  
+ SELECT @mul.MonthSummaryID = ID FROM USMC.Mul.MonthSummary WHERE TrainingFileid = @TrainingFileId 
+ SELECT @monthSummaryID = ID FROM USMC.MonthSummary WHERE Mul.MonthSummaryID = @mul.MonthSummaryID 
+ 
+-- prints are for debug only 
+ print 'TrainingEval_ID: '  + CAST(@trainingEvalID AS NVARCHAR(40)) 
+ --print 'TaskGroupID" ' + CAST( @groupID  AS NVARCHAR(40)) 
+ print 'TrainingEvalTaskID: ' + CAST( @evalTaskID AS NVARCHAR(40)) 
+ 
+ print 'mul.MonthEvalua.onID: ' + CAST( @mul.MonthEvalua.onID AS NVARCHAR(40)) 
+ print 'mul.MonthSummaryID: ' + CAST(@mul.MonthSummaryID AS NVARCHAR(40)) 
+ print 'monthSummaryID: ' + CAST(@monthSummaryID AS NVARCHAR(40)) 
+ 
+ 
+-- Delete all the child records of the geven TrainingFile 
+ 
+ DELETE USMC.ProdRecComment 
+ WHERE trainingFileId = @TrainingFileId 
+print 'ProdRecComment'  
+ 
+ DELETE USMC.DataSheetUpload 
+ WHERE trainingFileId = @TrainingFileId 
+print 'DataSheetUpload'   
+ 
+ DELETE USMC.SixMonthQues.onnaire 
+ WHERE trainingFileId = @TrainingFileId  
+print 'SixMonthQues.onnaire' 
+ 
+ --DELETE USMC.TripReport 
+ --WHERE MonthSummaryID = @monthSummaryID  
+ DELETE tr 
+  FROM USMC.TripReport tr 
+  INNER JOIN USMC.monthSummary ms 
+  ON tr.MonthSummaryID = ms.ID 
+   WHERE ms.Mul.MonthSummaryID=@monthSummaryID 
+ 
+print 'TripReport' 
+ 
+ 
+ DELETE USMC.FormalTraining 
+ WHERE trainingFileId = @TrainingFileId 
+print 'FormalTraining'  
+  
+ DELETE USMC.TrainingProvided 
+ WHERE trainingFileId = @TrainingFileId 
+print 'TrainingProvided' 
+ 
+  
+ DELETE USMC.Counseling 
+ WHERE trainingFileId = @TrainingFileId 
+print 'Counseling'  
+   
+ DELETE USMC.MonthMissionSummary 
+ WHERE Mul.MonthSummaryID = @mul.MonthSummaryID 
+print 'MonthMissionSummary'   
+ 
+ DELETE USMC.Evalua.onTask  
+ WHERE Mul.MonthEvalua.onId = @mul.MonthEvalua.onId  
+print 'Evalua.onTask' 
+ 
+ DELETE USMC.Evalua.onCheckList  
+ WHERE Mul.MonthEvalua.onId = @mul.MonthEvalua.onId 
+print 'Evalua.onCheckList'  
+ 
+ DELETE USMC.TrainingEvalTask  
+ WHERE TrainingEvalID = @evalTaskID  
+print 'TrainingEvalTask' 
+ 
+ DELETE USMC.MonthEvalua.on 
+ WHERE Mul.MonthEvalua.onId = @mul.MonthEvalua.onId  
+print 'MonthEvalua.on'  
+ 
+ -- Parent table = MonthSummary, Child table = MonthDutyAreaList 
+ DELETE mdal  
+  FROM USMC.MonthDutyAreaList mdal 
+  INNER JOIN USMC.monthSummary ms 
+  ON mdal.MonthSummaryID = ms.ID 
+   WHERE ms.Mul.MonthSummaryID=@mul.MonthSummaryID 
+    
+print 'MonthDutyAreaList' 
+  
+ -- Has child records in TripReport and MonthDutyAreaList 
+ DELETE USMC.MonthSummary 
+ WHERE Mul.MonthSummaryID = @mul.MonthSummaryID 
+print 'MonthSummary'  
+  
+ -- Has child records in MonthSummary and MonthMissionSummary 
+ DELETE USMC.Mul.MonthSummary 
+ WHERE trainingFileId = @TrainingFileId 
+print 'Mul.MonthSummary' 
+   
+ -- Has  child records MonthEvalua.on, Evalua.onCheckList, Evalua.onTask  
+ DELETE USMC.Mul.MonthEvalua.on 
+ WHERE trainingFileId = @TrainingFileId 
+print 'Mul.MonthEvalua.on'   
+  
+ -- Has child records in TrainingEvalTask 
+ DELETE USMC.TrainingEvalua.on 
+ WHERE trainingFileId = @TrainingFileId 
+print 'TrainingEvalua.on'  
+ 
+ 
+ DELETE USMC.TrainingRecord 
+ WHERE trainingFileId = @TrainingFileId 
+print 'TrainingRecord' 
+ 
+ 
+-- Step 2: Check @@Error - Rollback the transac.on if there were any errors 
+IF @@ERROR <> 0 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+ 
+  -- Raise an error and return 
+  RAISERROR ('Error(s) occurred while performing the delete. *** Rollback Transac.on ***', 16, 1) 
+  RETURN 
+ END 
+ELSE  
+ BEGIN 
+  -- STEP 3: If we reach this point, ALL the commands completed successfully Commit the transac.on.... 
+  COMMIT TRANSACTION 
+  
+  --Step 4, All deletes processed, Now set DateDeleted date 
+  UPDATE USMC.TrainingFile SET DateDeleted=GetDate() WHERE ID = @TrainingFileId 
+  print 'Set DateDeleted in TrainingFile' 
+ END 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

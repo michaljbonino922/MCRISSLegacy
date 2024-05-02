@@ -1,0 +1,135 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetMcrdRecruitList]" directorySegmentName="seg_6" id="B506BE41-B863-CCDA-18AE-F38FD1FBD4EB">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @OrgId int, 
+ @RecruiterId int = null 
+) 
+ 
+AS 
+ 
+ 
+CREATE TABLE #TEMPZIP  
+( 
+ ZIP VARCHAR (5) 
+) 
+ 
+INSERT INTO #TEMPZIP 
+SELECT MSZ.Zip 
+FROM RSSOSS.USMC.MapsSectorZip MSZ 
+INNER JOIN RSSOSS.USMC.MapsSector MS on MSZ.SECTORID = MS.SECTORID 
+INNER JOIN MCRISS.DBO.RECRUITING_ORGANIZATION RO ON  MS.Recrui.ngOrganiza.onId = RO.ROWGUID 
+WHERE RO.ORGANIZATION_ID = @OrgId 
+ 
+SELECT  
+ n.NWA_ID 
+ ,n.MARINE_CANDIDATE_ID 
+INTO #ZIPNWA 
+FROM MCRISS.dbo.NWA n 
+INNER JOIN MCRISS.dbo.CANDIDATE_ADDRESS CA ON n.MARINE_CANDIDATE_ID = CA.MARINE_CANDIDATE_ID 
+INNER JOIN #TEMPZIP tz ON CA.ZIPCODE = tz.Zip 
+WHERE CA.ADDRESS_TYPE = 'H' 
+ 
+ 
+SELECT  
+   N.[rowguid] NWAID 
+   ,P.LAST_NAME 
+   ,P.FIRST_NAME 
+   ,P.LEGAL_MIDDLE_NAME 
+   ,s.SHIP_DATE 
+   ,s.DateDueHome 
+   ,(SELECT TOP 1 
+   hs.HIGHSCHOOL_NAME 
+  FROM 
+   [dbo].[CANDIDATE_EDUCATION] ce 
+  LEFT OUTER JOIN [dbo].[HIGH_SCHOOL] hs 
+   ON hs.SCHOOL_CODE = ce.SCHOOL_CODE 
+  WHERE  
+   ce.MARINE_CANDIDATE_ID = n.MARINE_CANDIDATE_ID AND 
+   ce.VERIFICATION = 'VERIFIED' 
+  ORDER BY ce.UPDATE_DATE DESC) AS HighSchool  
+   ,Program =  
+  CASE  
+  WHEN c.COMPONENT_CODE in ('K4','B5','K8','K9' ) THEN  
+   ( 
+    SELECT TOP 1  
+     qsn.MOS 
+    FROM [dbo].[QSN] qsn 
+    WHERE qsn.CONTRACT_id=c.[CONTRACT_ID] 
+    ORDER BY qsn.[PROGRAM_ASSIGNMENT_DATE] DESC    
+   ) 
+  ELSE (SELECT TOP 1  
+    p.[PROGRAM_CODE] 
+   FROM  
+    [dbo].[PROGRAM_AVAILABILITY] pa 
+   INNER JOIN [PROGRAM] p 
+    ON p.[PROGRAM_ID] = pa.[PROGRAM_ID] 
+   WHERE  
+    pa.[CONTRACT_ID] = c.[CONTRACT_ID] 
+   ORDER BY  
+    pa.[PROGRAM_ASSIGNMENT_DATE] DESC) 
+  END 
+   ,(SELECT  
+   COUNT(*) 
+  FROM  
+   [dbo].[REFERRAL] r  
+  WHERE 
+   r.[DEP_CONTRACT_ID] = c.[CONTRACT_ID] OR  
+   r.[MARINE_ID] = n.[MARINE_CANDIDATE_ID]) AS EnlistmentCredits 
+   ,RP.RANK_CODE 
+   ,RECP.LAST_NAME REC_LAST_NAME 
+   ,RECP.FIRST_NAME REC_FIRST_NAME 
+   ,RECP.LEGAL_MIDDLE_NAME REC_LEGAL_MIDDLE_NAME 
+   ,N.WORKING_RECRUITER_ID 
+   ,cns.STATUS_Type 
+   ,CNS.STATUS_CODE 
+   ,CNS.DISPOSITION_CODE 
+   ,cns.STATUS_DESCRIPTION 
+   ,cns.DISPOSITION_DESCRIPTION 
+   ,CAST('OA' AS varchar(10)) AS Sector 
+   ,CA.ZIPCODE AS HOR_ZIP 
+INTO #McrdRecruitList    
+FROM [dbo].[NWA] N WITH (NOLOCK) 
+  INNER JOIN [dbo].[CONTRACT] C 
+   ON C.NWA_ID = N.NWA_ID 
+  INNER JOIN [dbo].[SHIPPER] S 
+   ON S.CONTRACT_ID = C.CONTRACT_ID 
+  INNER JOIN [USMC].[vwCurrentNwaStatus] cns 
+      ON N.NWA_ID = CNS.NWA_ID 
+  INNER JOIN [dbo].[PERSON] P 
+   ON P.PERSON_ID = N.MARINE_CANDIDATE_ID 
+  INNER JOIN [DBO].[RECRUITING_PERSON] RP  
+   ON RP.RECRUITING_PERSON_ID = N.WORKING_RECRUITER_ID 
+  INNER JOIN [dbo].[PERSON] RECP 
+   ON RECP.PERSON_ID = RP.RECRUITING_PERSON_ID  
+  INNER JOIN MCRISS.dbo.CANDIDATE_ADDRESS CA 
+   ON N.MARINE_CANDIDATE_ID = CA.MARINE_CANDIDATE_ID AND CA.ADDRESS_TYPE = 'H' 
+  LEFT OUTER JOIN #ZIPNWA zip ON P.PERSON_ID = zip.MARINE_CANDIDATE_ID 
+         AND zip.NWA_ID IN ( SELECT MAX(zip2.NWA_ID) 
+               FROM #ZIPNWA zip2 
+               WHERE zip.MARINE_CANDIDATE_ID = zip2.MARINE_CANDIDATE_ID) 
+ 
+WHERE RP.ORGANIZATION_ID = @OrgId 
+ AND CNS.Status_Code = 'C' AND CNS.Disposi.on_Code in ('N', 'O','P') 
+ AND Status_type = 'E' 
+ AND S.SHIP_DATE > DATEADD(year,-5,GETDATE()) 
+ 
+UPDATE mrl 
+ SET  mrl.Sector = SubString(MS.SectorDesignator, 1, 2) 
+ FROM #McrdRecruitList mrl 
+ INNER JOIN RSSOSS.USMC.MapsSectorZip MSZ ON mrl.HOR_ZIP = MSZ.ZIP 
+ INNER JOIN RSSOSS.USMC.MapsSector MS ON MSZ.SectorID = MS.SectorID 
+ WHERE  MS.SectorType = 'E' 
+ 
+SELECT * FROM #McrdRecruitList 
+ORDER BY CASE WHEN WORKING_RECRUITER_ID = @RecruiterId THEN '0' ELSE REC_LAST_NAME END, REC_FIRST_NAME, REC_LEGAL_MIDDLE_NAME, LAST_NAME, FIRST_NAME, LEGAL_MIDDLE_NAME 
+ 
+DROP TABLE #TEMPZIP 
+DROP TABLE #ZIPNWA 
+DROP TABLE #McrdRecruitList]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

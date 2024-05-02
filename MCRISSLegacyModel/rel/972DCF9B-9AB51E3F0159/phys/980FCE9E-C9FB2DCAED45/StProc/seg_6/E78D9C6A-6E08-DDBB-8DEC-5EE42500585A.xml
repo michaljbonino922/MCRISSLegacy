@@ -1,0 +1,23 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetNROTCBoost]" directorySegmentName="seg_6" id="E78D9C6A-6E08-DDBB-8DEC-5EE42500585A">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+  @NwaID int 
+ ) 
+AS 
+ 
+SELECT  
+ @NwaID AS ID 
+ ,PROGRAM_BEGIN_DATE AS ProgramBeginDate 
+ ,PROGRAM_GRAD_DATE AS ProgramGradDate 
+ ,ADVANCED_PROGRAM AS AdvancedProgram 
+FROM 
+ dbo.NROTC_BOOST WITH (NOLOCK) 
+WHERE 
+ dbo.NROTC_BOOST.NWA_ID = @NwaID]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

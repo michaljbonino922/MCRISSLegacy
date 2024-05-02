@@ -1,0 +1,91 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_ManipulateWaiver]" directorySegmentName="seg_21" id="72678AD2-DFD6-7F69-F346-D58C1619768D">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@waiver   varchar(3), 
+@waiver_id   int output 
+as 
+declare  
+@waiver1  char(1), 
+@waiver2  char(1), 
+@waiver3  char(1) 
+ 
+select @waiver1 = substring(@waiver,1,1) 
+select @waiver2 = substring(@waiver,2,1) 
+select @waiver3 = substring(@waiver,3,1) 
+ 
+--Waiver codes conversion from Arms to Mcriss/DOD values 
+ 
+if @waiver1 not in ('A','B','C','D','E','H','J','K','L','X','Y') 
+ begin 
+ if @waiver1 = 'M'  
+  set @waiver1 = 'F' 
+ if @waiver1 = 'P'  
+  set @waiver1 = 'X' 
+ if @waiver1 not in ('F','X')  
+  set @waiver1 = '0' 
+ end 
+ 
+--Waiver Level Logic to convert from Arms to Mcriss/DOD  
+ 
+if @waiver3 in ('A','B','C','D','Y')  
+ begin 
+ if @waiver3 = 'D'  
+  set @waiver3 = 'E' 
+ if @waiver3 = 'C'  
+  set @waiver3 = 'D'  
+ if @waiver3 = 'B'  
+  set @waiver3 = 'C' 
+ if @waiver3 = 'A'  
+  set @waiver3 = 'B' 
+ end 
+else  
+ begin 
+ set @waiver3 = '0' 
+ end 
+ 
+-- Wavier code logic for determining the DOD second digit 
+ 
+if @waiver1 = 'B'  
+ set @waiver2 = 'B' 
+ 
+if @waiver1 = 'H'  
+ set @waiver2 = 'C' 
+ 
+if @waiver1 in ('J','K','L') 
+ set @waiver2 = 'Y' 
+ 
+if @waiver1 = 'X' 
+ set @waiver2 = 'X' 
+ 
+if @waiver1 = 'E'  
+ set @waiver2 = 'Y'  
+ 
+if @waiver1 = 'D'  
+ begin 
+ if @waiver2 = 'B'  
+  set @waiver2 = 'C' 
+ if @waiver2 = 'S'  
+   set @waiver2 = 'B' 
+ end 
+ 
+if @waiver1 = 'F'  
+ begin 
+ if @waiver2 = 'H' 
+  set @waiver2 = 'A' 
+ if @waiver2 in ('G','P')  
+  set @waiver2 = 'B' 
+ end 
+ 
+ 
+select @waiver_id = waiver_id from temp_waiver where  
+   waiver_category_code = @waiver1 and 
+   waiver_type_code = @waiver2 and 
+   waiver_level_code = @waiver3 
+if @waiver_id is null 
+set @waiver_id = 9999]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

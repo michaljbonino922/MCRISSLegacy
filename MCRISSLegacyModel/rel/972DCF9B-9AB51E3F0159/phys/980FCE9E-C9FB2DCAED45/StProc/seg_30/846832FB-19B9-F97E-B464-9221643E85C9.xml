@@ -1,0 +1,45 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="Proc2092" directorySegmentName="seg_30" id="846832FB-19B9-F97E-B464-9221643E85C9">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:39 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @PackageId uniqueiden..er, 
+ @LockedBy varchar(100) 
+) 
+AS 
+ 
+DECLARE @retVal int 
+ 
+--If the package is already locked by the reques.ng user, do nothing and return true. 
+IF EXISTS(SELECT 1 FROM [ACP].[ACP].[Package] WHERE PackageId = @PackageId AND [Locked] = 1 AND [LockedBy] = @LockedBy) 
+BEGIN 
+ SET @retVal = 1 
+END 
+ELSE 
+BEGIN 
+ IF EXISTS(SELECT 1 FROM [ACP].[ACP].[Package] WHERE PackageId = @PackageId AND LockedBy IS NULL) 
+ BEGIN 
+  -- If the record is not locked, lock it. 
+  UPDATE [ACP].[ACP].[Package]  
+  SET  
+   [Locked] = 1, 
+   [LockedBy] = @LockedBy, 
+   [DateLocked] = GetDate()  
+  WHERE [PackageId] = @PackageId  
+  AND [Locked] = 0  
+  AND LockedBy IS NULL 
+   
+  SET @retVal = 1 
+ END 
+ ELSE 
+ BEGIN 
+  SET @retVal = 0 
+ END 
+END 
+ 
+SELECT @retVal]]></body>
+<schema>569A41D8-8F40-0619-141C-F4C9436AAF46</schema>
+<database>2D7ED536-DF8E-3523-7DC3-4228EBAF5F66</database>
+</StoredProcedureSqlServerv2k5>

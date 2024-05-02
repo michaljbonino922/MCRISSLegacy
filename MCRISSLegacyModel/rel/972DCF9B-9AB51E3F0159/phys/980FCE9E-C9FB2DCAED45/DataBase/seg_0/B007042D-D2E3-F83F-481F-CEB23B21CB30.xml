@@ -1,0 +1,144 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<DataBaseSqlServerv2k12 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.DataBaseSqlServerv2k12" name="MCRISS" directorySegmentName="seg_0" id="B007042D-D2E3-F83F-481F-CEB23B21CB30">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:36 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<ansiPadding>OFF</ansiPadding>
+<ansiWarnings>OFF</ansiWarnings>
+<arithabort>ON</arithabort>
+<autoClose>OFF</autoClose>
+<autoShrink>OFF</autoShrink>
+<concatNullYieldsNull>OFF</concatNullYieldsNull>
+<cursorCloseOnCommit>OFF</cursorCloseOnCommit>
+<numericRoundabort>OFF</numericRoundabort>
+<recovery>SIMPLE</recovery>
+<recursiveTriggers>OFF</recursiveTriggers>
+<disableBroker>true</disableBroker>
+<readWrite>true</readWrite>
+<pageVerify>CHECKSUM</pageVerify>
+<fileGroups>
+<FileGroup class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FileGroupSqlServerv2k5" name="PRIMARY" id="FE7A6D0D-7D98-E495-CFD1-6771284460CA">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<dataFiles>
+<DataFile class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.DataFileSqlServerv2k5" name="MCRISS_Data" id="33D31E1E-D098-1AC6-114D-CDFC4606CB89">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<fileName>C:\Program Files\Microsoft SQL Server\MSSQL16.MSSQLSERVER\MSSQL\DATA\MCRISS.mdf</fileName>
+<growthMethod>In KiloBytes</growthMethod>
+<growthValue>512000</growthValue>
+<initialSize>113152000</initialSize>
+<initialSizeInUnit>In KiloBytes</initialSizeInUnit>
+</DataFile>
+</dataFiles>
+</FileGroup>
+<FileGroup class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FileGroupSqlServerv2k5" name="APPL_IDX_GRP" id="27D4C704-06B1-A9CE-8347-F57544D8CBF7">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<dataFiles>
+<DataFile class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.DataFileSqlServerv2k5" name="applidx1" id="F57F05DA-EFAB-1C6D-3E8D-7CC88CE66BCD">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<fileName>C:\Program Files\Microsoft SQL Server\MSSQL16.MSSQLSERVER\MSSQL\DATA\MCRISS_44.mdf</fileName>
+<growthMethod>In KiloBytes</growthMethod>
+<growthValue>2048</growthValue>
+<initialSize>362496</initialSize>
+<initialSizeInUnit>In KiloBytes</initialSizeInUnit>
+</DataFile>
+<DataFile class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.DataFileSqlServerv2k5" name="applidx2" id="6EE3E4F3-D646-A7E5-78CD-709D56351CCA">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<fileName>C:\Program Files\Microsoft SQL Server\MSSQL16.MSSQLSERVER\MSSQL\DATA\MCRISS_45.mdf</fileName>
+<growthMethod>In KiloBytes</growthMethod>
+<growthValue>2048</growthValue>
+<initialSize>541312</initialSize>
+<initialSizeInUnit>In KiloBytes</initialSizeInUnit>
+</DataFile>
+</dataFiles>
+</FileGroup>
+<FileGroup class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FileGroupSqlServerv2k5" name="CAND_IDX_GRP" id="28212AB2-0DB3-04AB-203C-FEE970162708">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<dataFiles>
+<DataFile class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.DataFileSqlServerv2k5" name="candidx1" id="C997272E-0ED7-725B-4076-18F01392D663">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<fileName>C:\Program Files\Microsoft SQL Server\MSSQL16.MSSQLSERVER\MSSQL\DATA\MCRISS_28.mdf</fileName>
+<growthMethod>In KiloBytes</growthMethod>
+<growthValue>2048</growthValue>
+<initialSize>1024</initialSize>
+<initialSizeInUnit>In KiloBytes</initialSizeInUnit>
+</DataFile>
+<DataFile class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.DataFileSqlServerv2k5" name="candidx2" id="9D3AA396-E759-E8C8-2B6D-AE668959827C">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<fileName>C:\Program Files\Microsoft SQL Server\MSSQL16.MSSQLSERVER\MSSQL\DATA\MCRISS_29.mdf</fileName>
+<growthMethod>In KiloBytes</growthMethod>
+<growthValue>2048</growthValue>
+<initialSize>1024</initialSize>
+<initialSizeInUnit>In KiloBytes</initialSizeInUnit>
+</DataFile>
+</dataFiles>
+</FileGroup>
+<FileGroup class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FileGroupSqlServerv2k5" name="OFF_IDX_GRP" id="1478740F-F1B9-A745-769B-CA5F08227DE4">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<dataFiles>
+<DataFile class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.DataFileSqlServerv2k5" name="o.dx1" id="A740C2FC-9212-5481-2BCD-7708DC6408E1">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<fileName>C:\Program Files\Microsoft SQL Server\MSSQL16.MSSQLSERVER\MSSQL\DATA\MCRISS_34.mdf</fileName>
+<growthMethod>In KiloBytes</growthMethod>
+<growthValue>2048</growthValue>
+<initialSize>3072</initialSize>
+<initialSizeInUnit>In KiloBytes</initialSizeInUnit>
+</DataFile>
+<DataFile class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.DataFileSqlServerv2k5" name="o.dx2" id="AD7F0AF7-9FCB-D86C-B6A3-700F6CFC237A">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<fileName>C:\Program Files\Microsoft SQL Server\MSSQL16.MSSQLSERVER\MSSQL\DATA\MCRISS_35.mdf</fileName>
+<growthMethod>In KiloBytes</growthMethod>
+<growthValue>2048</growthValue>
+<initialSize>1024</initialSize>
+<initialSizeInUnit>In KiloBytes</initialSizeInUnit>
+</DataFile>
+</dataFiles>
+</FileGroup>
+</fileGroups>
+<transactionLogs>
+<TransactionLog class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.DataFileSqlServerv2k5" name="MCRISS_Log" id="D881E617-2795-4166-0CEF-B54DCE6EB991">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<fileName>C:\Program Files\Microsoft SQL Server\MSSQL16.MSSQLSERVER\MSSQL\DATA\MCRISS_1.ldf</fileName>
+<growthMethod>In KiloBytes</growthMethod>
+<growthValue>102400</growthValue>
+<initialSize>3482624</initialSize>
+<initialSizeInUnit>In KiloBytes</initialSizeInUnit>
+</TransactionLog>
+</transactionLogs>
+</DataBaseSqlServerv2k12>

@@ -1,0 +1,69 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="MCFOPEvent" directorySegmentName="seg_2" id="289B2589-5C62-D074-7D35-0A1102674161">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<schemaObject>454547C7-2829-9C8F-6E0C-35E4CFDC8E47</schemaObject>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="Adver.singName" id="14AFF331-9B3A-28BB-DE36-27E7B1EC3D5F">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="Logis.calRequirements" id="17B4513E-AF0B-595D-936A-3F60AD409696">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="Remarks" id="2DCF3D78-B212-E87E-F7BC-96EFBF979EED">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="McrissMCFOPMassEventID" id="91DE9952-4F3C-5D72-BDC1-5A18F5662E3B">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="BeginCoordina.on" id="9E684EE5-B532-DBE4-709C-A71D7711E450">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="MediaName" id="AACEEB86-53BB-3B1B-4061-65AB82C5D33E">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="ID" id="DB508312-A8BD-D1CF-FBF1-CBD24C986D69">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<defaultValue>(newid())</defaultValue>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="MCFOPEventType" id="FD0D1F26-4941-5F3B-3187-A6EA15E1E75A">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+</columnProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="FK_MCFOPEvent_Event" id="295A0C33-6A27-D44D-2882-B6847D9DFA14">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="PK_MCFOPEvent" id="EFC1F4CD-162F-C75A-C1D6-B0040E4FD9EA">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<clustered>true</clustered>
+<fillFactor>100</fillFactor>
+<partitioningColumn>EFC1C3A0-E2D3-374A-ACA3-B322F3BEB012</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+</TableProxySqlServerv2k5>

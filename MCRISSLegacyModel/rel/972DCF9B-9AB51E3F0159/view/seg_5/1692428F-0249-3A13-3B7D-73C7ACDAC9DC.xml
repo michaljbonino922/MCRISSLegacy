@@ -1,0 +1,104 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_5" id="1692428F-0249-3A13-3B7D-73C7ACDAC9DC" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="_dta_mv_82">
+<sourceDDLFile>create Prospecting script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:27 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>92AAFB04-3721-4872-1191-2B32CBB27C94</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  [USMC].[Prospect].[ProspectId] as _col_1,  [USMC].[ProspectAc.vityComment].[ProspectCommentTypeId] as _col_2,  [USMC].[Prospect].[Gradua.onYear] as _col_3,  [USMC].[ImportPerson].[ChildImportEventID] as _col_4,  [USMC].[ImportPerson].[ImportEventId] as _col_5,  count_big(*) as _col_6, count_big([Prospec.ng].[USMC].[ProspectComment].[ProspectCommentId]) as _col_7 FROM  [USMC].[ImportPerson],  [USMC].[Person],  [USMC].[Prospect],  [USMC].[ProspectComment],  [USMC].[ProspectAc.vityComment]   WHERE  [USMC].[ImportPerson].[PersonId] = [USMC].[Prospect].[PersonId]  AND  [USMC].[Person].[PersonId] = [USMC].[Prospect].[PersonId]  AND  [USMC].[ProspectComment].[ProspectAc.vityCommentId] = [USMC].[ProspectAc.vityComment].[ProspectAc.vityCommentId]  AND  [USMC].[Prospect].[ProspectId] = [USMC].[ProspectComment].[ProspectId]  GROUP BY  [USMC].[Prospect].[ProspectId],  [USMC].[ProspectAc.vityComment].[ProspectCommentTypeId],  [USMC].[Prospect].[Gradua.onYear],  [USMC].[ImportPerson].[ChildImportEventID],  [USMC].[ImportPerson].[ImportEventId]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[ProspectId]" id="E06597AD-56B6-F3DB-9409-E4ADA003C0EB">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:27 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_1</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_1</headerAlias>
+<expression>[ProspectId]</expression>
+<reference>false</reference>
+<viewID>1692428F-0249-3A13-3B7D-73C7ACDAC9DC</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="vityComment].[ProspectCommentTypeId]" id="0EED6235-C137-2635-5211-F232057F1EE1">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:27 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_2</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_2</headerAlias>
+<expression>vityComment].[ProspectCommentTypeId]</expression>
+<reference>false</reference>
+<viewID>1692428F-0249-3A13-3B7D-73C7ACDAC9DC</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[Gradua.onYear]" id="F4E194E5-975E-647F-56F4-4997CC736905">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:27 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_3</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_3</headerAlias>
+<expression>[Gradua.onYear]</expression>
+<reference>false</reference>
+<viewID>1692428F-0249-3A13-3B7D-73C7ACDAC9DC</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[ChildImportEventID]" id="85769162-7486-3558-595B-514162CD92F0">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:27 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_4</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_4</headerAlias>
+<expression>[ChildImportEventID]</expression>
+<reference>false</reference>
+<viewID>1692428F-0249-3A13-3B7D-73C7ACDAC9DC</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[ImportEventId]" id="A8D1669B-2600-F012-E798-AC9A23B6DFF8">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:27 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_5</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_5</headerAlias>
+<expression>[ImportEventId]</expression>
+<reference>false</reference>
+<viewID>1692428F-0249-3A13-3B7D-73C7ACDAC9DC</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="count_big(*)" id="A3472D86-404C-A221-BA5A-955E0BF88B6F">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:27 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_6</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_6</headerAlias>
+<expression>count_big(*)</expression>
+<reference>false</reference>
+<viewID>1692428F-0249-3A13-3B7D-73C7ACDAC9DC</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="count_big([Prospec.ng].[USMC].[ProspectComment].[ProspectCommentId])" id="BD0F73BB-7279-58DA-350C-5F7B9699222B">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:27 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_7</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_7</headerAlias>
+<expression>count_big([Prospec.ng].[USMC].[ProspectComment].[ProspectCommentId])</expression>
+<reference>false</reference>
+<viewID>1692428F-0249-3A13-3B7D-73C7ACDAC9DC</viewID>
+</viewElement>
+</viewElements>
+</TableView>

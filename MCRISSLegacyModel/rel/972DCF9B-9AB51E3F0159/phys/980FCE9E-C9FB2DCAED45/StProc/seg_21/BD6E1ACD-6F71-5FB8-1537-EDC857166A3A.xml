@@ -1,0 +1,29 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_InsertMudStagingRecord]" directorySegmentName="seg_21" id="BD6E1ACD-6F71-5FB8-1537-EDC857166A3A">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@city varchar(50), 
+ @state varchar(2), 
+ @zip varchar(5), 
+ @area_code varchar(3), 
+ @.ps varchar(5), 
+ @county varchar(30), 
+ @.mezone varchar(10), 
+ @dst varchar(1), 
+ @la.tude varchar(10), 
+ @longitude varchar(10), 
+ @type varchar(1) 
+ 
+ 
+ 
+AS 
+ 
+ 
+ 
+INSERT INTO MUD_STAGING 
+VALUES(@city, @state, @zip, @area_code, @.ps, @county, @.mezone, @dst, @la.tude, @longitude, @type)]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,150 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_0" id="63452EBA-F251-E016-D71B-62E5E82DE16A" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="USMC.vwRecrui.ngOrgIDs">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>85F2B721-7E37-1090-057C-9C5A312C98A0</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT roRegion.ORGANIZATION_ID AS root, roHQ.ORGANIZATION_ID AS HQ, roRegion.ORGANIZATION_ID AS Region, null AS District, null AS RS, null AS RSS, null AS OSS 
+FROM dbo.RECRUITING_ORGANIZATION AS roRegion WITH (NOLOCK) 
+ INNER JOIN dbo.ORGANIZATION_MAP AS om ON roRegion.ORGANIZATION_ID = om.CHILD_ORGANIZATION_ID  
+ INNER JOIN dbo.RECRUITING_ORGANIZATION AS roHQ ON om.PARENT_ORGANIZATION_ID = roHQ.ORGANIZATION_ID 
+WHERE roRegion.Organiza.on_Type = 'R' 
+UNION 
+SELECT roDistrict.ORGANIZATION_ID AS root, roHQ.ORGANIZATION_ID AS HQ, roRegion.ORGANIZATION_ID AS Region, roDistrict.ORGANIZATION_ID AS District, null AS RS, null AS RSS, null AS OSS 
+FROM dbo.ORGANIZATION_MAP AS om WITH (NOLOCK) 
+ INNER JOIN dbo.ORGANIZATION_MAP AS om2 ON om.CHILD_ORGANIZATION_ID = om2.PARENT_ORGANIZATION_ID  
+ INNER JOIN dbo.RECRUITING_ORGANIZATION AS roDistrict ON om2.CHILD_ORGANIZATION_ID = roDistrict.ORGANIZATION_ID  
+ INNER JOIN dbo.RECRUITING_ORGANIZATION AS roRegion ON om2.PARENT_ORGANIZATION_ID = roRegion.ORGANIZATION_ID  
+ INNER JOIN dbo.RECRUITING_ORGANIZATION AS roHQ ON om.PARENT_ORGANIZATION_ID = roHQ.ORGANIZATION_ID 
+WHERE roDistrict.Organiza.on_Type = 'D' 
+UNION 
+SELECT roRs.ORGANIZATION_ID AS root, roHQ.ORGANIZATION_ID AS HQ, roRegion.ORGANIZATION_ID AS Region, roDistrict.ORGANIZATION_ID AS District, roRs.ORGANIZATION_ID AS RS, null AS RSS, null AS OSS 
+FROM dbo.ORGANIZATION_MAP AS om WITH (NOLOCK) 
+ INNER JOIN dbo.ORGANIZATION_MAP AS om2 ON om.CHILD_ORGANIZATION_ID = om2.PARENT_ORGANIZATION_ID  
+ INNER JOIN dbo.ORGANIZATION_MAP AS om3 ON om2.CHILD_ORGANIZATION_ID = om3.PARENT_ORGANIZATION_ID  
+ INNER JOIN dbo.RECRUITING_ORGANIZATION AS roRs ON om3.CHILD_ORGANIZATION_ID = roRs.ORGANIZATION_ID  
+ INNER JOIN dbo.RECRUITING_ORGANIZATION AS roDistrict ON om3.PARENT_ORGANIZATION_ID = roDistrict.ORGANIZATION_ID  
+ INNER JOIN dbo.RECRUITING_ORGANIZATION AS roRegion ON om2.PARENT_ORGANIZATION_ID = roRegion.ORGANIZATION_ID  
+ INNER JOIN dbo.RECRUITING_ORGANIZATION AS roHQ ON om.PARENT_ORGANIZATION_ID = roHQ.ORGANIZATION_ID 
+WHERE roRs.Organiza.on_Type = 'RS' 
+UNION 
+SELECT roRss.ORGANIZATION_ID AS root, roHQ.ORGANIZATION_ID AS HQ, roRegion.ORGANIZATION_ID AS Region, roDistrict.ORGANIZATION_ID AS District, roRs.ORGANIZATION_ID AS RS, roRss.ORGANIZATION_ID AS RSS, null AS OSS 
+FROM dbo.ORGANIZATION_MAP AS om WITH (NOLOCK) 
+ INNER JOIN dbo.ORGANIZATION_MAP AS om2 ON om.CHILD_ORGANIZATION_ID = om2.PARENT_ORGANIZATION_ID  
+ INNER JOIN dbo.ORGANIZATION_MAP AS om3 ON om2.CHILD_ORGANIZATION_ID = om3.PARENT_ORGANIZATION_ID  
+ INNER JOIN dbo.ORGANIZATION_MAP AS om4 ON om3.CHILD_ORGANIZATION_ID = om4.PARENT_ORGANIZATION_ID  
+ INNER JOIN dbo.RECRUITING_ORGANIZATION AS roRss ON om4.CHILD_ORGANIZATION_ID = roRss.ORGANIZATION_ID  
+ INNER JOIN dbo.RECRUITING_ORGANIZATION AS roRs ON om3.CHILD_ORGANIZATION_ID = roRs.ORGANIZATION_ID  
+ INNER JOIN dbo.RECRUITING_ORGANIZATION AS roDistrict ON om3.PARENT_ORGANIZATION_ID = roDistrict.ORGANIZATION_ID  
+ INNER JOIN dbo.RECRUITING_ORGANIZATION AS roRegion ON om2.PARENT_ORGANIZATION_ID = roRegion.ORGANIZATION_ID  
+ INNER JOIN dbo.RECRUITING_ORGANIZATION AS roHQ ON om.PARENT_ORGANIZATION_ID = roHQ.ORGANIZATION_ID 
+WHERE roRss.Organiza.on_Type = 'RSS' 
+UNION 
+SELECT roRss.ORGANIZATION_ID AS root, roHQ.ORGANIZATION_ID AS HQ, roRegion.ORGANIZATION_ID AS Region, roDistrict.ORGANIZATION_ID AS District, roRs.ORGANIZATION_ID AS RS, null AS RSS, roRss.ORGANIZATION_ID AS OSS 
+FROM dbo.ORGANIZATION_MAP AS om WITH (NOLOCK) 
+ INNER JOIN dbo.ORGANIZATION_MAP AS om2 ON om.CHILD_ORGANIZATION_ID = om2.PARENT_ORGANIZATION_ID  
+ INNER JOIN dbo.ORGANIZATION_MAP AS om3 ON om2.CHILD_ORGANIZATION_ID = om3.PARENT_ORGANIZATION_ID  
+ INNER JOIN dbo.ORGANIZATION_MAP AS om4 ON om3.CHILD_ORGANIZATION_ID = om4.PARENT_ORGANIZATION_ID  
+ INNER JOIN dbo.RECRUITING_ORGANIZATION AS roRss ON om4.CHILD_ORGANIZATION_ID = roRss.ORGANIZATION_ID  
+ INNER JOIN dbo.RECRUITING_ORGANIZATION AS roRs ON om3.CHILD_ORGANIZATION_ID = roRs.ORGANIZATION_ID  
+ INNER JOIN dbo.RECRUITING_ORGANIZATION AS roDistrict ON om3.PARENT_ORGANIZATION_ID = roDistrict.ORGANIZATION_ID  
+ INNER JOIN dbo.RECRUITING_ORGANIZATION AS roRegion ON om2.PARENT_ORGANIZATION_ID = roRegion.ORGANIZATION_ID  
+ INNER JOIN dbo.RECRUITING_ORGANIZATION AS roHQ ON om.PARENT_ORGANIZATION_ID = roHQ.ORGANIZATION_ID 
+WHERE roRss.Organiza.on_Type = 'OSS']]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ORGANIZATION_ID" id="6D793241-3D9E-A209-E3C7-F47D40C05E17">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>root</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>root</headerAlias>
+<expression>ORGANIZATION_ID</expression>
+<reference>false</reference>
+<viewID>63452EBA-F251-E016-D71B-62E5E82DE16A</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_262" id="B1C70A10-40F2-B0BB-A833-5381592638E2">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>HQ</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>HQ</headerAlias>
+<expression>ORGANIZATION_ID</expression>
+<reference>false</reference>
+<viewID>63452EBA-F251-E016-D71B-62E5E82DE16A</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_263" id="927EC95D-27C6-7BC4-0406-061CDAC20FB2">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Region</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>Region</headerAlias>
+<expression>ORGANIZATION_ID</expression>
+<reference>false</reference>
+<viewID>63452EBA-F251-E016-D71B-62E5E82DE16A</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="null" id="73225579-3D5F-DF02-0B2D-808AB2B64BBE">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>District</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>District</headerAlias>
+<expression>null</expression>
+<reference>false</reference>
+<viewID>63452EBA-F251-E016-D71B-62E5E82DE16A</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_265" id="DAAAFFF5-4E34-9DB6-8AF8-1891165E8FBE">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>RS</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>RS</headerAlias>
+<expression>null</expression>
+<reference>false</reference>
+<viewID>63452EBA-F251-E016-D71B-62E5E82DE16A</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_266" id="D65198E4-889D-7FC7-6C52-4EAB6B0723C4">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>RSS</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>RSS</headerAlias>
+<expression>null</expression>
+<reference>false</reference>
+<viewID>63452EBA-F251-E016-D71B-62E5E82DE16A</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_267" id="3CACDAA9-BF78-CD43-0F75-FD6502882C41">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>OSS</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>OSS</headerAlias>
+<expression>null</expression>
+<reference>false</reference>
+<viewID>63452EBA-F251-E016-D71B-62E5E82DE16A</viewID>
+</viewElement>
+</viewElements>
+</TableView>

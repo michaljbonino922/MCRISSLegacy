@@ -1,0 +1,20 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[MudTransac.on_Commit]" directorySegmentName="seg_13" id="360A1604-5F12-7952-5B59-8D410084787D">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @Transac.onID varchar(100) = 'DEFAULT' 
+) 
+AS 
+ 
+DECLARE @sql varchar(1000) 
+SET @sql = 'IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(''[USMC].[MUD_FILE_BACKUP_' + @Transac.onID + ']'') AND type = ''U'') DROP TABLE [USMC].[MUD_FILE_BACKUP_' + @Transac.onID + ']' 
+ 
+EXEC (@sql); 
+ 
+TRUNCATE TABLE [dbo].[MUD_STAGING]]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

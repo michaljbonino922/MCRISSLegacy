@@ -1,0 +1,122 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertNwaStatus]" directorySegmentName="seg_10" id="B9A53BEF-C127-9D30-B76A-A69554C89478">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+  @Comments VARCHAR(40) 
+ ,@E.ec.veDate DATETIME 
+ ,@NwaID INT 
+ ,@PhaseCode VARCHAR(10) 
+ ,@Disposi.onCode VARCHAR(20) 
+ ,@Usage CHAR(1) 
+ ,@LastEditBy VARCHAR(15) 
+) 
+AS 
+ 
+DECLARE @PriorStatus VARCHAR(10) 
+DECLARE @CurrentStatus VARCHAR(10) 
+ 
+SET @CurrentStatus = @Usage + @PhaseCode + @Disposi.onCode 
+SET @PriorStatus = (SELECT STATUS_TYPE + STATUS_CODE + DISPOSITION_CODE 
+      FROM CANDIDATE_STATUS  
+      WHERE CANDIDATE_STATUS_ID IN ( SELECT MAX(CANDIDATE_STATUS_ID) 
+              FROM CANDIDATE_STATUS 
+              WHERE NWA_ID = @NWAID)) 
+ 
+IF (@PriorStatus IS NULL) 
+BEGIN 
+ SET @PriorStatus = '' 
+END 
+ 
+ 
+IF ((@CurrentStatus = 'OBX' OR @CurrentStatus = 'OBY') AND (@PriorStatus = 'OFK')) 
+BEGIN 
+ INSERT INTO [mcriss].[dbo].[CANDIDATE_STATUS] 
+ SELECT @NWAID,@E.ec.veDate,@Comments,'O','F','L',@LastEditBy,GetDate(),newid() 
+ 
+ SELECT SCOPE_IDENTITY() 
+END 
+ELSE 
+BEGIN 
+ IF (NOT ((@PriorStatus = 'EAF') AND (@CurrentStatus  = 'EAF')) AND NOT ((@PriorStatus = 'OAF') AND (@CurrentStatus  = 'OAF')) AND NOT (@CurrentStatus = 'OEA')) 
+ BEGIN 
+  -- IF Status is in  
+  --EAFR   DQ-Fraud 
+  --EAG    DQ-Medical 
+  --EAH  DQ-Mental 
+  --EAI  DQ-Moral 
+  --EAJ  DQ-Other 
+ 
+  -- Modify Prospect expira.on date, delete all future event, change prospect disposi.on to expired  
+ 
+  IF ( @CurrentStatus = 'EAFR' OR  
+       @CurrentStatus = 'EAG'  OR 
+       @CurrentStatus = 'EAH'  OR 
+    @CurrentStatus = 'EAI'  OR 
+    @CurrentStatus = 'EAJ'  
+     )  
+  BEGIN 
+   --make sure the above update statemnet worked 
+     
+   DECLARE @Now date 
+   DECLARE @ProspectId uniqueiden..er 
+ 
+   SET @Now = GETDATE() 
+ 
+   SELECT @ProspectId = ProspectId FROM Prospec.ng.USMC.Prospect WHERE NwaId IN (SELECT rowguid FROM MCRISS.dbo.NWA WHERE NWA_ID = @NwaID) 
+ 
+   -- update PAC expira.on date  
+   UPDATE  
+    Prospec.ng.USMC.Prospect  
+   SET  
+    Expira.onDate = @Now 
+   WHERE  
+    ProspectId = @ProspectId 
+ 
+   -- delete all future PAC event when Perm DQ 
+   DECLARE @EventToDeleteId uniqueiden..er 
+ 
+   DECLARE eventDelete_cursor CURSOR FOR 
+    SELECT e.ID  
+    FROM  
+     RSSOSS.USMC.Event e 
+     INNER JOIN RssOss.USMC.EventSubject s ON e.ID = s.EventId 
+    WHERE  
+     s.SubjectId = @ProspectId 
+     AND e.EventSourceId = 16 
+     AND e.StartDate > DATEADD(day, 2, @Now)  -- per government request to give 2 days bu.er zone for the events dele.on  
+ 
+   OPEN eventDelete_cursor   
+ 
+   FETCH NEXT FROM eventDelete_cursor    
+   INTO @EventToDeleteId 
+ 
+   WHILE @@FETCH_STATUS = 0   
+   BEGIN 
+     
+    EXEC RssOss.USMC.DeleteEvent @EventToDeleteId 
+ 
+    FETCH NEXT FROM eventDelete_cursor    
+    INTO @EventToDeleteId 
+   END 
+ 
+   CLOSE eventDelete_cursor;   
+   DEALLOCATE eventDelete_cursor;  
+ 
+  END 
+ 
+  INSERT INTO [mcriss].[dbo].[CANDIDATE_STATUS] 
+  SELECT @NWAID,@E.ec.veDate,@Comments,@Usage,@PhaseCode,@Disposi.onCode,@LastEditBy,GetDate(),newid() 
+ 
+  SELECT SCOPE_IDENTITY() 
+ END 
+ ELSE 
+ BEGIN 
+  SELECT MAX(CANDIDATE_STATUS_ID) FROM CANDIDATE_STATUS WHERE NWA_ID = @NWAID 
+ END 
+END]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

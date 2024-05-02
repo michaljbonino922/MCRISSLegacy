@@ -1,0 +1,67 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertOrUpdateCollegePastProduc.onUsingGuid]" directorySegmentName="seg_10" id="55A695A7-9AE8-59B6-8125-9D9383DC017F">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@SchoolCode uniqueiden..er, 
+      @FiscalYear int, 
+      @NumMailOutConducted smallint, 
+      @PercentMailOutReturn smallint, 
+      @NumPosterityConducted smallint, 
+      @PercentPosterityReturn smallint, 
+      @UserLogin varchar(50) 
+       
+         
+AS 
+SET NOCOUNT ON 
+ 
+ 
+DECLARE @CollegePastProduc.onID uniqueiden..er 
+ 
+ Select @CollegePastProduc.onID = cp.CollegePro.leID from [USMC].CollegePro.le cp 
+                                     inner join [dbo].High_School hs on cp.SCHOOL_CODE = hs.SCHOOL_CODE 
+                                     where hs.RowGuid = @SchoolCode           
+             and cp.FiscalYear = @FiscalYear 
+              
+  
+ IF EXISTS (SELECT '1' from [USMC].CollegePastProduc.on cpe  
+        where cpe.CollegePastProduc.onID = @CollegePastProduc.onID 
+           and @CollegePastProduc.onID IS NOT NULL) 
+ -- then update the exisi.ng record 
+   
+   BEGIN  
+   UPDATE [MCRISS].[USMC].[CollegePastProduc.on] 
+     
+   SET  
+     [NumMailOutConducted] = @NumMailOutConducted, 
+     [PercentMailOutReturn] = @PercentMailOutReturn, 
+     [NumPosterityConducted] = @NumPosterityConducted, 
+     [PercentPosterityReturn] = @PercentPosterityReturn, 
+     [UserLogin] = @UserLogin, 
+     [UpdateDate] = GetDate() 
+ 
+   WHERE [CollegePastProduc.onID] =  @CollegePastProduc.onID  
+ 
+   END  
+ 
+   --ELSE  PROCEED WITH INSERT 
+   ELSE 
+ 
+   BEGIN 
+ 
+    INSERT INTO [MCRISS].[USMC].[CollegePastProduc.on] 
+     -- user can insert the CollegePastProduc.onID and .scal year 
+     ([CollegePastProduc.onID],[NumMailOutConducted],[PercentMailOutReturn], 
+     [NumPosterityConducted],[PercentPosterityReturn],[UserLogin],[UpdateDate]) 
+    VALUES 
+     (@CollegePastProduc.onID, @NumMailOutConducted,@PercentMailOutReturn, 
+     @NumPosterityConducted, @PercentPosterityReturn, 
+     @UserLogin,GetDate()) 
+ 
+   END 
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

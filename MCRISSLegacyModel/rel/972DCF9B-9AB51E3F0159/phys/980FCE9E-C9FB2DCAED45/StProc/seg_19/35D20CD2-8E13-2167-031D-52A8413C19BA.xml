@@ -1,0 +1,37 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetPeriodStartAndEndDates]" directorySegmentName="seg_19" id="35D20CD2-8E13-2167-031D-52A8413C19BA">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@FiscalYear  int, 
+ @Date  date.me = NULL 
+ 
+AS 
+ 
+IF @Date IS NULL  
+BEGIN 
+ SELECT  
+  PERIOD_CODE,  
+  CONVERT(VARCHAR(11), BEGIN_DATE, 106) AS BEGIN_DATE,  
+  CONVERT(VARCHAR(11), END_DATE, 106) AS END_DATE 
+ FROM  
+  PROGRAM_PERIOD  
+ WHERE  
+  FY = @FiscalYear 
+END 
+ELSE 
+BEGIN 
+ SELECT  
+  PERIOD_CODE,  
+  CONVERT(VARCHAR(11), BEGIN_DATE, 106) AS BEGIN_DATE,  
+  CONVERT(VARCHAR(11), END_DATE, 106) AS END_DATE 
+ FROM  
+  PROGRAM_PERIOD  
+ WHERE  
+  FY = @FiscalYear AND 
+  @Date BETWEEN BEGIN_DATE AND END_DATE 
+END]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

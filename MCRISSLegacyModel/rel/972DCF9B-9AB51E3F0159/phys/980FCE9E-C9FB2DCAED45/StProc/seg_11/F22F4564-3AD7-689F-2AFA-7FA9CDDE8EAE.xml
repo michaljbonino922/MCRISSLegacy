@@ -1,0 +1,73 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertOrUpdateROTC]" directorySegmentName="seg_11" id="F22F4564-3AD7-689F-2AFA-7FA9CDDE8EAE">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@ROTCID  uniqueiden..er, 
+       @PointOfContactID  uniqueiden..er, 
+       @SchoolCode int, 
+       @FiscalYear int, 
+       --@En.tyTypeID smallint, 
+       @Service varchar(3), 
+       @Popula.on int, 
+       @RankCode varchar(10), 
+       @UserLogin varchar(50) 
+            
+        
+AS 
+SET NOCOUNT ON 
+ 
+Select @UserLogin = 'testuser' 
+ 
+ 
+DECLARE @CollegePro.leID uniqueiden..er 
+ 
+Select @CollegePro.leID  = CollegePro.leID FROM [USMC].CollegePro.le cp where School_Code = @SchoolCode 
+                    and FiscalYear = @FiscalYear 
+ 
+ 
+-- IMPORTANT NOTE - Add begin/end commit/rollback transac.on 
+  
+ 
+  -- informa.on for an exisi.ng record can be inserted. 
+  IF EXISTS (SELECT '1' from [MCRISS].[USMC].[CollegePro.leROTC]  
+             where CollegePro.leROTCID = @ROTCID 
+             and  @ROTCID IS NOT NULL) 
+   
+              
+  -- then update the exisi.ng record 
+  BEGIN 
+   
+   UPDATE [MCRISS].[USMC].[CollegePro.leROTC] 
+    
+   SET   
+     [Service] = @Service, 
+     [Popula.on] = @Popula.on, 
+     [RankCode] = @RankCode, 
+     [UserLogin] = @UserLogin, 
+     [CollegePro.leID] = @CollegePro.leID, 
+     [UpdateDate] = GetDate() 
+       
+   WHERE  CollegePro.leROTCID = @ROTCID 
+      
+     
+   
+  END -- If exists in College Pro.le ROTC  
+  ELSE 
+  BEGIN 
+   --insert into college pro.le ROTC    
+    INSERT INTO [MCRISS].[USMC].[CollegePro.leROTC] 
+      ([CollegePro.leROTCID],[Service],[Popula.on],[PointOfContactID] 
+      ,[RankCode],[CollegePro.leID],[UserLogin] ,[UpdateDate]) 
+    VALUES   
+      (@ROTCID, @Service, @Popula.on, @PointOfContactID, 
+       @RankCode, @CollegePro.leID,@UserLogin,GetDate()) 
+  END  -- end insert college pro.le rotc 
+    
+   
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

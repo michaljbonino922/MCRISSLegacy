@@ -1,0 +1,19 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetContrac.ngGoalForMCRC]" directorySegmentName="seg_16" id="D76F1A07-6A35-A691-5FBD-8D7B98E43E98">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@FiscalYear int  AS 
+ 
+SELECT CONTRACTING_MISSION_PLAN.ORGANIZATION_ID,  MISSION_VALUE, RECRUITING_ORGANIZATION.SHORT_NAME 
+FROM RECRUITING_ORGANIZATION  
+ INNER JOIN CONTRACTING_MISSION_PLAN ON  
+     RECRUITING_ORGANIZATION.ORGANIZATION_ID = CONTRACTING_MISSION_PLAN.ORGANIZATION_ID 
+WHERE CONTRACTING_MISSION_PLAN.FISCAL_YEAR =  @FiscalYear AND 
+RECRUITING_ORGANIZATION.ORGANIZATION_TYPE = 'R' AND 
+CONTRACTING_MISSION_TYPE = 'CMC' AND 
+MONTH_CODE = 0]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,25 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetRemovedPrograms]" directorySegmentName="seg_20" id="2BAECF2E-B4F8-9335-EB51-FA753AAE2768">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@ProgramID  int, 
+ @FiscalYear int, 
+ @NumberOfRemovedPrograms int OUTPUT 
+AS 
+ 
+ 
+SELECT   
+ @NumberOfRemovedPrograms = COUNT(1) 
+FROM   
+ PROGRAM P INNER JOIN PROGRAM_AVAILABILITY PA ON  
+ (P.PROGRAM_ID = PA.PROGRAM_ID AND P.PROGRAM_ID = @ProgramID) 
+ INNER JOIN REMOVED_PROGRAMS RP ON 
+ (RP.PROGRAM_AVAILABILITY_ID = PA.PROGRAM_AVAILABILITY_ID) 
+ INNER JOIN PROGRAM_PERIOD PP ON 
+ (PA.PROGRAM_PERIOD_ID = PP.PROGRAM_PERIOD_ID AND 
+  PP.FY = @FiscalYear)]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

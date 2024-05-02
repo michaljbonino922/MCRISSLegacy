@@ -1,0 +1,55 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateAc.vityAchieved]" directorySegmentName="seg_24" id="A15A7DEA-0985-12F0-F36A-8A4EB244D96B">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@Organiza.onID as integer, 
+ @Ac.vityDate as date.me, 
+ @TCAtempts as integer, 
+ @TCContacts as integer, 
+ @TCAppointments as integer, 
+ @TCInterviews as integer, 
+ @OTContacts as integer, 
+ @OTInterviews as integer, 
+ @ACContacts as integer, 
+ @ACAppointments as integer, 
+ @ACInterviews as integer, 
+ @HVAtempts as integer, 
+ @HVContacts as integer, 
+ @HVAppointments as integer, 
+ @HVInterviews as integer, 
+ @UserLogin varchar(15) 
+AS 
+ 
+BEGIN   
+ 
+ IF EXISTS (SELECT 1 FROM RSS_ACTIVITY WHERE ORGANIZATION_ID = @Organiza.onID AND ACTIVITY_DATE = @Ac.vityDate)  
+   
+  UPDATE RSS_ACTIVITY  
+  SET  TCS = @TCAtempts,  
+   TC_CONTACTS = @TCContacts, 
+   TC_APPOINTMENTS = @TCAppointments, 
+   TC_INTERVIEWS = @TCInterviews, 
+   OTS = @OTContacts, 
+   OT_INTERVIEWS = @OTInterviews, 
+   ACS = @ACContacts, 
+   AC_APPOINTMENTS = @ACAppointments, 
+   AC_INTERVIEWS = @ACInterviews, 
+   HVS = @HVAtempts, 
+   HV_CONTACTS = @HVContacts, 
+   HV_APPOINTMENTS = @HVAppointments, 
+   HV_INTERVIEWS = @HVInterviews, 
+   USER_LOGIN = @UserLogin,  
+   UPDATE_DATE = GETDATE()  
+  WHERE ORGANIZATION_ID = @Organiza.onID AND ACTIVITY_DATE = @Ac.vityDate  
+ ELSE 
+  INSERT INTO RSS_ACTIVITY (ORGANIZATION_ID, ACTIVITY_DATE, TCS, TC_CONTACTS, TC_APPOINTMENTS, TC_INTERVIEWS, OTS, OT_INTERVIEWS, ACS, AC_APPOINTMENTS,  
+  AC_INTERVIEWS, HVS, HV_CONTACTS, HV_APPOINTMENTS, HV_INTERVIEWS, USER_LOGIN, UPDATE_DATE) 
+  VALUES (@Organiza.onID, @Ac.vityDate, @TCAtempts, @TCContacts, @TCAppointments, @TCInterviews, @OTContacts, @OTInterviews,  
+  @ACContacts, @ACAppointments, @ACInterviews, @HVAtempts, @HVContacts, @HVAppointments, @HVInterviews, @UserLogin, GETDATE()) 
+ 
+END]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

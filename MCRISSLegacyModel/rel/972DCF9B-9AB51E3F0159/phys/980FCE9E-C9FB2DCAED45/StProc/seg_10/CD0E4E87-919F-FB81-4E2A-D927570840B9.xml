@@ -1,0 +1,88 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetRecruiterBilletDataByMonthCalendarYear]" directorySegmentName="seg_10" id="CD0E4E87-919F-FB81-4E2A-D927570840B9">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:37 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@Organiza.onID int, 
+ @DisplayCode int, 
+ @Month varchar(2), 
+ @CalendarYear varchar(4) 
+AS 
+ 
+declare 
+@billet_id    int, 
+@billet_begin_date  varchar(30), 
+@billet_end_date  varchar(30), 
+@organiza.on_id  int, 
+@recruiter_id uniqueiden..er 
+ 
+DECLARE @Temp TABLE (Org int) 
+INSERT INTO @Temp VALUES(@Organiza.onID) 
+INSERT INTO @Temp SELECT Decendent FROM [USMC].[vwDecendentRecrui.ngOrgs] WITH (NOLOCK) WHERE Parent = @Organiza.onID 
+ 
+CREATE TABLE #BILLET_DATA  
+ (BILLET_ID int,  
+  BILLET_BEGIN_DATE VARCHAR(30),  
+     BILLET_END_DATE VARCHAR(30),  
+  RECRUITER_ID uniqueiden..er, 
+  ORGANIZATION_ID int) 
+ 
+DECLARE billet_data CURSOR FOR 
+ 
+SELECT   
+ B.BilletID,  
+ COALESCE(CONVERT(VARCHAR(11), R.BilletBeginDate, 106), SPACE(0)) AS BilletBeginDate,  
+ COALESCE(CONVERT(VARCHAR(11), R.BilletEndDate, 106), SPACE(0)) AS BilletEndDate, 
+ R.Organiza.onID, 
+ R.RecruiterID 
+FROM  
+ Recruiter R 
+ LEFT OUTER JOIN Billet B ON R.BilletID = B.BilletID 
+WHERE  
+ ((BilletEndDate IS NOT NULL AND (CONVERT(date.me, @Month + '/1/' + @CalendarYear) BETWEEN CONVERT(date.me, CAST(DATEPART(MONTH, BilletBeginDate) AS VARCHAR) + '/1/' + CAST(DATEPART(YEAR, BilletBeginDate) AS VARCHAR)) AND BilletEndDate)) OR 
+  (BilletEndDate IS NULL AND TourEndDate IS NULL AND BilletBeginDate IS NOT NULL AND (CONVERT(date.me, @Month + '/1/' + @CalendarYear) BETWEEN CONVERT(date.me, CAST(DATEPART(MONTH, BilletBeginDate) AS VARCHAR) + '/1/' + CAST(DATEPART(YEAR, BilletBeginDate) AS VARCHAR)) AND GETDATE())) OR  
+  (BilletEndDate IS NULL AND TourEndDate IS NOT NULL AND (CONVERT(date.me, @Month + '/1/' + @CalendarYear) BETWEEN CONVERT(date.me, CAST(DATEPART(MONTH, BilletBeginDate) AS VARCHAR) + '/1/' + CAST(DATEPART(YEAR, BilletBeginDate) AS VARCHAR)) AND COALESCE(CONVERT(VARCHAR(11), R.TourEndDate, 106), SPACE(0)))) OR 
+  (BilletBeginDate IS NULL AND TourEndDate IS NULL AND BilletEndDate IS NULL) 
+  ) 
+ AND 
+ ((@DisplayCode=1 AND Organiza.onID = @Organiza.onID) OR (@DisplayCode=2 AND Organiza.onID IN (SELECT Org FROM @Temp))) 
+  
+UNION 
+ 
+SELECT  
+ BilletID,  
+ COALESCE(CONVERT(VARCHAR(11), BilletBeginDate, 106), SPACE(0)) AS BilletBeginDate,  
+ COALESCE(CONVERT(VARCHAR(11), BilletEndDate, 106), SPACE(0)) AS BilletEndDate,  
+ OrgUnitID, 
+ RecruiterID 
+FROM  
+ RecruiterHistory 
+WHERE  
+ (BilletBeginDate IS NOT NULL AND (CONVERT(date.me, @Month + '/1/' + @CalendarYear) BETWEEN CONVERT(date.me, CAST(DATEPART(MONTH, BilletBeginDate) AS VARCHAR) + '/1/' + CAST(DATEPART(YEAR, BilletBeginDate) AS VARCHAR)) AND BilletEndDate)) 
+ AND  
+ ((@DisplayCode=1 AND OrgUnitID = @Organiza.onID) OR (@DisplayCode=2 AND OrgUnitID IN (SELECT Org FROM @Temp))) 
+ 
+OPEN billet_data  
+ 
+FETCH next from billet_data INTO  
+@billet_id, @billet_begin_date, @billet_end_date, @organiza.on_id, @recruiter_id 
+ 
+WHILE (@@fetch_status = 0) 
+BEGIN 
+ INSERT INTO #BILLET_DATA VALUES(@billet_id, @billet_begin_date, @billet_end_date, @recruiter_id, @organiza.on_id) 
+FETCH next from billet_data INTO @billet_id, @billet_begin_date, @billet_end_date, @organiza.on_id, @recruiter_id 
+END 
+ 
+CLOSE billet_data 
+DEALLOCATE billet_data 
+ 
+SELECT BILLET_ID,  
+       BILLET_BEGIN_DATE,  
+       BILLET_END_DATE,  
+       RECRUITER_ID,  
+       ORGANIZATION_ID 
+  FROM #BILLET_DATA]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+</StoredProcedureSqlServerv2k5>

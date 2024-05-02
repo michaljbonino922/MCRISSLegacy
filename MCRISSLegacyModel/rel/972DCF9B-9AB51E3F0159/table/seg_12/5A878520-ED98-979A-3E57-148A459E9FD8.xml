@@ -1,0 +1,120 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_12" id="5A878520-ED98-979A-3E57-148A459E9FD8" schemaObject="B106B664-0C0B-E788-08ED-5CF8E449BE22" name="MilitaryService">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:56 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>9D8BFCCB-5B32-F0A2-7B85-56F1410AC8BA</importedID>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="PersonId" id="8DAD6412-068A-C6E8-19E0-84C20B4596B6">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:59 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>53860819-278B-107C-193E-C9C88569CDCC</importedID>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="A3E20D46-083C-AB03-7808-0215D26E2DEE" referredColumn="C202E241-6807-3149-C8B3-59C820CEE6DB"/>
+</associations>
+</Column>
+<Column name="ServiceCode" id="5E0201F5-78CD-E8BF-822F-2549A2545668">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:59 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>7A3C81B0-70CF-F64D-F8EC-28A41E0C7C18</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>4BA8B867-00F7-CF11-D790-B4F46B17454C</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="ComponentType" id="D1053758-5E36-A7FF-4AD3-57771CD7D004">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:59 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>B6946DCC-75C9-CBFC-41AF-5DCC38AE2C19</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>53DEF873-7E25-39BC-FEDB-36F739165577</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="78573F88-5E56-2EF5-616E-6B40A1A9298F" referredColumn="EB5478C1-DE6E-A8BA-A893-7E3787DD6C68"/>
+</associations>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="F04DC229-DCCD-2FF4-F995-E860412E56F6" name="PK_MilitaryService">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:59 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>F072B8A4-0AC4-B8DF-0A35-AF019297872E</importedID>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="8DAD6412-068A-C6E8-19E0-84C20B4596B6"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="E08784FD-FABD-64D1-63F6-177435897821" name="FK_MilitaryService_Applicant">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:03 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="8DAD6412-068A-C6E8-19E0-84C20B4596B6"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="E8BE66E9-3EF2-7F23-55A0-19E4D132112B" name="FK_MilitaryService_Component">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:03 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="D1053758-5E36-A7FF-4AD3-57771CD7D004"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+<tableCheckConstraints itemClass="oracle.dbtools.crest.model.design.constraint.TableLevelConstraint">
+<tableCheckConstraint name="[ACP].[MilitaryService]" directorySegmentName="seg_10" id="DFA16C56-5C98-9ED0-3219-4834CA2E6520">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:59 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>F4B45A28-A823-C24C-C3CF-EC65B5A2BAE2</importedID>
+<rule><![CDATA[CONSTRAINT [FK_MilitaryService_Applicant]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="[ACP].[MilitaryService]v1" directorySegmentName="seg_10" id="DB5DDB2F-DBA2-E62C-0146-E8C9A2E761CA">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:59 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>C690A43D-DC75-7D9F-C20C-FD9800709C3B</importedID>
+<rule><![CDATA[CONSTRAINT [FK_MilitaryService_Component]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITH" directorySegmentName="seg_10" id="B0F378D1-3007-7486-CFAD-1EB2B754F515">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:59 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>25D8FE42-500D-F36A-4984-ED80735060BB</importedID>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITHv1" directorySegmentName="seg_10" id="AC969379-0B2C-F05B-DE9F-A31A41336C90">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:59 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>C716B3E7-2E37-7C6D-502F-A5CB2D1115DD</importedID>
+</tableCheckConstraint>
+</tableCheckConstraints>
+</Table>

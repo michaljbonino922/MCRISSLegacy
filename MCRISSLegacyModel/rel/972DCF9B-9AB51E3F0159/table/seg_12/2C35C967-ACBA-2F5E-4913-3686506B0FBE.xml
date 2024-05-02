@@ -1,0 +1,152 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_12" id="2C35C967-ACBA-2F5E-4913-3686506B0FBE" schemaObject="B106B664-0C0B-E788-08ED-5CF8E449BE22" name="MedicalInsurer">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:56 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>08CC2BE4-D9AF-3B52-5FDB-24E21EB38E5D</importedID>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="PersonId" id="4B98E96E-EAFF-4488-A159-5C06A28A597E">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:59 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>72DDF42A-56CF-7123-9B2F-07CDB248F445</importedID>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="AB1E7702-633B-078E-1CEE-CAE2D257FD96" referredColumn="C202E241-6807-3149-C8B3-59C820CEE6DB"/>
+</associations>
+</Column>
+<Column name="InsurerName" id="62CFC698-4072-6434-A877-03C344513B70">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:59 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>6BDC757F-2765-33C0-C1C1-9A74D97EAF15</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>2E8EE7FC-99CE-D4AE-132C-50F4AADCC1F4</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="InsurerIdNumber" id="E369AB00-7645-DBBC-F34F-719EF4C72FC4">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:59 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>8AD92C0B-BDB9-0C25-0D1D-87F6B0684D60</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>FD927799-44A6-804F-C848-2D8ABCF9C139</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="InsStreet1" id="B3F089B1-B382-47F1-C180-CF36AF551D3C">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:59 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>CC70AEA1-C32D-2A93-E4FC-5728C88CD68D</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>FD927799-44A6-804F-C848-2D8ABCF9C139</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="InsStreet2" id="427E3BF0-C569-3293-EEF4-BB24AE8EB573">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:59 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>66510D8A-257E-ADAC-BA77-032B13E045BD</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>FD927799-44A6-804F-C848-2D8ABCF9C139</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="InsCity" id="9267CC40-3E6C-D2DF-8B13-CF8502466BD3">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:59 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>3EEC5811-FB97-56C9-7E49-D1679EEF0FD0</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>FD927799-44A6-804F-C848-2D8ABCF9C139</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="InsState" id="2704814C-3B04-2C66-0658-1485448B6838">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:59 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>477600F7-990D-1D50-0548-5CAFAEB3A78C</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>DDD71162-0EA2-844B-152B-4D9789FE6835</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="InsZip" id="EBE3F65D-D5A9-DAA2-848D-C5AF11A89C26">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:59 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>629073E6-CF91-D1F1-7C9D-BD07D0B02C53</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>DDD71162-0EA2-844B-152B-4D9789FE6835</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="A302C67B-F3B0-0C14-13ED-3C973789B73A" name="PK_MedicalInsurer">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:59 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>9158DAB6-1A2E-9E1A-B368-5364526699A7</importedID>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="4B98E96E-EAFF-4488-A159-5C06A28A597E"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="4D777376-63A2-BEEF-BE68-53DCF4D006E8" name="FK_MedicalInsurer_Applicant">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:03 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="4B98E96E-EAFF-4488-A159-5C06A28A597E"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+<tableCheckConstraints itemClass="oracle.dbtools.crest.model.design.constraint.TableLevelConstraint">
+<tableCheckConstraint name="[ACP].[MedicalInsurer]" directorySegmentName="seg_10" id="2CFF9285-7869-60EB-AD27-839391F5E1C7">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:59 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>531DA062-5695-E381-5E32-7AEFAB2C007A</importedID>
+<rule><![CDATA[CONSTRAINT [FK_MedicalInsurer_Applicant]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITH" directorySegmentName="seg_10" id="6F0D4E59-7116-A9E0-46BF-610AC9A3D4C4">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:59 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>C8C77D8A-E49C-6EFD-4D3D-6BEDD87AF30D</importedID>
+</tableCheckConstraint>
+</tableCheckConstraints>
+</Table>

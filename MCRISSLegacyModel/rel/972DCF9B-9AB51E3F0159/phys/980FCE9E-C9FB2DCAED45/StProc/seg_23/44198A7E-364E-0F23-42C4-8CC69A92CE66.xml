@@ -1,0 +1,117 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_TestCreateContract]" directorySegmentName="seg_23" id="44198A7E-364E-0F23-42C4-8CC69A92CE66">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@SSN    char(9), 
+ @ContractBeginDate  date.me, 
+ @ComponentCode  varchar(2), 
+ @TOE   int, 
+ @PADD   date.me, 
+ @ProjectedTrainingOrg int, 
+ @YouthProgramCode varchar(3) = NULL, 
+ @ENTNACSubmitDate date.me = NULL, 
+ @ENTNACCompleteDate date.me = NULL, 
+ @SpecialInterest varchar(15) = NULL, 
+ @DischargeDate  date.me = NULL, 
+ @DischargeCode  varchar(4) = NULL, 
+ @CatP   char(1) = NULL, 
+ @DEPExtension  int = NULL, 
+ @UserLogin  varchar(15) = 'SA' 
+AS 
+ 
+ 
+DECLARE @DBID INT 
+DECLARE @DBNAME NVARCHAR(128) 
+ 
+DECLARE @NWAID int 
+DECLARE @ContractID int 
+ 
+SET @DBID = DB_ID()  
+SET @DBNAME = DB_NAME() 
+ 
+ 
+IF EXISTS (SELECT 1 FROM NWA N INNER JOIN PERSON P ON N.MARINE_CANDIDATE_ID = P.PERSON_ID 
+  INNER JOIN CANDIDATE_STATUS CS ON N.NWA_ID = CS.NWA_ID 
+  WHERE P.SOCIAL_SECURITY_NUMBER = @SSN AND 
+  N.NWA_ID = (SELECT MAX(N2.NWA_ID) FROM NWA N2  
+     WHERE N2.MARINE_CANDIDATE_ID = N.MARINE_CANDIDATE_ID) AND 
+  CS.STATUS_TYPE = 'E' AND 
+  CS.STATUS_CODE = 'A' AND 
+  CS.DISPOSITION_CODE = 'F') 
+ 
+BEGIN 
+ --- GET THE NWA_ID 
+ SELECT  
+  @NWAID = N.NWA_ID  
+ FROM  
+  NWA N INNER JOIN PERSON P ON N.MARINE_CANDIDATE_ID = P.PERSON_ID  
+ WHERE  
+  P.SOCIAL_SECURITY_NUMBER = @SSN AND 
+  N.NWA_ID = (SELECT MAX(N2.NWA_ID) FROM NWA N2  
+    WHERE N2.MARINE_CANDIDATE_ID = N.MARINE_CANDIDATE_ID) 
+ 
+ --- SELECT @NWAID 
+ 
+ --- START THE TRANSACTION 
+ BEGIN TRANSACTION 
+ 
+ --- INSERT CONTRACT DATA 
+ INSERT INTO CONTRACT (NWA_ID, CONTRACT_BEGIN_DATE, COMPONENT_CODE, TERM_OF_ENLISTMENT, PROJECTED_SHIP_DATE,  
+    PROJECTED_TRAINING_ORG_ID, YOUTH_PROGRAM_CODE, ENTNAC_SUBMIT_DATE, ENTNAC_COMPLETE_DATE, 
+    SPECIAL_INTEREST, DISCHARGE_DATE, DISCHARGE_CODE, CATEGORY_P, DEP_EXTENSION,  
+    USER_LOGIN, UPDATE_DATE) 
+ VALUES (@NWAID, @ContractBeginDate, @ComponentCode, @TOE, @PADD,  
+  @ProjectedTrainingOrg, @YouthProgramCode, @ENTNACSubmitDate, @ENTNACCompleteDate,  
+  @SpecialInterest, @DischargeDate, @DischargeCode, @CatP, @DEPExtension,  
+  @UserLogin, GETDATE()) 
+ 
+ --- get the iden.ty 
+ SET @ContractID = CASE  
+    WHEN @@IDENTITY IS NULL THEN (SELECT TOP 1 CONTRACT_ID FROM CONTRACT  
+        WHERE NWA_ID = @NWAID 
+        ORDER BY CONTRACT_ID DESC) 
+    ELSE @@IDENTITY 
+     END 
+ 
+ IF @@ERROR != 0 OR @@ROWCOUNT = 0 
+ BEGIN 
+  ROLLBACK TRANSACTION 
+  RAISERROR ('An error occurred adding the contract record.', 16, 1, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ 
+ --- INSERT CANDIDATE STATUS DATA 
+ INSERT INTO CANDIDATE_STATUS (NWA_ID, STATUS_EFFECTIVE_DATE, STATUS_TYPE, STATUS_CODE, DISPOSITION_CODE, USER_LOGIN, UPDATE_DATE) 
+ VALUES (@NWAID, @ContractBeginDate, 'E', 'B', 'K', @UserLogin, GETDATE()) 
+ 
+ IF @@ERROR != 0 OR @@ROWCOUNT = 0 
+ BEGIN 
+  ROLLBACK TRANSACTION 
+  RAISERROR ('An error occurred adding the status record.', 16, 2, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ 
+ --- INSERT PADD HISTORY DATA 
+ INSERT INTO PADD_HISTORY (CONTRACT_ID, PROJECTED_SHIP_DATE, PADD_CHANGED_DATE, USER_LOGIN, UPDATE_DATE) 
+ VALUES (@ContractID, @PADD, GETDATE(), @UserLogin, GETDATE()) 
+ 
+ IF @@ERROR != 0 OR @@ROWCOUNT = 0 
+ BEGIN 
+  ROLLBACK TRANSACTION 
+  RAISERROR ('An error occurred adding the padd history record.', 16, 3, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ 
+ --- IF WE MAKE IT HERE COMMIT THE TRANSACTION 
+ COMMIT TRANSACTION 
+END 
+ELSE 
+BEGIN 
+ RAISERROR ('The SSN you entered is not eligible to be contracted.', 16, 4, @DBID, @DBNAME) 
+ RETURN 
+END]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

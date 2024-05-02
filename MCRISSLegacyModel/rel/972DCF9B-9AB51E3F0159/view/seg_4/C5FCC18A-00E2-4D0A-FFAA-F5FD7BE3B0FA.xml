@@ -1,0 +1,52 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_4" id="C5FCC18A-00E2-4D0A-FFAA-F5FD7BE3B0FA" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="_dta_mv_54">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>DC1FC626-E87A-9AD8-3BE4-32EDCF6FC296</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  [USMC].[EventType].[Type] as _col_1,  [USMC].[Event].[IsApproved] as _col_2,  [USMC].[Event].[ID] as _col_3 FROM  [USMC].[EventType],  [USMC].[Event]   WHERE  [USMC].[EventType].[ID] = [USMC].[Event].[EventTypeId]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[Type]" id="88EB6E6E-1C2F-9287-696B-2D2CEB3404CD">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_1</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_1</headerAlias>
+<expression>[Type]</expression>
+<reference>false</reference>
+<viewID>C5FCC18A-00E2-4D0A-FFAA-F5FD7BE3B0FA</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[IsApproved]" id="A0F68EB7-C457-4879-517C-AEB63AAE1FF3">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_2</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_2</headerAlias>
+<expression>[IsApproved]</expression>
+<reference>false</reference>
+<viewID>C5FCC18A-00E2-4D0A-FFAA-F5FD7BE3B0FA</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[ID]" id="D02DAD5C-1E4E-1E01-1A51-EA6C7B035856">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_3</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_3</headerAlias>
+<expression>[ID]</expression>
+<reference>false</reference>
+<viewID>C5FCC18A-00E2-4D0A-FFAA-F5FD7BE3B0FA</viewID>
+</viewElement>
+</viewElements>
+</TableView>

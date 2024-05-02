@@ -1,0 +1,25 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateQSN_Unassign]" directorySegmentName="seg_27" id="644CF789-1754-51C9-1546-91294E115962">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @ContractID int, 
+ @LastEditBy varchar(50) 
+) 
+AS 
+ 
+UPDATE [MCRISS].[dbo].[QSN] SET 
+ [CONTRACT_ID] = null 
+ ,[BONUS_CONTROL_NUMBER] = null 
+ ,[BONUS_AMOUNT] = null 
+ ,[KICKER_CONTROL] = null 
+ ,[PROGRAM_ASSIGNMENT_DATE] = null 
+ ,[USER_LOGIN] = @LastEditBy 
+ ,[UPDATE_DATE] = GetDate() 
+WHERE  
+ CONTRACT_ID = @ContractID]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

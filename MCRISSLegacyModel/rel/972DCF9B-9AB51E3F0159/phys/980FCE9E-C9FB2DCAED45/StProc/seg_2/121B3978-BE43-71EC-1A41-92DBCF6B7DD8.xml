@@ -1,0 +1,18 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetAllNwaPhaseDisposi.on]" directorySegmentName="seg_2" id="121B3978-BE43-71EC-1A41-92DBCF6B7DD8">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[AS 
+ 
+SELECT [STATUS_TYPE] 
+      ,[STATUS_CODE] 
+      ,[DISPOSITION_CODE] 
+      ,[STATUS_DESCRIPTION] 
+      ,[DISPOSITION_DESCRIPTION] 
+      ,[rowguid] 
+  FROM [mcriss].[dbo].[STATUS_DISPOSITION] WITH (NOLOCK)]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

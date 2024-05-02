@@ -1,0 +1,34 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetCollegeDegreeTypeBySchoolRowGuid]" directorySegmentName="seg_4" id="7218B52D-A1A0-22B7-B283-69BCE07F0E51">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@SchoolCode as uniqueiden..er, 
+      @FiscalYear as integer  
+      
+AS 
+SET NOCOUNT ON 
+ BEGIN 
+   
+  SELECT  
+   cad.[SCHOOL_CODE] AS SchoolCode, cad.[DEGREE_CODE] AS DegreeCode, 
+   RTRIM([DEGREE_DESC]) AS DegreeDescrip.on 
+    
+   FROM [MCRISS].[usmc].[CollegeAvailableDegree] cad  
+   INNER JOIN [MCRISS].[usmc].[AvailableDegreeType] adt   
+      ON cad.[DEGREE_CODE] = adt.[DEGREE_CODE] 
+   INNER JOIN dbo.HIGH_SCHOOL hs  
+           ON hs.SCHOOL_CODE = cad.SCHOOL_CODE 
+            
+   where hs.rowguid = @SchoolCode 
+    AND [FISCAL_YEAR] = @FiscalYear 
+   ORDER BY cad.[DEGREE_CODE] 
+ 
+END 
+  
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

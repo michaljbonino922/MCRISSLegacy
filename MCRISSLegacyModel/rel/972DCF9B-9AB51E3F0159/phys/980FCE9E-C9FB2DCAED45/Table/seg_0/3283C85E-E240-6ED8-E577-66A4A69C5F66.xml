@@ -1,0 +1,49 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="EventBudget" directorySegmentName="seg_0" id="3283C85E-E240-6ED8-E577-66A4A69C5F66">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:54 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<schemaObject>454547C7-2829-9C8F-6E0C-35E4CFDC8E47</schemaObject>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="Spent" id="51689F53-8F18-F7E6-4B07-8221F3B9E0E7">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:59 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="Budgeted" id="8FDA1B50-F44B-8448-B3C6-19F2E53E3327">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:59 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="EventID" id="CCC9C83C-2EEF-18FD-CA45-512F6189FACF">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:59 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="ID" id="CEC64F6D-DCEA-25A1-FE69-B71BBCECAAAC">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:59 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<asIdentity>true</asIdentity>
+<identityForReplication>YES</identityForReplication>
+</ColumnProxy>
+</columnProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="EventBudget_FK0" id="E0422BD2-C23D-AA84-C806-7BE690D0F96A">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="EventBudget_PK" id="4E6B60D8-A2C5-46C1-52E9-EAE572EE6C3D">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:59 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<clustered>true</clustered>
+<partitioningColumn>EFC1C3A0-E2D3-374A-ACA3-B322F3BEB012</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+</TableProxySqlServerv2k5>

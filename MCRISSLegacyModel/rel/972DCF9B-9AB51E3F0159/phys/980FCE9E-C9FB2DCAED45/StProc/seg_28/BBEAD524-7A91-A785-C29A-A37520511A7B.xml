@@ -1,0 +1,16 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetRecruiter]" directorySegmentName="seg_28" id="BBEAD524-7A91-A785-C29A-A37520511A7B">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:58:46 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @RecruiterId uniqueiden..er 
+) 
+AS 
+ 
+-- Get what we actually came for. 
+SELECT [Data] FROM [AFP].[USMC].[Recruiter] WHERE RecruiterID = @RecruiterId]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>DC23F770-7DD9-7021-9572-6AE599ACA3AE</database>
+</StoredProcedureSqlServerv2k5>

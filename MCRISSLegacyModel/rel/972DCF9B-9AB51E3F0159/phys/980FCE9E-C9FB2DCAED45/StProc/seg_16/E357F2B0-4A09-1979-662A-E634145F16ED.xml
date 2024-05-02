@@ -1,0 +1,102 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="Proc943" directorySegmentName="seg_16" id="E357F2B0-4A09-1979-662A-E634145F16ED">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@SSN   varchar(9) = null, 
+ @LastName  varchar(75), 
+ @FirstName  varchar(75) = null, 
+ @PhoneNumber varchar(25), 
+ @Street    varchar(75) = null, 
+ @City   varchar(30) = null, 
+ @County         varchar(50) = null, 
+ @State   varchar(2) = null, 
+ @ZipCode        varchar(9) = null, 
+ @SubSta.onType varchar(1) 
+  
+AS 
+ 
+DECLARE @Catch int 
+ 
+BEGIN 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+ BEGIN 
+ SELECT  
+   Pros.ProspectId,  
+   Pros.PersonId,  
+   Pros.Recrui.ngOrganiza.onId, 
+   Pros.Recrui.ngPersonId, 
+   Pros.Gradua.onYear, 
+   Pros.ProspectDisposi.onId, 
+   Pros.PACCreateDate, 
+   Pros.Ac.vity, 
+   Pros.Ac.vityDate, 
+   Pros.CareerDecision, 
+   Pros.Ini.alContactType, 
+   Pros.ASVABDate, 
+   Pros.Source, 
+   Pros.NoChildLe.BehindOptIn, 
+   Pros.Suppression, 
+   Pros.ContactTimeIndicator, 
+   Pros.Note, 
+   Pros.LastUpdateDate                 , 
+   Pros.LastUpdateUserId, 
+   Pros.CreatedDate, 
+   Pros.SubSta.onType, 
+   Pros.NwaId, 
+   P.LastName,  
+   P.FirstName,  
+   P.MiddleName,  
+   P.SocialSecurityNumber,  
+   P.AlienRegistra.onNumber,  
+   P.Gender,  
+   PP.PhoneNumber,  
+   PA.Street1,  
+   PA.City,  
+   PA.County,  
+   PA.State,  
+   PA.ZipCode 
+  FROM   
+   ImportPerson IP 
+   INNER JOIN Person P ON IP.PersonId=P.PersonId 
+   INNER JOIN Prospect Pros ON P.PersonId=Pros.PersonId 
+   LEFT OUTER JOIN PersonPhone PP ON P.PersonId=PP.PersonId 
+   LEFT OUTER JOIN PersonAddress PA ON P.PersonId=PA.PersonId  
+  WHERE 
+   IP.ImportPersonStatusTypeId=2 
+   AND 
+   (Pros.SubSta.onType =  @SubSta.onType) 
+   AND 
+   ( 
+    --SSN is the same as an exis.ng record 
+    --Last Name and phone number are the same as an exis.ng record 
+    --Last Name and address are the same as an exis.ng record 
+    --First Name and phone number are the same as an exis.ng record 
+    --First Name and address are the same as an exis.ng record 
+     
+    (P.SocialSecurityNumber = @SSN)  
+     OR 
+    (P.LastName = @LastName AND  
+     (PP.PhoneNumber=@PhoneNumber AND PP.PersonPhoneTypeId=1) 
+     )  
+     OR 
+    (P.LastName = @LastName AND (PA.Street1 = @Street AND PA.City=@City AND 
+     (@County is null OR PA.County=@County) AND PA.State=@State AND PA.ZipCode=@ZipCode)) 
+     OR 
+    (P.FirstName = @FirstName AND  
+     (PP.PhoneNumber=@PhoneNumber AND PP.PersonPhoneTypeId=1) 
+     ) 
+     OR 
+    (P.FirstName = @FirstName AND (PA.Street1 = @Street AND PA.City=@City AND 
+     (@County is null OR PA.County=@County) AND PA.State=@State AND PA.ZipCode=@ZipCode)) 
+    ) 
+     
+ END 
+    
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

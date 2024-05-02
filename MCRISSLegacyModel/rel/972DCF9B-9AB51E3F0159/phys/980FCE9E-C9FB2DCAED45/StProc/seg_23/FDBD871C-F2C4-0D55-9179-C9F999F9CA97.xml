@@ -1,0 +1,46 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_SearchStoredProcs]" directorySegmentName="seg_23" id="FDBD871C-F2C4-0D55-9179-C9F999F9CA97">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@SearchString varchar(100) 
+AS 
+ 
+SET @SearchString = '%' + @SearchString + '%' 
+ 
+SET NOCOUNT ON  
+ 
+--- CREATE TEMP TABLE TO HOLD DATA FROM SYSTEM TABLES 
+CREATE TABLE #TEMP (PROC_TYPE varchar(25), PROC_NAME sysname) 
+ 
+--- RETRIEVE DATA FROM SYSTEM TABLES INTO TEMP TABLE 
+INSERT INTO #TEMP (PROC_TYPE, PROC_NAME) 
+SELECT  
+ CASE O.XTYPE 
+  WHEN 'P' THEN 'STORED PROCEDURE' 
+  WHEN 'TR' THEN 'TRIGGER' 
+  WHEN 'FN' THEN 'USER DEFINED FUNCTION' 
+ END AS PROC_TYPE, 
+ O.NAME AS PROC_NAME 
+FROM  
+ SYSOBJECTS O INNER JOIN SYSCOMMENTS C ON  
+  (O.ID = C.ID AND 
+  O.XTYPE IN ('P' , 'TR', 'FN') AND 
+  C.TEXT LIKE @SearchString)  
+ 
+SET NOCOUNT OFF 
+ 
+--- FILTER OUT DUPLICATE NAMES AND RETURN THE DATA 
+SELECT DISTINCT  
+ CONVERT(VARCHAR(50), T.PROC_NAME) AS [PROCEDURE], T.PROC_TYPE  
+FROM 
+ #TEMP T 
+ORDER BY 
+ [PROCEDURE] 
+ 
+--- CLEAN UP 
+DROP TABLE #TEMP]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

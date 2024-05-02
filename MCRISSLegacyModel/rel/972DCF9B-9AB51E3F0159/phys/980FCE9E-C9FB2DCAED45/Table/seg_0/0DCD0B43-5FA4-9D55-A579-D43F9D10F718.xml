@@ -1,0 +1,48 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="Post" directorySegmentName="seg_0" id="0DCD0B43-5FA4-9D55-A579-D43F9D10F718">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<schemaObject>2A6D9360-3BB2-5CEA-6E99-790D76996FDF</schemaObject>
+<database>30378C7E-748C-F803-F9A3-93DBFA86C9A7</database>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="IsPSROrgUnit" id="A95717A3-0F77-01E7-AFC1-F706E26366AA">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="ID" id="D180A5AF-9E2E-2222-25F7-868A6CA54ABF">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<asIdentity>true</asIdentity>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="RoleID" id="E2EF947E-23A1-C05D-019A-2BB054A4D28E">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="OrgUnitID" id="E4077E5B-2584-2A94-0DBA-2483AAF262FB">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+</columnProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="FK_Post_Role" id="258B61D0-8F40-DB32-F1AD-B3C828FC5715">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:51 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="PK_Post" id="60CA6EEC-9E4E-9794-3056-E61DF9183097">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<clustered>true</clustered>
+<partitioningColumn>EFC1C3A0-E2D3-374A-ACA3-B322F3BEB012</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+</TableProxySqlServerv2k5>

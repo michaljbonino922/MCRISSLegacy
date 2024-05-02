@@ -1,0 +1,71 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Entity class="oracle.dbtools.crest.model.design.logical.Entity" directorySegmentName="seg_2" id="BD27CDB2-ACE5-7049-23B0-E223BACF2230" name="JPAS ERROR LOG">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:55 UTC</createdTime>
+<generatorID>C95F0A7F-5627-4740-D263-0CFDE3E36D5C</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<adequatelyNormalized>NO</adequatelyNormalized>
+<expectedVolumes>0</expectedVolumes>
+<fwdEngineeringStrategyName>Single Table</fwdEngineeringStrategyName>
+<growthPercent>0</growthPercent>
+<growthType>Year</growthType>
+<maxVolumes>9999999</maxVolumes>
+<minVolumes>0</minVolumes>
+<normalForm>Third</normalForm>
+<attributes itemClass="oracle.dbtools.crest.model.design.logical.Attribute">
+<Attribute name="JPAS ERROR LOG ID" id="AD91B0A8-69AE-276E-E232-7C12A944DCCD">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:55 UTC</createdTime>
+<generatorID>A0F4824F-503B-2122-08C8-3F949721A022</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<use>0</use>
+<domain>8C77819C-1B2F-24A0-C36D-F924235A9668</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="JPAS EXPORT LOG ID" id="E8DD8A6F-FEFC-F2F2-9AC1-2B22EAA9A0AF">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:55 UTC</createdTime>
+<generatorID>3BAE9FB5-D76B-E4E9-EF04-9D7F2D155CE7</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<use>0</use>
+<domain>8C77819C-1B2F-24A0-C36D-F924235A9668</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="ERROR MESSAGE" id="E1DAF50E-7ED2-F0F1-38AE-67DC1FBCF7B7">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:55 UTC</createdTime>
+<generatorID>CA837FF2-2B17-6C46-A22A-1B58141FC37D</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<use>0</use>
+<domain>F32A9F38-B904-5CC0-6358-5F4EC3D6A85A</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+</attributes>
+<identifiers itemClass="oracle.dbtools.crest.model.design.logical.CandidateKey">
+<identifier id="DF9DDA66-31FF-C146-DCB3-3328E6EFF024" name="PK JPAS ERROR LOG">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:55 UTC</createdTime>
+<generatorID>9B5B6F0D-5CFA-460B-F190-01A31E1EAE26</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<pk>true</pk>
+<usedAttributes>
+<attributeRef>AD91B0A8-69AE-276E-E232-7C12A944DCCD</attributeRef>
+</usedAttributes>
+</identifier>
+</identifiers>
+</Entity>

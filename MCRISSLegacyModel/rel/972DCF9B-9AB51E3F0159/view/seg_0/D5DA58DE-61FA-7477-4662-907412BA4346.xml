@@ -1,0 +1,161 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_0" id="D5DA58DE-61FA-7477-4662-907412BA4346" schemaObject="2A6D9360-3BB2-5CEA-6E99-790D76996FDF" name="MCORG_VIEW">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>E8C14F30-DC7E-8A15-F624-1C1793A117CD</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT h.organiza.on_id hq_org_id, h.short_name hq_name,  
+    reg.organiza.on_id reg_org_id, reg.short_name reg_name,  
+    dist.organiza.on_id dist_org_id, dist.short_name dist_name,  
+    rs.organiza.on_id rs_org_id, rs.short_name rs_name,  
+    rss.organiza.on_id rss_org_id,  
+    rss.short_name rss_name 
+FROM recrui.ng_organiza.on h, organiza.on_map h2r,  
+    recrui.ng_organiza.on reg, organiza.on_map r2d,  
+    recrui.ng_organiza.on dist, recrui.ng_organiza.on rs,  
+    organiza.on_map d2rs, recrui.ng_organiza.on rss,  
+    organiza.on_map rs2rss 
+WHERE h.organiza.on_id = h2r.parent_organiza.on_id AND  
+    reg.organiza.on_id = h2r.child_organiza.on_id AND  
+    reg.organiza.on_id = r2d.parent_organiza.on_id AND  
+    dist.organiza.on_id = r2d.child_organiza.on_id AND  
+    dist.organiza.on_id = d2rs.parent_organiza.on_id AND  
+    rs.organiza.on_id = d2rs.child_organiza.on_id AND  
+    rs.organiza.on_id = rs2rss.parent_organiza.on_id AND  
+    rss.organiza.on_id = rs2rss.child_organiza.on_id]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="on_id" id="AF151A53-FD5B-73A4-BF27-9704891D081B">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>hq_org_id</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>hq_org_id</headerAlias>
+<expression>on_id</expression>
+<reference>false</reference>
+<viewID>D5DA58DE-61FA-7477-4662-907412BA4346</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="short_name" id="C3DD070B-CB93-5EFF-C6F6-60B41DFCFE39">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>hq_name</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>hq_name</headerAlias>
+<expression>short_name</expression>
+<reference>false</reference>
+<viewID>D5DA58DE-61FA-7477-4662-907412BA4346</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_515" id="A47E31FA-17EF-6C43-89CD-9B0F1F50DA9E">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>reg_org_id</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>reg_org_id</headerAlias>
+<expression>on_id</expression>
+<reference>false</reference>
+<viewID>D5DA58DE-61FA-7477-4662-907412BA4346</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_516" id="61C0102E-BC3E-B7D3-E1DE-EB0FD8CF8EEC">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>reg_name</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>reg_name</headerAlias>
+<expression>short_name</expression>
+<reference>false</reference>
+<viewID>D5DA58DE-61FA-7477-4662-907412BA4346</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_517" id="22AEACC1-C4E6-579A-9816-EA165A7C0801">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>dist_org_id</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>dist_org_id</headerAlias>
+<expression>on_id</expression>
+<reference>false</reference>
+<viewID>D5DA58DE-61FA-7477-4662-907412BA4346</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_518" id="BCCA42A9-6360-5212-D238-AF81F7B57089">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>dist_name</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>dist_name</headerAlias>
+<expression>short_name</expression>
+<reference>false</reference>
+<viewID>D5DA58DE-61FA-7477-4662-907412BA4346</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_519" id="7276AA0F-9B78-AAFD-C320-10C1CC62DC26">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>rs_org_id</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>rs_org_id</headerAlias>
+<expression>on_id</expression>
+<reference>false</reference>
+<viewID>D5DA58DE-61FA-7477-4662-907412BA4346</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_520" id="01C27614-16B0-BDAD-2344-CEC405AFB7A5">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>rs_name</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>rs_name</headerAlias>
+<expression>short_name</expression>
+<reference>false</reference>
+<viewID>D5DA58DE-61FA-7477-4662-907412BA4346</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_521" id="11DF29F9-3FE5-03A7-AEA5-907500422818">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>rss_org_id</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>rss_org_id</headerAlias>
+<expression>on_id</expression>
+<reference>false</reference>
+<viewID>D5DA58DE-61FA-7477-4662-907412BA4346</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_522" id="0E42DD66-42E7-4684-0EEC-2EC60C3F9177">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>rss_name</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>rss_name</headerAlias>
+<expression>short_name</expression>
+<reference>false</reference>
+<viewID>D5DA58DE-61FA-7477-4662-907412BA4346</viewID>
+</viewElement>
+</viewElements>
+</TableView>

@@ -1,0 +1,34 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertProgram]" directorySegmentName="seg_11" id="B9A13390-203A-0685-B462-CB23C11A837D">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[(@ProgramCode varchar(4) 
+ ,@ProgramType varchar(4) 
+ ,@PregramDesc varchar(60) 
+ ,@Incep.onDate date.me 
+ ,@Status varchar(1) 
+ ,@UserLogin varchar(15)) 
+ 
+AS 
+ 
+INSERT INTO [dbo].[PROGRAM] 
+ ([PROGRAM_CODE] 
+ ,[PROGRAM_TYPE] 
+ ,[PROGRAM_DESCRIPTION] 
+ ,[INCEPTION_DATE] 
+ ,[STATUS] 
+ ,[USER_LOGIN] 
+ ,[UPDATE_DATE]) 
+VALUES 
+ (@ProgramCode 
+ ,@ProgramType 
+ ,@PregramDesc 
+ ,@Incep.onDate 
+ ,@Status 
+ ,@UserLogin 
+ ,GetDate())]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

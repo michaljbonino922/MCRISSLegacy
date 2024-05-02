@@ -1,0 +1,45 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateO.cerMissingDocuments]" directorySegmentName="seg_25" id="30FFCC9B-77CA-F22F-4C07-BE18F3ABC262">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@MissingDocID integer, 
+ @ContractID integer, 
+ @DateEntered date.me, 
+ @Comments varchar(256), 
+ @Level  varchar(16), 
+ @Assigned varchar(16), 
+ @DueDate date.me, 
+ @Status  varchar(16), 
+ @UserLogin varchar(15) 
+ 
+AS 
+ 
+IF @MissingDocID < 1 
+BEGIN 
+ INSERT INTO 
+  [MISSING_DOCUMENTS] (CONTRACT_ID, DATE_ENTERED, COMMENTS, [LEVEL], ASSIGNED, DUE_DATE, STATUS, USER_LOGIN, UPDATE_DATE) 
+ VALUES 
+  (@ContractID, @DateEntered, @Comments, @Level, @Assigned, @DueDate, @Status, @UserLogin, getdate()) 
+END 
+ELSE 
+BEGIN 
+ UPDATE 
+  [MISSING_DOCUMENTS] 
+ SET 
+  [CONTRACT_ID]  = @ContractID, 
+  [DATE_ENTERED]  = @DateEntered, 
+  [COMMENTS]  = @Comments, 
+  [LEVEL]  = @Level, 
+  [ASSIGNED]  = @Assigned, 
+  [DUE_DATE]  = @DueDate, 
+  [STATUS]  = @Status, 
+  [USER_LOGIN]  = @UserLogin, 
+  [UPDATE_DATE]  = getdate() 
+ WHERE 
+  [MISSING_DOC_ID] = @MissingDocID; 
+END]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

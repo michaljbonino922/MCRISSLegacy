@@ -1,0 +1,66 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_0" id="67BDE075-07F9-DDA1-422B-E7E4D37AEE2E" schemaObject="2A6D9360-3BB2-5CEA-6E99-790D76996FDF" name="vw_Insert_NWA_PJ">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>5E10BAC2-E479-9E4C-54BF-0A84ABDF2D4A</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT     dbo.PERSON.PERSON_ID, GETDATE() AS NWA_DECLARED_DATE, GETDATE() AS NWA_DATE_STARTED_WORKING, 910 AS ORGANIZATION_OF_RECORD_ID 
+FROM         dbo.Working_USNA INNER JOIN 
+                      dbo.PERSON ON dbo.Working_USNA.CSSN = dbo.PERSON.SOCIAL_SECURITY_NUMBER]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="PERSON_ID" id="DA8F0E01-3939-0850-DFDE-04CB19C23246">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>PERSON_ID</alias>
+<dataType>UNKNOWN</dataType>
+<expression>PERSON_ID</expression>
+<reference>false</reference>
+<viewID>67BDE075-07F9-DDA1-422B-E7E4D37AEE2E</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="GETDATE()" id="B260D9BA-2A86-884E-B8C1-B8C0ECCE756D">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>NWA_DECLARED_DATE</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>NWA_DECLARED_DATE</headerAlias>
+<expression>GETDATE()</expression>
+<reference>false</reference>
+<viewID>67BDE075-07F9-DDA1-422B-E7E4D37AEE2E</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_270" id="CE502DAA-85E7-A3E3-9B3F-5068D372C034">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>NWA_DATE_STARTED_WORKING</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>NWA_DATE_STARTED_WORKING</headerAlias>
+<expression>GETDATE()</expression>
+<reference>false</reference>
+<viewID>67BDE075-07F9-DDA1-422B-E7E4D37AEE2E</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="910" id="7BDAC5C8-11C4-0169-27D1-DC6D23A66608">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>ORGANIZATION_OF_RECORD_ID</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>ORGANIZATION_OF_RECORD_ID</headerAlias>
+<expression>910</expression>
+<reference>false</reference>
+<viewID>67BDE075-07F9-DDA1-422B-E7E4D37AEE2E</viewID>
+</viewElement>
+</viewElements>
+</TableView>

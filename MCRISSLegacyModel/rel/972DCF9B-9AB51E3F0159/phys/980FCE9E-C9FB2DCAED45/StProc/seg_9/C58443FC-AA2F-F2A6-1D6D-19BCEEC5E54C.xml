@@ -1,0 +1,45 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetProgramsByCriteria]" directorySegmentName="seg_9" id="C58443FC-AA2F-F2A6-1D6D-19BCEEC5E54C">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @charStatus char(1) = NULL, 
+ @intSortType int = NULL, 
+ @intProgramID int = NULL, 
+ @intStar.ngRow int = 1, 
+ @intPageSize int = 15 
+) 
+AS 
+ 
+CREATE TABLE #TEMPPROGRAMTABLE(ROWNUMBER int, PROGRAM_ID int, PROGRAM_CODE varchar(4), PROGRAM_TYPE varchar(4), PROGRAM_DESCRIPTION varchar(60), INCEPTION_DATE date.me, STATUS char(1)) 
+ 
+INSERT INTO #TEMPPROGRAMTABLE 
+SELECT 
+ ROW_NUMBER() OVER (ORDER BY 
+  CASE WHEN @intSortType = 1 THEN PROGRAM_CODE END, 
+  CASE WHEN @intSortType = 2 THEN PROGRAM_CODE END DESC, 
+  CASE WHEN @intSortType = 3 THEN PROGRAM_TYPE END, 
+  CASE WHEN @intSortType = 4 THEN INCEPTION_DATE END, 
+  PROGRAM_CODE, PROGRAM_DESCRIPTION 
+ ) ROWNUMBER, 
+ PROGRAM_ID,  
+ PROGRAM_CODE,  
+ PROGRAM_TYPE,  
+ PROGRAM_DESCRIPTION,  
+ INCEPTION_DATE,  
+ STATUS 
+FROM PROGRAM WITH (NOLOCK) 
+WHERE STATUS = COALESCE(@charStatus, STATUS) 
+ AND PROGRAM_ID = COALESCE(@intProgramID, PROGRAM_ID) 
+ORDER BY ROWNUMBER 
+ 
+SELECT * 
+FROM #TEMPPROGRAMTABLE 
+WHERE @intStar.ngRow IS NULL OR @intPageSize IS NULL OR (@intStar.ngRow IS NOT NULL AND @intPageSize IS NOT NULL AND ROWNUMBER BETWEEN @intStar.ngRow AND (@intStar.ngRow + @intPageSize)) 
+ 
+DROP TABLE #TEMPPROGRAMTABLE]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

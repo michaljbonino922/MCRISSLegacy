@@ -1,0 +1,63 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_ToolboxUpdateCandidateASVAB]" directorySegmentName="seg_24" id="F622EFC9-07B6-743C-D2FB-0910514631AC">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@MarineCandidateID int, 
+ @Version varchar(3), 
+ @ASVABDate date.me, 
+ @GS varchar(2), 
+ @AR varchar(2), 
+ @WK varchar(2), 
+ @PC varchar(2), 
+ @NO varchar(2), 
+ @CS varchar(2), 
+ @AS varchar(2), 
+ @MK varchar(2), 
+ @MC varchar(2), 
+ @EI varchar(2), 
+ @VE varchar(2), 
+ @AFQT int, 
+ @GT int, 
+ @EL int, 
+ @CL int, 
+ @MM int, 
+ @MEPSOrgID int, 
+ @UserLogin varchar(15) 
+AS 
+ 
+IF EXISTS (SELECT 1  
+    FROM   CANDIDATE_ASVAB  
+           WHERE  MARINE_CANDIDATE_ID = @MarineCandidateID AND 
+                  ASVAB_DATE = @ASVABDate)  
+ BEGIN   
+   
+ UPDATE  CANDIDATE_ASVAB 
+ SET  VERSION = @Version, 
+  GS_SUBTEST = @GS, 
+  AR_SUBTEST = @AR, 
+  WK_SUBTEST = @WK, 
+  PC_SUBTEST = @PC, 
+  NO_SUBTEST = @NO, 
+  CS_SUBTEST = @CS, 
+  AS_SUBTEST = @AS, 
+  MK_SUBTEST = @MK, 
+  MC_SUBTEST = @MC, 
+  EI_SUBTEST = @EI, 
+  VE_SUBTEST = @VE, 
+  AFQT_SCORE = @AFQT, 
+  GT_SCORE = @GT, 
+  EL_SCORE = @EL, 
+  CL_SCORE = @CL, 
+  MM_SCORE = @MM, 
+  MEPS_ORGANIZATION_ID = @MEPSOrgID, 
+  USER_LOGIN = @UserLogin, 
+  UPDATE_DATE = GETDATE() 
+ WHERE MARINE_CANDIDATE_ID = @MarineCandidateID AND 
+  ASVAB_DATE = @ASVABDate 
+ 
+ END]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

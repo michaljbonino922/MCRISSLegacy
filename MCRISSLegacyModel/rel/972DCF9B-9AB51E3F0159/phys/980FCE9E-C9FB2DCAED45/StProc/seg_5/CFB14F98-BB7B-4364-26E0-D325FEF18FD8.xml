@@ -1,0 +1,49 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetRecrui.ngPerson]" directorySegmentName="seg_5" id="CFB14F98-BB7B-4364-26E0-D325FEF18FD8">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@TrainingFileId UNIQUEIDENTIFIER 
+AS 
+BEGIN 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+ SELECT  
+    T.ID, 
+    T.Billet,        
+       P.LAST_NAME, 
+    P.FIRST_NAME, 
+    P.LEGAL_MIDDLE_NAME, 
+    P.SUFFIX_CD, 
+    COALESCE(MC.GENDER_CODE, 'M') AS GENDER_CODE, 
+    P.SOCIAL_SECURITY_NUMBER, 
+    R.RANK_CODE, 
+       M.BILLET_MOS, 
+       R.BILLET_BEGIN_DATE, 
+       RR.SHORT_DESCRIPTION, 
+       O.ORGANIZATION_ID, 
+    O.Name Organiza.onName, 
+    O_PARENT.Name ParentOrganiza.onName, 
+    R.EMAIL_ADDRESS, 
+    R.ON_PRODUCTION, 
+       BRC.ClassNumber, 
+       BRC.GradDate 
+FROM   USMC.TrainingFile T 
+LEFT OUTER JOIN USMC.vwMcrissMarine M on T.RecruiterID = M.rowguid 
+LEFT OUTER JOIN USMC.vwMcrissPerson AS P ON M.MARINE_ID = P.PERSON_ID 
+LEFT OUTER JOIN USMC.vwMcrissMarineCandidate AS MC on MC.MARINE_CANDIDATE_ID = P.PERSON_ID 
+LEFT OUTER JOIN USMC.vwMcrissRecrui.ngPerson AS R on M.MARINE_ID = R.RECRUITING_PERSON_ID 
+LEFT OUTER JOIN USMC.vwMcrissRecrui.ngOrganiza.on AS O ON O.ORGANIZATION_ID = R.ORGANIZATION_ID 
+LEFT OUTER JOIN USMC.vwMcrissRecrui.ngRole AS RR on R.RECRUITING_ROLE_ID = RR.RECRUITING_ROLE_ID 
+LEFT OUTER JOIN USMC.BRC as BRC on T.BRCID = BRC.ID 
+LEFT OUTER JOIN mcriss.dbo.ORGANIZATION_MAP as OM on OM.CHILD_ORGANIZATION_ID = R.ORGANIZATION_ID 
+LEFT OUTER JOIN USMC.vwMcrissRecrui.ngOrganiza.on AS O_PARENT ON O_PARENT.ORGANIZATION_ID = OM.PARENT_ORGANIZATION_ID 
+WHERE  T.ID = @TrainingFileId   
+   
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

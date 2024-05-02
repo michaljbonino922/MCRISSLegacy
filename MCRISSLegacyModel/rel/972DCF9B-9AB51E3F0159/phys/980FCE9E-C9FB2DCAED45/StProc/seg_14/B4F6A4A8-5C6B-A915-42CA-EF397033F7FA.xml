@@ -1,0 +1,112 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetPGDataBySchedulingCardId_ORG]" directorySegmentName="seg_14" id="B4F6A4A8-5C6B-A915-42CA-EF397033F7FA">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@Lis.ngSchedulingCardId   uniqueiden..er  
+ 
+--With recompile 
+AS 
+ 
+BEGIN 
+ 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+  
+ DECLARE @SchoolCode uniqueiden..er 
+ DECLARE @SchoolYear int 
+ 
+ SELECT  
+  @SchoolCode = hs.rowguid,  
+  @SchoolYear = SCHOOL_YEAR  
+ FROM  
+  MCRISS.dbo.HIGH_SCHOOL_PROFILE hsp 
+  INNER JOIN MCRISS.dbo.HIGH_SCHOOL hs 
+   ON hs.SCHOOL_CODE = hsp.SCHOOL_CODE 
+ WHERE hsp.rowguid = @Lis.ngSchedulingCardId 
+  
+ SELECT  
+  DateSent, Sum(Sent) as Sent, Sum(Returned) as Returned, Sum(NotReturned) AS NotReturned 
+ FROM 
+ ( 
+  SELECT  
+   CONVERT(VARCHAR(10), e.StartDate, 120) Datesent,  
+   COUNT(pse.id) Sent,  
+   COUNT(pse2.id) Returned,  
+   COUNT(pse3.id) NotReturned  
+ 
+  FROM  
+  ( SELECT DISTINCT 
+    USMC.ProspectSchool.SchoolId 
+    ,USMC.Prospect.Gradua.onYear AS SchoolYear 
+   FROM  
+    USMC.ImportEvent ie 
+    INNER JOIN USMC.ImportPerson imp 
+     ON (ie.ImportEventId = imp.ChildImportEventId or ie.ImportEventId = imp.ImportEventId) 
+    INNER JOIN USMC.Person  
+     ON imp.PersonId = USMC.Person.PersonId  
+    INNER JOIN USMC.Prospect  
+     ON USMC.Person.PersonId = USMC.Prospect.PersonId  
+    INNER JOIN USMC.ProspectSchool  
+     ON USMC.Prospect.ProspectId = USMC.ProspectSchool.ProspectId 
+   WHERE  
+    ie.ImportEventStatusTypeId = 3  
+    AND ie.SchoolId = @SchoolCode AND ie.Gradua.onYear = @SchoolYear 
+  ) AS lsc 
+  INNER JOIN USMC.ProspectSchool ps  
+   ON ps.schoolid = lsc.schoolid  
+  INNER JOIN USMC.Prospect p  
+   ON p.ProspectId= ps.prospec.d  
+  INNER JOIN RSSOSS.USMC.EventSubject es  
+   ON es.SubjectId = p.prospec.d  
+  INNER JOIN RSSOSS.USMC.Event e 
+   on e.id=es.Even.d  
+  INNER JOIN RSSOSS.USMC.PGSentEvent pse  
+   ON pse.id=e.id   
+  LEFT OUTER JOIN RSSOSS.USMC.PGSentEvent pse2  
+   ON pse2.id=e.id  
+    AND pse2.PGReturned = 1   
+  LEFT OUTER JOIN RSSOSS.USMC.PGSentEvent pse3  
+   ON pse3.id=e.id  
+    AND (pse3.PGReturned = 0 or pse3.PGReturned is null)                          
+    
+  GROUP BY CONVERT(VARCHAR(10), e.StartDate, 120) 
+ 
+   
+ 
+  UNION 
+ 
+  SELECT DateSent, Sum(Sent), Sum(Returned), Sum(NotReturned) 
+  FROM 
+  ( 
+   SELECT  
+    CONVERT(VARCHAR(10), c1.ProspectDate, 120) as DateSent ,   
+    Count(c1.ProspectCommentId) AS Sent, count(c2.ProspectCommentId) AS Returned, Count(c1.ProspectCommentId)-count(c2.ProspectCommentId) AS NotReturned 
+   FROM  
+    PROSPECTING.USMC.ImportEvent AS ie  
+    INNER JOIN PROSPECTING.USMC.ImportPerson AS iper ON (iper.ChildImportEventId = ie.ImportEventId or iper.ImportEventId = ie.ImportEventId) 
+    INNER JOIN PROSPECTING.USMC.Person AS per ON per.PersonId = iper.PersonId  
+    INNER JOIN PROSPECTING.USMC.Prospect AS p ON p.PersonId = iper.PersonId  
+    INNER JOIN PROSPECTING.USMC.ProspectComment AS c1 ON c1.ProspectId = p.prospectId 
+    INNER JOIN PROSPECTING.USMC.ProspectAc.vityComment AS pac  
+                    ON pac.ProspectAc.vityCommentId = c1.ProspectAc.vityCommentId 
+      AND ie.SchoolId = @SchoolCode and ie.Gradua.onYear = @SchoolYear  
+      AND pac.ProspectCommentTypeId = 5 
+    LEFT Outer JOIN PROSPECTING.USMC.ProspectComment AS c2 ON c2.ProspectId = p.prospectId 
+    LEFT Outer JOIN PROSPECTING.USMC.ProspectAc.vityComment AS pac2  
+                    ON pac2.ProspectAc.vityCommentId = c2.ProspectAc.vityCommentId 
+      AND pac2.ProspectCommentTypeId = 6 
+   WHERE  
+    ie.ImportEventStatusTypeId = 3 
+    AND ie.SchoolId = @SchoolCode AND ie.Gradua.onYear = @SchoolYear 
+   Group By CONVERT(VARCHAR(10), c1.ProspectDate, 120) 
+  ) AS t1 
+  GROUP BY DateSent 
+ ) AS t2 
+ Group BY DateSent 
+                          
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,44 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetListScheduleCardOwner]" directorySegmentName="seg_3" id="68BD8702-FD34-FC97-07AE-BE4A7F40A60B">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@HighSchoolPro.leID uniqueidentifier 
+    
+AS 
+BEGIN 
+  
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+     
+    DECLARE @SchoolYear int 
+ DECLARE @Now date.me 
+ 
+ SET @Now = GETDATE() 
+ SET @SchoolYear = YEAR(@Now) 
+ 
+ IF MONTH(@Now) >= 7 
+ BEGIN 
+  SET @SchoolYear = @SchoolYear + 1 
+ END  
+  
+  
+ SELECT RTrim(rp.Rank_Code) as RankCode,  
+     RTrim(p.Last_Name) as LastName, 
+     RTrim(p.First_Name) as FirstName,  
+     RTrim(p.LEGAL_MIDDLE_NAME) as MiddleName,  
+     rp.rowguid as RecruiterID  
+ FROM  
+  [MCRISS].[dbo].HIGH_SCHOOL_PROFILE hsp 
+  INNER JOIN [MCRISS].[dbo].HIGH_SCHOOL_PROFILE hsp2 
+   ON hsp.School_Code = hsp2.School_Code 
+  inner join USMC.vwMcrissRecrui.ngPerson rp on rp.RECRUITING_PERSON_ID = hsp.RECRUITER_ID 
+  inner join USMC.vwMcrissPerson p on p.Person_ID = rp.RECRUITING_PERSON_ID 
+ where  
+  hsp2.rowguid = @HighSchoolPro.leID 
+  AND hsp.School_Year = @SchoolYear  
+  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

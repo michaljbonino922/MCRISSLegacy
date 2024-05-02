@@ -1,0 +1,155 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="Proc1107" directorySegmentName="seg_16" id="85B5CBF1-9590-48C7-DBF6-951397C15620">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:56 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@ImportEventId   uniqueiden..er, 
+ @ImportTypeId   smallint = null, 
+ @ImportEventStatusTypeId smallint = null, 
+ @ImportFileName         varchar(2048) = null, 
+ @PersonId    uniqueiden..er = null, 
+ @SchoolId               uniqueiden..er = null, 
+ @Gradua.onYear         smallint = null, 
+ @DateObtained   Date.me, 
+ @DateStarted   date.me = null, 
+ @DateAc.ve    date.me = null, 
+ @DateCompleted   date.me = null, 
+ @Notes     varchar(50) = null, 
+ @LastUpdateUserId  uniqueiden..er=null, 
+ @SubSta.onType   char(1) = null, 
+ @Recrui.ngOrgId  uniqueiden..er = null, 
+ @RecordCount   int = null 
+ 
+AS 
+BEGIN 
+ 
+-- STEP 1: Start the transac.on 
+BEGIN TRANSACTION 
+ 
+IF @DateStarted IS NULL 
+BEGIN 
+ SET @DateStarted = CAST (GETDATE() as DATE) 
+END 
+ 
+-- STEP 2 & 3: Issue the data change statement(s), checking @@ERROR a.er each statement 
+IF EXISTS(SELECT ImportEventId FROM ImportEvent with (nolock) WHERE ImportEventId = @ImportEventId) 
+BEGIN 
+ -- if @intCount > 0, then the Employee already exists.  UPDATE. 
+ UPDATE 
+   [USMC].ImportEvent 
+  SET  
+   ImportTypeId = @ImportTypeId, 
+   ImportEventStatusTypeId = @ImportEventStatusTypeId, 
+   ImportFileName = @ImportFileName, 
+   PersonId=@PersonId,   
+   SchoolId =@SchoolId, 
+   Gradua.onYear =@Gradua.onYear, 
+   DateObtained=@DateObtained,    
+   DateStarted=@DateStarted, 
+   DateAc.ve=@DateAc.ve, 
+   DateCompleted =@DateCompleted, 
+   Notes  = @Notes, 
+   LastUpdateDate =GETDATE(), 
+   LastUpdateUserId=@LastUpdateUserId, 
+   SubSta.onType = @SubSta.onType, 
+   Recrui.ngOrganiza.onId = @Recrui.ngOrgId 
+  WHERE  
+   ImportEventId = @ImportEventId 
+END 
+ELSE 
+BEGIN 
+ -- if @intCount = 0, then the Employee does not exist.  INSERT. 
+ 
+ INSERT INTO [USMC].ImportEvent (ImportEventId, 
+       ImportTypeId, 
+       ImportEventStatusTypeId, 
+       ImportFileName, 
+       PersonId,   
+       SchoolId, 
+       Gradua.onYear, 
+       DateObtained,        
+       DateStarted, 
+       DateAc.ve, 
+       DateCompleted, 
+       Notes, 
+       LastUpdateDate, 
+       LastUpdateUserId, 
+       SubSta.onType, 
+       Recrui.ngOrganiza.onId, 
+       RecordCount) 
+     VALUES (@ImportEventId, 
+       @ImportTypeId, 
+       @ImportEventStatusTypeId, 
+       @ImportFileName, 
+       @PersonId,   
+       @SchoolId, 
+       @Gradua.onYear, 
+       @DateObtained,        
+       @DateStarted, 
+       @DateAc.ve, 
+       @DateCompleted, 
+       @Notes, 
+       GETDATE(), 
+       @LastUpdateUserId, 
+       @SubSta.onType, 
+       @Recrui.ngOrgId, 
+       @RecordCount) 
+ 
+ --jli added the code to update subject id if a new event import take places and all the previously scheduled events  
+ -- will link to the new subjec.d/importeven.d        
+ DECLARE @OldSubjectId  UNIQUEIDENTIFIER 
+ DECLARE @OldImportEventId  UNIQUEIDENTIFIER 
+ 
+ SELECT  
+  @OldSubjectId = subjec.d 
+  ,@OldImportEventId = ie.ImportEventId 
+ FROM  
+  USMC.IMPORTEVENT ie with (nolock) 
+  INNER JOIN [RSSOSS].[USMC].[EventSubject] es with (nolock) ON es.subjec.d= ie.importeven.d  
+                      and ES.Id in (SELECT TOP 1 ES2.Id 
+                           FROM [RSSOSS].[USMC].[EventSubject] es2 with (nolock) 
+                           WHERE es.subjec.d = es2.subjec.d) 
+ WHERE  
+  ie.schoolid=@SchoolId  
+  AND ie.gradua.onyear = @Gradua.onYear 
+ 
+ UPDATE [RSSOSS].[USMC].[EventSubject]  
+ SET subjec.d=@ImportEventId  
+ WHERE subjec.d = @OldSubjectId 
+ 
+ UPDATE [Prospec.ng].[USMC].[ImportPerson] 
+ SET ImportEventId = @ImportEventId 
+ WHERE ImportEventId = @OldImportEventId; 
+ 
+END 
+ 
+-- Rollback the transac.on if there were any errors 
+IF @@ERROR <> 0 
+ BEGIN 
+    -- Rollback the transac.on 
+    ROLLBACK TRANSACTION 
+ 
+    -- Raise an error and return 
+    RAISERROR ('Error occurred while performing the change.', 16, 1) 
+    RETURN 
+ END 
+ 
+-- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+IF @@ROWCOUNT > 1 
+BEGIN 
+    -- Rollback the transac.on 
+    ROLLBACK TRANSACTION 
+ 
+    -- Raise an error and return 
+    RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+    RETURN 
+END 
+  
+-- STEP 4: If we reach this point, the commands completed successfully 
+--         Commit the transac.on.... 
+COMMIT TRANSACTION  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

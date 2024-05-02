@@ -1,0 +1,52 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_2" id="AE07A5B8-4D46-D7FB-0110-C0CAEA1A364B" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="_dta_mv_214">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>21B5648F-3FAF-138D-6DD1-FFA60727B0DB</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  [USMC].[Event].[EventTypeId] as _col_1,  [USMC].[EventOutcome].[EventId] as _col_2,  [USMC].[EventOutcome].[ID] as _col_3 FROM  [USMC].[Event],  [USMC].[EventOutcome]   WHERE  [USMC].[Event].[ID] = [USMC].[EventOutcome].[EventId]  AND ( [USMC].[EventOutcome].[InterviewOutcomeId] = 1  OR  [USMC].[EventOutcome].[InterviewOutcomeId] = 2 )]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[EventTypeId]" id="853A0800-9B52-ACD9-0CC1-57B46C29348F">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_1</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_1</headerAlias>
+<expression>[EventTypeId]</expression>
+<reference>false</reference>
+<viewID>AE07A5B8-4D46-D7FB-0110-C0CAEA1A364B</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[EventId]" id="0CB2ECD1-1334-6E18-A56B-01E586F425C0">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_2</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_2</headerAlias>
+<expression>[EventId]</expression>
+<reference>false</reference>
+<viewID>AE07A5B8-4D46-D7FB-0110-C0CAEA1A364B</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[ID]" id="7C9A6785-A6A5-247E-673A-85D5767E614A">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_3</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_3</headerAlias>
+<expression>[ID]</expression>
+<reference>false</reference>
+<viewID>AE07A5B8-4D46-D7FB-0110-C0CAEA1A364B</viewID>
+</viewElement>
+</viewElements>
+</TableView>

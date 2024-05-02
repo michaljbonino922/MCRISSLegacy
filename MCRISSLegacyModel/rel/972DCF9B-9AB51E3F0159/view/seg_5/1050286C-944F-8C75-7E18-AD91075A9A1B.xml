@@ -1,0 +1,91 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_5" id="1050286C-944F-8C75-7E18-AD91075A9A1B" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="_dta_mv_83">
+<sourceDDLFile>create Prospecting script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:27 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>8E5F2E4C-DBF8-C549-FBFF-EC7DFE618D1B</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  [USMC].[Prospect].[ProspectId] as _col_1,  [USMC].[Prospect].[Gradua.onYear] as _col_2,  [USMC].[ImportPerson].[ChildImportEventID] as _col_3,  [USMC].[ImportPerson].[ImportEventId] as _col_4,  count_big(*) as _col_5, count_big([Prospec.ng].[USMC].[ProspectComment].[ProspectCommentId]) as _col_6 FROM  [USMC].[ImportPerson],  [USMC].[Person],  [USMC].[Prospect],  [USMC].[ProspectComment],  [USMC].[ProspectAc.vityComment]   WHERE  [USMC].[ImportPerson].[PersonId] = [USMC].[Prospect].[PersonId]  AND  [USMC].[Person].[PersonId] = [USMC].[Prospect].[PersonId]  AND  [USMC].[ProspectAc.vityComment].[ProspectCommentTypeId] = 5  AND  [USMC].[ProspectComment].[ProspectAc.vityCommentId] = [USMC].[ProspectAc.vityComment].[ProspectAc.vityCommentId]  AND  [USMC].[Prospect].[ProspectId] = [USMC].[ProspectComment].[ProspectId]  GROUP BY  [USMC].[Prospect].[ProspectId],  [USMC].[Prospect].[Gradua.onYear],  [USMC].[ImportPerson].[ChildImportEventID],  [USMC].[ImportPerson].[ImportEventId]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[ProspectId]" id="D12A99C6-A106-6FCC-F78C-DF6D8B7D9D3D">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:27 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_1</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_1</headerAlias>
+<expression>[ProspectId]</expression>
+<reference>false</reference>
+<viewID>1050286C-944F-8C75-7E18-AD91075A9A1B</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[Gradua.onYear]" id="7A7D191E-7DCB-6CD4-4CD1-5B7548F9AF93">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:27 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_2</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_2</headerAlias>
+<expression>[Gradua.onYear]</expression>
+<reference>false</reference>
+<viewID>1050286C-944F-8C75-7E18-AD91075A9A1B</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[ChildImportEventID]" id="072B638E-5EB7-C56F-3477-2AEB3DABE3E4">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:27 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_3</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_3</headerAlias>
+<expression>[ChildImportEventID]</expression>
+<reference>false</reference>
+<viewID>1050286C-944F-8C75-7E18-AD91075A9A1B</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[ImportEventId]" id="CDE046F8-62DF-AF6C-FD74-5804DBDDB3BF">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:27 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_4</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_4</headerAlias>
+<expression>[ImportEventId]</expression>
+<reference>false</reference>
+<viewID>1050286C-944F-8C75-7E18-AD91075A9A1B</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="count_big(*)" id="DA139579-C5EF-E392-43C0-F1AE16FD9BA1">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:27 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_5</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_5</headerAlias>
+<expression>count_big(*)</expression>
+<reference>false</reference>
+<viewID>1050286C-944F-8C75-7E18-AD91075A9A1B</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="count_big([Prospec.ng].[USMC].[ProspectComment].[ProspectCommentId])" id="090CA7A7-8911-1D9E-B14A-54D214282431">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:27 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_6</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_6</headerAlias>
+<expression>count_big([Prospec.ng].[USMC].[ProspectComment].[ProspectCommentId])</expression>
+<reference>false</reference>
+<viewID>1050286C-944F-8C75-7E18-AD91075A9A1B</viewID>
+</viewElement>
+</viewElements>
+</TableView>

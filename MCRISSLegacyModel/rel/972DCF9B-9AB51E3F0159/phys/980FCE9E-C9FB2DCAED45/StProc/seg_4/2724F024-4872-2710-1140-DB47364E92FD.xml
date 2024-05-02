@@ -1,0 +1,34 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetMonthSummaryMonthMission]" directorySegmentName="seg_4" id="2724F024-4872-2710-1140-DB47364E92FD">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@TrainingFileId uniqueidentifier, 
+    @StartDate date.me = NULL 
+AS 
+ 
+BEGIN 
+    
+   SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+     
+    DECLARE @EndDate date.me; 
+     
+    IF @StartDate = NULL 
+    BEGIN 
+    SET @StartDate = GETDATE(); 
+    END 
+     
+    SET @EndDate = DATEADD(month, 8, @StartDate);  
+     
+    SELECT s.Date, s.Mission FROM Mul.MonthSummary mms, MonthMissionSummary s 
+ WHERE mms.ID=s.Mul.MonthSummaryID 
+ AND mms.TrainingFileID=@TrainingFileId 
+  AND s.Date BETWEEN @StartDate AND @EndDate 
+  ORDER BY s.Date 
+ 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

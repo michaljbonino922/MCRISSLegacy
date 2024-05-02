@@ -1,0 +1,172 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetDocumentRecords]" directorySegmentName="seg_2" id="F1680F16-75BE-2A90-23DC-780B3ACB7C3D">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@DocumentTypeID  int, 
+ @DateFrom   date.me = null, 
+ @DateTo    date.me = null, 
+ @RssOrgId   int      = null 
+   
+AS 
+BEGIN 
+ 
+ IF @DocumentTypeID = 4 
+ BEGIN 
+ 
+  DECLARE @OrgType varchar(3) 
+   
+  SELECT   
+   @OrgType = RO.ORG_TYPE 
+  FROM  
+   MCRISS_OLAP..RECRUITING_ORGANIZATION_DIM RO  
+  WHERE  
+   RO.ORGANIZATION_ID = @RssOrgId 
+   
+  SELECT  
+   Organiza.on_ID 
+  INTO #OrgList 
+  FROM  
+   MCRISS_OLAP..RECRUITING_ORGANIZATION_DIM RO  
+  WHERE  
+   Org_Type <> 'OSS' AND 
+   ( CASE @OrgType 
+     WHEN 'H'   THEN MCRC_ORG_ID 
+     WHEN 'R'   THEN REG_ORG_ID 
+     WHEN 'D'   THEN DIST_ORG_ID 
+     WHEN 'RS'  THEN RS_ORG_ID 
+     WHEN 'RSS' THEN RSS_ORG_ID 
+    END  
+    = @RssOrgId 
+   ) 
+   
+  SELECT   
+   d.ID,  
+   DocumentType.DocumentType as [FileName],  
+   d.KeywordsDesc,  
+   d.UploadDate,  
+   d.UploadBy,  
+   d.MonthFor,  
+   d.YearFor,  
+   d.DayFor,  
+   user1.LastName + ', ' + user1.FirstName + ' ' + ISNULL(user1.MiddleName,'') AS UserName,  
+   user1.UserID,  
+   d.ChangeVer, 
+   d.UserDisplayName 
+  FROM     
+   RSSOSS.USMC.DocumentUpload as d  
+   INNER JOIN #OrgList ol  
+    ON ol.Organiza.on_ID = d.RssOrgId  
+   INNER JOIN USERMGMT.dbo.[User] AS user1  
+    ON d.UploadBy = user1.UserID  
+   INNER JOIN DocumentType  
+    ON d.DocumentTypeID = DocumentType.ID 
+  WHERE      
+   (DocumentTypeID = @DocumentTypeID)  
+   AND (Cast(Cast(d.MonthFor as varchar) +'-'+ Cast(d.DayFor as varchar) +'-'+ Cast(d.YearFor as varchar) as date.me) >= @dateFrom  OR @dateFrom IS NULL) 
+   AND (Cast(Cast(d.MonthFor as varchar) +'-'+ Cast(d.DayFor as varchar) +'-'+ Cast(d.YearFor as varchar) as date.me) <= @dateTo  OR @dateTo IS NULL) 
+ 
+  UNION 
+ 
+  -- Get Trip Report records from "Old" system where .les are stored on the disk 
+  SELECT 
+   DS.ID,  
+   DS.[FileName],  
+   '', 
+   DS.UploadDate,  
+   DS.UploadBy,  
+   Month(DS.UploadDate) AS MonthFor, 
+   Year(DS.UploadDate) AS YearFor, 
+   Day(DS.UploadDate) AS DayFor, 
+   U1.LastName + ', ' + U1.FirstName AS UploadedByLastName,  
+   DS.UploadBy, 
+   '99', 
+   U1.LastName + ', ' + U1.FirstName AS UserDisplayName 
+  FROM          
+   DataSheetUpload AS DS  
+   INNER JOIN USMC.TrainingFile .  
+    ON ds.TrainingFileID = ..ID  
+   LEFT OUTER JOIN vwMcrissUserMgmtUser AS U1  
+    ON U1.UserID = DS.UploadBy  
+   LEFT OUTER JOIN vwMcrissUserMgmtUser AS U2  
+    ON U2.UserID = DS.LastViewedBy 
+   INNER JOIN mcriss.dbo.MARINE mc 
+    ON ..RecruiterID = mc.rowguid  
+   INNER JOIN mcriss.dbo.RECRUITING_PERSON p 
+    ON p.RECRUITING_PERSON_ID = mc.MARINE_ID 
+   INNER JOIN #OrgList ol 
+    ON p.Organiza.on_id = ol.Organiza.on_ID 
+ 
+  WHERE      
+   (DS.DataSheetTypeID = 3)  
+   AND (LEFT(DS.UploadDate,11) >= Coalesce(@dateFrom, LEFT(DS.UploadDate,11))) 
+   AND (LEFT(DS.UploadDate,11) <= Coalesce(@dateTo, LEFT(DS.UploadDate,11))) 
+    
+  ORDER BY d.YearFor, d.MonthFor, d.DayFor ASC 
+   
+  DROP TABLE #OrgList 
+   
+ END 
+ ELSE IF @DocumentTypeID IS NOT NULL AND @DocumentTypeID <> 4 
+ BEGIN 
+  SELECT  
+   du.ID, 
+   dt.DocumentType as [FileName],  
+   du.KeywordsDesc,  
+   du.UploadDate,  
+   du.UploadBy,  
+   du.MonthFor,  
+   du.YearFor,  
+   du.DayFor,  
+   user1.LastName + ', ' + user1.FirstName + ' ' + ISNULL(user1.MiddleName,'') AS UserName,  
+   user1.UserID,  
+   du.ChangeVer,  
+   du.UserDisplayName  
+  FROM    
+   DocumentUpload du 
+   INNER JOIN USERMGMT.dbo.[User] AS user1  
+    ON du.UploadBy = user1.UserID  
+   INNER JOIN DocumentType dt  
+    ON du.DocumentTypeID = dt.ID 
+  WHERE   
+   (du.DocumentTypeID = @DocumentTypeID)  
+   AND (Cast(Cast(du.MonthFor as varchar) +'-'+ Cast(du.DayFor as varchar) +'-'+ Cast(du.YearFor as varchar) as date.me) >= @dateFrom  OR @dateFrom IS NULL) 
+   AND (Cast(Cast(du.MonthFor as varchar) +'-'+ Cast(du.DayFor as varchar) +'-'+ Cast(du.YearFor as varchar) as date.me) <= @dateTo  OR @dateTo IS NULL) 
+   AND (du.RssOrgId = @RssOrgId OR @RssOrgId IS NULL) 
+  ORDER BY du.YearFor, du.MonthFor, du.ChangeVer ASC 
+ 
+ END 
+ ELSE -- @DocumentTypeID IS NULL 
+ BEGIN 
+  SELECT  
+   du.ID, 
+   dt.DocumentType as [FileName],  
+   du.KeywordsDesc,  
+   du.UploadDate,  
+   du.UploadBy,  
+   du.MonthFor,  
+   du.YearFor,  
+   du.DayFor,  
+   user1.LastName + ', ' + user1.FirstName + ' ' + ISNULL(user1.MiddleName,'') AS UserName,  
+   user1.UserID,  
+   du.ChangeVer,  
+   du.UserDisplayName  
+  FROM    
+   DocumentUpload du 
+   INNER JOIN USERMGMT.dbo.[User] AS user1  
+    ON du.UploadBy = user1.UserID  
+   INNER JOIN DocumentType dt  
+    ON du.DocumentTypeID = dt.ID 
+  WHERE   
+   (Cast(Cast(du.MonthFor as varchar) +'-'+ Cast(du.DayFor as varchar) +'-'+ Cast(du.YearFor as varchar) as date.me) >= @dateFrom  OR @dateFrom IS NULL) 
+   AND (Cast(Cast(du.MonthFor as varchar) +'-'+ Cast(du.DayFor as varchar) +'-'+ Cast(du.YearFor as varchar) as date.me) <= @dateTo  OR @dateTo IS NULL) 
+   AND (du.RssOrgId = @RssOrgId OR @RssOrgId IS NULL) 
+  ORDER BY du.YearFor, du.MonthFor, du.ChangeVer ASC 
+ 
+ END 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

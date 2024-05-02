@@ -1,0 +1,359 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_TestDeleteNWAs]" directorySegmentName="seg_23" id="D8616A0F-F9A7-FD99-8401-78551700281E">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@SSNPre.x   varchar(9), 
+ @NumberToDelete  int, 
+ @UserLogin  varchar(15) = 'SA' 
+AS 
+ 
+ 
+DECLARE @DBID    int 
+DECLARE @DBNAME   nvarchar(128) 
+ 
+DECLARE @NWAID   int 
+ 
+DECLARE @PersonID  int 
+DECLARE @CandidateStatusID int 
+DECLARE @StatusType  char(1) 
+DECLARE @StatusCode  char(1) 
+DECLARE @Disposi.onCode char(1) 
+ 
+DECLARE @i   int 
+DECLARE @ErrMsg   varchar(100) 
+ 
+DECLARE @Ini.alSSN   char(9) 
+DECLARE @FirstSSN  char(9) 
+DECLARE @LastSSN  char(9) 
+DECLARE @LenSSNPre.x   int 
+DECLARE @SSN    char(9) 
+DECLARE @SSNMessage  varchar(100) 
+ 
+ 
+SET NOCOUNT ON 
+ 
+ 
+SELECT  
+ @DBID = DB_ID(),  
+ @DBNAME = DB_NAME() 
+ 
+ 
+--- MAKE SURE THE NUMBER OF SHIPPERS TO BE DELETED IS BETWEEN 1 AND 9999 
+IF @NumberToDelete NOT BETWEEN 1 AND 9999 
+BEGIN 
+ RAISERROR ('You must enter a number between 1 and 9999.', 16, 1, @DBID, @DBNAME) 
+ RETURN  
+END 
+ 
+--- MAKE SURE THE SSN PREFIX IS 5 CHARACTERS LONG 
+SET @LenSSNPre.x = LEN(@SSNPre.x) 
+ 
+ 
+--- IF THE SSN PREFIX IS LESS THAN 5 CHARACTERS LONG, APPEND 0's UNTIL IT'S 5 CHARACTERS LONG 
+IF @LenSSNPre.x < 5 
+BEGIN 
+ SET @SSNPre.x = RTRIM(@SSNPre.x) + REPLICATE('0', 5 - LEN(@SSNPre.x)) 
+END 
+ 
+--- INITIALIZE THE COUNTER 
+SET @i = 1 
+ 
+SET @Ini.alSSN = CASE  
+   WHEN LEN(@SSNPre.x) = 9 THEN @SSNPre.x 
+   WHEN EXISTS (SELECT 1 FROM PERSON P WHERE P.SOCIAL_SECURITY_NUMBER LIKE @SSNPre.x + '%') 
+    THEN CONVERT(CHAR(9), CONVERT(INT, (SELECT MAX(P.SOCIAL_SECURITY_NUMBER) FROM PERSON P  
+         WHERE P.SOCIAL_SECURITY_NUMBER LIKE @SSNPre.x + '%') + 1)) 
+   ELSE @SSNPre.x + '0000' 
+   END 
+ 
+ 
+ 
+ 
+WHILE @i <= @NumberToDelete 
+BEGIN 
+ --- DEFINE THE SSN FOR THE SHIPPER TO BE DELETED 
+ SET @SSN = CONVERT(CHAR(9), CONVERT(INT, @Ini.alSSN) + (@i - 1)) 
+ 
+ 
+ --- MAKE SURE THE SSN BELONGS TO A CONTRACT POOLEE 
+ --- get the NWAID, ContractID and Status/Disposi.on 
+ EXEC sp_GetCurrentStatusDisposi.on @SSN = @SSN, @PersonID = @PersonID OUTPUT, @NWAID = @NWAID OUTPUT,       
+     @CandidateStatusID = @CandidateStatusID OUTPUT, @StatusType = @StatusType OUTPUT,  
+     @StatusCode = @StatusCode OUTPUT, @Disposi.onCode = @Disposi.onCode OUTPUT  
+ 
+ --- MAKE SURE THE SSN BELONGS TO AN MCRD GRAD OR MCRD DISCHARGE 
+ IF @StatusType = 'E' AND @StatusCode = 'A' 
+ BEGIN 
+  --- START THE TRANSACTION 
+  BEGIN TRANSACTION 
+ 
+  --- CHECK FOR EDUCATION RECORDS 
+  IF EXISTS (SELECT 1 FROM CANDIDATE_EDUCATION CE WHERE CE.MARINE_CANDIDATE_ID = @PersonID) 
+  BEGIN  
+   --- UPDATE THE USER LOGIN BEFORE WE DELETE THE REFERRAL RECORD  
+   UPDATE 
+    CANDIDATE_EDUCATION  
+   SET  
+    USER_LOGIN = @UserLogin 
+   WHERE  
+    MARINE_CANDIDATE_ID = @PersonID 
+  
+   --- DELETE THE EDUCATION RECORD(S) 
+   DELETE FROM CANDIDATE_EDUCATION WHERE MARINE_CANDIDATE_ID = @PersonID 
+ 
+   IF @@ERROR != 0 OR @@ROWCOUNT = 0 
+   BEGIN 
+    ROLLBACK TRANSACTION 
+    SET @ErrMsg = 'An error occurred deleing the educa.on record(s) for SSN ' + @SSN + '.'  
+    RAISERROR (@ErrMsg, 16, 4, @DBID, @DBNAME) 
+    RETURN 
+   END 
+  END   
+ 
+ 
+  --- CHECK FOR ASVAB RECORDS 
+  IF EXISTS (SELECT 1 FROM CANDIDATE_ASVAB CA WHERE CA.MARINE_CANDIDATE_ID = @PersonID) 
+  BEGIN  
+   --- UPDATE THE USER LOGIN BEFORE WE DELETE THE REFERRAL RECORD  
+   UPDATE 
+    CANDIDATE_ASVAB  
+   SET  
+    USER_LOGIN = @UserLogin 
+   WHERE  
+    MARINE_CANDIDATE_ID = @PersonID 
+  
+   --- DELETE THE ASVAB RECORD(S) 
+   DELETE FROM CANDIDATE_ASVAB WHERE MARINE_CANDIDATE_ID = @PersonID 
+ 
+   IF @@ERROR != 0 OR @@ROWCOUNT = 0 
+   BEGIN 
+    ROLLBACK TRANSACTION 
+    SET @ErrMsg = 'An error occurred deleing the ASVAB record(s) for SSN ' + @SSN + '.'  
+    RAISERROR (@ErrMsg, 16, 4, @DBID, @DBNAME) 
+    RETURN 
+   END 
+  END   
+ 
+  --- CHECK FOR MEDICAL RECORDS 
+  IF EXISTS (SELECT 1 FROM CANDIDATE_MEDICAL_EXAM CME WHERE CME.MARINE_CANDIDATE_ID = @PersonID) 
+  BEGIN  
+   --- UPDATE THE USER LOGIN BEFORE WE DELETE THE REFERRAL RECORD  
+   UPDATE 
+    CANDIDATE_MEDICAL_EXAM 
+   SET  
+    USER_LOGIN = @UserLogin 
+   WHERE  
+    MARINE_CANDIDATE_ID = @PersonID 
+  
+   --- DELETE THE MEDICAL RECORD(S) 
+   DELETE FROM CANDIDATE_MEDICAL_EXAM WHERE MARINE_CANDIDATE_ID = @PersonID 
+ 
+   IF @@ERROR != 0 OR @@ROWCOUNT = 0 
+   BEGIN 
+    ROLLBACK TRANSACTION 
+    SET @ErrMsg = 'An error occurred deleing the medical exam record(s) for SSN ' + @SSN + '.'  
+    RAISERROR (@ErrMsg, 16, 4, @DBID, @DBNAME) 
+    RETURN 
+   END 
+  END   
+ 
+  --- CHECK FOR SPECIAL_EXAM RECORDS 
+  IF EXISTS (SELECT 1 FROM CANDIDATE_SPECIAL_EXAM CSE WHERE CSE.MARINE_CANDIDATE_ID = @PersonID) 
+  BEGIN  
+   --- UPDATE THE USER LOGIN BEFORE WE DELETE THE REFERRAL RECORD  
+   UPDATE 
+    CANDIDATE_SPECIAL_EXAM 
+   SET  
+    USER_LOGIN = @UserLogin 
+   WHERE  
+    MARINE_CANDIDATE_ID = @PersonID 
+  
+   --- DELETE THE SPECIAL EXAM RECORD(S) 
+   DELETE FROM CANDIDATE_SPECIAL_EXAM WHERE MARINE_CANDIDATE_ID = @PersonID 
+ 
+   IF @@ERROR != 0 OR @@ROWCOUNT = 0 
+   BEGIN 
+    ROLLBACK TRANSACTION 
+    SET @ErrMsg = 'An error occurred deleing the special exam record(s) for SSN ' + @SSN + '.'  
+    RAISERROR (@ErrMsg, 16, 4, @DBID, @DBNAME) 
+    RETURN 
+   END 
+  END   
+ 
+ 
+  --- CHECK FOR PROFESSED_EXAM RECORDS 
+  IF EXISTS (SELECT 1 FROM CANDIDATE_PROFESSED_EXAM CPE WHERE CPE.MARINE_CANDIDATE_ID = @PersonID) 
+  BEGIN  
+   --- UPDATE THE USER LOGIN BEFORE WE DELETE THE REFERRAL RECORD  
+   UPDATE 
+    CANDIDATE_PROFESSED_EXAM 
+   SET  
+    USER_LOGIN = @UserLogin 
+   WHERE  
+    MARINE_CANDIDATE_ID = @PersonID 
+  
+   --- DELETE THE PROFESSED EXAM RECORD(S) 
+   DELETE FROM CANDIDATE_PROFESSED_EXAM WHERE MARINE_CANDIDATE_ID = @PersonID 
+ 
+   IF @@ERROR != 0 OR @@ROWCOUNT = 0 
+   BEGIN 
+    ROLLBACK TRANSACTION 
+    SET @ErrMsg = 'An error occurred deleing the professed exam record(s) for SSN ' + @SSN + '.'  
+    RAISERROR (@ErrMsg, 16, 4, @DBID, @DBNAME) 
+    RETURN 
+   END 
+  END   
+ 
+  --- CHECK FOR ADDRESS RECORDS 
+  IF EXISTS (SELECT 1 FROM CANDIDATE_ADDRESS CA WHERE CA.MARINE_CANDIDATE_ID = @PersonID) 
+  BEGIN  
+   --- UPDATE THE USER LOGIN BEFORE WE DELETE THE RECORD  
+   UPDATE 
+    CANDIDATE_ADDRESS  
+   SET  
+    USER_LOGIN = @UserLogin 
+   WHERE  
+    MARINE_CANDIDATE_ID = @PersonID 
+  
+   --- DELETE THE ADDRESS RECORD(S) 
+   DELETE FROM CANDIDATE_ADDRESS WHERE MARINE_CANDIDATE_ID = @PersonID 
+ 
+   IF @@ERROR != 0 OR @@ROWCOUNT = 0 
+   BEGIN 
+    ROLLBACK TRANSACTION 
+    SET @ErrMsg = 'An error occurred deleing the address record(s) for SSN ' + @SSN + '.'  
+    RAISERROR (@ErrMsg, 16, 4, @DBID, @DBNAME) 
+    RETURN 
+   END 
+  END   
+ 
+ 
+  --- DELETE CANDIDATE STATUS RECORDS 
+  --- UPDATE THE USER LOGIN BEFORE WE DELETE THE RECORD  
+  UPDATE 
+   CANDIDATE_STATUS 
+  SET  
+   USER_LOGIN = @UserLogin 
+  WHERE  
+   NWA_ID = @NWAID 
+  
+  --- DELETE THE STATUS RECORD(S) 
+  DELETE FROM CANDIDATE_STATUS WHERE NWA_ID = @NWAID 
+ 
+  IF @@ERROR != 0 OR @@ROWCOUNT = 0 
+  BEGIN 
+   ROLLBACK TRANSACTION 
+   SET @ErrMsg = 'An error occurred deleing the status record(s) for SSN ' + @SSN + '.'  
+   RAISERROR (@ErrMsg, 16, 4, @DBID, @DBNAME) 
+   RETURN 
+  END 
+ 
+ 
+  --- DELETE NWA RECORD(S) 
+  --- UPDATE THE USER LOGIN BEFORE WE DELETE THE RECORD  
+  UPDATE 
+   NWA 
+  SET  
+   USER_LOGIN = @UserLogin 
+  WHERE  
+   MARINE_CANDIDATE_ID = @PersonID 
+  
+  --- DELETE THE STATUS RECORD(S) 
+  DELETE FROM NWA WHERE MARINE_CANDIDATE_ID = @PersonID 
+ 
+  IF @@ERROR != 0 OR @@ROWCOUNT = 0 
+  BEGIN 
+   ROLLBACK TRANSACTION 
+   SET @ErrMsg = 'An error occurred deleing the NWA record(s) for SSN ' + @SSN + '.'  
+   RAISERROR (@ErrMsg, 16, 4, @DBID, @DBNAME) 
+   RETURN 
+  END 
+ 
+  --- DELETE MARINE_CANDIDATE RECORD 
+  --- UPDATE THE USER LOGIN BEFORE WE DELETE THE RECORD  
+  UPDATE 
+   MARINE_CANDIDATE 
+  SET  
+   USER_LOGIN = @UserLogin 
+  WHERE  
+   MARINE_CANDIDATE_ID = @PersonID 
+  
+  --- DELETE THE STATUS RECORD(S) 
+  DELETE FROM MARINE_CANDIDATE WHERE MARINE_CANDIDATE_ID = @PersonID 
+ 
+  IF @@ERROR != 0 OR @@ROWCOUNT = 0 
+  BEGIN 
+   ROLLBACK TRANSACTION 
+   SET @ErrMsg = 'An error occurred deleing the Marine Candidate record for SSN ' + @SSN + '.'  
+   RAISERROR (@ErrMsg, 16, 4, @DBID, @DBNAME) 
+   RETURN 
+  END 
+ 
+  --- DELETE PERSON RECORD 
+  --- UPDATE THE USER LOGIN BEFORE WE DELETE THE RECORD  
+  UPDATE 
+   PERSON 
+  SET  
+   USER_LOGIN = @UserLogin 
+  WHERE  
+   PERSON_ID = @PersonID 
+  
+  --- DELETE THE STATUS RECORD(S) 
+  DELETE FROM PERSON WHERE PERSON_ID = @PersonID 
+ 
+  IF @@ERROR != 0 OR @@ROWCOUNT = 0 
+  BEGIN 
+   ROLLBACK TRANSACTION 
+   SET @ErrMsg = 'An error occurred deleing the Person record for SSN ' + @SSN + '.'  
+   RAISERROR (@ErrMsg, 16, 4, @DBID, @DBNAME) 
+   RETURN 
+  END 
+ 
+  
+  --- IF WE MAKE IT HERE COMMIT THE TRANSACTION 
+  COMMIT TRANSACTION 
+ END 
+ ELSE 
+ BEGIN 
+  SET @ErrMsg = 'SSN ' + @SSN + ' does not belong to an NWA.'  
+  RAISERROR (@ErrMsg, 16, 8, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ 
+ SELECT 
+  @FirstSSN = CASE @i 
+    WHEN 1 THEN @SSN 
+    ELSE @FirstSSN 
+    END, 
+  @LastSSN = CASE  
+    WHEN @i BETWEEN 1 AND @NumberToDelete THEN @SSN 
+    ELSE @LastSSN  
+    END 
+ 
+ --- INCREMENT THE COUNTER 
+ SET @i = @i + 1  
+END 
+ 
+ 
+SET NOCOUNT OFF 
+ 
+ 
+--- DEFINE THE MESSAGE TO DISPLAY 
+SET @SSNMessage = CASE  
+   WHEN (@FirstSSN IS NOT NULL AND LEN(@FirstSSN) = 9) AND 
+    (@LastSSN IS NOT NULL AND LEN(@LastSSN) = 9)  
+   THEN 
+    'NWAs deleted for SSN ' + @FirstSSN + ' to ' + @LastSSN + '.' 
+   ELSE SPACE(0) 
+   END 
+ 
+ 
+IF @SSNMessage IS NOT NULL AND LEN(@SSNMessage) > 0 
+BEGIN 
+ PRINT @SSNMessage 
+END]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

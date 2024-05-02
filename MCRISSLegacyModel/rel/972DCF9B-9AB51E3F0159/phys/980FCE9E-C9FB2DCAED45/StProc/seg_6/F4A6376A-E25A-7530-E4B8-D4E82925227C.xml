@@ -1,0 +1,199 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetMonthlyAc.vityReportContractRow]" directorySegmentName="seg_6" id="F4A6376A-E25A-7530-E4B8-D4E82925227C">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@START_DATE date.me, 
+ @END_DATE date.me, 
+ @ORG_ID int, 
+ @MISSION_FISCAL_YEAR int 
+AS 
+BEGIN 
+ 
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+Declare @MISSION_FY1_START_DATE date.me 
+Declare @MISSION_FY1_END_DATE date.me 
+Declare @MISSION_FY2_START_DATE date.me 
+Declare @MISSION_FY2_END_DATE date.me 
+Declare @MISSION_FY3_START_DATE date.me 
+Declare @MISSION_FY3_END_DATE date.me 
+Declare @PLC_NFO varchar(2) 
+Declare @PLC_GROUND varchar(2) 
+Declare @PLC_NA varchar(2) 
+Declare @PLC_LAW varchar(2) 
+Declare @OCC_NFO varchar(2) 
+Declare @OCC_GROUND varchar(2) 
+Declare @OCC_NA varchar(2) 
+Declare @OCCR_GROUND varchar(2) 
+Declare @OCC_LAW varchar(2) 
+ 
+set @PLC_NFO = '0A'; 
+set @PLC_GROUND = '0B'; 
+set @PLC_NA = '0C'; 
+set @PLC_LAW = '0E'; 
+set @OCC_LAW = '1A'; 
+set @OCC_GROUND = '1B'; 
+set @OCC_NA = '1C'; 
+set @OCCR_GROUND = '1E'; 
+set @OCC_NFO = '1H'; 
+ 
+set @MISSION_FY1_START_DATE = CONVERT(date.me, CONVERT(varchar,'7/1/' + str(@MISSION_FISCAL_YEAR+1), 101)); 
+set @MISSION_FY1_END_DATE = CONVERT(date.me, CONVERT(varchar,'6/30/' + str(@MISSION_FISCAL_YEAR+2), 101)); 
+set @MISSION_FY2_START_DATE = CONVERT(date.me, CONVERT(varchar,'7/1/' + str(@MISSION_FISCAL_YEAR+2), 101)); 
+set @MISSION_FY2_END_DATE = CONVERT(date.me, CONVERT(varchar,'6/30/' + str(@MISSION_FISCAL_YEAR+3), 101)); 
+set @MISSION_FY3_START_DATE = CONVERT(date.me, CONVERT(varchar,'7/1/' + str(@MISSION_FISCAL_YEAR+3), 101)); 
+set @MISSION_FY3_END_DATE = CONVERT(date.me, CONVERT(varchar,'6/30/' + str(@MISSION_FISCAL_YEAR+4), 101)); 
+ 
+select PLC1_NFO_ALL, 
+    PLC1_NFO_NON_WHITE_MALE, 
+    PLC1_GROUND_ALL, 
+       PLC1_GROUND_NON_WHITE_MALE, 
+    PLC1_AIR_ALL, 
+       PLC1_AIR_NON_WHITE_MALE, 
+    PLC1_LAW_ALL, 
+       PLC1_LAW_NON_WHITE_MALE, 
+    PLC2_NFO_ALL, 
+    PLC2_NFO_NON_WHITE_MALE, 
+    PLC2_GROUND_ALL, 
+       PLC2_GROUND_NON_WHITE_MALE, 
+    PLC2_AIR_ALL, 
+       PLC2_AIR_NON_WHITE_MALE, 
+    PLC2_LAW_ALL, 
+       PLC2_LAW_NON_WHITE_MALE, 
+       PLC3_NFO_ALL, 
+    PLC3_NFO_NON_WHITE_MALE, 
+    PLC3_GROUND_ALL, 
+       PLC3_GROUND_NON_WHITE_MALE, 
+    PLC3_AIR_ALL, 
+       PLC3_AIR_NON_WHITE_MALE, 
+    PLC3_LAW_ALL, 
+       PLC3_LAW_NON_WHITE_MALE, 
+    OCC1_NFO_ALL, 
+    OCC1_NFO_NON_WHITE_MALE, 
+       OCCR1_GROUND_ALL, 
+       OCCR1_GROUND_NON_WHITE_MALE, 
+    OCC1_GROUND_ALL, 
+       OCC1_GROUND_NON_WHITE_MALE, 
+    OCC1_AIR_ALL, 
+       OCC1_AIR_NON_WHITE_MALE, 
+    OCC1_LAW_ALL, 
+       OCC1_LAW_NON_WHITE_MALE, 
+    OCC2_NFO_ALL, 
+    OCC2_NFO_NON_WHITE_MALE, 
+       OCCR2_GROUND_ALL, 
+       OCCR2_GROUND_NON_WHITE_MALE, 
+    OCC2_GROUND_ALL, 
+       OCC2_GROUND_NON_WHITE_MALE, 
+    OCC2_AIR_ALL, 
+       OCC2_AIR_NON_WHITE_MALE, 
+    OCC2_LAW_ALL, 
+       OCC2_LAW_NON_WHITE_MALE, 
+       OCC3_NFO_ALL, 
+    OCC3_NFO_NON_WHITE_MALE, 
+       OCCR3_GROUND_ALL, 
+       OCCR3_GROUND_NON_WHITE_MALE, 
+    OCC3_GROUND_ALL, 
+       OCC3_GROUND_NON_WHITE_MALE, 
+    OCC3_AIR_ALL, 
+       OCC3_AIR_NON_WHITE_MALE, 
+    OCC3_LAW_ALL, 
+       OCC3_LAW_NON_WHITE_MALE 
+from  
+-----------------------------PLC 1--------------------------------------- 
+(select PLC1_NFO_ALL = usmc.GetMonthlyAc.vityCountForAllContracts(@START_DATE, @END_DATE, @MISSION_FY1_START_DATE, @MISSION_FY1_END_DATE, @PLC_NFO)) as PLC1_NFO_ALL, 
+(select PLC1_NFO_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleContracts(@START_DATE, @END_DATE, @MISSION_FY1_START_DATE, @MISSION_FY1_END_DATE, @PLC_NFO)) as PLC1_NFO_NON_WHITE_MALE, 
+ 
+(select PLC1_GROUND_ALL = usmc.GetMonthlyAc.vityCountForAllContracts(@START_DATE, @END_DATE, @MISSION_FY1_START_DATE, @MISSION_FY1_END_DATE, @PLC_GROUND)) as PLC1_GROUND_ALL, 
+(select PLC1_GROUND_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleContracts(@START_DATE, @END_DATE, @MISSION_FY1_START_DATE, @MISSION_FY1_END_DATE, @PLC_GROUND)) as PLC1_GROUND_NON_WHITE_MALE, 
+ 
+(select PLC1_AIR_ALL = usmc.GetMonthlyAc.vityCountForAllContracts(@START_DATE, @END_DATE, @MISSION_FY1_START_DATE, @MISSION_FY1_END_DATE, @PLC_NA)) as PLC1_AIR_ALL, 
+(select PLC1_AIR_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleContracts(@START_DATE, @END_DATE, @MISSION_FY1_START_DATE, @MISSION_FY1_END_DATE, @PLC_NA)) as PLC1_AIR_NON_WHITE_MALE, 
+ 
+(select PLC1_LAW_ALL = usmc.GetMonthlyAc.vityCountForAllContracts(@START_DATE, @END_DATE, @MISSION_FY1_START_DATE, @MISSION_FY1_END_DATE, @PLC_LAW)) as PLC1_LAW_ALL, 
+(select PLC1_LAW_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleContracts(@START_DATE, @END_DATE, @MISSION_FY1_START_DATE, @MISSION_FY1_END_DATE, @PLC_LAW)) as PLC1_LAW_NON_WHITE_MALE, 
+ 
+-----------------------------PLC 2--------------------------------------- 
+ 
+(select PLC2_NFO_ALL = usmc.GetMonthlyAc.vityCountForAllContracts(@START_DATE, @END_DATE, @MISSION_FY2_START_DATE, @MISSION_FY2_END_DATE, @PLC_NFO)) as PLC2_NFO_ALL, 
+(select PLC2_NFO_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleContracts(@START_DATE, @END_DATE, @MISSION_FY2_START_DATE, @MISSION_FY2_END_DATE, @PLC_NFO)) as PLC2_NFO_NON_WHITE_MALE, 
+ 
+(select PLC2_GROUND_ALL = usmc.GetMonthlyAc.vityCountForAllContracts(@START_DATE, @END_DATE, @MISSION_FY2_START_DATE, @MISSION_FY2_END_DATE, @PLC_GROUND)) as PLC2_GROUND_ALL, 
+(select PLC2_GROUND_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleContracts(@START_DATE, @END_DATE, @MISSION_FY2_START_DATE, @MISSION_FY2_END_DATE, @PLC_GROUND)) as PLC2_GROUND_NON_WHITE_MALE, 
+ 
+(select PLC2_AIR_ALL = usmc.GetMonthlyAc.vityCountForAllContracts(@START_DATE, @END_DATE, @MISSION_FY2_START_DATE, @MISSION_FY2_END_DATE, @PLC_NA)) as PLC2_AIR_ALL, 
+(select PLC2_AIR_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleContracts(@START_DATE, @END_DATE, @MISSION_FY2_START_DATE, @MISSION_FY2_END_DATE, @PLC_NA)) as PLC2_AIR_NON_WHITE_MALE, 
+ 
+(select PLC2_LAW_ALL = usmc.GetMonthlyAc.vityCountForAllContracts(@START_DATE, @END_DATE, @MISSION_FY2_START_DATE, @MISSION_FY2_END_DATE, @PLC_LAW)) as PLC2_LAW_ALL, 
+(select PLC2_LAW_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleContracts(@START_DATE, @END_DATE, @MISSION_FY2_START_DATE, @MISSION_FY2_END_DATE, @PLC_LAW)) as PLC2_LAW_NON_WHITE_MALE, 
+ 
+-----------------------------PLC 3--------------------------------------- 
+ 
+(select PLC3_NFO_ALL = usmc.GetMonthlyAc.vityCountForAllContracts(@START_DATE, @END_DATE, @MISSION_FY3_START_DATE, @MISSION_FY3_END_DATE, @PLC_NFO)) as PLC3_NFO_ALL, 
+(select PLC3_NFO_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleContracts(@START_DATE, @END_DATE, @MISSION_FY3_START_DATE, @MISSION_FY3_END_DATE, @PLC_NFO)) as PLC3_NFO_NON_WHITE_MALE, 
+ 
+(select PLC3_GROUND_ALL = usmc.GetMonthlyAc.vityCountForAllContracts(@START_DATE, @END_DATE, @MISSION_FY3_START_DATE, @MISSION_FY3_END_DATE, @PLC_GROUND)) as PLC3_GROUND_ALL, 
+(select PLC3_GROUND_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleContracts(@START_DATE, @END_DATE, @MISSION_FY3_START_DATE, @MISSION_FY3_END_DATE, @PLC_GROUND)) as PLC3_GROUND_NON_WHITE_MALE, 
+ 
+(select PLC3_AIR_ALL = usmc.GetMonthlyAc.vityCountForAllContracts(@START_DATE, @END_DATE, @MISSION_FY3_START_DATE, @MISSION_FY3_END_DATE, @PLC_NA)) as PLC3_AIR_ALL, 
+(select PLC3_AIR_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleContracts(@START_DATE, @END_DATE, @MISSION_FY3_START_DATE, @MISSION_FY3_END_DATE, @PLC_NA)) as PLC3_AIR_NON_WHITE_MALE, 
+ 
+(select PLC3_LAW_ALL = usmc.GetMonthlyAc.vityCountForAllContracts(@START_DATE, @END_DATE, @MISSION_FY3_START_DATE, @MISSION_FY3_END_DATE, @PLC_LAW)) as PLC3_LAW_ALL, 
+(select PLC3_LAW_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleContracts(@START_DATE, @END_DATE, @MISSION_FY3_START_DATE, @MISSION_FY3_END_DATE, @PLC_LAW)) as PLC3_LAW_NON_WHITE_MALE, 
+ 
+-----------------------------OCC 1--------------------------------------- 
+(select OCC1_NFO_ALL = usmc.GetMonthlyAc.vityCountForAllContracts(@START_DATE, @END_DATE, @MISSION_FY1_START_DATE, @MISSION_FY1_END_DATE, @OCC_NFO)) as OCC1_NFO_ALL, 
+(select OCC1_NFO_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleContracts(@START_DATE, @END_DATE, @MISSION_FY1_START_DATE, @MISSION_FY1_END_DATE, @OCC_NFO)) as OCC1_NFO_NON_WHITE_MALE, 
+ 
+(select OCCR1_GROUND_ALL = usmc.GetMonthlyAc.vityCountForAllContracts(@START_DATE, @END_DATE, @MISSION_FY1_START_DATE, @MISSION_FY1_END_DATE, @OCCR_GROUND)) as OCCR1_GROUND_ALL, 
+(select OCCR1_GROUND_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleContracts(@START_DATE, @END_DATE, @MISSION_FY1_START_DATE, @MISSION_FY1_END_DATE, @OCCR_GROUND)) as OCCR1_GROUND_NON_WHITE_MALE, 
+ 
+(select OCC1_GROUND_ALL = usmc.GetMonthlyAc.vityCountForAllContracts(@START_DATE, @END_DATE, @MISSION_FY1_START_DATE, @MISSION_FY1_END_DATE, @OCC_GROUND)) as OCC1_GROUND_ALL, 
+(select OCC1_GROUND_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleContracts(@START_DATE, @END_DATE, @MISSION_FY1_START_DATE, @MISSION_FY1_END_DATE, @OCC_GROUND)) as OCC1_GROUND_NON_WHITE_MALE, 
+ 
+(select OCC1_AIR_ALL = usmc.GetMonthlyAc.vityCountForAllContracts(@START_DATE, @END_DATE, @MISSION_FY1_START_DATE, @MISSION_FY1_END_DATE, @OCC_NA)) as OCC1_AIR_ALL, 
+(select OCC1_AIR_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleContracts(@START_DATE, @END_DATE, @MISSION_FY1_START_DATE, @MISSION_FY1_END_DATE, @OCC_NA)) as OCC1_AIR_NON_WHITE_MALE, 
+ 
+(select OCC1_LAW_ALL = usmc.GetMonthlyAc.vityCountForAllContracts(@START_DATE, @END_DATE, @MISSION_FY1_START_DATE, @MISSION_FY1_END_DATE, @OCC_LAW)) as OCC1_LAW_ALL, 
+(select OCC1_LAW_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleContracts(@START_DATE, @END_DATE, @MISSION_FY1_START_DATE, @MISSION_FY1_END_DATE, @OCC_LAW)) as OCC1_LAW_NON_WHITE_MALE, 
+ 
+-----------------------------OCC 2--------------------------------------- 
+ 
+(select OCC2_NFO_ALL = usmc.GetMonthlyAc.vityCountForAllContracts(@START_DATE, @END_DATE, @MISSION_FY2_START_DATE, @MISSION_FY2_END_DATE, @OCC_NFO)) as OCC2_NFO_ALL, 
+(select OCC2_NFO_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleContracts(@START_DATE, @END_DATE, @MISSION_FY2_START_DATE, @MISSION_FY2_END_DATE, @OCC_NFO)) as OCC2_NFO_NON_WHITE_MALE, 
+ 
+(select OCCR2_GROUND_ALL = usmc.GetMonthlyAc.vityCountForAllContracts(@START_DATE, @END_DATE, @MISSION_FY2_START_DATE, @MISSION_FY2_END_DATE, @OCCR_GROUND)) as OCCR2_GROUND_ALL, 
+(select OCCR2_GROUND_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleContracts(@START_DATE, @END_DATE, @MISSION_FY2_START_DATE, @MISSION_FY2_END_DATE, @OCCR_GROUND)) as OCCR2_GROUND_NON_WHITE_MALE, 
+ 
+(select OCC2_GROUND_ALL = usmc.GetMonthlyAc.vityCountForAllContracts(@START_DATE, @END_DATE, @MISSION_FY2_START_DATE, @MISSION_FY2_END_DATE, @OCC_GROUND)) as OCC2_GROUND_ALL, 
+(select OCC2_GROUND_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleContracts(@START_DATE, @END_DATE, @MISSION_FY2_START_DATE, @MISSION_FY2_END_DATE, @OCC_GROUND)) as OCC2_GROUND_NON_WHITE_MALE, 
+ 
+(select OCC2_AIR_ALL = usmc.GetMonthlyAc.vityCountForAllContracts(@START_DATE, @END_DATE, @MISSION_FY2_START_DATE, @MISSION_FY2_END_DATE, @OCC_NA)) as OCC2_AIR_ALL, 
+(select OCC2_AIR_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleContracts(@START_DATE, @END_DATE, @MISSION_FY2_START_DATE, @MISSION_FY2_END_DATE, @OCC_NA)) as OCC2_AIR_NON_WHITE_MALE, 
+ 
+(select OCC2_LAW_ALL = usmc.GetMonthlyAc.vityCountForAllContracts(@START_DATE, @END_DATE, @MISSION_FY2_START_DATE, @MISSION_FY2_END_DATE, @OCC_LAW)) as OCC2_LAW_ALL, 
+(select OCC2_LAW_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleContracts(@START_DATE, @END_DATE, @MISSION_FY2_START_DATE, @MISSION_FY2_END_DATE, @OCC_LAW)) as OCC2_LAW_NON_WHITE_MALE, 
+ 
+-----------------------------OCC 3--------------------------------------- 
+ 
+(select OCC3_NFO_ALL = usmc.GetMonthlyAc.vityCountForAllContracts(@START_DATE, @END_DATE, @MISSION_FY3_START_DATE, @MISSION_FY3_END_DATE, @OCC_NFO)) as OCC3_NFO_ALL, 
+(select OCC3_NFO_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleContracts(@START_DATE, @END_DATE, @MISSION_FY3_START_DATE, @MISSION_FY3_END_DATE, @OCC_NFO)) as OCC3_NFO_NON_WHITE_MALE, 
+ 
+(select OCCR3_GROUND_ALL = usmc.GetMonthlyAc.vityCountForAllContracts(@START_DATE, @END_DATE, @MISSION_FY3_START_DATE, @MISSION_FY3_END_DATE, @OCCR_GROUND)) as OCCR3_GROUND_ALL, 
+(select OCCR3_GROUND_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleContracts(@START_DATE, @END_DATE, @MISSION_FY3_START_DATE, @MISSION_FY3_END_DATE, @OCCR_GROUND)) as OCCR3_GROUND_NON_WHITE_MALE, 
+ 
+(select OCC3_GROUND_ALL = usmc.GetMonthlyAc.vityCountForAllContracts(@START_DATE, @END_DATE, @MISSION_FY3_START_DATE, @MISSION_FY3_END_DATE, @OCC_GROUND)) as OCC3_GROUND_ALL, 
+(select OCC3_GROUND_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleContracts(@START_DATE, @END_DATE, @MISSION_FY3_START_DATE, @MISSION_FY3_END_DATE, @OCC_GROUND)) as OCC3_GROUND_NON_WHITE_MALE, 
+ 
+(select OCC3_AIR_ALL = usmc.GetMonthlyAc.vityCountForAllContracts(@START_DATE, @END_DATE, @MISSION_FY3_START_DATE, @MISSION_FY3_END_DATE, @OCC_NA)) as OCC3_AIR_ALL, 
+(select OCC3_AIR_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleContracts(@START_DATE, @END_DATE, @MISSION_FY3_START_DATE, @MISSION_FY3_END_DATE, @OCC_NA)) as OCC3_AIR_NON_WHITE_MALE, 
+ 
+(select OCC3_LAW_ALL = usmc.GetMonthlyAc.vityCountForAllContracts(@START_DATE, @END_DATE, @MISSION_FY3_START_DATE, @MISSION_FY3_END_DATE, @OCC_LAW)) as OCC3_LAW_ALL, 
+(select OCC3_LAW_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleContracts(@START_DATE, @END_DATE, @MISSION_FY3_START_DATE, @MISSION_FY3_END_DATE, @OCC_LAW)) as OCC3_LAW_NON_WHITE_MALE  
+ 
+ 
+END]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

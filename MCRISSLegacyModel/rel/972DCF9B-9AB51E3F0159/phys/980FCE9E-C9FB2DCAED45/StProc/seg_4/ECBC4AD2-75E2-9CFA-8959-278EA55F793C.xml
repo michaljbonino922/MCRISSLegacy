@@ -1,0 +1,30 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetComponentChangeRequestData]" directorySegmentName="seg_4" id="ECBC4AD2-75E2-9CFA-8959-278EA55F793C">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[(@NwaId int) 
+ 
+AS 
+ 
+SELECT 
+ COALESCE(RTRIM(p.LAST_NAME), SPACE(0))  + SPACE(1) +  
+  COALESCE(RTRIM(p.FIRST_NAME), SPACE(0)) + SPACE(1) +  
+  COALESCE(RTRIM(p.LEGAL_MIDDLE_NAME), SPACE(0)) AS Name 
+ ,cc.COMPONENT_CODE AS ComponentCode 
+ ,cc.COMPONENT_DESCRIPTION AS ComponentDescrip.on 
+ ,c.CONTRACT_ID AS ContractId 
+FROM  
+ [dbo].[NWA] n WITH (NOLOCK) 
+INNER JOIN [dbo].[CONTRACT] c 
+ ON c.NWA_ID = n.NWA_ID 
+INNER JOIN [dbo].[PERSON] p 
+ ON p.PERSON_ID = n.MARINE_CANDIDATE_ID 
+INNER JOIN [dbo].[COMPONENT_CODE] cc 
+ ON cc.COMPONENT_CODE = c.COMPONENT_CODE 
+WHERE 
+ n.NWA_ID = @NwaId]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,266 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetMonthlyAc.vityCounts]" directorySegmentName="seg_13" id="5AF15E68-4208-97CC-4DEB-5338774ABC90">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@RecruiterID   uniqueiden..er = null, 
+    @OrgID   int = null, 
+    @DateFrom date.me = null, 
+    @DateTo date.me = null, 
+    @IsApproved bit = 0 
+ 
+AS 
+BEGIN 
+  
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+ declare @EpCont int 
+ declare @HvCont int 
+ declare @TcCont int 
+ declare @AcCont int 
+     
+ declare @TcAppt int 
+ declare @AcAppt int 
+ declare @HvAppt int 
+ declare @EpAppt int 
+  
+ declare @TcMade int 
+ declare @AcMade int 
+ declare @HvMade int 
+ declare @EpMade int 
+  
+ declare @EpInt int 
+ declare @HvInt int 
+ declare @AcInt int 
+ declare @TcInt int 
+  
+ declare @OtScr int 
+ declare @OtInt int; 
+  
+ 
+  
+-- GET INTERVIEW, Uses RSSOSS DB (from func.on: GetDailyOrMonthlyInterviewByType) 
+WITH myData AS 
+( 
+SELECT *  FROM 
+( SELECT p.ac.vity, count(*) as count1 
+   FROM RSSOSS.USMC.Event e 
+INNER JOIN RSSOSS.USMC.EventOwners eo ON e.ID = eo.EventId  
+INNER JOIN RSSOSS.USMC.EventSubject s ON e.ID = s.EventId  
+INNER JOIN RSSOSS.USMC.EventOutcome oc ON e.ID = oc.EventId 
+INNER JOIN RSSOSS.USMC.EventType et ON e.EventTypeId = et.ID 
+INNER JOIN Prospec.ng.USMC.Prospect p ON s.subjectId = p.ProspectId 
+  WHERE (InterviewOutcomeId=1 or InterviewOutcomeId=2) -- New Working Applicant or Follow-up 
+    AND et.Type != 'Follow Up' 
+    AND e.IsApproved = @IsApproved 
+    AND (@RecruiterID IS NULL OR @RecruiterID = eo.CreatorId) 
+    AND (@OrgID IS NULL OR e.Organiza.onId = @OrgID) 
+    AND ( Ac.vity IN ('DC','HV', 'TC')  ) 
+  AND (LEFT(e.LastUpdateDate,11) >= Coalesce(@dateFrom, LEFT(e.LastUpdateDate,11))) 
+  AND (LEFT(e.LastUpdateDate,11) <= Coalesce(@dateTo, LEFT(e.LastUpdateDate,11))) 
+ GROUP BY p.ac.vity  
+ ) d 
+   
+    PIVOT ( 
+    sum(count1) 
+    FOR [ac.vity] IN ([TC],[HV], [DC])  
+    ) AS pvt 
+) 
+ 
+SELECT  @TcInt = TC, @HVint = HV, @EPint = DC FROM myData  ; 
+  
+  
+---- Get AREA CANVESS APPOINTMENTS, Uses RSSOSS DB (from func.on GetDailyOrMonthlyApptByType) 
+ SELECT  
+ @ACappt = Count(*)  
+ FROM  
+ RSSOSS.USMC.Event e, RSSOSS.USMC.EventPersonVisibility v,  
+ RSSOSS.USMC.EventSubject s,  
+ Prospec.ng.USMC.Prospect p,  
+ RSSOSS.USMC.EventOutcome oc 
+ WHERE  
+ e.ID=v.EventId 
+ AND e.ID=s.EventId 
+ AND e.ID=oc.EventId 
+ AND s.subjectId=p.ProspectId 
+ AND (AppointmentOutcomeId=1) 
+ AND (@RecruiterID IS NULL OR v.Recrui.ngPersonId = @RecruiterID) 
+ AND (@OrgID IS NULL OR e.Organiza.onId = @OrgID)  
+ AND (Ac.vity = 'AC') 
+  AND (LEFT(e.LastUpdateDate,11) >= Coalesce(@dateFrom, LEFT(e.LastUpdateDate,11))) 
+  AND (LEFT(e.LastUpdateDate,11) <= Coalesce(@dateTo, LEFT(e.LastUpdateDate,11))) 
+ AND e.IsApproved = @IsApproved; 
+     
+     
+---- Get APPOINTMENTS, Uses RSSOSS DB (from func.on GetDailyOrMonthlyApptByType) 
+WITH myData AS 
+( 
+SELECT *  FROM 
+( SELECT p.ac.vity, count(*) as count1 
+ FROM  
+ RSSOSS.USMC.Event e,   
+ RSSOSS.USMC.EventSubject s,  
+ Prospec.ng.USMC.Prospect p 
+ WHERE  
+ e.ID=s.EventId 
+ AND s.subjectId=p.ProspectId 
+ AND e.IsApproved = @IsApproved 
+ AND e.EventSourceId = 16  
+ AND e.EventTypeId = 85 
+ AND (@RecruiterID IS NULL OR @RecruiterID = p.Recrui.ngPersonId) 
+ AND (@OrgID IS NULL OR e.Organiza.onId = @OrgID)  
+ AND (Ac.vity IN ('TC','HV', 'DC') ) 
+  AND (LEFT(e.LastUpdateDate,11) >= Coalesce(@dateFrom, LEFT(e.LastUpdateDate,11))) 
+  AND (LEFT(e.LastUpdateDate,11) <= Coalesce(@dateTo, LEFT(e.LastUpdateDate,11))) 
+ GROUP BY p.ac.vity  
+ ) d 
+   
+    PIVOT ( 
+    sum(count1) 
+    FOR [ac.vity] IN ([TC],[HV], [DC])  
+    ) AS pvt 
+) 
+SELECT @TCappt = TC, @HVappt = HV, @EPappt = DC FROM myData ; 
+ 
+ 
+--- Get MADE types, Uses PROSPECTING DB  (from func.on GetMonthlyTcMade)  
+WITH myData AS 
+( 
+SELECT *  FROM 
+( SELECT pac.ac.vity, count(*) as count1 
+   FROM USMC.ProspectComment pc 
+INNER JOIN USMC.ProspectAc.vityComment pac ON pac.ProspectAc.vityCommentId = pc.ProspectAc.vityCommentId 
+INNER JOIN USMC.ProspectCommentType pct ON pct.ProspectCommentTypeId = pac.ProspectCommentTypeId 
+     WHERE pac.Ac.vity IN ('AC','TC','HV', 'DC', 'OT')  
+  AND pct.ProspectCommentType IN ('CM', 'OT-S', 'Col', 'Col-S', 'Col-R', 'NI', 'HV-NA', 'HV-NH', 'DC-U', 'DC-M', 'DC-R', 'NA', 'NH', 'NHCB', 'NHLM')  
+  AND (LEFT(pc.LastUpdateDate,11) >= Coalesce(@dateFrom, LEFT(pc.LastUpdateDate,11))) 
+  AND (LEFT(pc.LastUpdateDate,11) <= Coalesce(@dateTo, LEFT(pc.LastUpdateDate,11))) 
+   AND pc.IsApproved = @IsApproved   
+   AND pc.ProspectId IN (SELECT P.ProspectId  
+                         FROM USMC.Prospect P 
+                   INNER JOIN USMC.vwMcrissRecrui.ngOrganiza.on Org ON P.Recrui.ngOrganiza.onId=Org.rowguid 
+                        WHERE (pc.Recrui.ngPersonId=@RecruiterID OR @RecruiterID IS NULL) 
+                          AND (ORGANIZATION_ID=@OrgID OR @OrgID IS NULL))  
+ GROUP BY pac.ac.vity  
+ ) d 
+   
+    PIVOT ( 
+    sum(count1) 
+    FOR [ac.vity] IN ([TC],[AC],[HV],[DC],[OT])  
+    ) AS pvt 
+)     
+SELECT @TCmade = TC, @ACmade = AC , @HVmade = HV, @EPmade = DC, @OTscr = OT FROM myData ; 
+                           
+                          
+--- get INTERVIEW types,  Uses RSSOSS DB  (from func.ons [GetMonthlyTcIntview] -> [GetMonthlyInterviewCountByType]) 
+WITH myData AS 
+( 
+SELECT *  FROM 
+( SELECT p.ac.vity, count(*) as count1 
+   FROM RSSOSS.USMC.Event e 
+INNER JOIN RSSOSS.USMC.EventSubject s ON e.ID = s.EventId  
+INNER JOIN RSSOSS.USMC.EventOutcome oc ON e.ID = oc.EventId 
+INNER JOIN RSSOSS.USMC.EventType et ON e.EventTypeId = et.ID 
+INNER JOIN Prospec.ng.USMC.Prospect p ON s.subjectId = p.ProspectId 
+  WHERE (InterviewOutcomeId=1 or InterviewOutcomeId=2) -- New Working Applicant or Follow-up 
+    AND et.Type != 'Follow Up' 
+    AND e.IsApproved = @IsApproved  
+    AND (@RecruiterID IS NULL OR p.Recrui.ngPersonId = @RecruiterID) 
+    AND (@OrgID IS NULL OR e.Organiza.onId = @OrgID) 
+    AND Ac.vity IN ('TC','OT','AC') 
+  AND (LEFT(e.LastUpdateDate,11) >= Coalesce(@dateFrom, LEFT(e.LastUpdateDate,11))) 
+  AND (LEFT(e.LastUpdateDate,11) <= Coalesce(@dateTo, LEFT(e.LastUpdateDate,11))) 
+ GROUP BY p.ac.vity  
+ ) d 
+   
+    PIVOT ( 
+    sum(count1) 
+    FOR [ac.vity] IN ([TC],[OT], [AC])  
+    ) AS pvt 
+)     
+SELECT @TCint = TC, @OTint = OT, @ACint = AC FROM myData   
+     
+     
+     
+ --- Get OFFICE TRAFFIC SCREENED, Uses PROSPECTING DB (from func.on MonthlyOTmade) 
+SELECT @OTscr = Count(*) 
+      FROM USMC.ProspectComment pc 
+INNER JOIN USMC.ProspectAc.vityComment pac ON pac.ProspectAc.vityCommentId = pc.ProspectAc.vityCommentId 
+INNER JOIN USMC.ProspectCommentType pct ON pct.ProspectCommentTypeId = pac.ProspectCommentTypeId 
+     WHERE pac.Ac.vity = 'OT'  
+  AND pct.ProspectCommentType IN ('OT-S', 'OT-I', 'OT-M', 'Col-R', 'NI')  
+  AND (LEFT(pc.LastUpdateDate,11) >= Coalesce(@dateFrom, LEFT(pc.LastUpdateDate,11))) 
+  AND (LEFT(pc.LastUpdateDate,11) <= Coalesce(@dateTo, LEFT(pc.LastUpdateDate,11))) 
+     AND pc.IsApproved = @IsApproved  
+        AND pc.ProspectId IN (SELECT P.ProspectId  
+                         FROM USMC.Prospect P 
+                   INNER JOIN USMC.vwMcrissRecrui.ngOrganiza.on Org ON P.Recrui.ngOrganiza.onId=Org.rowguid 
+                        WHERE (Recrui.ngPersonId=@RecruiterID OR @RecruiterID IS NULL) 
+                          AND (ORGANIZATION_ID=@OrgID OR @OrgID IS NULL)) ; 
+ 
+ 
+--- Get CONTACTS, Uses PROSPECTING DB - (from func.on [GetDailyOrMonthlyTcContact]  ) 
+WITH myData AS 
+( 
+SELECT *  FROM 
+( SELECT pac.ac.vity, count(*) as count1 
+   FROM Prospec.ng.USMC.ProspectComment pc 
+INNER JOIN Prospec.ng.USMC.ProspectAc.vityComment pac ON pac.ProspectAc.vityCommentId = pc.ProspectAc.vityCommentId 
+INNER JOIN Prospec.ng.USMC.ProspectCommentType pct ON pct.ProspectCommentTypeId = pac.ProspectCommentTypeId 
+     WHERE pac.Ac.vity IN ('TC','DC','HV')  
+  AND pct.ProspectCommentType IN ('CM', 'Col', 'Col-S', 'Col-R', 'NI') 
+    AND (pc.IsApproved = @IsApproved) 
+  AND (LEFT(pc.LastUpdateDate,11) >= Coalesce(@dateFrom, LEFT(pc.LastUpdateDate,11))) 
+  AND (LEFT(pc.LastUpdateDate,11) <= Coalesce(@dateTo, LEFT(pc.LastUpdateDate,11))) 
+    AND pc.ProspectId IN (SELECT P.ProspectId  
+                           FROM Prospec.ng.USMC.Prospect P 
+                     INNER JOIN USMC.vwMcrissRecrui.ngOrganiza.on Org ON P.Recrui.ngOrganiza.onId=Org.rowguid 
+                          WHERE (Recrui.ngPersonId=@RecruiterID OR @RecruiterID IS NULL) 
+                            AND (ORGANIZATION_ID=@OrgID OR @OrgID IS NULL)  
+                        ) 
+  GROUP BY pac.ac.vity  
+ ) d 
+   
+    PIVOT ( 
+    sum(count1) 
+    FOR [ac.vity] IN ([TC],[DC],[HV])  
+    ) AS pvt 
+)     
+SELECT @TCcont = TC, @EPcont = DC, @HVcont = HV FROM myData; 
+   
+ 
+ 
+ SELECT  
+  ISNULL(@TCmade,0) as TcMade 
+ ,ISNULL(@TCint,0) as TcInt 
+ ,ISNULL(@TCcont,0) as TcCont 
+ ,ISNULL(@TCappt,0) as TcAppt 
+  
+ ,ISNULL(@OTscr,0) as OtScr 
+ ,ISNULL(@OTint,0) as OtInt 
+  
+ ,ISNULL(@ACmade,0) as AcMade 
+ ,ISNULL(@ACint,0) as AcInt 
+ ,ISNULL(@ACappt,0) AS AcAppt 
+  
+ ,ISNULL(@HVmade,0) as HvMade 
+ ,ISNULL(@HVcont,0) AS HvCont 
+ ,ISNULL(@HVappt,0) AS HvAppt 
+ ,ISNULL(@HVint,0) AS HvInt 
+  
+ ,ISNULL(@EPmade,0) as EpMade  
+ ,ISNULL(@EPcont,0) AS EpCont 
+ ,ISNULL(@EPappt,0) AS EpAppt 
+ ,ISNULL(@Epint,0) AS EpInt 
+ 
+ ,'0' as OtMade 
+ ,'0' as Nwa 
+ ,'0' as Contract 
+ ,0 as AnalysisMonth 
+  
+  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

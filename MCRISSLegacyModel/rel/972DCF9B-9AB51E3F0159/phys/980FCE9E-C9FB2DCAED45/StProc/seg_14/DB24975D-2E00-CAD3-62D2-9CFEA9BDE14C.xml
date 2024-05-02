@@ -1,0 +1,504 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetProspectFindPersonGlobalResults_OrigRLR07122013]" directorySegmentName="seg_14" id="DB24975D-2E00-CAD3-62D2-9CFEA9BDE14C">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[(               
+ 
+                @FirstName varchar(20) = null, 
+ 
+                @LastName varchar(20) = NULL, 
+ 
+                @SSN varchar(9) = null, 
+ 
+                @Phone varchar (10) = null, 
+ 
+                @OrgId uniqueiden..er = null, 
+ 
+                @GlobalSearch bit = 1                     
+ 
+) 
+ 
+AS 
+ 
+BEGIN 
+ 
+  
+ 
+  
+SET ARITHABORT ON 
+ 
+SET NOCOUNT ON 
+ 
+ 
+  
+ 
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+  
+ 
+CREATE TABLE #ImportPerson( 
+ 
+                ImportEventId uniqueiden..er, 
+ 
+                PersonId uniqueiden..er, 
+ 
+                FirstName varchar(75), 
+ 
+                MiddleName varchar(75), 
+ 
+                LastName varchar(75) 
+ 
+) 
+ 
+  
+ 
+  
+ 
+INSERT INTO #ImportPerson 
+ 
+SELECT  
+ 
+                ie.ImportEventId, 
+ 
+                p.PersonId, 
+ 
+                p.FirstName, 
+ 
+                p.MiddleName, 
+ 
+                p.LastName 
+ 
+FROM [usmc].[ImportEvent] ie  
+ 
+INNER JOIN [usmc].[ImportPerson] ip on ie.importeven.d = ip.importeven.d 
+ 
+INNER JOIN [usmc].[Person] p on ip.personid = p.personid 
+ 
+INNER JOIN usmc.Prospect pr ON p.PersonId = pr.PersonId  
+ 
+LEFT OUTER JOIN  [usmc].[PersonPhone] pp on p.PersonId = pp.PersonId   
+ 
+WHERE  
+ 
+                IE.ImportEventStatusTypeId = 3 
+ 
+                and pp.PersonPhoneTypeId = 1    
+ 
+                AND IP.ImportPersonStatusTypeId in (1,2,7,10)  
+ 
+                AND (@FirstName is null OR (P.FirstName = REPLACE(@FirstName, '%', '') AND @FirstName IS NOT NULL))  
+ 
+                AND (@LastName is null OR (P.LastName = REPLACE(@LastName, '%', '') AND @LastName IS NOT NULL))  
+ 
+                AND (@SSN is null OR (P.SocialSecurityNumber = REPLACE(@SSN, '%', '') AND @SSN IS NOT NULL)) 
+ 
+                and (@Phone is null or (pp.PhoneNumber = REPLACE(@Phone, '%', '') and @Phone is not null)) 
+ 
+                --AND pr.Recrui.ngPersonId = @Recrui.ngPersonId 
+ 
+                AND (@OrgId IS NULL OR (@OrgId IS NOT NULL AND pr.Recrui.ngOrganiza.onId = @OrgId)) 
+ 
+  
+ 
+  
+ 
+SELECT 
+ 
+                                pa.PersonID, 
+ 
+                                pa.Street1, 
+ 
+                                pa.Street2, 
+ 
+                                pa.City, 
+ 
+                                pa.State, 
+ 
+                                pa.ZipCode 
+ 
+                INTO #PrimaryAddress 
+ 
+                FROM USMC.PersonAddress pa 
+ 
+                INNER JOIN #ImportPerson ip ON ip.PersonId = pa.PersonId 
+ 
+                WHERE PersonAddressTypeId = 1 
+ 
+                 
+ 
+                SELECT 
+ 
+                                pa.PersonID, 
+ 
+                                pa.Street1, 
+ 
+                                pa.Street2, 
+ 
+                                pa.City, 
+ 
+                                pa.State, 
+ 
+                                pa.ZipCode 
+ 
+                INTO #SecondaryAddress 
+ 
+                FROM USMC.PersonAddress     pa 
+ 
+                INNER JOIN #ImportPerson ip ON ip.PersonId = pa.PersonId 
+ 
+                WHERE PersonAddressTypeId = 2 
+ 
+                 
+ 
+                SELECT  
+ 
+                                p.PersonID, 
+ 
+                                p.PhoneNumber 
+ 
+                INTO #PrimaryPhone 
+ 
+                FROM USMC.PersonPhone p 
+ 
+                INNER JOIN #ImportPerson ip ON ip.PersonId = p.PersonId 
+ 
+                WHERE p.PersonPhoneTypeId = 1 
+ 
+                 
+ 
+                SELECT  
+ 
+                                p.PersonID, 
+ 
+                                p.PhoneNumber 
+ 
+                INTO #SecondaryPhone 
+ 
+                FROM USMC.PersonPhone p      
+ 
+                INNER JOIN #ImportPerson ip ON ip.PersonId = p.PersonId 
+ 
+                WHERE p.PersonPhoneTypeId = 2 
+ 
+                 
+ 
+                SELECT  
+ 
+                                e.PersonID, 
+ 
+                                e.EmailAddress 
+ 
+                INTO #PrimaryEmailAddress 
+ 
+                FROM USMC.PersonEmail e 
+ 
+                INNER JOIN #ImportPerson ip ON ip.PersonId = e.PersonId 
+ 
+                WHERE PersonEmailTypeId = 1 
+ 
+                                 
+ 
+                SELECT  
+ 
+                                e.PersonID, 
+ 
+                                e.EmailAddress 
+ 
+                INTO #SecondaryEmailAddress 
+ 
+                FROM USMC.PersonEmail e         
+ 
+                INNER JOIN #ImportPerson ip ON ip.PersonId = e.PersonId 
+ 
+                WHERE PersonEmailTypeId = 2 
+ 
+  
+ 
+--select * from  #ImportPerson 
+ 
+                 
+ 
+                SELECT 
+ 
+                                p.PersonID, 
+ 
+                                PA_PRIMARY.Street1 as PrimaryStreet1, 
+ 
+                                PA_PRIMARY.Street2 as PrimaryStreet2, 
+ 
+                                PA_PRIMARY.City as PrimaryCity, 
+ 
+                                PA_PRIMARY.State as PrimaryState, 
+ 
+                                PA_PRIMARY.ZipCode as PrimaryZipCode, 
+ 
+                                PA_ALTERNATE.Street1 as AlternateStreet1, 
+ 
+                                PA_ALTERNATE.Street2 as AlternateStreet2, 
+ 
+                                PA_ALTERNATE.City as AlternateCity, 
+ 
+                                PA_ALTERNATE.State as AlternateState, 
+ 
+                                PA_ALTERNATE.ZipCode as AlternateZipCode, 
+ 
+                                PP_PRIMARY.PhoneNumber as PrimaryPhoneNumber, 
+ 
+                                PP_ALTERNATE.PhoneNumber as AlternatePhoneNumber, 
+ 
+                                PE_PRIMARY.EmailAddress as PrimaryEmailAddress, 
+ 
+                                PE_ALTERNATE.EmailAddress as AlternateEmailAddress 
+ 
+                INTO #ContactInfo 
+ 
+                FROM #ImportPerson p 
+ 
+                LEFT OUTER JOIN #PrimaryAddress PA_PRIMARY ON PA_PRIMARY.PersonId = p.PersonId 
+ 
+                LEFT OUTER JOIN #SecondaryAddress PA_ALTERNATE ON PA_ALTERNATE.PersonId = p.PersonId 
+ 
+                LEFT OUTER JOIN #PrimaryPhone PP_PRIMARY ON PP_PRIMARY.PersonId = p.PersonId 
+ 
+                LEFT OUTER JOIN #SecondaryPhone PP_ALTERNATE ON PP_ALTERNATE.PersonId = p.PersonId 
+ 
+                LEFT OUTER JOIN #PrimaryEmailAddress PE_PRIMARY ON PE_PRIMARY.PersonId = p.PersonId 
+ 
+                LEFT OUTER JOIN #SecondaryEmailAddress PE_ALTERNATE ON PE_ALTERNATE.PersonId = p.PersonId 
+ 
+  
+ 
+--select * from #ContactInfo 
+ 
+  
+ 
+                SELECT                   
+ 
+                                rp.rowguid, 
+ 
+                                rp.RANK_CODE, 
+ 
+                                p.LAST_NAME as RecruiterLastName, 
+ 
+                                p.FIRST_NAME as RecruiterFirstName, 
+ 
+                                p.LEGAL_MIDDLE_NAME as RecruiterMiddleName 
+ 
+                INTO #Recrui.ngPerson 
+ 
+                FROM MCRISS.dbo.RECRUITING_PERSON rp 
+ 
+                INNER JOIN MCRISS.dbo.Person p ON rp.RECRUITING_PERSON_ID = p.PERSON_ID 
+ 
+                --WHERE rp.rowguid = @Recrui.ngPersonId 
+ 
+                 
+ 
+                SELECT 
+ 
+                                pr.PersonId, 
+ 
+                                pr.NwaId, 
+ 
+                                pr.ProspectId, 
+ 
+                                CASE WHEN pr.NwaId IS NULL THEN 'Prospect' 
+ 
+                                     ELSE ( SELECT [STATUS_DESCRIPTION]  
+ 
+                                                        FROM 
+ 
+                                                                                                MCRISS.dbo.NWA n 
+ 
+                                                                                                INNER JOIN MCRISS.[dbo].[CANDIDATE_STATUS] cs ON n.NWA_ID = cs.NWA_ID 
+ 
+                                                                                                INNER JOIN MCRISS.[dbo].[STATUS_DISPOSITION] sd ON  
+ 
+                                                                                                                cs.[STATUS_TYPE] = sd.[STATUS_TYPE]  AND  
+ 
+                                                                                                                cs.[STATUS_CODE] = sd.[STATUS_CODE] AND 
+ 
+                                                                                                                cs.[DISPOSITION_CODE] = sd.[DISPOSITION_CODE] 
+ 
+                                                                                WHERE 
+ 
+                                                                                                n.rowguid = pr.NwaId 
+ 
+                                                                                                AND cs.[CANDIDATE_STATUS_ID] = (SELECT MAX([CANDIDATE_STATUS_ID]) FROM MCRISS.[dbo].[CANDIDATE_STATUS] WHERE NWA_ID = n.NWA_ID) 
+ 
+                                                                                ) 
+ 
+                                END AS Status,  
+ 
+                                CASE  
+ 
+                                                WHEN pr.NwaId IS NULL THEN pdt.ProspectDisposi.onType  
+ 
+                                                ELSE ( SELECT [DISPOSITION_DESCRIPTION] 
+ 
+                                                        FROM 
+ 
+                                                                                                MCRISS.dbo.NWA n 
+ 
+                                                                                                INNER JOIN MCRISS.[dbo].[CANDIDATE_STATUS] cs ON n.NWA_ID = cs.NWA_ID 
+ 
+                                                                                                INNER JOIN MCRISS.[dbo].[STATUS_DISPOSITION] sd ON  
+ 
+                                                                                                                cs.[STATUS_TYPE] = sd.[STATUS_TYPE]  AND  
+ 
+                                                                                                                cs.[STATUS_CODE] = sd.[STATUS_CODE] AND 
+ 
+                                                                                                                cs.[DISPOSITION_CODE] = sd.[DISPOSITION_CODE] 
+ 
+                                                                                WHERE 
+ 
+                                                                                                n.rowguid = pr.NwaId 
+ 
+                                                                                                AND cs.[CANDIDATE_STATUS_ID] = (SELECT MAX([CANDIDATE_STATUS_ID]) FROM MCRISS.[dbo].[CANDIDATE_STATUS] WHERE NWA_ID = n.NWA_ID) 
+ 
+                                                                                ) 
+ 
+                                END AS Disposi.on, 
+ 
+                                pr.ProspectDisposi.onId, 
+ 
+                                ro.NAME as RSS, 
+ 
+                                rp.RANK_CODE, 
+ 
+                                rp.RecruiterLastName, 
+ 
+                                rp.RecruiterFirstName, 
+ 
+                                rp.RecruiterMiddleName 
+ 
+                INTO #Prospect 
+ 
+                FROM USMC.Prospect pr 
+ 
+                INNER JOIN #ImportPerson ip ON ip.PersonId = pr.PersonId 
+ 
+                LEFT OUTER JOIN [usmc].[ProspectDisposi.on] pdt on pr.ProspectDisposi.onId = pdt.ProspectDisposi.onId 
+ 
+                LEFT OUTER JOIN #Recrui.ngPerson rp on pr.Recrui.ngPersonId = rp.rowguid 
+ 
+                Le. JOIN MCRISS.dbo.RECRUITING_ORGANIZATION ro on pr.Recrui.ngOrganiza.onId = ro.rowguid 
+ 
+                WHERE pr.SubSta.onType = 'E' 
+ 
+                --AND (pr.Recrui.ngPersonId = @Recrui.ngPersonId) 
+ 
+  
+ 
+SELECT DISTINCT 
+ 
+                                                                ip.ImportEventId, 
+ 
+                                                                ip.PersonID,  
+ 
+                                                                pr.ProspectId, 
+ 
+                                                                pr.NwaId, 
+ 
+                                                                pr.Status, 
+ 
+                                                                pr.Disposi.on, 
+ 
+                                                                pr.ProspectDisposi.onId, 
+ 
+                                                                pr.RSS, 
+ 
+                                                                ip.FirstName,  
+ 
+                                                                ip.MiddleName,  
+ 
+                                                                ip.LastName, 
+ 
+                                                                c.PrimaryStreet1, 
+ 
+                                                                c.PrimaryStreet2, 
+ 
+                                                                c.PrimaryCity, 
+ 
+                                                                c.PrimaryState, 
+ 
+                                                                c.PrimaryZipCode, 
+ 
+                                                                c.AlternateStreet1, 
+ 
+                                                                c.AlternateStreet2, 
+ 
+                                                                c.AlternateCity, 
+ 
+                                                                c.AlternateState, 
+ 
+                                                                c.AlternateZipCode, 
+ 
+                                                                c.PrimaryPhoneNumber, 
+ 
+                                                                c.AlternatePhoneNumber, 
+ 
+                                                                c.PrimaryEmailAddress, 
+ 
+                                                                c.AlternateEmailAddress, 
+ 
+                                                                pr.RANK_CODE, 
+ 
+                                                                pr.RecruiterLastName, 
+ 
+                                                                pr.RecruiterFirstName, 
+ 
+                                                                pr.RecruiterMiddleName 
+ 
+                                                                INTO #ENLISTED_RESULTS                                                            
+ 
+                                                                FROM #ImportPerson ip 
+ 
+                                                                INNER JOIN #Prospect pr on (ip.PersonID = pr.PersonID) 
+ 
+                                                                LEFT OUTER JOIN #ContactInfo c ON c.PersonId = ip.PersonId 
+ 
+  
+ 
+SELECT  
+ 
+                                                                                ROW_NUMBER() OVER(Order By R.LASTNAME, R.FIRSTNAME), 
+ 
+                                                                                r.* 
+ 
+                                                                FROM #ENLISTED_RESULTS r 
+ 
+                 
+ 
+                                                                DROP TABLE #ENLISTED_RESULTS             
+ 
+                                 
+ 
+                                DROP TABLE #ImportPerson 
+ 
+                                DROP TABLE #Prospect 
+ 
+                                DROP TABLE #ContactInfo            
+ 
+                                DROP TABLE #PrimaryAddress 
+ 
+                                DROP TABLE #SecondaryAddress 
+ 
+                                DROP TABLE #PrimaryPhone 
+ 
+                                DROP TABLE #SecondaryPhone 
+ 
+                                DROP TABLE #PrimaryEmailAddress 
+ 
+                                DROP TABLE #SecondaryEmailAddress                                    
+ 
+                                DROP TABLE #Recrui.ngPerson 
+ 
+                 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,110 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetAchievedReport]" directorySegmentName="seg_9" id="21FF83FC-DB33-DF94-C992-F2DB38208B7E">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:37 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+  @FromDate date.me, 
+  @ToDate  date.me, 
+        @FY      int, 
+  @OrgUnitID int, 
+        @RecruiterID uniqueiden..er = null 
+ ) 
+ 
+ 
+AS 
+begin 
+declare @FYStartDt date.me 
+declare @FYEndDt date.me 
+select @FYStartDt = convert(date.me, cast(@FY-1 as varchar(4)) + '/10/1') 
+--print @FYStartDt 
+select @FYEndDt = convert(date.me, cast(@FY as varchar(4)) + '/09/30') 
+--print @FYEndDt 
+ 
+select * into #ObjTbl from dbo.MonthlyObjec.ve mo 
+where (RecruiterID = @RecruiterID or (@RecruiterID is null and RecruiterID ='00000000-0000-0000-0000-000000000000' and Organiza.onId = @OrgUnitID)) 
+and convert(date.me, cast(year as varchar(4)) + '/' 
++ cast(month as varchar(2)) + '/15') between @FromDate and @ToDate 
+ 
+select * into #AchTbl from dbo.RptDataAnalysis da 
+where (RecruiterID = @RecruiterID or (@RecruiterID is null and OrgId = @OrgUnitID)) 
+and convert(date.me, cast(analysisyear as varchar(4)) + '/' 
++ cast(analysismonth as varchar(2)) + '/15') between @FromDate and @ToDate 
+ 
+--select * from  #AchTbl 
+ 
+select * into #FYObjTbl from dbo.MonthlyObjec.ve mo 
+where (RecruiterID = @RecruiterID or (@RecruiterID is null and RecruiterID ='00000000-0000-0000-0000-000000000000' and Organiza.onId = @OrgUnitID)) 
+and convert(date.me, cast(year as varchar(4)) + '/' 
++ cast(month as varchar(2)) + '/15') between @FYStartDt and @FYEndDt 
+ 
+select * into #FYAchTbl from dbo.RptDataAnalysis da 
+where (RecruiterID = @RecruiterID or (@RecruiterID is null and OrgId = @OrgUnitID)) 
+and convert(date.me, cast(analysisyear as varchar(4)) + '/' 
++ cast(analysismonth as varchar(2)) + '/15') between @FYStartDt and @FYEndDt 
+ 
+CREATE TABLE #AchieveTable   
+ (     
+   JoinObjec.ve INT default 0,  
+            NwaObjec.ve INT default 0,  
+            IntObjec.ve INT default 0,  
+   JoinAchieved INT default 0,  
+            NwaAchieved INT default 0,  
+            IntAchieved INT default 0,  
+            FYJoinObjec.ve INT default 0,  
+            FYNwaObjec.ve INT default 0,  
+            FYIntObjec.ve INT default 0,  
+            FYJoinAchieved INT default 0,  
+            FYNwaAchieved INT default 0,  
+            FYIntAchieved INT default 0,  
+ ) 
+ 
+ --CREATE UNIQUE CLUSTERED INDEX IX_rowid ON #AchieveTable (rowid) 
+ 
+--Set objecvive data 
+--select * from #ObjTbl 
+insert into #AchieveTable(JoinObjec.ve,NwaObjec.ve, IntObjec.ve)--, 
+  -- FYJoinObjec.ve, FYNwaObjec.ve, FYIntObjec.ve) 
+select sum(obj.ContractCount) JoinObjec.ve, sum(obj.Nwa) NwaObjec.ve, 
+       sum(obj.Interview) IntObjec.ve --, sum(fobj.ContractCount) FYJoinObjec.ve,  
+    --  sum(fobj.Nwa) FYNwaObjec.ve,  sum(fobj.Interview) FYIntObjec.ve  
+     from #ObjTbl obj--, #FYObjTbl fobj--dbo.MonthlyObjec.ve mo  
+--where ((@RecruiterID is not null  
+--and RecruiterID = @RecruiterID) or (@RecruiterID is  null  
+--and Organiza.onId = @OrgUnitID)) and convert(date.me, cast(year as varchar(4)) + '/' 
+--+ cast(month as varchar(2)) + '/15') between @FromDate and @ToDate 
+-- group by  RecruiterID, Organiza.onId 
+update #AchieveTable set FYJoinObjec.ve = ContractTotal, 
+      FYNwaObjec.ve = NwaTotal, FYIntObjec.ve = IntTotal 
+     from (select sum(fobj.ContractCount) ContractTotal, 
+        sum(fobj.Nwa) NwaTotal, 
+        sum(fobj.Interview) IntTotal from #FYObjTbl fobj) rst 
+    
+ 
+update #AchieveTable set JoinAchieved = ContractTotal, 
+      NwaAchieved = NwaTotal, IntAchieved = IntTotal 
+     from (select sum(Contract) ContractTotal, 
+        sum(Nwa) NwaTotal, 
+        sum(TcInt) + sum(OtInt) + sum(AcInt) + sum(EpInt) IntTotal from #AchTbl) rst 
+ 
+update #AchieveTable set FYJoinAchieved = ContractTotal, 
+      FYNwaAchieved = NwaTotal, FYIntAchieved = IntTotal 
+     from (select sum(Contract) ContractTotal, 
+        sum(Nwa) NwaTotal, 
+        sum(TcInt) + sum(OtInt) + sum(AcInt) + sum(EpInt) IntTotal from #FYAchTbl) rst 
+ 
+   
+ 
+select * from #AchieveTable 
+ 
+drop table #ObjTbl 
+drop table #FyObjTbl 
+drop table #AchTbl 
+drop table #FYAchTbl 
+drop table #AchieveTable 
+ 
+end]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+</StoredProcedureSqlServerv2k5>

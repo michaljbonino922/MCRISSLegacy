@@ -1,0 +1,79 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[M8412_Get_Person_Background_Info]" directorySegmentName="seg_12" id="2F7CC3A5-5EDA-552D-3150-DE5E05C0C6BE">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@PersonID  INT = 0, 
+ @User_Org  INT 
+AS 
+SET NOCOUNT ON 
+DECLARE @ReadOnly As Int 
+DECLARE @PersonOrgID As Int 
+ 
+SET @PersonOrgID = (SELECT LOCATION_ID FROM M8412_Recruit_Person WHERE PERSON_ID = @PersonID) 
+IF @PersonOrgID IS NULL 
+BEGIN 
+ SET @PersonOrgID = (SELECT ORGANIZATION_ID FROM RECRUITING_PERSON WHERE RECRUITING_PERSON_ID = @PersonID) 
+END 
+ 
+IF @PersonOrgID IN (SELECT ORG_ID FROM DBO.GetChildOrgsRecursive(@User_Org)) OR @User_Org = 900 
+ SET @ReadOnly = 0 
+ELSE 
+ SET @ReadOnly = 1 
+ 
+SELECT 'XXXXX' + RIGHT(p.SOCIAL_SECURITY_NUMBER,4) Masked_SSN 
+ , SOCIAL_SECURITY_NUMBER 
+ , p.FIRST_NAME 
+ , p.LEGAL_MIDDLE_NAME 
+ , p.LAST_NAME  
+ , p.LAST_NAME + ', ' + p.FIRST_NAME + ' ' + p.LEGAL_MIDDLE_NAME PersonName 
+ , p.SUFFIX_CD 
+ , Rank_ID 
+ , (select Rank_Code from M8412_Lk_Rank where Rank_ID= r.Rank_ID) Rank_code 
+ , r.Loca.on_ID 
+ , r.Billet 
+ , (select Billet_ID from M8412_Lk_Billet where Billet= r.Billet) Billet_ID 
+ , le.(convert(varchar,r.Date_Billet,102),4)  
+  + substring(convert(varchar,r.Date_Billet,102),6,2)  
+  + right(convert(varchar,r.Date_Billet,102),2)Date_Billet 
+ , le.(convert(varchar,r.Date_Rank,102),4)  
+  + substring(convert(varchar,r.Date_Rank,102),6,2)  
+  + right(convert(varchar,r.Date_Rank,102),2)Date_Rank 
+ , le.(convert(varchar,r.Date_AFADBD,102),4)  
+  + substring(convert(varchar,r.Date_AFADBD,102),6,2)  
+  + right(convert(varchar,r.Date_AFADBD,102),2) Date_AFADBD 
+ , r.Current_Loca.on 
+ , r.Phone_No 
+ , le.(convert(varchar,r.Date_8412I,102),4)  
+  + substring(convert(varchar,r.Date_8412I,102),6,2)  
+  + right(convert(varchar,r.Date_8412I,102),2) Date_8412I 
+ , le.(convert(varchar,r.Date_8412,102),4)  
+  + substring(convert(varchar,r.Date_8412,102),6,2)  
+  + right(convert(varchar,r.Date_8412,102),2) Date_8412  
+ , le.(convert(varchar,r.Date_Curr_Tour_Began,102),4)  
+  + substring(convert(varchar,r.Date_Curr_Tour_Began,102),6,2)  
+  + right(convert(varchar,r.Date_Curr_Tour_Began,102),2) Date_Curr_Tour_Began 
+ , le.(convert(varchar,r.Date_Last_PCS,102),4)  
+  + substring(convert(varchar,r.Date_Last_PCS,102),6,2)  
+  + right(convert(varchar,r.Date_Last_PCS,102),2) Date_Last_PCS 
+ , le.(convert(varchar,r.Date_Re.re,102),4)  
+  + substring(convert(varchar,r.Date_Re.re,102),6,2)  
+  + right(convert(varchar,r.Date_Re.re,102),2) Date_Re.re 
+ , le.(convert(varchar,r.Date_Void,102),4)  
+  + substring(convert(varchar,r.Date_Void,102),6,2)  
+  + right(convert(varchar,r.Date_Void,102),2) Date_Void 
+ , le.(convert(varchar,r.Modi.ed_Date,120),4)  
+  + substring(convert(varchar,r.Modi.ed_Date,120),6,2)  
+  + substring(convert(varchar,r.Modi.ed_Date,120),9,2) 
+  + ' '  
+  + substring(convert(varchar,r.Modi.ed_Date,120),12,5) Modi.ed_Date, 
+ @ReadOnly AS READ_ONLY 
+FROM  M8412_Person_View p LEFT OUTER JOIN M8412_Recruit_Person r 
+ ON p.Person_ID=r.Person_ID 
+ WHERE p.PERSON_ID = @PersonID 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,51 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertMudStagingRecord]" directorySegmentName="seg_11" id="ED9A1028-7E98-5725-FB6F-4A89111ECF9B">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @city varchar(50), 
+ @state varchar(2), 
+ @zip varchar(5), 
+ @area_code varchar(3), 
+ @.ps varchar(5), 
+ @county varchar(30), 
+ @.mezone varchar(10), 
+ @dst varchar(1), 
+ @la.tude varchar(10), 
+ @longitude varchar(10), 
+ @type varchar(1) 
+) 
+AS 
+ 
+-- Make sure that the FIPS is in the MUD_REGIONS table. 
+IF NOT EXISTS(SELECT 1 FROM [dbo].[MUD_STAGING] WHERE FIPS = @.ps) 
+BEGIN 
+ EXEC [USMC].[InsertMudRegion] @.ps, @state 
+END 
+ 
+-- Make sure that the State\County\City is in the MUD_GEO_LOCATION table. 
+IF NOT EXISTS(SELECT 1 FROM [dbo].[MUD_GEO_LOCATION] MG WHERE MG.STATE_TEXT = @state AND MG.COUNTY_TEXT = @county AND MG.CITY_TEXT = @city) 
+BEGIN 
+ EXEC [USMC].[InsertMudGeoLoca.on] @state, @county, @city 
+END 
+ 
+INSERT INTO [dbo].[MUD_STAGING] 
+VALUES 
+ ( 
+ @city,  
+ @state,  
+ @zip,  
+ @area_code,  
+ @.ps,  
+ @county,  
+ @.mezone,  
+ @dst,  
+ @la.tude,  
+ @longitude,  
+ @type 
+ )]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

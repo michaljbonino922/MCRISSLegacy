@@ -1,0 +1,36 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateQSN_Assign]" directorySegmentName="seg_27" id="C404A4D1-4B61-D40B-0A33-E9020A6068CF">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @ID varchar(9), 
+ @ContractID int, 
+ @BonusControlNumber varchar(20), 
+ @BonusAmount numeric(9,0), 
+ @KickerControlNumber varchar(20), 
+ @LastEditBy varchar(50) 
+) 
+AS 
+ 
+DECLARE @QSN_STATUS VARCHAR(1) 
+ 
+SELECT @QSN_STATUS = [STATUS] FROM QSN WHERE QSN_ID = @ID 
+ 
+IF (@QSN_STATUS = 'A') 
+BEGIN 
+ UPDATE [MCRISS].[dbo].[QSN] SET 
+  [CONTRACT_ID] = @ContractID 
+  ,[BONUS_CONTROL_NUMBER] = @BonusControlNumber 
+  ,[BONUS_AMOUNT] = @BonusAmount 
+  ,[KICKER_CONTROL] = @KickerControlNumber 
+  ,[PROGRAM_ASSIGNMENT_DATE] = GetDate() 
+  ,[USER_LOGIN] = @LastEditBy 
+  ,[UPDATE_DATE] = GetDate() 
+ WHERE  
+  QSN_ID = @ID 
+END]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

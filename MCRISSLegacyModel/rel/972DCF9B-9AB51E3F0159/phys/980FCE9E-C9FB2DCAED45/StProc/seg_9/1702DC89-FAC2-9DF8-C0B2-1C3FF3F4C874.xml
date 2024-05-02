@@ -1,0 +1,202 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetQSNs]" directorySegmentName="seg_9" id="1702DC89-FAC2-9DF8-C0B2-1C3FF3F4C874">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @intOrgID   int = NULL, 
+ @strRUC   varchar(5) = NULL, 
+ @strMOSCode  varchar(4), 
+ @dtFromDate  date.me, 
+ @dtToDate   date.me, 
+ @strQSNNumber  char(9) = NULL, 
+ @strStatus   char(1) = NULL, 
+ @intAssignedStatus  int, 
+ @intSortBy   int = NULL, 
+ @strMSCCode  varchar(4) = NULL, 
+ @strBCN varchar(20) = NULL, 
+ @strKCN varchar(20) = NULL 
+-- @intStar.ngRow  int = 1, 
+-- @intPageSize  int = 15 
+) 
+AS 
+ 
+-- If @intOrgID is NULL, set to MCRC (900) 
+SET @intOrgID = COALESCE(@intOrgID, 900) 
+ 
+CREATE TABLE #SUBORGS (ORG_ID int NOT NULL, ORG_TYPE varchar(3), USED bit NOT NULL) 
+CREATE TABLE #IDS (ORG_ID int NOT NULL) 
+ 
+-- Seed the temp table with the input OrgID 
+INSERT INTO #SUBORGS 
+SELECT ORGANIZATION_ID, 
+ ORGANIZATION_TYPE, 
+ 0 
+FROM RECRUITING_ORGANIZATION WITH (NOLOCK) 
+WHERE ORGANIZATION_ID = @intOrgID 
+ 
+-- Con.nue processing un.l we have goten to the RSS level 
+WHILE (SELECT COUNT(1) FROM #SUBORGS WHERE USED = 0 AND ORG_TYPE = 'RSS') = 0 
+BEGIN 
+ -- Save all OrgIDs in the #SUBORGS table that we haven't goten children for yet. 
+ INSERT INTO #IDS 
+ SELECT ORG_ID 
+ FROM #SUBORGS 
+ WHERE USED = 0 
+ 
+ -- Insert new children (with Used .ag = 0) into the #SUBORGS table. 
+ INSERT INTO #SUBORGS 
+ SELECT OM.CHILD_ORGANIZATION_ID, RO.ORGANIZATION_TYPE, 0 
+ FROM ORGANIZATION_MAP OM WITH (NOLOCK) INNER JOIN #SUBORGS SO ON OM.PARENT_ORGANIZATION_ID = SO.ORG_ID AND SO.USED = 0 
+  INNER JOIN RECRUITING_ORGANIZATION RO ON OM.CHILD_ORGANIZATION_ID = RO.ORGANIZATION_ID 
+ 
+ -- Set the USED .ag to 1 for the OrgIDs that we just processed. 
+ UPDATE #SUBORGS 
+ SET USED = 1 
+ WHERE ORG_ID IN (SELECT * FROM #IDS) 
+ 
+ -- No need to save the OrgIDs that we just got children for.  They will remain in the #SUBORGS table 
+ -- and are now marked as used/processed. 
+ DELETE FROM #IDS 
+END 
+ 
+CREATE TABLE #TEMPQSNTABLE( 
+ ROWNUMBER int, 
+ ORGANIZATION varchar(45), 
+ QSN_ID char(9), 
+ RUC varchar(50), 
+ MOS varchar(82), 
+ AIR_GROUND char(1), 
+ GENDER char(1), 
+ SPLIT_INCREMENT char(1), 
+ MSC varchar(20), 
+ QSN_PIVOT_DATE date.me, 
+ RSS varchar(45), 
+ AssignedRSSName varchar(45), 
+ RssOrgID int, 
+ Assignedrssid int, 
+ POOLEE varchar(60), 
+ BCN varchar(20), 
+ KCN varchar(20), 
+ QSN_REQUIRED varchar(1) 
+ ) 
+ 
+INSERT INTO #TEMPQSNTABLE 
+SELECT  
+ ROW_NUMBER() OVER (ORDER BY 
+  CASE WHEN @intSortBy = 1 THEN QSN.QSN_ID END, 
+  CASE WHEN @intSortBy = 2 THEN RO.NAME END, 
+  CASE WHEN @intSortBy = 3 THEN MO.UNIT_NAME END, 
+  CASE WHEN @intSortBy = 4 THEN MOS.SHORT_DESCRIPTION END, 
+  CASE WHEN @intSortBy = 5 THEN MSC.DESCRIPTION END, 
+  CASE WHEN @intSortBy = 6 THEN QSN.QSN_PIVOT_DATE END DESC, 
+  QSN_ID, POOLEE 
+ ) ROWNUMBER, 
+ RO.NAME, 
+ QSN.QSN_ID, 
+ MO.UNIT_NAME + ' ' + MO.PRESENT_RUC AS RUC, 
+ MOS.MOS_CODE + ' - ' + MOS.SHORT_DESCRIPTION AS MOS, 
+ MSC.AIR_GROUND, 
+ QSN.GENDER, 
+ QSN.SPLIT_INCREMENT, 
+ MSC.DESCRIPTION,  
+ QSN.QSN_PIVOT_DATE,  
+CASE WHEN QSN.CONTRACT_ID > 0 THEN ( SELECT RTRIM(RO.NAME)  
+      FROM RECRUITING_ORGANIZATION RO INNER JOIN NWA N ON 
+       N.ORGANIZATION_OF_RECORD_ID = RO.ORGANIZATION_ID 
+       INNER JOIN CONTRACT C ON N.NWA_ID = C.NWA_ID AND  
+       C.CONTRACT_ID = QSN.CONTRACT_ID) 
+  ELSE '' 
+ END 
+ AS RSS, 
+CASE WHEN QSN.CONTRACT_ID is null  THEN ( SELECT RTRIM(RO.NAME)  
+      FROM RECRUITING_ORGANIZATION RO INNER JOIN QSN Q ON 
+       Q.AssignedRssOrgId = RO.ORGANIZATION_ID and Q.QSN_ID = QSN.QSN_ID ) 
+  ELSE '' 
+  
+ END AS AssignedRssName, 
+CASE WHEN QSN.CONTRACT_ID > 0 THEN ( SELECT RO.ORGANIZATION_ID 
+      FROM RECRUITING_ORGANIZATION RO INNER JOIN NWA N ON 
+       N.ORGANIZATION_OF_RECORD_ID = RO.ORGANIZATION_ID 
+       INNER JOIN CONTRACT C ON N.NWA_ID = C.NWA_ID AND  
+       C.CONTRACT_ID = QSN.CONTRACT_ID) 
+  ELSE '' 
+ END 
+ AS RSSOrgID, 
+CASE WHEN QSN.CONTRACT_ID is null  THEN ( SELECT RO.ORGANIZATION_ID 
+      FROM RECRUITING_ORGANIZATION RO INNER JOIN QSN Q ON 
+       Q.AssignedRssOrgId = RO.ORGANIZATION_ID and Q.QSN_ID = QSN.QSN_ID ) 
+  ELSE '' 
+  
+ END AS assignedrssid, 
+ PERS.POOLEE, 
+ BONUS_CONTROL_NUMBER, 
+ KICKER_CONTROL, 
+ QSN.QSN_REQUIRED 
+FROM MOS WITH (NOLOCK) 
+ INNER JOIN QSN ON MOS.MOS_CODE = QSN.MOS 
+ INNER JOIN MARINE_ORGANIZATION MO ON MO.PRESENT_RUC = QSN.RUC AND MO.PRESENT_MCC = QSN.MCC_CODE 
+ INNER JOIN MSC ON MSC.CODE = QSN.MSC 
+ INNER JOIN RECRUITING_ORGANIZATION RO ON RO.ORGANIZATION_ID = QSN.RECRUITING_ORGANIZATION_ID 
+ LEFT OUTER JOIN ORGANIZATION_MAP OM ON OM.CHILD_ORGANIZATION_ID = QSN.RECRUITING_ORGANIZATION_ID 
+ LEFT OUTER JOIN ( 
+  SELECT C.CONTRACT_ID, RTRIM(P.LAST_NAME) + ', ' + RTRIM(P.FIRST_NAME) + ' ' + COALESCE(RTRIM(P.LEGAL_MIDDLE_NAME), SPACE(0)) AS POOLEE 
+  FROM CONTRACT C 
+   INNER JOIN NWA N ON C.NWA_ID = N.NWA_ID  
+   INNER JOIN PERSON P ON P.PERSON_ID = N.MARINE_CANDIDATE_ID 
+ ) PERS ON PERS.CONTRACT_ID = QSN.CONTRACT_ID 
+WHERE  
+ (@strQSNNumber IS NULL OR (@strQSNNumber IS NOT NULL AND QSN.QSN_ID = @strQSNNumber)) 
+ AND (@dtFromDate IS NULL OR (@dtFromDate IS NOT NULL AND DATEDIFF(MONTH, QSN.QSN_PIVOT_DATE, @dtFromDate) <= 0)) 
+ AND (@dtToDate IS NULL OR (@dtToDate IS NOT NULL AND DATEDIFF(MONTH, QSN.QSN_PIVOT_DATE, @dtToDate) >= 0)) 
+ AND  
+ ( QSN.RECRUITING_ORGANIZATION_ID IN ( 
+  SELECT ORG_ID 
+  FROM #SUBORGS 
+  WHERE ORG_TYPE = 'RS' 
+  ) 
+   OR 
+      QSN.AssignedRssOrgId IN ( 
+  SELECT ORG_ID 
+  FROM #SUBORGS 
+  WHERE ORG_TYPE = 'RSS' 
+  ) 
+ ) 
+ AND QSN.RUC IN ( 
+  SELECT DISTINCT i_q.RUC  
+  FROM QSN i_q 
+  WHERE (@strRUC IS NULL OR (@strRUC IS NOT NULL AND i_q.RUC = @strRUC)) 
+ ) 
+ AND MOS.MOS_CODE IN ( 
+  SELECT DISTINCT i_m.MOS_CODE 
+  FROM MOS i_m 
+  WHERE (@strMOSCode IS NULL OR (@strMOSCode IS NOT NULL AND i_m.MOS_CODE = @strMOSCode)) 
+ ) 
+ AND MSC.CODE IN ( 
+  SELECT DISTINCT i_msc.[CODE] 
+  FROM MSC i_msc 
+  WHERE (@strMSCCode IS NULL OR (@strMSCCode IS NOT NULL AND i_msc.CODE = @strMSCCode)) 
+ ) 
+ AND (@strStatus IS NULL OR (@strStatus IS NOT NULL AND QSN.STATUS = @strStatus)) 
+ AND (@intAssignedStatus IS NULL  
+  OR (@intAssignedStatus = 1 AND QSN.CONTRACT_ID IS NOT NULL) 
+  OR (@intAssignedStatus = 0 AND QSN.CONTRACT_ID IS NULL) 
+ ) 
+ AND 
+ ((@strBCN IS NULL) OR (BONUS_CONTROL_NUMBER = @strBCN)) 
+ AND  
+ ((@strKCN IS NULL) OR (KICKER_CONTROL = @strKCN)) 
+  
+ORDER BY ROWNUMBER 
+  
+SELECT *, 
+ (SELECT COUNT(1) FROM #TEMPQSNTABLE WHERE GENDER = 'M') AS MALECOUNT, 
+ (SELECT COUNT(1) FROM #TEMPQSNTABLE WHERE GENDER = 'F') AS FEMALECOUNT 
+FROM #TEMPQSNTABLE 
+--WHERE ROWNUMBER BETWEEN @intStar.ngRow AND (@intStar.ngRow + @intPageSize) 
+ 
+DROP TABLE #TEMPQSNTABLE]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

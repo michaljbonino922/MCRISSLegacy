@@ -1,0 +1,86 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_12" id="3E72D434-6C67-3C7F-3EA5-DADA473D5306" schemaObject="2A6D9360-3BB2-5CEA-6E99-790D76996FDF" name="WaiverReview">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:54 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>265135BC-C518-EBD8-A5A4-6BF54F07E627</importedID>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="WaiverReviewID" id="B54033AF-3D1A-1E98-5995-8C77095883DF">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:24 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>047D77B5-E71E-E8DE-BF2B-0418A2007BCE</importedID>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="ReviewerID" id="A140B146-56F0-2D8A-9245-57C4FACA8AED">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:24 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>0B99636B-7044-1A70-9A61-0D8475204024</importedID>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="ReviewDate" id="2D6451FA-0F43-CD62-E8DB-91A315E39B9C">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:24 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>6E3386FB-D7D5-63CC-E67A-FB114EFE167D</importedID>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="WaiverReviewAc.onID" id="6307D26C-3B72-6490-0A37-29A4B5645329">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:24 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>5BB7E72B-7BB8-C924-A7D0-AA9AEAD85AA9</importedID>
+<use>0</use>
+<domain>8C77819C-1B2F-24A0-C36D-F924235A9668</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="EC43CDA9-5C41-A822-472B-5F8EC8733D35" name="pk_WaiverReview">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:24 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>06D214F5-0D96-D1CE-6090-86ED0B18FE0F</importedID>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="B54033AF-3D1A-1E98-5995-8C77095883DF"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+<tableCheckConstraints itemClass="oracle.dbtools.crest.model.design.constraint.TableLevelConstraint">
+<tableCheckConstraint name="[dbo].[WaiverReview]" directorySegmentName="seg_9" id="4B57ED5F-BE0B-19B1-4879-BB50F0EB5357">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:24 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>D5909A1A-FFFF-BF10-904B-E7C232185A41</importedID>
+<rule><![CDATA[CONSTRAINT [FK_WaiverReview_WaiverReviewAc.onID]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITH" directorySegmentName="seg_9" id="EFABA2D7-72FA-7A31-D496-0979965F9F3D">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:24 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>01E05C61-2973-9B89-C363-AED3BE4E6164</importedID>
+</tableCheckConstraint>
+</tableCheckConstraints>
+</Table>

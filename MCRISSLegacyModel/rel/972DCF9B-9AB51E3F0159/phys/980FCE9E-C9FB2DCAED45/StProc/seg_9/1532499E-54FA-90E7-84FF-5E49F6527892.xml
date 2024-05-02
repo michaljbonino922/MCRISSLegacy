@@ -1,0 +1,55 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetSMCRUnitVisitEvent]" directorySegmentName="seg_9" id="1532499E-54FA-90E7-84FF-5E49F6527892">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[--not sure about input parameters 
+       --@PointOfContactID integer, 
+       --@En.tyTypeID integer 
+AS 
+SET NOCOUNT ON 
+BEGIN 
+    
+    
+ SELECT  
+   
+ --These columns may be needed by the data contracts for insert/update 
+    oe.[FiscalYear], e.[EventID], e.[EventType], 
+                      
+     e.[EventName],  
+   
+  -- SMCRReserveUnitName is speci.c to this table 
+ --The name of the Selected Marine Corps Reserve Unit.  
+ --This is a foreign key from the SMCRReserveUnit table  
+ ---It is based Based on OST, Fiscal year and SMCR UnitName   
+ sme.[SMCRReserveUnitName], 
+  
+ -- This loca.on will be speci.c to the SMCR unit again store in the 
+ -- SMCRReserveUnitEvent table  
+ sme.[EventLoca.on], 
+  
+ sme.[NumPlannedVisits], 
+ -- this will refer to mul.ple dates 
+ sme.[EventDateID], 
+  
+ RTRIM (pc.POCLastName) + ',' + RTRIM(pc.POCFirstName) + '.' + IsNull(substring(pc.POCLegalMiddleName,1,1),'') +  
+    '.' AS POCName, 
+    [POCLastName], [POCLegalMiddleName], [POCFirstName], 
+    [TelephoneNumber], [EmailAddress] 
+       
+   FROM  
+  [MCRISS].[USMC].[SMCRUnitVisitEvent] sme 
+  inner join [MCRISS].[USMC].[Organiza.onEvent] oe ON  sme.Organiza.onEventID = oe.Organiza.onEventID  
+  inner join [MCRISS].[USMC].[Event] e ON  e.EventID = oe.EventID 
+  le. outer join [MCRISS].[USMC].[EventCoordina.on] ec ON  ec.Coordina.onEventID = oe.Coordina.onEventID 
+    le. outer join [MCRISS].[USMC].[PointOfContact] pc ON  pc.PointOfContactID = oe.PointOfContactID  
+        
+ 
+END 
+  
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

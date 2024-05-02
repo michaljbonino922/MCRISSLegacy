@@ -1,0 +1,132 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[spOPS_Show4kError]" directorySegmentName="seg_0" id="765DF7ED-3203-8DD8-78ED-60F85701BF77">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:09 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@FILTERBY varchar(4) = null, 
+ @FILTERVALUE varchar(40) = null 
+AS                 
+BEGIN               
+/*===========================================================================                    
+This stored procedure was created to support the operations sections. 
+No portion of the mcriss-rs system relies on this stored procedure. 
+ 
+i.e.  It is not essential to the functionality of mcriss-rs 
+ 
+The proc will display all pertinent data elements corresponding to an error. 
+The results set can be filterd by ssn, file, applicant status, error log id, error type, error severity, 
+and error message category 
+ 
+Parameters: 
+ 
+@FILTERBY: instructs how the stored procedure will filter the data where 
+ SSN = The SSN used for displaying error details.  
+ FILE = The name of the  file where error details are required.  
+ STAT = will filter the error displayed depending on the status provided.  
+  i.e.  A = enlisted only, B = same-day shippers, C = shipped 
+ ERID = displays data based on a specific error  
+ ERTP = displays only error of a specific type 
+ ERSV = displays only errors of a specific severity 
+ ERMS = displays only errors of a specific error message catagory 
+ 
+@FILTERVALUE is the value associated with the FILTERBY 
+ 
+ i.e. if filtering by SSN than the SSN must be supplied 
+ 
+If the FILTERVALUE is supplied and no FILTERBY than nothing will be filtered and entire 
+result-set will be returned. Same applied if no parameters are passed to stored procedures 
+=============================================================================                
+MOD Date  Who   Desc 
+=============================================================================                
+001 Sep 24, 2001 Gregory Gonzalez This stored proc was created to support OPS 
+==========================================================================*/                
+ 
+ 
+declare @SQLString as NVARCHAR(1024) 
+ 
+SET @SQLString = 'select mil.ssn,mil.file_name, el.error_log_id, el.exception_msg , el.tech_notes, 
+em.error_desc error_message_category, em.error_cd error_message_category_cd, et.error_type_desc, et.error_type_cd, es.severity_desc, es.severity_cd 
+from mirs_import_log mil, mirs_import_error mie, error_log el,error_messages em, error_type et, error_severity es 
+where mil.mirs_import_id = mie.mirs_import_id and 
+mie.error_log_id = el.error_log_id and 
+el.error_cd = em.error_cd and 
+em.error_type_cd = et.error_type_cd and 
+el.severity_cd = es.severity_cd' 
+ 
+if (@FILTERBY = 'SSN') begin 
+ if (@FILTERVALUE is null) begin 
+  raiserror ('Please Supply the SSN',16,1) 
+  return 
+ end 
+ SET @SQLString = @SQLString + ' and mil.ssn = ' + char(39) + @FILTERVALUE + char(39) 
+end 
+ 
+if (@FILTERBY = 'FILE') begin 
+ if (@FILTERVALUE is null) begin 
+  raiserror ('Please Supply the File Name',16,1) 
+  return 
+ end 
+ 
+ SET @SQLString = @SQLString + ' and mil.file_name = ' + char(39) + @FILTERVALUE + char(39) 
+ 
+end 
+ 
+ 
+if (@FILTERBY = 'STAT') begin 
+ if (@FILTERVALUE is null) begin 
+  raiserror ('Please enter an applicant status code.',16,1) 
+  return 
+ end 
+ 
+ SET @SQLString = @SQLString + ' and mil.applicant_status = ' + char(39) + @FILTERVALUE + char(39) 
+ 
+end 
+ 
+ 
+if (@FILTERBY = 'ERID') begin 
+ if (@FILTERVALUE is null) begin 
+  raiserror ('Please enter an error log id.',16,1) 
+  return 
+ end 
+ 
+ SET @SQLString = @SQLString + ' and el.error_log_id = ' + @FILTERVALUE   
+ 
+end 
+ 
+if (@FILTERBY = 'ERTP') begin 
+ if (@FILTERVALUE is null) begin 
+  raiserror ('Please enter an error type code.',16,1) 
+  return 
+ end 
+ 
+ SET @SQLString = @SQLString + ' and et.error_type_cd = ' + @FILTERVALUE   
+ 
+end 
+ 
+ 
+if (@FILTERBY = 'ERSV') begin 
+ if (@FILTERVALUE is null) begin 
+  raiserror ('Please enter a severity code.',16,1) 
+  return 
+ end 
+ 
+ SET @SQLString = @SQLString + ' and es.severity_cd = ' + @FILTERVALUE   
+end 
+ 
+if (@FILTERBY = 'ERMS') begin 
+ if (@FILTERVALUE is null) begin 
+  raiserror ('Please enter a error desc code.',16,1) 
+  return 
+ end 
+ 
+ SET @SQLString = @SQLString + ' and em.error_cd = ' + @FILTERVALUE   
+end 
+ 
+EXEC sp_executesql @SQLString 
+ 
+ 
+end]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>24B9F7BA-5DD4-EAB5-4EB1-35B911743E85</database>
+</StoredProcedureSqlServerv2k5>

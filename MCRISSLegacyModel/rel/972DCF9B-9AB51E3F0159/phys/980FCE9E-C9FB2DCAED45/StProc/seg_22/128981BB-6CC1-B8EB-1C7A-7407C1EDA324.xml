@@ -1,0 +1,226 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_mg_Address]" directorySegmentName="seg_22" id="128981BB-6CC1-B8EB-1C7A-7407C1EDA324">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[as 
+declare 
+  @user_login varchar(15), 
+  @update_user_login varchar(15), 
+  @update_date date.me, 
+  @curr_str varchar(24), 
+  @curr_city varchar(30), 
+  @curr_city_code varchar(4), 
+  @curr_cnty varchar(3), 
+  @curr_st varchar(2), 
+  @curr_zip varchar(9), 
+  @hor_str varchar(24), 
+  @hor_city varchar(30), 
+  @hor_city_code varchar(4), 
+  @hor_cnty varchar(3), 
+  @hor_st varchar(2), 
+  @hor_zip varchar(9), 
+  @ssn char(9), 
+  @person_id int, 
+  @tCity varchar(30), 
+  @tcount int 
+ 
+  set @tcount = 0 
+ 
+ 
+declare cur_arms cursor for 
+  select ssn, 
+    curr_str, 
+    curr_city_code, 
+    curr_cnty, 
+    curr_st, 
+    curr_zip, 
+    hor_str, 
+    hor_city_code, 
+    hor_cnty, 
+    hor_st, 
+    hor_zip 
+    from AO2 
+--where ssn in ('545713222', '144663690', '517020667') 
+ 
+  set @user_login = 'o_migra.on' 
+  set @update_user_login = 'o_migra.on_upd' 
+  set @update_date = getdate() 
+ 
+  open cur_arms 
+  fetch cur_arms into 
+    @ssn, 
+    @curr_str, 
+    @curr_city_code, 
+    @curr_cnty, 
+    @curr_st, 
+    @curr_zip, 
+    @hor_str, 
+    @hor_city_code, 
+    @hor_cnty, 
+    @hor_st, 
+    @hor_zip 
+ 
+while (@@FETCH_STATUS = 0) 
+begin 
+/* 
+ print '===============' 
+ print @ssn 
+ print @hor_city_code 
+ print @curr_city_code 
+ print @hor_city 
+ print @hor_cnty 
+ print @hor_st 
+*/ 
+  set @person_id = (select person_id from person 
+    where social_security_number = @ssn) 
+ 
+  /* insert current address */ 
+/* 
+  set @curr_city_code = (select top 1 city_code from geo_loca.on 
+    where city_code = @curr_city_code 
+    and county_code = @curr_cnty 
+    and state_code = @curr_st) 
+*/ 
+  /* 
+   * If no matching city_code is found, use a set of dummy values. 
+   */ 
+  /***** Dummy values ******/ 
+  if @curr_city_code is null 
+  begin 
+    set @curr_city_code = '0' 
+    set @curr_cnty = '0' 
+    set @curr_st = 'ZZ' 
+  end 
+  else 
+    /* 
+     * Update current address if exists. 
+     */ 
+ 
+  update candidate_address 
+    set street_address = @curr_str, 
+    city_code = @curr_city_code, 
+    county_code = @curr_cnty, 
+    state_code = @curr_st, 
+    zipcode = @curr_zip, 
+    user_login = @update_user_login, 
+    update_date = @update_date 
+  where marine_candidate_id = @person_id 
+  and address_type = 'C' 
+ 
+  /* 
+   * Insert current address. 
+   */ 
+ 
+  insert into candidate_address ( 
+    marine_candidate_id, 
+    address_type, 
+    street_address, 
+    city_code, 
+    county_code, 
+    state_code, 
+    zipcode, 
+    user_login, 
+    update_date) 
+  values ( 
+    @person_id, 
+    'C', 
+    @curr_str, 
+    @curr_city_code, 
+    @curr_cnty, 
+    @curr_st, 
+    @curr_zip, 
+    @user_login, 
+    @update_date) 
+ 
+  /* insert hor address */ 
+/* 
+  set @hor_city_code = (select top 1 city_code from geo_loca.on 
+    where city_text = @hor_city 
+    and county_code = @hor_cnty 
+    and state_code = @hor_st) 
+*/ 
+  if @hor_city_code is null 
+  begin 
+    set @hor_city_code = '0' 
+    set @hor_cnty = '0' 
+    set @hor_st = 'ZZ' 
+  end 
+  else 
+    /* 
+     * Update HOR address if exists. 
+     */ 
+ 
+  update candidate_address 
+    set street_address = @hor_str, 
+    city_code = @hor_city_code, 
+    county_code = @hor_cnty, 
+    state_code = @hor_st, 
+    zipcode = @hor_zip, 
+    user_login = @update_user_login, 
+    update_date = @update_date 
+  where marine_candidate_id = @person_id 
+  and address_type = 'H' 
+ 
+  /* 
+   * Insert HOR address. 
+   */ 
+ 
+  insert into candidate_address ( 
+    marine_candidate_id, 
+    address_type, 
+    street_address, 
+    city_code, 
+    county_code, 
+    state_code, 
+    zipcode, 
+    user_login, 
+    update_date) 
+  values ( 
+    @person_id, 
+    'H', 
+    @hor_str, 
+    @hor_city_code, 
+    @hor_cnty, 
+    @hor_st, 
+    @hor_zip, 
+    @user_login, 
+    @update_date) 
+ 
+/* 
+if @hor_city_code = '0' or @curr_city_code = '0' 
+ begin 
+ set @tcount = @tcount + 1 
+ 
+ print '-----------------' 
+ print @ssn 
+ print @hor_city_code 
+ print @curr_city_code 
+ print @hor_city 
+ print @hor_cnty 
+ print @hor_st 
+ end 
+*/ 
+  fetch cur_arms into 
+    @ssn, 
+    @curr_str, 
+    @curr_city_code, 
+    @curr_cnty, 
+    @curr_st, 
+    @curr_zip, 
+    @hor_str, 
+    @hor_city_code, 
+    @hor_cnty, 
+    @hor_st, 
+    @hor_zip 
+ 
+end 
+ 
+print @tcount 
+ 
+close cur_arms 
+deallocate cur_arms]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

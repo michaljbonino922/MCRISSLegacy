@@ -1,0 +1,360 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_AddNWA]" directorySegmentName="seg_13" id="9753206B-BCDD-C37B-F4EB-9172DEA339A5">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@LastName   VARCHAR(20), 
+ @FirstName   VARCHAR(20), 
+ @MiddleName   VARCHAR(20), 
+ @Su.x    VARCHAR(5), 
+ @SSN    CHAR(9), 
+ @DateOfBirth   DATETIME, 
+ @Gender    CHAR(1), 
+ @Organiza.onOfRecordID  INT, 
+ @Recrui.ngPersonID  INT, 
+ @NWADeclaredDate  DATETIME, 
+ @NWADateStartedWorking  DATETIME, 
+ @Educa.onLevel   VARCHAR(2), 
+ @SchoolEndDate   DATETIME, 
+ @Educa.onCode   CHAR(1), 
+ @HighSchoolCode   INT, 
+ @ProjectedTier   int = NULL,  
+ @CategoryCode   VARCHAR(6), 
+ @ProjectedShipMonth  INT, 
+ @ProfessedExamType  VARCHAR(1), 
+ @ExamDate   DATETIME, 
+ @ExamScore   FLOAT, 
+ @ParentalConsent  CHAR(1), 
+ @SourceCode   VARCHAR(10), 
+ @SourceCodeDual   VARCHAR(10), 
+ @Ac.vityCode   VARCHAR(2), 
+ @PPC    VARCHAR(8), 
+ @RaceCode   CHAR(1), 
+ @MEPCOMRaceCategoryCode  CHAR(1),  
+ @EthnicCode   VARCHAR(2), 
+ @MEPCOMEthnicCategoryCode CHAR(1),  
+ @MaritalStatusCode  CHAR(1), 
+ @ReligionCode   VARCHAR(2), 
+ @CountryOfOrigin  VARCHAR(3), 
+ @Ci.zenship   VARCHAR(2), 
+ @DriverLicNum   VARCHAR(20), 
+ @DriverLicState   VARCHAR(2), 
+ @DriverLicExp   DATETIME, 
+ @CurStreetAddress  VARCHAR(50), 
+ @CurStateCode   VARCHAR(2), 
+ @CurCountyCode   VARCHAR(3), 
+ @CurCityCode   VARCHAR(4), 
+ @CurZipcode   VARCHAR(9), 
+ @CurAC    VARCHAR(4), 
+ @CurTelephoneNumber  VARCHAR(10), 
+ @HorStreetAddress  VARCHAR(50), 
+ @HorStateCode   VARCHAR(2), 
+ @HorCountyCode   VARCHAR(3), 
+ @HorCityCode   VARCHAR(4), 
+ @HorZipcode   VARCHAR(9), 
+ @HorAC    VARCHAR(4), 
+ @HorTelephoneNumber  VARCHAR(10), 
+ @ProjectedProgramChoice1 VARCHAR(4), 
+ @ProjectedProgramChoice2 VARCHAR(4), 
+ @ProjectedProgramChoice3 VARCHAR(4), 
+ @NWALogNotes   VARCHAR(20), 
+ @ProcessingDate   DATETIME, 
+ @MEPSOrganiza.onID  INT, 
+ @ArrivalDate   DATETIME, 
+ @Transporta.onRequired  CHAR(1), 
+ @LodgingRequired  CHAR(1), 
+ @LastProcessedFor  CHAR(1), 
+ --- @MentalExam   int = null, 
+ @ASVABRequired    char(1), 
+ @SpecialExamRequired   char(1), 
+ @SpecialExamType   varchar(10), 
+ --- @PhysicalExam   int, 
+ @CompletePhysical   char(1), 
+ @Inspec.onPhysical   char(1), 
+ @Consulta.onPhysical   char(1), 
+ @Consulta.onType  VARCHAR(2), 
+ @Contract   CHAR(1), 
+ @Ship    CHAR(1), 
+ @OtherProcessing  CHAR(1), 
+ @ProcessingNotes  VARCHAR(250), 
+ @UserLogin   VARCHAR(15), 
+ @StatusE.ec.veDate  DATETIME, 
+ @StatusType   CHAR(1), 
+ @StatusCode   VARCHAR(10), 
+ @Disposi.onCode  VARCHAR(20), 
+ @LanguageCode   VARCHAR(2), 
+ @CompChangeFlag   CHAR(1) = NULL, 
+ @PersonID   INT OUTPUT, 
+ @NWAID    INT OUTPUT, 
+ @ScheduleID   INT OUTPUT 
+AS 
+ 
+ 
+DECLARE @DBID INT 
+DECLARE @DBNAME NVARCHAR(128) 
+ 
+DECLARE @CURRENT_DATE DATETIME 
+SELECT @CURRENT_DATE = GETDATE() 
+ 
+ 
+SET NOCOUNT ON 
+ 
+SET @DBID = DB_ID()  
+SET @DBNAME = DB_NAME() 
+ 
+--- UPDATE PERSON DATA 
+EXEC sp_UpdatePerson 
+ @PersonID    = 0, 
+ @SocialSecurityNumber = @SSN, 
+ @FirstName   = @FirstName, 
+ @LegalMiddleName  = @MiddleName, 
+ @LastName   = @LastName, 
+ @Su.xCD   = @Su.x, 
+ @UserLogin   = @UserLogin, 
+ @ID    = @PersonID OUTPUT 
+ 
+IF @@ERROR != 0  
+BEGIN 
+ RAISERROR ('An error occurred adding the NWA person record.', 16, 1, @DBID, @DBNAME) 
+ RETURN 
+END 
+ 
+--- UPDATE MARINE CANDIDATE DATA 
+EXEC sp_UpdateMarineCandidate  
+ @PersonID    = @PersonID, 
+ @MaritalStatusCode    = @MaritalStatusCode, 
+ @RaceCode     = @RaceCode, 
+ @MEPCOMRaceCategoryCode  = @MEPCOMRaceCategoryCode, 
+ @EthnicCode     = @EthnicCode, 
+ @MEPCOMEthnicCategoryCode = @MEPCOMEthnicCategoryCode, 
+ @GenderCode     = @Gender, 
+ @ReligionCode     = @ReligionCode, 
+ @Popula.onGroupCode  = NULL, 
+ @DateOfBirth     = @DateOfBirth, 
+ @Ci.zenship     = @Ci.zenship, 
+ @CountryOfOrigin    = @CountryOfOrigin, 
+ @DriverLicenseState    = @DriverLicState, 
+ @DriverLicenseNum    = @DriverLicNum, 
+ @DriverLicenseExp    = @DriverLicExp, 
+ @InterviewDate    = NULL, 
+ @UserLogin    = @UserLogin 
+ 
+IF @@ERROR != 0  
+BEGIN 
+ RAISERROR ('An error occurred adding the NWA marine candidate record.', 16, 2, @DBID, @DBNAME) 
+ RETURN 
+END 
+ 
+--- UPDATE NWA DATA 
+EXEC sp_UpdateNWA 
+ @PersonID   = @PersonID, 
+ @NWAID    = 0, 
+ @NWADeclaredDate  = @NWADeclaredDate, 
+ @NWADateStartedWorking  = @NWADateStartedWorking, 
+ @ParentalConsent   = @ParentalConsent, 
+ @ProjectedShipMonth   = @ProjectedShipMonth,  
+ @NWALogNotes    = @NWALogNotes, 
+ @ProjectProgramChoice1  = @ProjectedProgramChoice1, 
+ @ProjectProgramChoice2  = @ProjectedProgramChoice2, 
+        @ProjectProgramChoice3  = @ProjectedProgramChoice3, 
+ @Ac.vityCode    = @Ac.vityCode, 
+ @SourceCode    = @SourceCode, 
+ @SourceCodeDual   = @SourceCodeDual, 
+ @RecruiterofRecordID   = @Recrui.ngPersonID, 
+ @Organiza.onofRecordID = @Organiza.onOfRecordID, 
+ @WorkingRecruiterID   = @Recrui.ngPersonID, 
+ @CategoryCode    = @CategoryCode, 
+ @Educa.onLevel   = @Educa.onLevel, 
+ @Educa.onCode   = @Educa.onCode, 
+ @PPC     = @PPC, 
+ -- changed from @CompChangeFlag = NULL per SCR 118 
+ @CompChangeFlag   = @CompChangeFlag, 
+ @BachGradYear   = NULL, 
+ @O.cerComponentCode  = NULL, 
+ @Na.onalCallToService = NULL, 
+ --- @OCCR   = NULL, 
+ @ShipMission   = NULL, 
+ @UserLogin   = @UserLogin, 
+ @ID    = @NWAID OUTPUT 
+ 
+IF @@ERROR != 0  
+BEGIN 
+ RAISERROR ('An error occurred adding the NWA.', 16, 3, @DBID, @DBNAME) 
+ RETURN 
+END 
+ 
+--- UPDATE CURRENT ADDRESS DATA 
+EXEC sp_UpdateCandidateAddress 
+ @PersonID  = @PersonID, 
+ @AddressType  = 'C', 
+ @StreetAddress  = @CurStreetAddress, 
+ @CityCode  = @CurCityCode, 
+ @CountyCode  = @CurCountyCode, 
+ @StateCode  = @CurStateCode, 
+ @ZipCode  = @CurZipcode, 
+ @UserLogin  = @UserLogin 
+ 
+IF @@ERROR != 0  
+BEGIN 
+ RAISERROR ('An error occurred adding the NWA current address.', 16, 4, @DBID, @DBNAME) 
+ RETURN 
+END 
+ 
+--- UPDATE HOR ADDRESS DATA 
+EXEC sp_UpdateCandidateAddress 
+ @PersonID  = @PersonID, 
+ @AddressType  = 'H', 
+ @StreetAddress = @HorStreetAddress, 
+ @CityCode  = @HorCityCode, 
+ @CountyCode  = @HorCountyCode, 
+ @StateCode  = @HorStateCode, 
+ @ZipCode  = @HorZipcode, 
+ @UserLogin  = @UserLogin 
+ 
+IF @@ERROR != 0  
+BEGIN 
+ RAISERROR ('An error occurred adding the NWA home of record address.', 16, 5, @DBID, @DBNAME) 
+ RETURN 
+END 
+ 
+ 
+IF @CurTelephoneNumber IS NOT NULL 
+BEGIN 
+ --- UPDATE CURRENT TELEPHONE DATA 
+ EXEC sp_UpdateCandidateTelephone 
+  @PersonID   = @PersonID, 
+  @TelephoneType   = 'C', 
+  @AreaCode   = @CurAC, 
+  @TelephoneNumber  = @CurTelephoneNumber, 
+  @UserLogin   = @UserLogin 
+ 
+ IF @@ERROR != 0  
+ BEGIN 
+  RAISERROR ('An error occurred adding the NWA current telephone.', 16, 6, @DBID, @DBNAME) 
+  RETURN 
+ END 
+END 
+ 
+ 
+IF @HorTelephoneNumber IS NOT NULL 
+BEGIN 
+ --- UPDATE HOR TELEPHONE DATA 
+ 
+ EXEC sp_UpdateCandidateTelephone 
+  @PersonID   = @PersonID, 
+  @TelephoneType   = 'H', 
+  @AreaCode   = @HorAC, 
+  @TelephoneNumber  = @HorTelephoneNumber, 
+  @UserLogin   = @UserLogin 
+ 
+ IF @@ERROR != 0  
+ BEGIN 
+  RAISERROR ('An error occurred adding the NWA home of record telelphone.', 16, 7, @DBID, @DBNAME) 
+  RETURN 
+ END 
+END 
+ 
+--- UPDATE EDUCATION DATA 
+EXEC sp_UpdateCandidateEduca.on  
+ @PersonID    = @PersonID, 
+ @SchoolEndDate    = @SchoolEndDate, 
+ @Educa.onLevel   = @Educa.onLevel, 
+ @Educa.onCode    = @Educa.onCode, 
+ @SchoolCode    = @HighSchoolCode, 
+ @CivilianEduca.onMajorCode   = NULL, 
+ @ProjectedTier   = @ProjectedTier, 
+ @Veri.ca.on     = 'PENDING', 
+ @UserLogin    = @UserLogin 
+ 
+IF @@ERROR != 0  
+BEGIN 
+ RAISERROR ('An error occurred adding the NWA candidate educa.on.', 16, 8, @DBID, @DBNAME) 
+ RETURN 
+END 
+ 
+ 
+--- UPDATE PROFESSED EXAM DATA 
+EXEC sp_UpdateCandidateProfessedExam 
+ @PersonID   = @PersonID, 
+ @ProfessedExamType  = @ProfessedExamType, 
+ @ExamDate   = @ExamDate, 
+ @ExamEnteredDate  = @CURRENT_DATE, 
+ @ExamScore   = @ExamScore, 
+ @UserLogin   = @UserLogin 
+ 
+ 
+IF @@ERROR != 0  
+BEGIN 
+ RAISERROR ('An error occurred adding the NWA professed exam.', 16, 9, @DBID, @DBNAME) 
+ RETURN 
+END 
+ 
+ 
+--- UPDATE CANDIDATE STATUS DATA 
+EXEC sp_UpdateCandidateStatus 
+ @NWAID    = @NWAID, 
+ @StatusE.ec.veDate  = @StatusE.ec.veDate, 
+ @StatusType   = @StatusType, 
+ @StatusCode   = @StatusCode, 
+ @Disposi.onCode  = @Disposi.onCode, 
+ @UserLogin   = @UserLogin 
+ 
+IF @@ERROR != 0  
+BEGIN 
+ RAISERROR ('An error occurred adding the NWA status.', 16, 10, @DBID, @DBNAME) 
+ RETURN 
+END 
+ 
+--- UPDATE MEPS SCHEDULE DATA 
+EXEC sp_UpdateMEPSSchedule 
+ @ScheduleID    = 0, 
+ @NWAID     = @NWAID, 
+ @ProcessingDate   = @ProcessingDate, 
+ @MEPSOrganiza.onID   = @MEPSOrganiza.onID, 
+ @ArrivalDate    = @ArrivalDate, 
+ @Transporta.onRequired  = @Transporta.onRequired, 
+ @LodgingRequired   = @LodgingRequired, 
+ @LastProcessedFor   = @LastProcessedFor, 
+ --- @MentalExam   = @MentalExam, 
+ @ASVABRequired    = @ASVABRequired,  
+ @SpecialExamRequired   = @SpecialExamRequired, 
+ @SpecialExamType   = @SpecialExamType, 
+ --- @PhysicalExam   = @PhysicalExam, 
+ @CompletePhysical   = @CompletePhysical, 
+ @Inspec.onPhysical   = @Inspec.onPhysical, 
+ @Consulta.onPhysical   = @Consulta.onPhysical, 
+ @Consulta.onType   = @Consulta.onType, 
+ @Contract    = @Contract, 
+ @Ship     = @Ship, 
+ @OtherProcessing   = @OtherProcessing, 
+ @ProcessingStatus   = 'P', 
+ @ProcessingNotes   = @ProcessingNotes, 
+ @UserLogin    = @UserLogin, 
+ @ID     = @ScheduleID OUTPUT 
+ 
+ 
+IF @@ERROR != 0  
+BEGIN 
+ RAISERROR ('An error occurred adding the NWA meps schedule.', 16, 11, @DBID, @DBNAME) 
+ RETURN 
+END 
+ 
+IF @LanguageCode IS NOT NULL 
+BEGIN 
+ --- UPDATE CANDIDATE LANGUAGE CODE 
+ 
+ EXEC sp_UpdateCandidateLanguage 
+  @PersonID   = @PersonID, 
+  @LanguageCode   = @LanguageCode, 
+  @UserLogin   = @UserLogin 
+ 
+ IF @@ERROR != 0  
+ BEGIN 
+  RAISERROR ('An error occurred adding the NWA foreign language pro.ciency.', 16, 12, @DBID, @DBNAME) 
+  RETURN 
+ END 
+END]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,507 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertContract]" directorySegmentName="seg_10" id="3DB7E74D-7226-08CE-72EB-80042517451A">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @ComponentCodeID varchar(2), 
+ @DepExtension int, 
+ @DischargeDate date.me, 
+ @DischargeReasonID varchar(4), 
+ @EnlistmentDate date.me, 
+ @EntnacCompleteDate date.me, 
+ @EntnacSubmitDate date.me, 
+ @IsCatP char(1), 
+ @IsIn410Program bit, 
+ @ISTCrunches int, 
+ @ISTDate date.me, 
+ @ISTHang int, 
+ @ISTPullups int, 
+ @ISTQuali.ed varchar(1), 
+ @ISTRunTimeMinutes int, 
+ @ISTRunTimeSeconds int, 
+ @MissingDocs varchar(250), 
+ @NwaID int, 
+ @ProjectedShipDate date.me, 
+ @ProjectedTrainingOrganiza.onID int, 
+ @SpecialInterest varchar(15), 
+ @TermOfEnlistment int, 
+ @YouthProgramCode varchar(3), 
+ @LastEditBy varchar(50), 
+ @StsChgDepcy bit = NULL, 
+ @StsChgEdu bit = NULL, 
+ @StsChgPhys bit = NULL, 
+ @StsChgDrug bit = NULL, 
+ @StsChgMoral bit = NULL, 
+ @StsChgAtrRisk bit = NULL, 
+ @StsChgOther bit = NULL, 
+ @StsChgOtherDesc varchar(20) = NULL, 
+ @StsChgRemark varchar(500) = NULL, 
+ @MEPSContractDate date.me, 
+ @AmmoCanLi. int = NULL, 
+ @AmmoCanLi.Date date = NULL, 
+ @ISTPushups INT = NULL, 
+ @ISTPlankMinutes int = NULL, 
+ @ISTPlankSeconds int = NULL, 
+ @PreShipRecievedDate date.me = NULL, 
+    @PreShipReceived varchar(1) = NULL, 
+ @ISTHeight decimal(4,2) = NULL, 
+ @ISTWeight int = NULL 
+) 
+AS 
+ DECLARE @SECTOR_ID UNIQUEIDENTIFIER 
+ DECLARE @SECTOR  VARCHAR(2) 
+ DECLARE @DaysAllowedInDEP INT 
+ DECLARE @MarineCandidateID INT 
+ DECLARE @EDUCATION_VERIFICATION INT 
+ DECLARE @WAIVERS_VERIFICATION INT 
+ DECLARE @SF86_VERIFICATION INT 
+ DECLARE @MEDICAL_VERIFICATION INT 
+ DECLARE @ASVAB_VERIFICATION INT 
+ DECLARE @MEDICAL_WAIVER INT 
+ DECLARE @AFQT_SCORE INT 
+ DECLARE @GT_SCORE INT 
+ DECLARE @ASVAB_DATE DATETIME 
+ DECLARE @Educa.onCode NVARCHAR(4) 
+ DECLARE @Educa.onLevel NVARCHAR(4) 
+ DECLARE @Educa.onRowGuid UNIQUEIDENTIFIER 
+ DECLARE @Organiza.onID UNIQUEIDENTIFIER 
+ 
+ SET @EDUCATION_VERIFICATION = 0 
+ SET @WAIVERS_VERIFICATION = 0 
+ SET @SF86_VERIFICATION = 0 
+ SET @MEDICAL_VERIFICATION = 0 
+ SET @ASVAB_VERIFICATION = 0 
+ SET @MEDICAL_WAIVER = 0 
+ SET @AFQT_SCORE = 0 
+ SET @GT_SCORE = 0 
+ SET @SECTOR_ID = NULL 
+ 
+ IF(@IsIn410Program = 1) 
+  SET @DaysAllowedInDEP = 410 
+ ELSE 
+  SET @DaysAllowedInDEP = 360 
+ 
+ SELECT  @MarineCandidateID = MARINE_CANDIDATE_ID 
+   ,@Organiza.onID = RO.rowguid 
+ FROM NWA N 
+ INNER JOIN RECRUITING_ORGANIZATION RO ON N.ORGANIZATION_OF_RECORD_ID = RO.ORGANIZATION_ID 
+ WHERE NWA_ID = @NWAID 
+ 
+ IF (@EntnacSubmitDate IS NULL) 
+ BEGIN 
+  SELECT @EntnacSubmitDate = ENTNAC_SUBMIT_DATE 
+  FROM MIContract 
+  WHERE NWA_ID = @NWAID 
+ END 
+ 
+ IF (@EntnacCompleteDate IS NULL) 
+ BEGIN 
+  SELECT @EntnacCompleteDate = ENTNAC_COMPLETE_DATE 
+  FROM MIContract 
+  WHERE NWA_ID = @NWAID 
+ END 
+ 
+ IF EXISTS( SELECT MARINE_CANDIDATE_ID 
+    FROM CANDIDATE_EDUCATION 
+    WHERE MARINE_CANDIDATE_ID = @MarineCandidateID 
+     AND (VERIFICATION = 'PENDING' OR SCHOOL_END_DATE > GETDATE())) 
+ BEGIN 
+  SET @EDUCATION_VERIFICATION = 0 
+ END 
+ ELSE 
+ BEGIN 
+ 
+  SELECT  @Educa.onCode = CE.EDUCATION_CODE 
+    ,@Educa.onLevel = CE.EDUCATION_LEVEL 
+    ,@EDUCATION_VERIFICATION = 1 
+    ,@Educa.onRowGuid = CE.rowguid 
+  FROM CANDIDATE_EDUCATION CE 
+  WHERE MARINE_CANDIDATE_ID = @MarineCandidateID  
+   AND CE.SCHOOL_END_DATE = ( SELECT MAX(E.SCHOOL_END_DATE)  
+          FROM CANDIDATE_EDUCATION E 
+          WHERE E.MARINE_CANDIDATE_ID = CE.MARINE_CANDIDATE_ID) 
+   AND CE.SCHOOL_END_DATE <= GETDATE() 
+ END 
+ 
+ IF EXISTS( SELECT TOP 1 CANDIDATE_WAIVER_ID 
+    FROM CANDIDATE_WAIVER 
+    WHERE NWA_ID = @NWAID AND WAIVER_STATUS_CODE IN ('D','P')) 
+ BEGIN 
+  SET @WAIVERS_VERIFICATION = 0 
+ END 
+ ELSE 
+ BEGIN 
+   
+  SET @WAIVERS_VERIFICATION = 1 
+ 
+  IF EXISTS( SELECT TOP 1 CANDIDATE_WAIVER_ID 
+     FROM CANDIDATE_WAIVER CW 
+     INNER JOIN WAIVER W ON W.WAIVER_ID = CW.WAIVER_ID 
+     WHERE WAIVER_CATEGORY_ID = 7 AND CW.NWA_ID = @NWAID) 
+  BEGIN 
+   SET @MEDICAL_WAIVER = 1 
+  END 
+  ELSE 
+  BEGIN 
+   SET @MEDICAL_WAIVER = 0 
+  END 
+ END 
+ 
+ EXEC [dbo].[sp_MIHasAEPUpload] @MarineCandidateID, @SF86_VERIFICATION OUTPUT 
+ 
+ SELECT MARINE_CANDIDATE_ID, MEDICAL_EXAM_DATE, MEDICAL_DISPOSITION 
+ INTO #CANDIDATE_MEDICAL_EXAM 
+ FROM CANDIDATE_MEDICAL_EXAM WITH (NOLOCK) 
+ WHERE MARINE_CANDIDATE_ID = @MarineCandidateID 
+ 
+ IF EXISTS( SELECT TOP 1 MARINE_CANDIDATE_ID  
+    FROM #CANDIDATE_MEDICAL_EXAM CME 
+    WHERE CME.MEDICAL_EXAM_DATE IN ( SELECT MAX(CME2.MEDICAL_EXAM_DATE) 
+             FROM #CANDIDATE_MEDICAL_EXAM CME2 
+             WHERE CME2.MARINE_CANDIDATE_ID = @MarineCandidateID) 
+     AND CME.MARINE_CANDIDATE_ID = @MarineCandidateID 
+     AND (CME.MEDICAL_DISPOSITION = 'Q' OR (CME.MEDICAL_DISPOSITION = 'D' AND @MEDICAL_WAIVER = 1)) 
+     AND (DATEDIFF(DAY, CME.MEDICAL_EXAM_DATE, GETDATE()) <= 730) OR @ComponentCodeID IN ('11','KA'))--LESS THAN 2 YEARS 
+ BEGIN 
+  SET @MEDICAL_VERIFICATION = 1 
+ END 
+ ELSE 
+ BEGIN  
+  SET @MEDICAL_VERIFICATION = 0 
+ END 
+ 
+ DROP TABLE #CANDIDATE_MEDICAL_EXAM 
+ 
+ SELECT TOP 1  @GT_SCORE = CA.GT_SCORE 
+     ,@AFQT_SCORE = CA.AFQT_SCORE 
+     ,@ASVAB_DATE = CA.ASVAB_DATE 
+ FROM CANDIDATE_ASVAB CA 
+ WHERE CA.ASVAB_DATE IN (SELECT MAX(CA2.ASVAB_DATE) 
+       FROM CANDIDATE_ASVAB CA2 
+       WHERE CA2.MARINE_CANDIDATE_ID = @MarineCandidateID) 
+  AND CA.MARINE_CANDIDATE_ID = @MarineCandidateID 
+ 
+ IF (@AFQT_SCORE > 20  
+   AND @AFQT_SCORE IS NOT NULL  
+   AND @GT_SCORE > 79  
+   AND @GT_SCORE IS NOT NULL  
+   AND (DATEDIFF(DAY, @ASVAB_DATE, GETDATE()) <= 730 OR @ComponentCodeID IN ('11','KA'))  
+   AND @ASVAB_DATE IS NOT NULL) 
+ BEGIN 
+  SET @ASVAB_VERIFICATION = 1 
+ END 
+ ELSE 
+ BEGIN 
+  SET @ASVAB_VERIFICATION = 0 
+ END 
+ 
+ IF (@EDUCATION_VERIFICATION = 1 
+  AND @WAIVERS_VERIFICATION = 1 
+  AND @SF86_VERIFICATION = 1 
+  AND @MEDICAL_VERIFICATION = 1 
+  AND @ASVAB_VERIFICATION = 1 
+  AND @EDUCATION_VERIFICATION IS NOT NULL 
+  AND @WAIVERS_VERIFICATION IS NOT NULL 
+  AND @SF86_VERIFICATION IS NOT NULL 
+  AND @MEDICAL_VERIFICATION IS NOT NULL 
+  AND @ASVAB_VERIFICATION IS NOT NULL) 
+ BEGIN 
+ 
+  /*IF (@SECTOR_ID IS NULL) 
+  BEGIN 
+   SELECT @SECTOR_ID = ms.SectorID 
+   FROM CANDIDATE_ADDRESS ca 
+   INNER JOIN RSSOSS.USMC.MapsSectorZip msz ON msz.ZIP = LEFT(ca.ZIPCODE,5) 
+   INNER JOIN RSSOSS.USMC.MapsSector ms ON msz.SectorID = ms.SectorID  
+             AND ms.Recrui.ngOrganiza.onId = @Organiza.onID 
+             AND msz.E.ec.veDate IN ( SELECT MAX(msz2.E.ec.veDate) 
+                    FROM RSSOSS.USMC.MapsSectorZip msz2 
+ 
+                    WHERE msz.ZIP = msz2.ZIP 
+                     AND msz2.E.ec.veDate <= @EnlistmentDate) 
+   WHERE MARINE_CANDIDATE_ID = @MarineCandidateID 
+    AND ADDRESS_TYPE = 'H' 
+  END 
+  
+  IF(@SECTOR_ID IS NULL) 
+  BEGIN 
+   SELECT @SECTOR_ID = ms.SectorID 
+   FROM NWA n 
+   INNER JOIN Prospec.ng.USMC.Prospect p ON n.rowguid = p.NwaId 
+   INNER JOIN Prospec.ng.USMC.PersonAddress pa ON p.personid = pa.personid 
+   INNER JOIN RSSOSS.USMC.MapsSectorZip msz ON msz.ZIP = LEFT(pa.zipcode,5) 
+   INNER JOIN RSSOSS.USMC.MapsSector ms ON msz.SectorID = ms.SectorID  
+             AND ms.Recrui.ngOrganiza.onId = @Organiza.onID 
+             AND msz.E.ec.veDate IN ( SELECT MAX(msz2.E.ec.veDate) 
+                    FROM RSSOSS.USMC.MapsSectorZip msz2 
+                    WHERE msz.ZIP = msz2.ZIP 
+                     AND msz.E.ec.veDate <= @EnlistmentDate)                
+   WHERE n.NWA_ID = @NWAID 
+    AND PersonAddressTypeId = 2 
+  END*/ 
+ 
+  IF (@SECTOR_ID IS NULL) 
+  BEGIN 
+   SELECT TOP 1 @SECTOR_ID = ms.SectorID FROM CANDIDATE_ADDRESS ca 
+    inner join NWA nwa on ca.MARINE_CANDIDATE_ID = nwa.MARINE_CANDIDATE_ID  
+    INNER JOIN RECRUITING_PERSON rp on nwa.WORKING_RECRUITER_ID = rp.RECRUITING_PERSON_ID 
+    INNER JOIN RECRUITING_ORGANIZATION ro on nwa.ORGANIZATION_OF_RECORD_ID = ro.Organiza.on_Id 
+    INNER JOIN RSSOSS.USMC.MapsSectorZip msz ON msz.ZIP = LEFT(ca.ZIPCODE,5) 
+    inner join RSSOSS.USMC.MapsSectorRecruiter MSR on MSZ.SectorID = MSR.SectorID AND rp.rowguid = msr.recrui.ngpersonid  
+    INNER JOIN RSSOSS.USMC.MapsSector ms ON msz.SectorID = ms.SectorID AND ro.rowguid = ms.recrui.ngorganiza.onid 
+    WHERE ca.MARINE_CANDIDATE_ID = @MarineCandidateID AND ADDRESS_TYPE = 'C'and  ms.SectorType = 'E' and nwa.NWA_ID = @NWAID 
+    ORDER BY msr.LastUpdateDate desc  
+   END 
+ --Next check Recrui.ng Organiza.on's Sector based on Candidate Address 
+  IF (@SECTOR_ID IS NULL) 
+  BEGIN 
+   SELECT TOP 1 @SECTOR_ID = ms.SectorID FROM CANDIDATE_ADDRESS ca 
+    inner join NWA nwa on ca.MARINE_CANDIDATE_ID = nwa.MARINE_CANDIDATE_ID  
+    INNER JOIN RECRUITING_ORGANIZATION ro on nwa.ORGANIZATION_OF_RECORD_ID = ro.Organiza.on_Id 
+    INNER JOIN RSSOSS.USMC.MapsSectorZip msz ON msz.ZIP = LEFT(ca.ZIPCODE,5) 
+    INNER JOIN RSSOSS.USMC.MapsSector ms ON msz.SectorID = ms.SectorID AND ro.rowguid = ms.recrui.ngorganiza.onid 
+    WHERE ca.MARINE_CANDIDATE_ID = @MarineCandidateID AND ADDRESS_TYPE = 'C' AND ro.rowguid= @Organiza.onID and  ms.SectorType = 'E'  
+    ORDER BY ms.LastUpdateDate desc 
+  END 
+--Next check Recruiter's Sector based on Prospect Address 
+   IF (@SECTOR_ID IS NULL) 
+  BEGIN 
+   SELECT TOP 1 @SECTOR_ID = ms.SectorID FROM NWA nwa 
+    INNER JOIN Prospec.ng.USMC.Prospect p ON nwa.rowguid = p.NwaId 
+    INNER JOIN Prospec.ng.USMC.PersonAddress pa ON p.personid = pa.personid 
+    INNER JOIN RSSOSS.USMC.MapsSectorZip msz ON msz.ZIP = LEFT(pa.zipcode,5) 
+    inner join RSSOSS.USMC.MapsSectorRecruiter MSR on MSR.SectorID = MSZ.SectorID AND p.recrui.ngpersonid = msr.recrui.ngpersonid 
+    INNER JOIN RSSOSS.USMC.MapsSector ms ON msz.SectorID = ms.SectorID AND p.recrui.ngorganiza.onid = ms.recrui.ngorganiza.onid 
+       WHERE nwa.NWA_ID = @NWAID AND PersonAddressTypeId = 1 and  ms.SectorType = 'E' 
+    ORDER BY MSR.LastUpdateDate desc 
+  END   
+--Next check Recrui.ng Organiza.on Sector based on Prospect Address    
+ 
+   IF (@SECTOR_ID IS NULL) 
+  BEGIN 
+   SELECT TOP 1 @SECTOR_ID = ms.SectorID FROM NWA nwa 
+    INNER JOIN Prospec.ng.USMC.Prospect p ON nwa.rowguid = p.NwaId 
+    INNER JOIN Prospec.ng.USMC.PersonAddress pa ON p.personid = pa.personid 
+    INNER JOIN RSSOSS.USMC.MapsSectorZip msz ON msz.ZIP = LEFT(pa.zipcode,5) 
+    INNER JOIN RSSOSS.USMC.MapsSector ms ON msz.SectorID = ms.SectorID AND ms.Recrui.ngOrganiza.onId = @Organiza.onID 
+       WHERE nwa.NWA_ID = @NWAID AND PersonAddressTypeId = 1 and  ms.SectorType = 'E' 
+    ORDER BY ms.LastUpdateDate desc 
+  END   
+ --ECP  2236 calculate the sector value per current zip code  
+ declare @ZipCode varchar(5) 
+ select @ZipCode = pa.zipcode FROM NWA n 
+    INNER JOIN Prospec.ng.USMC.Prospect p ON n.rowguid = p.NwaId 
+    INNER JOIN Prospec.ng.USMC.PersonAddress pa ON p.personid = pa.personid 
+    WHERE n.NWA_ID = @NWAID 
+     AND PersonAddressTypeId = 1 
+ IF (@SECTOR_ID is not null) 
+ BEGIN 
+  SELECT @Sector =  MS.SectorDesignator 
+  FROM RSSOSS.USMC.MapsSector MS 
+  WHERE MS.SectorID = @SECTOR_ID                        
+ END 
+ ELSE  
+ BEGIN 
+  SET @Sector = 'OA' 
+ END 
+ 
+ 
+  
+ --- if no IST informa.on is passed from the IST parameters, then use the latest Prospec.ng PAC IST Record 
+ IF (@ISTCrunches IS NULL AND @ISTPlankMinutes IS NULL) OR  @ISTRunTimeMinutes IS NULL 
+ BEGIN 
+  -- 
+  SELECT Top 1  
+   @ISTDate   = py.TestDate, 
+   @ISTHeight   = py.Height, 
+   @ISTWeight   = py.[Weight], 
+   @ISTRunTimeMinutes = py.RunTimeMinute, 
+   @ISTRunTimeSeconds = py.RunTimeSecond, 
+   @ISTPullups   = py.Pullup, 
+   @ISTPushups   = py.Pushup,  
+   @ISTHang   = py.Hang, 
+   @ISTCrunches  = py.Crunch, 
+   @ISTPlankMinutes = py.PlankMinute, 
+   @ISTPlankSeconds = py.PlankSecond, 
+   @AmmoCanLi.        = py.AmmoCanLi., 
+   @AmmoCanLi.Date    = py.TestDate 
+  FROM  
+   MCRISS.dbo.NWA n 
+   INNER JOIN PROSPECTING.USMC.Prospect p ON n.rowguid = p.NwaId 
+   INNER JOIN PROSPECTING.USMC.ProspectPhysicalIst py ON p.ProspectID = py.ProspectID 
+  WHERE 
+   n.NWA_ID = @NwaID 
+   AND py.RunTimeMinute IS NOT NULL 
+   AND py.Crunch IS NOT NULL 
+  ORDER BY 
+   py.TestDate DESC, py.LastUpdateDate DESC 
+ 
+ END 
+ 
+  INSERT INTO [mcriss].[dbo].[CONTRACT] 
+       ([NWA_ID] 
+       ,[CONTRACT_BEGIN_DATE] 
+       ,[COMPONENT_CODE] 
+       ,[TERM_OF_ENLISTMENT] 
+       ,[PROJECTED_SHIP_DATE] 
+       ,[PROJECTED_TRAINING_ORG_ID]      
+       ,[YOUTH_PROGRAM_CODE] 
+       ,[ENTNAC_SUBMIT_DATE] 
+       ,[ENTNAC_COMPLETE_DATE] 
+       ,[SPECIAL_INTEREST] 
+       ,[DISCHARGE_DATE] 
+       ,[DISCHARGE_CODE] 
+       ,[CATEGORY_P]      
+       ,[IST_DATE] 
+       ,[IST_PULL_UPS] 
+       ,[IST_PUSH_UPS] 
+       ,[IST_HANG] 
+       ,[IST_CRUNCHES] 
+       ,[IST_MINUTES] 
+       ,[IST_RESULT] 
+       ,[IST_SECONDS] 
+       ,[IST_HEIGHT] 
+       ,[IST_WEIGHT]     
+       ,[DEP_EXTENSION] 
+       ,[USER_LOGIN] 
+       ,[UPDATE_DATE] 
+       ,[rowguid] 
+       ,[MISSING_DOCS] 
+       ,[DAYS_ALLOWED_IN_DEP] 
+       ,[StsChgDepcy] 
+       ,[StsChgEdu] 
+       ,[StsChgPhys] 
+       ,[StsChgDrug] 
+       ,[StsChgMoral] 
+       ,[StsChgAtrRisk] 
+       ,[StsChgOther] 
+       ,[StsChgOtherDesc] 
+       ,[StsChgRemark] 
+       ,[MEPS_CONTRACT_DATE] 
+       ,[SECTORID] 
+       ,[Sector] 
+       ,[AmmoCanLi.] 
+       ,[AmmoCanLi.Date] 
+       ,[IST_PLANK_MINUTES] 
+       ,[IST_PLANK_SECONDS] 
+       ,[PreShipRecievedDate] 
+       ,[PreShipReceived] 
+       ) 
+    VALUES 
+       (@NwaID 
+       ,@EnlistmentDate 
+       ,@ComponentCodeID 
+       ,@TermOfEnlistment 
+       ,@ProjectedShipDate 
+       ,@ProjectedTrainingOrganiza.onID      
+       ,@YouthProgramCode 
+       ,@EntnacSubmitDate 
+       ,@EntnacCompleteDate 
+       ,@SpecialInterest 
+       ,@DischargeDate 
+       ,@DischargeReasonID 
+       ,@IsCatP     
+       ,@ISTDate 
+       ,@ISTPullups 
+       ,@ISTPushups 
+       ,@ISTHang 
+       ,@ISTCrunches 
+       ,@ISTRunTimeMinutes 
+       ,@ISTQuali.ed 
+       ,@ISTRunTimeSeconds 
+       ,@ISTHeight 
+       ,@ISTWeight      
+       ,@DepExtension 
+       ,@LastEditBy 
+       ,GetDate() 
+       ,newid() 
+       ,@MissingDocs 
+       ,@DaysAllowedInDEP 
+       ,@StsChgDepcy 
+     ,@StsChgEdu 
+     ,@StsChgPhys 
+     ,@StsChgDrug 
+     ,@StsChgMoral 
+     ,@StsChgAtrRisk 
+     ,@StsChgOther 
+     ,@StsChgOtherDesc 
+     ,@StsChgRemark 
+     ,@MEPSContractDate 
+     ,@SECTOR_ID 
+     ,@Sector 
+     ,@AmmoCanLi. 
+     ,@AmmoCanLi.Date 
+     ,@ISTPlankMinutes 
+     ,@ISTPlankSeconds 
+     ,@PreShipRecievedDate 
+     ,@PreShipReceived 
+       ) 
+ 
+  SELECT SCOPE_IDENTITY() 
+ 
+  UPDATE NWA 
+  SET  Educa.on_Code = @Educa.onCode 
+   ,Educa.on_Level = @Educa.onLevel 
+  WHERE NWA_ID = @NWAID 
+ 
+  UPDATE MICONTRACT 
+  SET CONTRACTED_IN_MCRISS = 1 
+  WHERE NWA_ID = @NWAID 
+ 
+  IF EXISTS(SELECT NWA_ID FROM CONTRACT_ERROR WHERE NWA_ID = @NWAID) 
+  BEGIN 
+   UPDATE CONTRACT_ERROR 
+   SET  EDUCATION_VERIFICATION = @EDUCATION_VERIFICATION 
+    ,WAIVERS_VERIFICATION = @WAIVERS_VERIFICATION 
+    ,SF86_VERIFICATION = @SF86_VERIFICATION 
+    ,MEDICAL_VERIFICATION = @MEDICAL_VERIFICATION 
+    ,ASVAB_VERIFICATION = @ASVAB_VERIFICATION 
+   WHERE NWA_ID = @NWAID 
+  END 
+  ELSE 
+  BEGIN 
+   INSERT INTO CONTRACT_ERROR 
+   SELECT  @NWAID 
+     ,@EDUCATION_VERIFICATION 
+     ,@WAIVERS_VERIFICATION 
+     ,@SF86_VERIFICATION 
+     ,@MEDICAL_VERIFICATION 
+     ,@ASVAB_VERIFICATION 
+  END 
+  RETURN 1 
+ END 
+ ELSE 
+ BEGIN 
+  IF EXISTS(SELECT NWA_ID FROM CONTRACT_ERROR WHERE NWA_ID = @NWAID) 
+  BEGIN 
+   UPDATE CONTRACT_ERROR 
+   SET  EDUCATION_VERIFICATION = @EDUCATION_VERIFICATION 
+    ,WAIVERS_VERIFICATION = @WAIVERS_VERIFICATION 
+    ,SF86_VERIFICATION = @SF86_VERIFICATION 
+    ,MEDICAL_VERIFICATION = @MEDICAL_VERIFICATION 
+    ,ASVAB_VERIFICATION = @ASVAB_VERIFICATION 
+   WHERE NWA_ID = @NWAID 
+  END 
+  ELSE 
+  BEGIN 
+   INSERT INTO CONTRACT_ERROR 
+   SELECT  @NWAID 
+     ,@EDUCATION_VERIFICATION 
+     ,@WAIVERS_VERIFICATION 
+     ,@SF86_VERIFICATION 
+     ,@MEDICAL_VERIFICATION 
+     ,@ASVAB_VERIFICATION 
+  END 
+ 
+  SELECT 0 
+  RETURN 0 
+ --  THIS SHOULDN'T BE NEEDED ANYMORE -- 
+ --------------------------------------- 
+ -- DELETE FROM CANDIDATE_STATUS WHERE NWA_ID = @NWAID AND (STATUS_TYPE + STATUS_CODE + DISPOSITION_CODE = 'EBK') 
+ --------------------------------------- 
+ END]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

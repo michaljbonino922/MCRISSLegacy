@@ -1,0 +1,96 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Entity class="oracle.dbtools.crest.model.design.logical.Entity" directorySegmentName="seg_1" id="22BC5486-2FBB-9FAB-B843-8CB480614BC1" name="CANDIDATE SSA STATUS">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:55 UTC</createdTime>
+<generatorID>C0293F1B-9055-9316-3C77-F1D1E7153F98</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<adequatelyNormalized>NO</adequatelyNormalized>
+<expectedVolumes>0</expectedVolumes>
+<fwdEngineeringStrategyName>Single Table</fwdEngineeringStrategyName>
+<growthPercent>0</growthPercent>
+<growthType>Year</growthType>
+<maxVolumes>9999999</maxVolumes>
+<minVolumes>0</minVolumes>
+<normalForm>Third</normalForm>
+<attributes itemClass="oracle.dbtools.crest.model.design.logical.Attribute">
+<Attribute name="MARINE CANDIDATE ID" id="EF7C8F78-A542-2D2E-8034-D4139A1E0720">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:55 UTC</createdTime>
+<generatorID>215BB75B-5FF9-8304-8D43-B8CB776BF602</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<use>0</use>
+<domain>8C77819C-1B2F-24A0-C36D-F924235A9668</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="SSA STATUS" id="5932CD3A-5D22-442C-CE1C-F03D9DCED2CC">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:55 UTC</createdTime>
+<generatorID>DFBD5039-5061-A256-68D3-D35ACF839C0A</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>8C77819C-1B2F-24A0-C36D-F924235A9668</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="SSA DISCREPANCY" id="ABB21F7B-E675-5CD6-2953-0FEEDD2D03C3">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:55 UTC</createdTime>
+<generatorID>F313EE53-60D5-ECE5-91EC-F8DAEE3FB4DF</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>8C77819C-1B2F-24A0-C36D-F924235A9668</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="USER LOGIN" id="56FA5936-0EEB-7A35-B711-B6C8BF497FDC">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:55 UTC</createdTime>
+<generatorID>F3F7050B-67C0-AB0B-A48E-25F8C88BDC07</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<use>0</use>
+<domain>2E8EE7FC-99CE-D4AE-132C-50F4AADCC1F4</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="UPDATE DATE" id="F86540B7-2AE5-53FA-5B37-B1A02E564BD4">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:55 UTC</createdTime>
+<generatorID>2E52A384-1F11-BFEB-68DD-477351F20832</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+</attributes>
+<identifiers itemClass="oracle.dbtools.crest.model.design.logical.CandidateKey">
+<identifier id="484D6BE0-2F8F-57E6-125B-2740BD1FBDD4" name="PK CANDIDATE SSA">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:55 UTC</createdTime>
+<generatorID>BB055C3B-8DEC-F655-0448-A5D16F38F151</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<pk>true</pk>
+<usedAttributes>
+<attributeRef>EF7C8F78-A542-2D2E-8034-D4139A1E0720</attributeRef>
+</usedAttributes>
+</identifier>
+</identifiers>
+</Entity>

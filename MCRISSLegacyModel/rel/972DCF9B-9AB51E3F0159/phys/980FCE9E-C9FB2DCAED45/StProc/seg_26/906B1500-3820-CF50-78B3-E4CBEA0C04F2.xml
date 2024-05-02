@@ -1,0 +1,120 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateContract]" directorySegmentName="seg_26" id="906B1500-3820-CF50-78B3-E4CBEA0C04F2">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @ID int, 
+ @ComponentCodeID varchar(2), 
+ @DepExtension int, 
+ @DischargeDate date.me, 
+ @DischargeReasonID varchar(4), 
+ @EnlistmentDate date.me, 
+ @EntnacCompleteDate date.me, 
+ @EntnacSubmitDate date.me, 
+ @IsCatP char(1), 
+ @IsIn410Program bit, 
+ @ISTCrunches int, 
+ @ISTDate date.me, 
+ @ISTHang int, 
+ @ISTPullups int, 
+ @ISTQuali.ed varchar(1), 
+ @ISTRunTimeMinutes int, 
+ @ISTRunTimeSeconds int, 
+ @MissingDocs varchar(250), 
+ @NwaID int, 
+ @ProjectedTrainingOrganiza.onID int, 
+ @SpecialInterest varchar(15), 
+ @TermOfEnlistment int, 
+ @YouthProgramCode varchar(3), 
+ @LastEditBy varchar(50), 
+ @StsChgDepcy bit = NULL, 
+ @StsChgEdu bit = NULL, 
+ @StsChgPhys bit = NULL, 
+ @StsChgDrug bit = NULL, 
+ @StsChgMoral bit = NULL, 
+ @StsChgAtrRisk bit = NULL, 
+ @StsChgOther bit = NULL, 
+ @StsChgOtherDesc varchar(20) = NULL, 
+ @StsChgRemark varchar(500) = NULL, 
+ @MepsContractDate date.me = NULL, 
+ @AmmoCanLi. int = NULL, 
+ @AmmoCanLi.Date date = NULL, 
+ @ISTPushups INT = NULL, 
+ @PreShipRecievedDate date.me, 
+ @PreShipReceived varchar(1), 
+ @ISTPlankMinutes int = NULL, 
+ @ISTPlankSeconds int = NULL, 
+ @ISTHeight decimal(4,2) = NULL, 
+ @ISTWeight int = NULL 
+  
+) 
+AS 
+DECLARE @DaysAllowedInDEP int 
+IF(@IsIn410Program = 1) 
+ SET @DaysAllowedInDEP = 410 
+ELSE 
+ SET @DaysAllowedInDEP = 360 
+ 
+UPDATE [mcriss].[dbo].[CONTRACT] 
+   SET [NWA_ID] = @NwaID 
+      ,[CONTRACT_BEGIN_DATE] = @EnlistmentDate 
+      ,[COMPONENT_CODE] = @ComponentCodeID 
+      ,[TERM_OF_ENLISTMENT] = @TermOfEnlistment 
+      --,[PROJECTED_SHIP_DATE] = @ProjectedShipDate 
+      ,[PROJECTED_TRAINING_ORG_ID] = @ProjectedTrainingOrganiza.onID 
+      --,[PAY_GRADE_CODE] = <PAY_GRADE_CODE, varchar(3),> 
+      --,[INDUCTION_STATUS_CODE] = <INDUCTION_STATUS_CODE, char(1),> 
+      --,[SOURCE_OF_ENTRY_CODE] = <SOURCE_OF_ENTRY_CODE, varchar(4),> 
+      ,[YOUTH_PROGRAM_CODE] = @YouthProgramCode 
+      ,[ENTNAC_SUBMIT_DATE] = @EntnacSubmitDate 
+      ,[ENTNAC_COMPLETE_DATE] = @EntnacCompleteDate 
+      ,[SPECIAL_INTEREST] = @SpecialInterest 
+      ,[DISCHARGE_DATE] = @DischargeDate 
+      ,[DISCHARGE_CODE] = @DischargeReasonID 
+      ,[CATEGORY_P] = @IsCatP 
+      --,[DUTY_PREFERENCE1] = <DUTY_PREFERENCE1, varchar(10),> 
+      --,[DUTY_PREFERENCE2] = <DUTY_PREFERENCE2, varchar(10),> 
+      --,[DUTY_PREFERENCE3] = <DUTY_PREFERENCE3, varchar(10),> 
+      --,[MCROC] = <MCROC, varchar(20),> 
+      ,[IST_DATE] = @ISTDate 
+      ,[IST_PULL_UPS] = @ISTPullups 
+   ,[IST_PUSH_UPS] = @ISTPushups 
+      ,[IST_HANG] = @ISTHang 
+      ,[IST_CRUNCHES] = @ISTCrunches 
+      ,[IST_MINUTES] = @ISTRunTimeMinutes 
+      ,[IST_RESULT] = @ISTQuali.ed 
+      ,[IST_SECONDS] = @ISTRunTimeSeconds 
+      ,AmmoCanLi. = @AmmoCanLi. 
+      ,AmmoCanLi.Date = @AmmoCanLi.Date 
+   ,[IST_PLANK_MINUTES] = @ISTPlankMinutes 
+      ,[IST_PLANK_SECONDS] = @ISTPlankSeconds 
+      --,[ORDERS_ADDRESS_TYPE] = <ORDERS_ADDRESS_TYPE, char(1),> 
+      --,[IST_HEIGHT] = <IST_HEIGHT, int,> 
+      --,[IST_WEIGHT] = <IST_WEIGHT, int,> 
+      --,[CONTRACT_GPA] = <CONTRACT_GPA, .oat,> 
+      ,[DEP_EXTENSION] = @DepExtension 
+      ,[USER_LOGIN] = @LastEditBy 
+      ,[UPDATE_DATE] = GetDate() 
+      ,[MISSING_DOCS] = @MissingDocs 
+      ,[DAYS_ALLOWED_IN_DEP] = @DaysAllowedInDEP 
+      ,StsChgDepcy =  @StsChgDepcy 
+   ,StsChgEdu =  @StsChgEdu 
+   ,StsChgPhys =  @StsChgPhys 
+   ,StsChgDrug =  @StsChgDrug 
+   ,StsChgMoral =  @StsChgMoral 
+   ,StsChgAtrRisk =  @StsChgAtrRisk 
+   ,StsChgOther =  @StsChgOther 
+   ,StsChgOtherDesc =  @StsChgOtherDesc 
+   ,StsChgRemark =  @StsChgRemark 
+   ,[MEPS_CONTRACT_DATE] = @MepsContractDate 
+   ,[PreShipRecievedDate] = @PreShipRecievedDate 
+   ,PreShipReceived = @PreShipReceived 
+   ,[IST_HEIGHT] = @ISTHeight 
+   ,[IST_WEIGHT] = @ISTWeight 
+WHERE  
+[CONTRACT_ID] = @ID]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

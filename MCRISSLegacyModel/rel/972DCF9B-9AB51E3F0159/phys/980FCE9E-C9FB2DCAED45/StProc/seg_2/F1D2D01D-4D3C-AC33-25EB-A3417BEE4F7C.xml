@@ -1,0 +1,19 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetAllRace]" directorySegmentName="seg_2" id="F1D2D01D-4D3C-AC33-25EB-A3417BEE4F7C">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[AS 
+ 
+SELECT 
+ -1 AS ID, 
+ RACE_CODE AS Code, 
+ RACE_DESC AS Descrip.on 
+FROM [dbo].[RACE] WITH (NOLOCK) 
+WHERE 
+ RACE_CODE != 'F' 
+ORDER BY [RACE_DESC]]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

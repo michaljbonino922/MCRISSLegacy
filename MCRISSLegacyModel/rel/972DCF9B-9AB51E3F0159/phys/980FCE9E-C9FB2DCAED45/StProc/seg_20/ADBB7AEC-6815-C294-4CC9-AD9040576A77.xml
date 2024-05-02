@@ -1,0 +1,26 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetS.pendHistory]" directorySegmentName="seg_20" id="ADBB7AEC-6815-C294-4CC9-AD9040576A77">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@PersonId int 
+AS 
+ 
+ 
+ 
+SELECT  PAYMENT_SEQ_NUM, PAYMENT_AMOUNT, CONVERT(CHAR(11),FROM_DATE, 112) AS FROM_DATE,  
+ CONVERT(CHAR(11), TO_DATE, 112) AS TO_DATE, 
+ CASE  WHEN PAYMENT_TYPE IN (99391,99393) THEN 'MCFAP' 
+  WHEN PAYMENT_TYPE IN (99392,99394) THEN 'MCTAP' 
+ END 
+ AS PAYMENT_TYPE, 
+ CUMULATIVE_AMOUNT, 
+ PAYMENT_DATE 
+ 
+FROM STIPEND 
+WHERE MARINE_CANDIDATE_ID = @PersonId 
+ORDER BY FROM_DATE]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

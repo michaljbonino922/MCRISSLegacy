@@ -1,0 +1,25 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetProcessingStatuses]" directorySegmentName="seg_20" id="1AEA2069-3F2A-450A-41A9-D644C75FE9D9">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[AS 
+ 
+SELECT  
+ PROC_STATUS_ID = CASE  
+    WHEN PROCESSING_STATUS_CODE = 'P' THEN 1 
+    WHEN PROCESSING_STATUS_CODE = 'M' THEN 2 
+    WHEN PROCESSING_STATUS_CODE = 'S' THEN 3 
+    WHEN PROCESSING_STATUS_CODE = 'N' THEN 4 
+    END, 
+ PROCESSING_STATUS_CODE, PROCESSING_STATUS_DESCRIPTION 
+FROM 
+ PROCESSING_STATUS 
+WHERE 
+ PROCESSING_STATUS_CODE <> 'L' 
+ORDER BY 
+ PROC_STATUS_ID]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

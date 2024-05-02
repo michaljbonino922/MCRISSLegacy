@@ -1,0 +1,42 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetAllOrgsHRDRS]" directorySegmentName="seg_2" id="6CD964E5-4BFC-B377-19A8-BCE5B500B71B">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[AS 
+ 
+SELECT  
+ [ORGANIZATION_ID] 
+      ,[STATE_CODE] 
+      ,[ORGANIZATION_TYPE] 
+      ,[MEPS_ORGANIZATION_ID] 
+      ,[NAME] 
+      ,[SHORT_NAME] 
+      ,[MCC_CODE] 
+      ,[TO_PROD_RECRUITERS] 
+      ,[STREET] 
+      ,[STREET2] 
+      ,[CITY] 
+      ,[ZIP_CODE] 
+      ,[ISOPEN] 
+      ,[DELETED] 
+      ,[IS_ASSIGNED] 
+      ,[USER_LOGIN] 
+      ,[UPDATE_DATE] 
+      ,[EFFECTIVE_DATE] 
+      ,[rowguid] 
+      ,[poc_email] 
+      ,[OrgUnitId] 
+      ,[DateClosed] 
+      ,[CITY_CODE] 
+      ,[COUNTY_CODE] 
+      ,[STATE_GEO_CODE] 
+FROM  
+ [MCRISS].[dbo].[RECRUITING_ORGANIZATION] 
+WHERE  
+ [ORGANIZATION_TYPE] IN ('H', 'R', 'D', 'RS') 
+ AND ([DateClosed] IS NULL OR [DateClosed] >= '2015-10-01')]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

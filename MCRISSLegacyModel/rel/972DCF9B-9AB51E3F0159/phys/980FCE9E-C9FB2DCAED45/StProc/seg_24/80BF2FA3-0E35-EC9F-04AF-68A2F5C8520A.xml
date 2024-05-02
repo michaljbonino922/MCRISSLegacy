@@ -1,0 +1,34 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateCandidateSSA]" directorySegmentName="seg_24" id="80BF2FA3-0E35-EC9F-04AF-68A2F5C8520A">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@Marine_Candidate  int, 
+ @ARN    varchar(9), 
+ @SSA_Status   int, 
+ @SSA_Discrepancy  int, 
+ @UserLogin    varchar(15) 
+AS 
+ 
+IF EXISTS (SELECT 1 FROM CANDIDATE_SSA_STATUS WHERE MARINE_CANDIDATE_ID = @Marine_Candidate) 
+BEGIN 
+ UPDATE  
+  CANDIDATE_SSA_STATUS  
+ SET   
+  SSA_STATUS   = @SSA_Status,  
+  SSA_DISCREPANCY   = @SSA_Discrepancy,  
+  USER_LOGIN    = @UserLogin, 
+  UPDATE_DATE    = GETDATE() 
+ WHERE  
+  MARINE_CANDIDATE_ID   = @Marine_Candidate  
+END 
+ELSE 
+BEGIN 
+ --- INSERT THE Alien Registra.on Data 
+ INSERT INTO CANDIDATE_SSA_STATUS (MARINE_CANDIDATE_ID, SSA_STATUS, SSA_DISCREPANCY, USER_LOGIN, UPDATE_DATE) 
+ VALUES (@Marine_Candidate, @SSA_Status, @SSA_Discrepancy, @UserLogin, GETDATE()) 
+END]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

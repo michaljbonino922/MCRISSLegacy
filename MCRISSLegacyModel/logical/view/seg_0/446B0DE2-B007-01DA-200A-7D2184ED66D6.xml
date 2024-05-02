@@ -1,0 +1,101 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<EntityView class="oracle.dbtools.crest.model.design.logical.EntityView" directorySegmentName="seg_0" id="446B0DE2-B007-01DA-200A-7D2184ED66D6" name="dbo.aesoa.SystemMessageView">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>202549F9-34E5-05B0-AF2A-88AA269135F1</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT S.[ID] 
+      ,T.[TypeName] as [MessageType] 
+      ,S.[SysDate]  
+      ,S.[SysMethod] 
+ ,S.[SystemMessage] as [SystemMessage] 
+FROM [MCRISS].[dbo].[aesoa.SystemMessage] S JOIN [dbo].[aesoa.Type] T ON S.[TypeID] = T.[ID]]]></userDefinedSQL>
+<validSQL>false</validSQL>
+<viewType>EntityView</viewType>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="[ID]" id="E1039561-CAF2-E12A-75AD-221FF939C424">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>FC5BCEAE-8E4E-19E3-1287-0E24636B5722</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>[ID]</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[ID]</expression>
+<reference>false</reference>
+<viewID>446B0DE2-B007-01DA-200A-7D2184ED66D6</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="[TypeName]" id="50476EC5-1D79-75B8-F9EB-97469C3CB409">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>7B8CE21F-51CC-84C3-107C-82A8CB001F0E</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>MessageType</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[TypeName]</expression>
+<reference>false</reference>
+<viewID>446B0DE2-B007-01DA-200A-7D2184ED66D6</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="[SysDate]" id="77A038E9-1B85-5494-EE8F-C2ACB9E01D48">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>90A58C8E-9641-CEE7-7BC5-F18235FC5142</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>[SysDate]</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[SysDate]</expression>
+<reference>false</reference>
+<viewID>446B0DE2-B007-01DA-200A-7D2184ED66D6</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="[SysMethod]" id="D26D0FDD-9EF3-6047-139B-D59B6A1BC609">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>5A0FFC78-3732-23F8-0C08-1527C7788B2B</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>[SysMethod]</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[SysMethod]</expression>
+<reference>false</reference>
+<viewID>446B0DE2-B007-01DA-200A-7D2184ED66D6</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="[SystemMessage]" id="27BCC03A-87AC-E5FF-F2FF-6D48386A1122">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>E09282B6-6CCF-CE91-EE0E-9E08983800BF</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>SystemMessage</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[SystemMessage]</expression>
+<reference>false</reference>
+<viewID>446B0DE2-B007-01DA-200A-7D2184ED66D6</viewID>
+</viewElement>
+</viewElements>
+</EntityView>

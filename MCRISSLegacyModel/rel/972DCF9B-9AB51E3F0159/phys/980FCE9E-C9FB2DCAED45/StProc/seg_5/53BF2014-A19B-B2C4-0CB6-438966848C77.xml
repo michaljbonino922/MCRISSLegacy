@@ -1,0 +1,37 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetEduca.onCer..ca.onsByEdLvl]" directorySegmentName="seg_5" id="53BF2014-A19B-B2C4-0CB6-438966848C77">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@Educa.onLevel varchar(2) 
+AS 
+ 
+SELECT  
+ -1 AS ID, 
+ EC.EDUCATION_CODE AS Code,  
+ CASE WHEN EC.EDUCATION_CODE = 'H' AND ELC.EDUCATION_LEVEL_CODE = '11' THEN 
+  'HOME SCHOOL SENIOR'  
+ ELSE  
+  EC.EDUCATION_CODE_DESCRIPTION 
+ END +  
+ CASE  
+  WHEN EC.EDUCATION_CODE IN ('Y', 'Z') THEN 
+   ' TIER ' + CONVERT(VARCHAR(1), (SELECT [dbo].[EDUCATION_TIER].EDUCATION_TIER FROM [dbo].[EDUCATION_TIER] WHERE [dbo].[EDUCATION_TIER].EDUCATION_CODE = EC.EDUCATION_CODE)) 
+  ELSE 
+   SPACE(0) 
+ END AS Descrip.on, 
+ EC.TYPE AS Usage 
+FROM  
+ [dbo].[EDUCATION_CODE] EC WITH (NOLOCK) INNER JOIN  
+  [dbo].[EDUCATION_LEVEL_CODE] ELC ON 
+  (EC.EDUCATION_CODE = ELC.EDUCATION_CODE AND  
+  ELC.EDUCATION_LEVEL_CODE = @Educa.onLevel AND  
+  --- .lter out "MIGRATION_PROBLEM" 
+  --- AND EC.EDUCATION_CODE <> 'X' 
+  EC.EDUCATION_CODE_DESCRIPTION != 'MIGRATION PROBLEMS') 
+ORDER BY  
+ EC.EDUCATION_CODE_DESCRIPTION]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

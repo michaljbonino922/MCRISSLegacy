@@ -1,0 +1,53 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateMedicalStatusWaiversAccession]" directorySegmentName="seg_26" id="7163150A-BBEF-65DB-C198-CAFCE9AFC473">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@MedicalStatusWaiverID int, 
+ @NWAID int, 
+ @SubmissionTypeID int = NULL, 
+ @DateSubmitedBUMED date.me = NULL, 
+ @DateReceivedMCRC date.me = NULL, 
+ @BUMEDDisposi.onID int = NULL, 
+ @MCRCDisposi.onID int = NULL, 
+ @DateToDistrict date.me = NULL, 
+ @UserLogin varchar(30) 
+AS 
+ 
+--THIS CODE CAN BE REMOVED WHEN CODE IS DEPLOYED IN MARCH 2014 
+--REPACE @tempDate IN UPDATE AND INSERT STATMENTS WITH getdate 
+DECLARE @tempDate date.me 
+SET @tempDate = getdate() 
+ 
+IF @tempDate < '03/19/2014 12:00:00 AM' 
+BEGIN 
+ SET @tempDate = '03/19/2014 12:00:00 AM' 
+END 
+ 
+IF EXISTS (SELECT 1 FROM [MEDICAL_STATUS_WAIVERS_ACCESSION] WHERE [MEDICAL_STATUS_WAIVER_ID] = @MedicalStatusWaiverID) 
+BEGIN 
+ UPDATE 
+  [MEDICAL_STATUS_WAIVERS_ACCESSION] 
+ SET 
+  [SUBMISSION_TYPE_ID] = @SubmissionTypeID, 
+  [DATE_SUBMITTED_BUMED] = @DateSubmitedBUMED, 
+  [DATE_RECEIVED_MCRC] = @DateReceivedMCRC, 
+  [BUMED_DISPOSITION_ID] = @BUMEDDisposi.onID, 
+  [MCRC_DISPOSITION_ID] = @MCRCDisposi.onID, 
+  [DATE_TO_DISTRICT] = @DateToDistrict, 
+  [USER_LOGIN] = @UserLogin, 
+  [UPDATE_DATE] = @tempDate 
+ WHERE 
+  [MEDICAL_STATUS_WAIVER_ID] = @MedicalStatusWaiverID   
+END 
+ELSE 
+BEGIN 
+ INSERT INTO 
+  [MEDICAL_STATUS_WAIVERS_ACCESSION] ([NWA_ID], [SUBMISSION_TYPE_ID], [DATE_SUBMITTED_BUMED], [DATE_RECEIVED_MCRC], [BUMED_DISPOSITION_ID], [MCRC_DISPOSITION_ID], [DATE_TO_DISTRICT], [USER_LOGIN], [UPDATE_DATE]) 
+ VALUES 
+  (@NWAID, @SubmissionTypeID, @DateSubmitedBUMED, @DateReceivedMCRC, @BUMEDDisposi.onID, @MCRCDisposi.onID, @DateToDistrict, @UserLogin, @tempDate) 
+END]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

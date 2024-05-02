@@ -1,0 +1,77 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="SignatureVault" directorySegmentName="seg_1" id="191AA48C-AC05-1017-5915-1A75B673561B">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<schemaObject>454547C7-2829-9C8F-6E0C-35E4CFDC8E47</schemaObject>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="XmlLocator" id="2E0B942B-0A8B-DFCE-6BDF-2FBF44699E40">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:08 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="VaultContentTypeID" id="3E20F625-54C7-88AB-B516-069992716E58">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:08 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="VaultedDate" id="5F2B1D8A-991E-7559-7344-0566FE7FF90D">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:08 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="ID" id="8D8CD5CB-D269-BDBC-7E28-0C41749FD69D">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:08 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="LocatorKey" id="A6115550-48F1-45CE-9573-3831E4240436">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:08 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="DataHash" id="C085DDF6-002E-08CE-68D0-75636A87C830">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:08 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="SignatureID" id="CA532C17-9C4A-E097-4F0F-14ACA896E388">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:08 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="XmlData" id="EEECAD4A-DE4F-8BAF-BD45-5F984AD0CD60">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:08 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+</columnProxies>
+<indexProxies>
+<IndexProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.IndexProxySqlServerv2k12" name="IX_VaultContent_LocatorKey" id="3D30B7FA-E668-B524-DA66-61DA6A8C4871">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:08 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<fillFactor>100</fillFactor>
+<recomputeStatistics>ON</recomputeStatistics>
+</IndexProxy>
+</indexProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="SignatureVault_FK0" id="98E83C71-7303-DF9E-9544-D50532C646FD">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="SignatureVault_PK" id="7D8CCBB3-9E65-CB50-8CE5-02CB6DB121FA">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:08 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<clustered>true</clustered>
+<fillFactor>100</fillFactor>
+<partitioningColumn>EFC1C3A0-E2D3-374A-ACA3-B322F3BEB012</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+</TableProxySqlServerv2k5>

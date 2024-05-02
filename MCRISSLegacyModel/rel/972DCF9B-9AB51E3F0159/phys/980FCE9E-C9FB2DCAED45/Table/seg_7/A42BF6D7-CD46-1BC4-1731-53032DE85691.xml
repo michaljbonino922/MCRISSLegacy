@@ -1,0 +1,58 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="DriversLicense" directorySegmentName="seg_7" id="A42BF6D7-CD46-1BC4-1731-53032DE85691">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<schemaObject>B106B664-0C0B-E788-08ED-5CF8E449BE22</schemaObject>
+<database>2D7ED536-DF8E-3523-7DC3-4228EBAF5F66</database>
+<schema>569A41D8-8F40-0619-141C-F4C9436AAF46</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="PersonId" id="0D407514-C585-5CA4-E797-D4D53BED6027">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:58 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="Country" id="17EF8EDE-B29E-1A3D-E0A8-90657D610173">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:58 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="State" id="4290685A-2B4B-F788-10C5-D09A634C9DBE">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:58 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="Valid" id="59B66B9B-526F-0B21-C12E-2BACCF8376D4">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:58 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="LicenseNumber" id="E1418422-1DC9-27BC-ADB7-04D30F4533CF">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:58 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="Expira.onDate" id="E4842D02-583A-7891-7FA9-688E05AF9815">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:58 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+</columnProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="FK_DriversLicense_Applicant" id="EA1B8936-D43A-BAEA-E7A8-E13AA8BA32F9">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:03 UTC</createdTime>
+<ownerDesignName>create MCRISS_ERROR script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="PK_DriversLicense" id="E893B924-1F38-541C-9524-973299366FC6">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:58 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<clustered>true</clustered>
+<fillFactor>90</fillFactor>
+<partitioningColumn>7EC75946-B917-1719-7B01-1204B97591B6</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+</TableProxySqlServerv2k5>

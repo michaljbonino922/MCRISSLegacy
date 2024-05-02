@@ -1,0 +1,18 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetWorkingFileMetaData]" directorySegmentName="seg_28" id="3A6E461E-56B8-F053-55D5-DE0E2B890572">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:58:46 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @PersonId uniqueiden..er 
+) 
+AS 
+ 
+SELECT  
+ [FormId], [FriendlyName], [Extension], [FileSize]  
+FROM [USMC].[Form]  
+WHERE [PersonId] = @PersonId AND [IsDeleted] = 0]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>DC23F770-7DD9-7021-9572-6AE599ACA3AE</database>
+</StoredProcedureSqlServerv2k5>

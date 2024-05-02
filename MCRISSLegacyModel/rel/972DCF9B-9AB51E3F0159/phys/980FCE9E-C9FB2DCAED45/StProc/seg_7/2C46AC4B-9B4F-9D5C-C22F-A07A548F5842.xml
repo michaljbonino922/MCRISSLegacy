@@ -1,0 +1,28 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetNumSchoolCommissionsBySchoolRowGuid]" directorySegmentName="seg_7" id="2C46AC4B-9B4F-9D5C-C22F-A07A548F5842">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@SchoolCode uniqueiden..er, 
+    @FiscalYear int    
+AS 
+SET NOCOUNT ON 
+BEGIN 
+ 
+ Select COUNT(*) NumCommissions from OFFICER_CONTRACT OFC 
+    inner join NWA N ON N.NWA_ID = OFC.NWA_ID 
+    inner join [CANDIDATE_STATUS] CS ON CS.NWA_ID = N.NWA_ID 
+    inner join CANDIDATE_EDUCATION CE ON N.MARINE_CANDIDATE_ID = CE.MARINE_CANDIDATE_ID  AND CE.EDUCATIONTYPE = 1 
+    inner join HIGH_SCHOOL HS ON HS.SCHOOL_CODE = CE.SCHOOL_CODE  
+    inner join OCS O ON O.NWA_ID = N.NWA_ID 
+    inner join OCS_CLASS OC ON OC.CLASS_ID = O.OCS_CLASS_ID  
+   where DISCHARGE_CODE is null AND  hs.rowguid = @SchoolCode AND OC.FISCAL_YEAR = @FiscalYear 
+   AND CS.STATUS_CODE = 'D' AND CS.DISPOSITION_CODE = 'C'   
+END 
+  
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

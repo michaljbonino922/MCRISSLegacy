@@ -1,0 +1,58 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[M8412_Get_Person_Recruit_PME_DTFmt]" directorySegmentName="seg_12" id="DFCF1FBA-BDDD-B459-3FC4-F129D3CF76E0">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@PersonID INT =0 
+AS 
+ 
+ 
+IF (not EXISTS (SELECT 1 FROM M8412_Recruit_PME WHERE Person_ID=@PersonID)) 
+ insert into M8412_Recruit_PME(Person_ID) values(@PersonID) 
+ 
+SELECT  
+Person_ID 
+, le.(convert(varchar,  DT_Rctr_Sch,102),4) + substring(convert(varchar,  DT_Rctr_Sch,102),6,2) + right(convert(varchar,  DT_Rctr_Sch,102),2)  DT_Rctr_Sch 
+, le.(convert(varchar,  DT_CRC,102),4) + substring(convert(varchar,  DT_CRC,102),6,2) + right(convert(varchar,  DT_CRC,102),2)  DT_CRC 
+, le.(convert(varchar,  DT_ACRC,102),4) + substring(convert(varchar,  DT_ACRC,102),6,2) + right(convert(varchar,  DT_ACRC,102),2)  DT_ACRC 
+, le.(convert(varchar,  DT_SNCOIC_Crs,102),4) + substring(convert(varchar,  DT_SNCOIC_Crs,102),6,2) + right(convert(varchar,  DT_SNCOIC_Crs,102),2)  DT_SNCOIC_Crs 
+, le.(convert(varchar,  DT_OPS_Crs,102),4) + substring(convert(varchar,  DT_OPS_Crs,102),6,2) + right(convert(varchar,  DT_OPS_Crs,102),2)  DT_OPS_Crs 
+, le.(convert(varchar,  DT_MEPS_Crs,102),4) + substring(convert(varchar,  DT_MEPS_Crs,102),6,2) + right(convert(varchar,  DT_MEPS_Crs,102),2)  DT_MEPS_Crs 
+, le.(convert(varchar,  DT_RIC,102),4) + substring(convert(varchar,  DT_RIC,102),6,2) + right(convert(varchar,  DT_RIC,102),2)  DT_RIC 
+, le.(convert(varchar,  DT_CTC,102),4) + substring(convert(varchar,  DT_CTC,102),6,2) + right(convert(varchar,  DT_CTC,102),2)  DT_CTC 
+, le.(convert(varchar,  DT_RMC,102),4) + substring(convert(varchar,  DT_RMC,102),6,2) + right(convert(varchar,  DT_RMC,102),2)  DT_RMC 
+, le.(convert(varchar,  DT_FSIC,102),4) + substring(convert(varchar,  DT_FSIC,102),6,2) + right(convert(varchar,  DT_FSIC,102),2)  DT_FSIC 
+, le.(convert(varchar,  DT_CDC,102),4) + substring(convert(varchar,  DT_CDC,102),6,2) + right(convert(varchar,  DT_CDC,102),2)  DT_CDC 
+, le.(convert(varchar,  DT_PSS_MOD_APP,102),4) + substring(convert(varchar,  DT_PSS_MOD_APP,102),6,2) + right(convert(varchar,  DT_PSS_MOD_APP,102),2)  DT_PSS_MOD_APP 
+, le.(convert(varchar,  DT_T3_PSS_MOD_APP,102),4) + substring(convert(varchar,  DT_T3_PSS_MOD_APP,102),6,2) + right(convert(varchar,  DT_T3_PSS_MOD_APP,102),2)  DT_T3_PSS_MOD_APP 
+, le.(convert(varchar,  DT_T3_PSS_Core,102),4) + substring(convert(varchar,  DT_T3_PSS_Core,102),6,2) + right(convert(varchar,  DT_T3_PSS_Core,102),2)  DT_T3_PSS_Core 
+, le.(convert(varchar,  DT_PSC,102),4) + substring(convert(varchar,  DT_PSC,102),6,2) + right(convert(varchar,  DT_PSC,102),2)  DT_PSC 
+, le.(convert(varchar,  DT_T3_PSC,102),4) + substring(convert(varchar,  DT_T3_PSC,102),6,2) + right(convert(varchar,  DT_T3_PSC,102),2)  DT_T3_PSC 
+, le.(convert(varchar,  DT_Coaching_Rein,102),4) + substring(convert(varchar,  DT_Coaching_Rein,102),6,2) + right(convert(varchar,  DT_Coaching_Rein,102),2)  DT_Coaching_Rein 
+, le.(convert(varchar,  DT_T3_Coach_Rein,102),4) + substring(convert(varchar,  DT_T3_Coach_Rein,102),6,2) + right(convert(varchar,  DT_T3_Coach_Rein,102),2)  DT_T3_Coach_Rein 
+, le.(convert(varchar,  DT_IMS,102),4) + substring(convert(varchar,  DT_IMS,102),6,2) + right(convert(varchar,  DT_IMS,102),2)  DT_IMS 
+, le.(convert(varchar,  DT_T3_IMS,102),4) + substring(convert(varchar,  DT_T3_IMS,102),6,2) + right(convert(varchar,  DT_T3_IMS,102),2)  DT_T3_IMS 
+, le.(convert(varchar,  DT_TFTE,102),4) + substring(convert(varchar,  DT_TFTE,102),6,2) + right(convert(varchar,  DT_TFTE,102),2)  DT_TFTE 
+, le.(convert(varchar,  DT_T3_TFTE,102),4) + substring(convert(varchar,  DT_T3_TFTE,102),6,2) + right(convert(varchar,  DT_T3_TFTE,102),2)  DT_T3_TFTE 
+, le.(convert(varchar,  DT_CLRE,102),4) + substring(convert(varchar,  DT_CLRE,102),6,2) + right(convert(varchar,  DT_CLRE,102),2)  DT_CLRE 
+, le.(convert(varchar,  DT_T3_CLRE_Review,102),4) + substring(convert(varchar,  DT_T3_CLRE_Review,102),6,2) + right(convert(varchar,  DT_T3_CLRE_Review,102),2)  DT_T3_CLRE_Review 
+, le.(convert(varchar,  DT_PADM,102),4) + substring(convert(varchar,  DT_PADM,102),6,2) + right(convert(varchar,  DT_PADM,102),2)  DT_PADM 
+, le.(convert(varchar,  DT_T3_PADM,102),4) + substring(convert(varchar,  DT_T3_PADM,102),6,2) + right(convert(varchar,  DT_T3_PADM,102),2)  DT_T3_PADM 
+, le.(convert(varchar,  DT_LFR,102),4) + substring(convert(varchar,  DT_LFR,102),6,2) + right(convert(varchar,  DT_LFR,102),2)  DT_LFR 
+, le.(convert(varchar,  DT_T3_LFR,102),4) + substring(convert(varchar,  DT_T3_LFR,102),6,2) + right(convert(varchar,  DT_T3_LFR,102),2)  DT_T3_LFR 
+, le.(convert(varchar,  DT_SBC,102),4) + substring(convert(varchar,  DT_SBC,102),6,2) + right(convert(varchar,  DT_SBC,102),2)  DT_SBC 
+, le.(convert(varchar,  DT_T3_SBC,102),4) + substring(convert(varchar,  DT_T3_SBC,102),6,2) + right(convert(varchar,  DT_T3_SBC,102),2)  DT_T3_SBC 
+, le.(convert(varchar,  DT_T3_Master_Trainer,102),4) + substring(convert(varchar,  DT_T3_Master_Trainer,102),6,2) + right(convert(varchar,  DT_T3_Master_Trainer,102),2)  DT_T3_Master_Trainer 
+, le.(convert(varchar,  DT_TFCE,102),4) + substring(convert(varchar,  DT_TFCE,102),6,2) + right(convert(varchar,  DT_TFCE,102),2)  DT_TFCE 
+, le.(convert(varchar,  DT_T3_TFCE,102),4) + substring(convert(varchar,  DT_T3_TFCE,102),6,2) + right(convert(varchar,  DT_T3_TFCE,102),2)  DT_T3_TFCE 
+, le.(convert(varchar,  DT_Career_Crs_Res,102),4) + substring(convert(varchar,  DT_Career_Crs_Res,102),6,2) + right(convert(varchar,  DT_Career_Crs_Res,102),2)  DT_Career_Crs_Res 
+, le.(convert(varchar,  DT_Career_Crs_NonRes,102),4) + substring(convert(varchar,  DT_Career_Crs_NonRes,102),6,2) + right(convert(varchar,  DT_Career_Crs_NonRes,102),2)  DT_Career_Crs_NonRes 
+, le.(convert(varchar,  DT_Advance_Crs_Res,102),4) + substring(convert(varchar,  DT_Advance_Crs_Res,102),6,2) + right(convert(varchar,  DT_Advance_Crs_Res,102),2)  DT_Advance_Crs_Res 
+, le.(convert(varchar,  DT_Advance_Crs_NonRes,102),4) + substring(convert(varchar,  DT_Advance_Crs_NonRes,102),6,2) + right(convert(varchar,  DT_Advance_Crs_NonRes,102),2)  DT_Advance_Crs_NonRes 
+, le.(convert(varchar,  DT_First_Sgt_MSgt,102),4) + substring(convert(varchar,  DT_First_Sgt_MSgt,102),6,2) + right(convert(varchar,  DT_First_Sgt_MSgt,102),2)  DT_First_Sgt_MSgt 
+FROM M8412_Recruit_PME 
+ WHERE Person_ID=@PersonID]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

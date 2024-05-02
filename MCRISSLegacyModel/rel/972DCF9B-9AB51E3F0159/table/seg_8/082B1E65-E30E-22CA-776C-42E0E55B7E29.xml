@@ -1,0 +1,121 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_8" id="082B1E65-E30E-22CA-776C-42E0E55B7E29" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="MapsRouteAddress">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:54 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>E772964B-7A10-A617-44BC-97930006C00F</importedID>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="ID" id="F2AB1FF8-869D-66B1-99A6-58B7E736598B">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:01 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>598672D2-8ADB-0391-B830-F370169B8700</importedID>
+<use>0</use>
+<domain>5B1C7CF5-EF3B-C5B8-1E76-224B54D9B1CB</domain>
+<usesDefaultValue>true</usesDefaultValue>
+<defaultValue>(newid())</defaultValue>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="RouteId" id="4F60E44D-5192-34AC-BE31-1DE9858C88FF">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:01 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>B651E97F-EA28-9DE8-D2EF-07A4554081C2</importedID>
+<use>0</use>
+<domain>5B1C7CF5-EF3B-C5B8-1E76-224B54D9B1CB</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="D4D71B9A-5EC8-8A43-F3A3-68BCF5821E25" referredColumn="B710435D-BC27-2D4C-F6C5-1FE89051BB97"/>
+</associations>
+</Column>
+<Column name="AddressId" id="94634B11-4189-E768-7FEC-A5BAF1C68A1F">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:01 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>3AC93356-FD47-C974-5B20-ECE4A91CDF3E</importedID>
+<use>0</use>
+<domain>5B1C7CF5-EF3B-C5B8-1E76-224B54D9B1CB</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="F4884F3E-9E61-FB89-71B7-BD29D6E5B344" referredColumn="2A239EFA-F7C4-F128-C5A5-844D93634B9B"/>
+</associations>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="9C267459-3237-0D90-A724-A15AF60A0D6C" name="PK_MapsRouteAddress">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:01 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>D6E8F358-D023-0311-5A72-483AFC96A559</importedID>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="F2AB1FF8-869D-66B1-99A6-58B7E736598B"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="F7822869-4405-3AC7-E91D-423B4BC0C843" name="FK_MapsRouteAddress_MapsAddress">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="94634B11-4189-E768-7FEC-A5BAF1C68A1F"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="2BC90143-7486-2663-ECDD-EC379EEFECAC" name="FK_MapsRouteAddress_MapsMapRoute">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="4F60E44D-5192-34AC-BE31-1DE9858C88FF"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+<tableCheckConstraints itemClass="oracle.dbtools.crest.model.design.constraint.TableLevelConstraint">
+<tableCheckConstraint name="[USMC].[MapsRouteAddress]" directorySegmentName="seg_4" id="DE6893E8-3566-462E-CC13-D1439C6C1F99">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:01 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>346CCA6B-9BA9-0325-94DA-BC385FE9B859</importedID>
+<rule><![CDATA[CONSTRAINT [FK_MapsRouteAddress_MapsAddress]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="[USMC].[MapsRouteAddress]v1" directorySegmentName="seg_4" id="969122BB-543C-516A-F974-0E93198A6BD0">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:01 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>59933211-C8C6-BF1A-0F78-979844744754</importedID>
+<rule><![CDATA[CONSTRAINT [FK_MapsRouteAddress_MapsMapRoute]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITH" directorySegmentName="seg_4" id="C86EE034-39B8-881A-971A-D864C3CE58EC">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:01 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>A2840F6A-2C46-9B41-6A8F-274EEA452508</importedID>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITHv1" directorySegmentName="seg_4" id="C6BC979B-2D04-426F-E9E5-7DD849594ECA">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:01 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>821C0FC9-FB9B-B57E-FD9E-486CA2A7AFDF</importedID>
+</tableCheckConstraint>
+</tableCheckConstraints>
+</Table>

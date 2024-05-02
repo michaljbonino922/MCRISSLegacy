@@ -1,0 +1,51 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_0" id="96F93486-020D-F547-5447-597044B1288D" schemaObject="2A6D9360-3BB2-5CEA-6E99-790D76996FDF" name="Insert_Update_Candidate">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>951C8B5C-5006-A57D-5CC8-503E87FEDBCB</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT     P.PERSON_ID, WU.DOB AS BirthDate, WU.[Ci.zenship (US born = CA]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="PERSON_ID" id="FDBD48A4-C1D1-08A9-729A-E4F64B9A5088">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>PERSON_ID</alias>
+<dataType>UNKNOWN</dataType>
+<expression>PERSON_ID</expression>
+<reference>false</reference>
+<viewID>96F93486-020D-F547-5447-597044B1288D</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="DOB" id="54ABE86C-D72E-17FD-CA4A-E602844EC719">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>BirthDate</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>BirthDate</headerAlias>
+<expression>DOB</expression>
+<reference>false</reference>
+<viewID>96F93486-020D-F547-5447-597044B1288D</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="zenship (US born =" id="FB052CDA-90DC-8A0A-81D4-A4C6AFB30DCB">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>CA</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>CA</headerAlias>
+<expression>zenship (US born =</expression>
+<reference>false</reference>
+<viewID>96F93486-020D-F547-5447-597044B1288D</viewID>
+</viewElement>
+</viewElements>
+</TableView>

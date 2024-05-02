@@ -1,0 +1,26 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[MudTransac.on_Rollback]" directorySegmentName="seg_13" id="FA25F83C-34ED-269B-A2F3-C0A6A5E3F2C4">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @Transac.onID varchar(100) = 'DEFAULT' 
+) 
+AS 
+ 
+DECLARE @sql varchar(2000) 
+SET @sql = ' 
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(''[USMC].[MUD_FILE_BACKUP_' + @Transac.onID + ']'') AND type = ''U'')  
+BEGIN 
+DROP TABLE [dbo].[MUD_FILE]; 
+SELECT * INTO [dbo].[MUD_FILE] FROM [USMC].[MUD_FILE_BACKUP_' + @Transac.onID + ']; 
+DROP TABLE [USMC].[MUD_FILE_BACKUP_' + @Transac.onID + ']; 
+END' 
+ 
+EXEC (@sql); 
+ 
+TRUNCATE TABLE [dbo].[MUD_STAGING]]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

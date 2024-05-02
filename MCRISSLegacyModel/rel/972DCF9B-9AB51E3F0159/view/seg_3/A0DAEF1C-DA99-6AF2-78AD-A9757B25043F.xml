@@ -1,0 +1,39 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_3" id="A0DAEF1C-DA99-6AF2-78AD-A9757B25043F" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="_dta_mv_286">
+<sourceDDLFile>create Prospecting script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>853592B6-B681-D7D1-610E-90BBD928EFF9</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  [USMC].[Prospect].[ProspectId] as _col_1,  count_big(*) as _col_2 FROM  [USMC].[Person],  [USMC].[Prospect],  [USMC].[ProspectDisposi.on]   WHERE  [USMC].[Prospect].[ProspectDisposi.onId] > 1  AND  [USMC].[Prospect].[ProspectDisposi.onId] = [USMC].[ProspectDisposi.on].[ProspectDisposi.onId]  AND  [USMC].[ProspectDisposi.on].[ProspectDisposi.onId] > 1  AND  [USMC].[Person].[PersonId] = [USMC].[Prospect].[PersonId]  GROUP BY  [USMC].[Prospect].[ProspectId]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[ProspectId]" id="FC9FE99B-8424-1694-4F89-28F1434ADC1B">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_1</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_1</headerAlias>
+<expression>[ProspectId]</expression>
+<reference>false</reference>
+<viewID>A0DAEF1C-DA99-6AF2-78AD-A9757B25043F</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="count_big(*)" id="DB48CBBC-1EEB-0DB9-18AA-0BCA52095778">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_2</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_2</headerAlias>
+<expression>count_big(*)</expression>
+<reference>false</reference>
+<viewID>A0DAEF1C-DA99-6AF2-78AD-A9757B25043F</viewID>
+</viewElement>
+</viewElements>
+</TableView>

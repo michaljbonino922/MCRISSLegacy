@@ -1,0 +1,425 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SaveLead]" directorySegmentName="seg_11" id="F3EF0834-4D52-4024-B858-77BCE7053669">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:37 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @UserID uniqueiden..er, 
+  
+ @LeadID uniqueiden..er, 
+ @RecruitID uniqueiden..er, 
+ @DateStartedWorking date.me, 
+ @PayGradeID int, 
+ @DOR date.me, 
+ @PrimaryMOSID int, 
+ @AddtlMOSID1 int, 
+ @AddtlMOSID2 int, 
+ @PresentRUCID int, 
+ @DateRECC date.me, 
+ @DateEndAc.veService date.me, 
+ @MCC varchar(20), 
+ @ReserveRUCID int, 
+ @MaritalStatusID int, 
+ @NumberDependents int, 
+ @CompositeScore int, 
+ @DrawCaseCode varchar(15), 
+ @ConductAvgService .oat, 
+ @Pro.ciencyAvgService .oat, 
+ @ReEnlistmentCode varchar(15), 
+ @DateCRCRCer..ca.on date.me, 
+ @SatYears int, 
+ @DateEnteredArmedForces date.me, 
+ @DatePayEntryBase date.me, 
+ @DateArmedForcesAc.veDutyBase date.me, 
+ @DateHIVScreen date.me, 
+ @DateMostCurrentPHA date.me, 
+ @DateMostCurrentPhysical date.me, 
+ @Separa.onCode varchar(4), 
+ @DateProjectedJoin date.me, 
+ @NWARequestTypeID int, 
+ @MarkedUnworkable_UserID uniqueiden..er, 
+ @MarkedUnworkable_Date date.me, 
+ @Veri.edUnworkable_UserID uniqueiden..er, 
+ @Veri.edUnworkable_Date date.me, 
+ @NWARequested_UserID uniqueiden..er, 
+ @NWARequested_Date date.me, 
+ @NWAApproved_UserID uniqueiden..er, 
+ @NWAApproved_Date date.me, 
+ @AssignedRecruiterID uniqueiden..er, 
+ @DateAssigned date.me, 
+ @PrimaryPhone varchar(20), 
+ @SecondaryPhone varchar(20), 
+ @Ter.aryPhone varchar(20), 
+ @NOK1 varchar(20), 
+ @NOK2 varchar(20), 
+ @Street1 varchar(50), 
+ @Street2 varchar(50), 
+ @CityID varchar(4), 
+ @StateID varchar(2), 
+ @CountyID varchar(3), 
+ @ZipCode varchar(9), 
+ @CountryID varchar(2), 
+ @AtachedPSRSSID int, 
+ @Gender varchar(1), 
+ @ComponentCode varchar(2), 
+ @ReserveComponentCode varchar(2), 
+ @ErroneousJoin bit, 
+ @ErroneousJoinDate date.me = null 
+) 
+AS 
+ 
+BEGIN 
+ DECLARE @OldAssignedRecruiterID uniqueiden..er 
+ DECLARE @OldPrimaryPhone varchar(20) 
+ DECLARE @OldSecondaryPhone varchar(20) 
+ DECLARE @OldTer.aryPhone varchar(20) 
+ DECLARE @OldNOK1Phone varchar(20) 
+ DECLARE @OldNOK2Phone varchar(20) 
+ DECLARE @OldStreet1 varchar(50) 
+ DECLARE @OldStreet2 varchar(50) 
+ DECLARE @OldCityID varchar(4) 
+ DECLARE @OldStateID varchar(2) 
+ DECLARE @OldCountyID varchar(3) 
+ DECLARE @OldZipCode varchar(9) 
+ DECLARE @OldCountryID varchar(2) 
+ 
+ DECLARE @NewLeadHistoryID uniqueiden..er 
+  
+ BEGIN TRANSACTION 
+  
+ IF EXISTS(SELECT LeadID FROM [dbo].[Lead] WHERE [LeadID] = @LeadID) 
+ BEGIN 
+  SELECT @OldAssignedRecruiterID = AssignedRecruiterID 
+  FROM Lead 
+  WHERE [LeadID] = @LeadID 
+   
+  SELECT @OldPrimaryPhone = PrimaryPhone, @OldSecondaryPhone = SecondaryPhone, @OldTer.aryPhone = Ter.aryPhone, 
+   @OldNOK1Phone = NOK1, @OldNOK2Phone = NOK2 
+  FROM LeadPhones 
+  WHERE [LeadID] = @LeadID 
+   
+  SELECT @OldStreet1 = Street1, @OldStreet2 = Street2, @OldCityID = CityID, @OldStateID = StateID, 
+   @OldCountyID = CountyID, @OldZipCode = ZipCode, @OldCountryID = CountryID 
+  FROM Address 
+  WHERE [LeadID] = @LeadID 
+ 
+  UPDATE 
+   [dbo].[Lead] 
+  SET  
+   [RecruitID] = @RecruitID, 
+   [DateStartedWorking] = @DateStartedWorking, 
+   [PayGradeID] = @PayGradeID, 
+   [DOR] = @DOR, 
+   [PrimaryMOSID] = @PrimaryMOSID, 
+   [AddtlMOSID1] = @AddtlMOSID1, 
+   [AddtlMOSID2] = @AddtlMOSID2, 
+   [PresentRUCID] = @PresentRUCID, 
+   [DateRECC] = @DateRECC, 
+   [DateEndAc.veService] = @DateEndAc.veService, 
+   [MCC] = @MCC, 
+   [ReserveRUCID] = @ReserveRUCID, 
+   [MaritalStatusID] = @MaritalStatusID, 
+   [NumberDependents] = @NumberDependents, 
+   [CompositeScore] = @CompositeScore, 
+   [DrawCaseCode] = @DrawCaseCode, 
+   [ConductAvgService] = @ConductAvgService, 
+   [Pro.ciencyAvgService] = @Pro.ciencyAvgService, 
+   [ReEnlistmentCode] = @ReEnlistmentCode, 
+   [DateCRCRCer..ca.on] = @DateCRCRCer..ca.on, 
+   [SatYears] = @SatYears, 
+   [DateEnteredArmedForces] = @DateEnteredArmedForces, 
+   [DatePayEntryBase] = @DatePayEntryBase, 
+   [DateArmedForcesAc.veDutyBase] = @DateArmedForcesAc.veDutyBase, 
+   [DateHIVScreen] = @DateHIVScreen, 
+   [DateMostCurrentPHA] = @DateMostCurrentPHA, 
+   [DateMostCurrentPhysical] = @DateMostCurrentPhysical, 
+   [Separa.onCode] = @Separa.onCode, 
+   [DateProjectedJoin] = @DateProjectedJoin, 
+   [NWARequestTypeID] = @NWARequestTypeID, 
+   [MarkedUnworkable_UserID] = @MarkedUnworkable_UserID, 
+   [MarkedUnworkable_Date] = @MarkedUnworkable_Date, 
+   [Veri.edUnworkable_UserID] = @Veri.edUnworkable_UserID, 
+   [Veri.edUnworkable_Date] = @Veri.edUnworkable_Date, 
+   [NWARequested_UserID] = @NWARequested_UserID, 
+   [NWARequested_Date] = @NWARequested_Date, 
+   [NWAApproved_UserID] = @NWAApproved_UserID, 
+   [NWAApproved_Date] = @NWAApproved_Date, 
+   [AssignedRecruiterID] = @AssignedRecruiterID, 
+   [DateAssigned] = @DateAssigned, 
+   [AtachedPSRSSID] = @AtachedPSRSSID, 
+   [Gender] = @Gender, 
+   [ComponentCode] = @ComponentCode, 
+   [ReserveComponentCode] = @ReserveComponentCode, 
+   [ErroneousJoin] = @ErroneousJoin, 
+   [ErroneousJoinDate] = @ErroneousJoinDate, 
+   [LastChangedByPSR] = GETDATE() 
+  WHERE  
+   [LeadID] = @LeadID 
+    
+  UPDATE 
+   [dbo].[LeadPhones] 
+  SET  
+   [PrimaryPhone] = @PrimaryPhone, 
+   [SecondaryPhone] = @SecondaryPhone, 
+   [Ter.aryPhone] = @Ter.aryPhone, 
+   [NOK1] = @NOK1, 
+   [NOK2] = @NOK2 
+  WHERE  
+   [LeadID] = @LeadID 
+    
+  UPDATE 
+   [dbo].[Address] 
+  SET 
+   [Street1] = @Street1, 
+   [Street2] = @Street2, 
+   [CityID] = @CityID, 
+   [StateID] = @StateID, 
+   [CountyID] = @CountyID, 
+   [ZipCode] = @ZipCode, 
+   [CountryID] = @CountryID 
+  WHERE 
+   [LeadID] = @LeadID 
+ 
+    
+  --INSERT History if any changes (use NULLIF pairs to determine dis.nct nullable values) 
+  --Syntax of each compare is: NULLIF(OldValue, NewValue) IS NOT NULL OR NULLIF(NewValue, OldValue) IS NOT NULL 
+  --This is because T-SQL doesn't have a compare for nullable values: htp://sqlblog.com/blogs/hugo_kornelis/archive/2007/09/30/what-if-null-if-null-is-null-null-null-is-null.aspx 
+ 
+  IF  (NULLIF(@OldAssignedRecruiterID,@AssignedRecruiterID) IS NOT NULL OR NULLIF(@AssignedRecruiterID,@OldAssignedRecruiterID) IS NOT NULL) OR 
+   (NULLIF(@OldPrimaryPhone,@PrimaryPhone) IS NOT NULL OR NULLIF(@PrimaryPhone,@OldPrimaryPhone) IS NOT NULL) OR  
+   (NULLIF(@OldSecondaryPhone,@SecondaryPhone) IS NOT NULL OR NULLIF(@SecondaryPhone,@OldSecondaryPhone) IS NOT NULL) OR  
+   (NULLIF(@OldTer.aryPhone,@Ter.aryPhone) IS NOT NULL OR NULLIF(@Ter.aryPhone,@OldTer.aryPhone) IS NOT NULL) OR  
+   (NULLIF(@OldNOK1Phone,@NOK1) IS NOT NULL OR NULLIF(@NOK1,@OldNOK1Phone) IS NOT NULL) OR  
+   (NULLIF(@OldNOK2Phone,@NOK2) IS NOT NULL OR NULLIF(@NOK2,@OldNOK2Phone) IS NOT NULL) 
+    
+  BEGIN 
+   SELECT @NewLeadHistoryID = newid() 
+   INSERT INTO LeadHistory(LeadHistoryID, UserID, ChangeDate, LeadID) 
+   VALUES(@NewLeadHistoryID, @UserID, GetDate(), @LeadID) 
+   
+   IF (NULLIF(@OldAssignedRecruiterID,@AssignedRecruiterID) IS NOT NULL OR NULLIF(@AssignedRecruiterID,@OldAssignedRecruiterID) IS NOT NULL) 
+    INSERT INTO LeadHistoryLineItem(LeadHistoryLineItemID, ChangedField, OldValue, NewValue, LeadHistoryID) 
+    VALUES(NEWID(), 'AssignedRecruiterID', @OldAssignedRecruiterID, @AssignedRecruiterID, @NewLeadHistoryID ) 
+     
+   IF (NULLIF(@OldPrimaryPhone,@PrimaryPhone) IS NOT NULL OR NULLIF(@PrimaryPhone,@OldPrimaryPhone) IS NOT NULL) 
+    INSERT INTO LeadHistoryLineItem(LeadHistoryLineItemID, ChangedField, OldValue, NewValue, LeadHistoryID) 
+    VALUES(NEWID(), 'PrimaryPhone', @OldPrimaryPhone, @PrimaryPhone, @NewLeadHistoryID ) 
+ 
+   IF (NULLIF(@OldSecondaryPhone,@SecondaryPhone) IS NOT NULL OR NULLIF(@SecondaryPhone,@OldSecondaryPhone) IS NOT NULL) 
+    INSERT INTO LeadHistoryLineItem(LeadHistoryLineItemID, ChangedField, OldValue, NewValue, LeadHistoryID) 
+    VALUES(NEWID(), 'SecondaryPhone', @OldSecondaryPhone, @SecondaryPhone, @NewLeadHistoryID ) 
+ 
+   IF (NULLIF(@OldTer.aryPhone,@Ter.aryPhone) IS NOT NULL OR NULLIF(@Ter.aryPhone,@OldTer.aryPhone) IS NOT NULL) 
+    INSERT INTO LeadHistoryLineItem(LeadHistoryLineItemID, ChangedField, OldValue, NewValue, LeadHistoryID) 
+    VALUES(NEWID(), 'Ter.aryPhone', @OldTer.aryPhone, @Ter.aryPhone, @NewLeadHistoryID ) 
+ 
+   IF (NULLIF(@OldNOK1Phone,@NOK1) IS NOT NULL OR NULLIF(@NOK1,@OldNOK1Phone) IS NOT NULL) 
+    INSERT INTO LeadHistoryLineItem(LeadHistoryLineItemID, ChangedField, OldValue, NewValue, LeadHistoryID) 
+    VALUES(NEWID(), 'NOK1', @OldNOK1Phone, @NOK1, @NewLeadHistoryID ) 
+ 
+   IF (NULLIF(@OldNOK2Phone,@NOK2) IS NOT NULL OR NULLIF(@NOK2,@OldNOK2Phone) IS NOT NULL) 
+    INSERT INTO LeadHistoryLineItem(LeadHistoryLineItemID, ChangedField, OldValue, NewValue, LeadHistoryID) 
+    VALUES(NEWID(), 'NOK2', @OldNOK2Phone, @NOK2, @NewLeadHistoryID ) 
+  END 
+ 
+  IF (NULLIF(@OldStreet1,@Street1) IS NOT NULL OR NULLIF(@Street1,@OldStreet1) IS NOT NULL) OR 
+   (NULLIF(@OldStreet2,@Street2) IS NOT NULL OR NULLIF(@Street2,@OldStreet2) IS NOT NULL) OR 
+   (NULLIF(@OldCityID,@CityID) IS NOT NULL OR NULLIF(@CityID,@OldCityID) IS NOT NULL) OR 
+   (NULLIF(@OldStateID,@StateID) IS NOT NULL OR NULLIF(@StateID,@OldStateID) IS NOT NULL) OR 
+   (NULLIF(@OldCountyID,@CountyID) IS NOT NULL OR NULLIF(@CountyID,@OldCountyID) IS NOT NULL) OR 
+   (NULLIF(@OldZipCode,@ZipCode) IS NOT NULL OR NULLIF(@ZipCode,@OldZipCode) IS NOT NULL) OR 
+   (NULLIF(@OldCountryID,@CountryID) IS NOT NULL OR NULLIF(@CountryID,@OldCountryID) IS NOT NULL) 
+    
+  BEGIN 
+   
+   INSERT INTO AddressHistory(AddressHistoryID, LeadID, Street1, Street2, CityID, StateID, 
+    CountyID, ZipCode, CountryID, ChangeDate, UserID) 
+   VALUES(NEWID(), @LeadID, @OldStreet1, @OldStreet2, @OldCityID, @OldStateID, 
+    @OldCountyID, @OldZipCode, @OldCountryID, GETDATE(), @UserID) 
+ 
+  END 
+ 
+ END 
+ ELSE 
+ BEGIN 
+  INSERT INTO [dbo].[Lead]  
+  ( 
+   [LeadID], 
+   [RecruitID], 
+   [DateStartedWorking], 
+   [PayGradeID], 
+   [DOR], 
+   [PrimaryMOSID], 
+   [AddtlMOSID1], 
+   [AddtlMOSID2], 
+   [PresentRUCID], 
+   [DateRECC], 
+   [DateEndAc.veService], 
+   [MCC], 
+   [ReserveRUCID], 
+   [MaritalStatusID], 
+   [NumberDependents], 
+   [CompositeScore], 
+   [DrawCaseCode], 
+   [ConductAvgService], 
+   [Pro.ciencyAvgService], 
+   [ReEnlistmentCode], 
+   [DateCRCRCer..ca.on], 
+   [SatYears], 
+   [DateEnteredArmedForces], 
+   [DatePayEntryBase], 
+   [DateArmedForcesAc.veDutyBase], 
+   [DateHIVScreen], 
+   [DateMostCurrentPHA], 
+   [DateMostCurrentPhysical], 
+   [Separa.onCode], 
+   [DateProjectedJoin], 
+   [NWARequestTypeID], 
+   [MarkedUnworkable_UserID], 
+   [MarkedUnworkable_Date], 
+   [Veri.edUnworkable_UserID], 
+   [Veri.edUnworkable_Date], 
+   [NWARequested_UserID], 
+   [NWARequested_Date], 
+   [NWAApproved_UserID], 
+   [NWAApproved_Date], 
+   [AssignedRecruiterID], 
+   [DateAssigned], 
+   [AtachedPSRSSID], 
+   [Gender], 
+   [ComponentCode], 
+   [ReserveComponentCode], 
+   [ErroneousJoin], 
+   [ErroneousJoinDate], 
+   [LastChangedByPSR] 
+  ) 
+  VALUES  
+  ( 
+   @LeadID, 
+   @RecruitID, 
+   @DateStartedWorking, 
+   @PayGradeID, 
+   @DOR, 
+   @PrimaryMOSID, 
+   @AddtlMOSID1, 
+   @AddtlMOSID2, 
+   @PresentRUCID, 
+   @DateRECC, 
+   @DateEndAc.veService, 
+   @MCC, 
+   @ReserveRUCID, 
+   @MaritalStatusID, 
+   @NumberDependents, 
+   @CompositeScore, 
+   @DrawCaseCode, 
+   @ConductAvgService, 
+   @Pro.ciencyAvgService, 
+   @ReEnlistmentCode, 
+   @DateCRCRCer..ca.on, 
+   @SatYears, 
+   @DateEnteredArmedForces, 
+   @DatePayEntryBase, 
+   @DateArmedForcesAc.veDutyBase, 
+   @DateHIVScreen, 
+   @DateMostCurrentPHA, 
+   @DateMostCurrentPhysical, 
+   @Separa.onCode, 
+   @DateProjectedJoin, 
+   @NWARequestTypeID, 
+   @MarkedUnworkable_UserID, 
+   @MarkedUnworkable_Date, 
+   @Veri.edUnworkable_UserID, 
+   @Veri.edUnworkable_Date, 
+   @NWARequested_UserID, 
+   @NWARequested_Date, 
+   @NWAApproved_UserID, 
+   @NWAApproved_Date, 
+   @AssignedRecruiterID, 
+   @DateAssigned, 
+   @AtachedPSRSSID, 
+   @Gender, 
+   @ComponentCode, 
+   @ReserveComponentCode, 
+   @ErroneousJoin, 
+   @ErroneousJoinDate, 
+   GETDATE() 
+  ) 
+  
+  INSERT INTO 
+   [dbo].[LeadPhones] 
+  ( 
+   [LeadPhonesID], 
+   [LeadID], 
+   [PrimaryPhone], 
+   [SecondaryPhone], 
+   [Ter.aryPhone], 
+   [NOK1], 
+   [NOK2] 
+  ) 
+  VALUES 
+  ( 
+   NEWID(), 
+   @LeadID, 
+   @PrimaryPhone, 
+   @SecondaryPhone, 
+   @Ter.aryPhone, 
+   @NOK1, 
+   @NOK2 
+  ) 
+ 
+  INSERT INTO [dbo].[Address] 
+  ( 
+   [AddressID], 
+   [LeadID],  
+   [Street1], 
+   [Street2], 
+   [CityID], 
+   [StateID], 
+   [CountyID], 
+   [ZipCode], 
+   [CountryID] 
+  ) 
+  VALUES 
+  (  
+   NEWID(), 
+   @LeadID,  
+   @Street1, 
+   @Street2, 
+   @CityID, 
+   @StateID, 
+   @CountyID, 
+   @ZipCode, 
+   @CountryID 
+  ) 
+ 
+ END 
+  
+ -- Rollback the transac.on if there were any errors 
+ IF @@ERROR <> 0 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+  
+  -- Raise an error and return 
+  RAISERROR ('Error occurred while performing the change.', 16, 1) 
+  RETURN 
+ END 
+  
+ -- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+ IF @@ROWCOUNT > 1 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+  
+  -- Raise an error and return 
+  RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+  RETURN 
+ END 
+  
+ -- If we reach this point, the commands completed successfully. 
+ COMMIT TRANSACTION 
+END]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+</StoredProcedureSqlServerv2k5>

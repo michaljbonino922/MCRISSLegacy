@@ -1,0 +1,36 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetP.ByRowGuid]" directorySegmentName="seg_8" id="C20D470B-01BF-2278-16BF-D86D1757492F">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[(@P.RowGuid uniqueiden..er) 
+ 
+AS 
+ 
+SELECT 
+  P.PFT_ID 
+ ,P.rowguid AS PFT_ROW_ID 
+ ,P.NWA_ID 
+ ,P.PFT_DATE 
+ ,PFT_HEIGHT AS PFT_HEIGHT 
+ ,PFT_WEIGHT AS PFT_WEIGHT 
+ ,PFT_BODY_FAT_PCT AS PFT_BODY_FAT_PCT 
+ ,PFT_RUN_MINUTES AS PFT_RUN_MINUTES 
+ ,PFT_RUN_SECONDS AS PFT_RUN_SECONDS 
+ ,PFT_PULLUPS AS PFT_PULLUPS 
+ ,PFT_PUSHUPS AS PFT_PUSHUPS 
+ ,PFT_HANG AS PFT_HANG 
+ ,PFT_CRUNCHES AS PFT_CRUNCHES 
+ ,PFT_PLANK_MINUTES AS PFT_PLANK_MINUTES 
+ ,PFT_PLANK_SECONDS AS PFT_PLANK_SECONDS 
+ ,PFT_SCORE AS PFT_SCORE 
+ ,AmmoCanLi. 
+ ,ScoreRankID 
+FROM 
+ MCRISS.dbo.PFT P WITH (NOLOCK) 
+WHERE 
+ P.rowguid = @P.RowGuid]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

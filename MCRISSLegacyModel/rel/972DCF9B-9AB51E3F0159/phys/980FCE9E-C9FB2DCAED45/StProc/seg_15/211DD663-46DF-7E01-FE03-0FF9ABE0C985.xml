@@ -1,0 +1,155 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUpdateMedicalExam]" directorySegmentName="seg_15" id="211DD663-46DF-7E01-FE03-0FF9ABE0C985">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:56 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@ProspectMedicalExamID uniqueiden..er, 
+    @ProspectId uniqueiden..er, 
+    @ExamDate date.me, 
+    @MEPS int, 
+    @ExamType varchar(4), 
+    @Height decimal(4,2) , 
+    @Weight int, 
+    @RightUncorrVisualAcuity varchar(10), 
+    @RightCorrVisualAcuity varchar(10), 
+    @VisualColorPass varchar(1), 
+    @Le.UncorrVisualAcuity varchar(10), 
+    @Le.CorrVisualAcuity varchar(10), 
+    @VisualColorDisposi.on varchar(1), 
+    @GeneralBodyBuild varchar(2), 
+    @UpperBody varchar(2), 
+    @LowerBody varchar(2), 
+    @Hearing varchar(2), 
+    @Eyes varchar(2), 
+    @MentalPsychological varchar(2), 
+ @MedicalDisposi.on varchar(1), 
+ @Consulta.onType varchar(2), 
+    @LastUpdateUserID uniqueiden..er, 
+ @Drugs varchar(2) 
+AS 
+BEGIN 
+ 
+ -- STEP 1: Start the transac.on 
+ BEGIN TRANSACTION 
+ 
+ -- STEP 2 & 3: Issue the data change statement(s), checking @@ERROR a.er each statement 
+ IF EXISTS(SELECT ProspectMedicalExamID FROM USMC.ProspectMedicalExam WHERE ProspectMedicalExamID = @ProspectMedicalExamID) 
+ BEGIN 
+  -- if already exists.  UPDATE. 
+  UPDATE USMC.ProspectMedicalExam 
+  SET  
+ ProspectMedicalExamID = @ProspectMedicalExamID, 
+    ProspectId = @ProspectId, 
+    MedicalExamDate = @ExamDate, 
+    MedicalExamType = @ExamType, 
+    MepsOrganiza.onID = @MEPS, 
+    Height = @Height, 
+    Weight = @Weight, 
+    RightUncorrVisualAcuity = @RightUncorrVisualAcuity, 
+    RightCorrVisualAcuity = @RightCorrVisualAcuity, 
+    VisualColor = @VisualColorPass, 
+    Le.UncorrVisualAcuity = @Le.UncorrVisualAcuity, 
+    Le.CorrVisualAcuity = @Le.CorrVisualAcuity, 
+    VisualColorDisposi.on = @VisualColorDisposi.on, 
+    P_GeneralBodyBuild = @GeneralBodyBuild, 
+    U_UpperBody = @UpperBody, 
+    L_LowerBody = @LowerBody, 
+    H_Hearing = @Hearing, 
+    E_Eyes = @Eyes, 
+    S_MentalPsychological = @MentalPsychological, 
+ MedicalDisposi.on = @MedicalDisposi.on, 
+ Consulta.onType = @Consulta.onType, 
+    LastUpdateDate = getdate(), 
+    LastUpdateUserID = @LastUpdateUserID, 
+ D_Drugs = @Drugs 
+  WHERE   
+  ProspectMedicalExamId = @ProspectMedicalExamID  
+ END 
+ ELSE 
+ BEGIN 
+  INSERT INTO USMC.ProspectMedicalExam 
+        ( 
+ ProspectMedicalExamID, 
+    ProspectId, 
+    MedicalExamDate, 
+    MepsOrganiza.onID, 
+    MedicalExamType, 
+    Height, 
+    Weight, 
+    RightUncorrVisualAcuity, 
+    RightCorrVisualAcuity, 
+    VisualColor, 
+    Le.UncorrVisualAcuity, 
+    Le.CorrVisualAcuity, 
+    VisualColorDisposi.on, 
+    P_GeneralBodyBuild, 
+    U_UpperBody, 
+    L_LowerBody, 
+    H_Hearing, 
+    E_Eyes, 
+    S_MentalPsychological, 
+ MedicalDisposi.on, 
+ Consulta.onType, 
+    LastUpdateDate, 
+    LastUpdateUserID, 
+ D_Drugs) 
+  VALUES 
+        ( 
+        @ProspectMedicalExamID, 
+           @ProspectId, 
+           @ExamDate, 
+           @MEPS, 
+           @ExamType, 
+           @Height, 
+           @Weight, 
+           @RightUncorrVisualAcuity, 
+           @RightCorrVisualAcuity, 
+           @VisualColorPass, 
+           @Le.UncorrVisualAcuity, 
+           @Le.CorrVisualAcuity, 
+           @VisualColorDisposi.on, 
+           @GeneralBodyBuild, 
+           @UpperBody, 
+           @LowerBody, 
+           @Hearing, 
+           @Eyes, 
+           @MentalPsychological, 
+     @MedicalDisposi.on, 
+     @Consulta.onType, 
+           getdate(), 
+           @LastUpdateUserID, 
+     @Drugs 
+  ) 
+ END 
+   
+ -- Rollback the transac.on if there were any errors 
+ IF @@ERROR <> 0 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+ 
+  -- Raise an error and return 
+  RAISERROR ('Error occurred while performing the change.', 16, 1) 
+  RETURN 
+ END 
+ 
+ -- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+ IF @@ROWCOUNT > 2 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+ 
+  -- Raise an error and return 
+  RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+  RETURN 
+ END 
+  
+ -- STEP 4: If we reach this point, the commands completed successfully 
+ --         Commit the transac.on.... 
+ COMMIT TRANSACTION 
+  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

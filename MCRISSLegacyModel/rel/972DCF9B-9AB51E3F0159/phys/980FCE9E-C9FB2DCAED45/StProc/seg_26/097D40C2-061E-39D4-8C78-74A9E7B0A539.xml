@@ -1,0 +1,162 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SPGENRECPERSON174]" directorySegmentName="seg_26" id="097D40C2-061E-39D4-8C78-74A9E7B0A539">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[AS  
+declare @rec_person_id  int, 
+     @person_id  int, 
+ @org_id   int, 
+ @rec_role_id     char(1), 
+     @rank_code       varchar(10), 
+     @deleted         char(1), 
+ @grad_date  date.me, 
+ @tour_begin_date date.me, 
+ @tour_end_date  date.me, 
+ @end_date  date.me, 
+ @est_tour_end_date date.me, 
+ @rctr_school_class varchar(20), 
+ @billet_begin_date date.me, 
+ @billet_end_date date.me, 
+ @non_prod_reason_code varchar(5), 
+ @approval_code  char(1), 
+ @request_approval char(1), 
+ @request_code  char(1), 
+ @date_requested  date.me, 
+ @is_assigned  char(1), 
+ @on_produc.on  char(1), 
+ @asgn_dte  char(6), 
+ @dctb   char(6), 
+ @press_code      varchar(3), 
+ @rsn   char(3), 
+ @rss   char(2), 
+ @ssn   varchar(9), 
+ @depart_ea  char(1), 
+     @user_login  varchar(15), 
+ @update_date  date.me, 
+ @arms_prod_month int 
+  
+ 
+declare arms_recruiter cursor for 
+select  SSN,PRES_GRADE,DCTB,RSN,RSS,ASGN_DTE,ASGN_BILLET,PROD_CD,PROD_DTE, 
+ DEPART_DTE,DEPART_EA, PROD_TTD 
+ 
+from  arms..arms_174 
+ 
+where  asgn_dte not in ('910229','940229','970229','990229') and 
+ depart_dte not in ('910229','940229','970229','990229') and 
+ dctb not in ('910229','940229','970229','990229') 
+ 
+ 
+open arms_recruiter 
+ 
+fetch arms_recruiter 
+     into @ssn,@press_code,@tour_begin_date,@rsn,@rss,@asgn_dte,@rec_role_id, 
+ @on_produc.on,@billet_begin_date,@end_date,@depart_ea, @arms_prod_month 
+ 
+set @deleted = 'N' 
+set @is_assigned = 'N' 
+set @grad_date = NULL 
+set @rctr_school_class = NULL 
+set @billet_end_date = NULL 
+set @non_prod_reason_code = NULL 
+set @approval_code = NULL 
+set @request_approval = NULL 
+set @request_code = NULL 
+set @date_requested = NULL 
+set @user_login = 'migra.on' 
+set @update_date = getdate() 
+ 
+if @depart_ea = 'A' 
+   begin 
+ set @tour_end_date = @end_date 
+ set @est_tour_end_date = @end_date 
+   end 
+ 
+else  
+begin   set @tour_end_date = NULL 
+        set @est_tour_end_date = @end_date 
+   end 
+ 
+ 
+while (@@FETCH_STATUS = 0) 
+begin 
+ 
+if @depart_ea = 'A' 
+   begin 
+ set @tour_end_date = @end_date 
+ set @est_tour_end_date = @end_date 
+   end 
+ 
+else  
+begin   set @tour_end_date = NULL 
+        set @est_tour_end_date = @end_date 
+   end 
+ 
+     print @ssn 
+  
+     set @person_id = (select PERSON_ID from mcriss..PERSON 
+     where SOCIAL_SECURITY_NUMBER = @ssn) 
+ 
+     set @org_id = (select ORGANIZATION_ID  
+         from mcriss..RECRUITING_ORGANIZATION 
+         where MCC_CODE = @rsn + @rss) 
+ 
+     set @tour_begin_date   = convert(date.me,@tour_begin_date,112) 
+     set @tour_end_date     = convert(date.me,@tour_end_date,112) 
+     set @billet_begin_date = convert(date.me,@asgn_dte,112) 
+     set @est_tour_end_date = convert(date.me,@est_tour_end_date,112) 
+ 
+     if @org_id is not  NUll 
+       begin 
+      if @person_id is not NULL 
+   begin 
+           set @rec_person_id = (select RECRUITING_PERSON_ID from 
+             mcriss..RECRUITING_PERSON 
+       where RECRUITING_PERSON_ID = @person_id) 
+           if @rec_person_id is NULL 
+             begin 
+               exec SPADDRECPERSON @person_id, @org_id, @rec_role_id, @press_code, 
+              @deleted, @grad_date, @tour_begin_date, 
+           @tour_end_date, @est_tour_end_date, @rctr_school_class, 
+           @billet_begin_date, @billet_end_date, @non_prod_reason_code, 
+           @approval_code, @request_approval, 
+           @request_code, @date_requested, @is_assigned, @on_produc.on,@user_login, 
+    @update_date, @arms_prod_month 
+       end 
+    else  
+     begin 
+               exec SPUPDRECPERSON @rec_person_id, @arms_prod_month 
+     end 
+ 
+         end 
+   else  
+    begin 
+     print 'Person not in db' 
+     print @ssn 
+          end 
+       end 
+    else 
+       begin 
+        print 'ORGANIZATION IS NOT IN THE DATABASE' 
+     print @rsn 
+     print @rss 
+  print 'ORGANIZATION REQUIRES FURTHER INVESTIGATION' 
+ 
+          end 
+     
+ 
+     fetch arms_recruiter 
+        into @ssn,@press_code,@tour_begin_date,@rsn,@rss,@asgn_dte,@rec_role_id, 
+ @on_produc.on,@billet_begin_date,@end_date,@depart_ea, @arms_prod_month 
+       
+end 
+ 
+ 
+close arms_recruiter 
+ 
+deallocate arms_recruiter]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

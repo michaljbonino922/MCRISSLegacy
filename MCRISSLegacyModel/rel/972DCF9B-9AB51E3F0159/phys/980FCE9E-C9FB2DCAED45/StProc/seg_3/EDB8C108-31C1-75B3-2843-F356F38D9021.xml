@@ -1,0 +1,58 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetBilletTrainingPersonCount]" directorySegmentName="seg_3" id="EDB8C108-31C1-75B3-2843-F356F38D9021">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@UserID varchar(15) 
+AS 
+ 
+DECLARE @orgid int 
+ DECLARE @orgCnt int 
+  
+ CREATE table #org1(organiza.on_id int) 
+ CREATE table #org2(organiza.on_id int) 
+ CREATE table #org3(organiza.on_id int) 
+ 
+ SET @orgid = 900 
+ /*  
+ SET @orgid=0 
+ 
+ SELECT @orgid = o.ORGANIZATION_ID 
+  FROM RECRUITING_ORGANIZATION o, USER_LIST u 
+  WHERE o.MCC_CODE = u.MCC_CODE 
+   AND u.USER_ID = @UserID 
+ */ 
+ 
+ IF @orgid > 0 
+ BEGIN 
+ 
+ insert into #org1(organiza.on_id) values(@orgid) 
+ select @orgCnt = organiza.on_id from #org1 
+ while(@orgCnt > 0) 
+ begin 
+  insert into #org2(organiza.on_id) 
+  select organiza.on_id from #org1 
+ 
+  insert into #org3(organiza.on_id) 
+  select organiza.on_id from #org1 
+ 
+  delete from #org1 
+  insert into #org1(organiza.on_id) 
+  select child_organiza.on_id from ORGANIZATION_MAP WITH (NOLOCK) where parent_organiza.on_id in (select organiza.on_id from #org2) 
+  delete from #org2 
+  select @orgCnt = count(*) from #org1 
+ end     
+ END 
+ 
+-- select count(*) from #org3 
+  
+ select count(*) as count from M8412_Person_View where organiza.on_id in  
+  (select organiza.on_id from #org3) 
+ 
+ drop table #org1 
+ drop table #org2 
+ drop table #org3]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

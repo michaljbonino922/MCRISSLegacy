@@ -1,0 +1,35 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateUserData]" directorySegmentName="seg_0" id="82BA5948-F91F-0CC7-7619-9B9A27BF264C">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:44 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @intUserID int, 
+ @strTitle varchar(10), 
+ @strFirstName varchar(50), 
+ @strMiddleName varchar(50), 
+ @strLastName varchar(50), 
+ @strEmail varchar(250), 
+ @strPhone varchar(14), 
+ @intOrgUnitID int, 
+ @intUserTypeID int, 
+ @strLastEditBy varchar(50) 
+) 
+AS 
+ 
+UPDATE [UserMgmt].[dbo].[User] SET  
+ [Title] = @strTitle 
+ ,[FirstName] = @strFirstName 
+ ,[LastName] = @strLastName 
+ ,[MiddleName] = @strMiddleName 
+ ,[Email] = @strEmail 
+ ,[Phone] = @strPhone 
+ ,[UserTypeID] = @intUserTypeID 
+ ,[Sta.on_OrgUnitID] = @intOrgUnitID 
+ ,[LastEditBy] = @strLastEditBy 
+ ,[LastEditDate] = GetDate() 
+ WHERE [ID] = @intUserID]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>30378C7E-748C-F803-F9A3-93DBFA86C9A7</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,56 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetXmlParEval]" directorySegmentName="seg_6" id="96309851-98D9-C848-F796-2FDC24F7DB7B">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@TrainingEvalID     uniqueidentifier 
+ 
+AS 
+BEGIN 
+  
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+    SELECT  
+       e.ID  
+      ,TrainingFileID  
+      ,EvalTypeID  
+      ,Es.matedDate  
+      ,CompletedDate  
+      ,ExamScore 
+      ,Comment  
+      ,LastUpdatedDate  
+      ,LastUpdatedBy  
+      ,SignatureID AS "Signature/SignatureID" 
+      ,U1.FirstName AS "Signature/SignatureFirstName" 
+      ,U1.MiddleName AS "Signature/SignatureMiddleName" 
+   ,U1.LastName AS "Signature/SignatureLastName" 
+      ,(SELECT  
+  t.ID  
+  ,TrainingEvalID   
+  ,TaskGroupID  
+        ,g.Title AS "GroupTitle" 
+  ,Name AS "TaskName" 
+  ,Descrip.on  
+  ,CanPerform  
+  ,LastUpdatedDate  
+  ,LastUpdatedBy  
+        FROM USMC.TrainingEvalTask AS t 
+        INNER JOIN  USMC.TrainingEvalTaskGroup g 
+        ON t.TaskGroupID = g.ID 
+  WHERE 
+  t.TrainingEvalID = e.ID 
+  ORDER BY TaskGroupID, name 
+  FOR XML PATH('TrainingEvalTask'), TYPE, ELEMENTS XSINIL 
+    ) AS TrainingEvalTasks  
+ 
+ FROM USMC.TrainingEvalua.on e 
+    LEFT OUTER JOIN USMC.vwMcrissUserMgmtUser AS U1 ON U1.UserID = e.SignatureID 
+ WHERE  
+ e.ID = @TrainingEvalID  
+ FOR XML PATH('TrainingEvalua.on'), root('TrainingEvalua.ons'), ELEMENTS XSINIL 
+     
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

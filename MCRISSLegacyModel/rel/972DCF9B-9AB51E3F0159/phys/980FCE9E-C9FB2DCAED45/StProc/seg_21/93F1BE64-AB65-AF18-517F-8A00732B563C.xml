@@ -1,0 +1,31 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_ImportNewQsns]" directorySegmentName="seg_21" id="93F1BE64-AB65-AF18-517F-8A00732B563C">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[As 
+  
+ 
+SET NOCOUNT ON 
+SET ANSI_WARNINGS OFF 
+ 
+ 
+INSERT INTO QSN(QSN_ID, MOS, RUC, ASSIGNED_ORG_ID, GENDER, SPLIT_INCREMENT, QSN_PIVOT_DATE, COMPONENT_CODE, 
+MSC, MCC_CODE, RECRUITING_ORGANIZATION_ID, STATUS, FY, USER_LOGIN, UPDATE_DATE ) 
+ 
+SELECT  QSN, IMOS, RESRUC, ASSIGNED_ORG_ID, SEX, IIADT, PIVDATE, COMPCODE, CONVERT(CHAR(1),MSC_CODE) AS MSC, 
+ MCC_CODE, RECRUITING_ORGANIZATION_ID, 'A' AS STATUS, FISCAL_YEAR, 'SA' AS USER_LOGIN, GetDate() AS UPDATE_DATE  
+FROM READY_TO_IMPORT_QSN 
+WHERE IMPORTED IS NULL 
+ 
+ 
+UPDATE READY_TO_IMPORT_QSN 
+SET IMPORTED = 1 
+ 
+ 
+SET NOCOUNT OFF 
+SET ANSI_WARNINGS ON]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

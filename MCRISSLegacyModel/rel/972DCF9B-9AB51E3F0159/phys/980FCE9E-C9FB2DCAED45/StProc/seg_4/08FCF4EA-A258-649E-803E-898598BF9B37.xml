@@ -1,0 +1,25 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetCommentsHistoryForPerson]" directorySegmentName="seg_4" id="08FCF4EA-A258-649E-803E-898598BF9B37">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @intPersonID int 
+) 
+ 
+AS 
+ 
+SELECT  
+ COMMENT_ID, 
+ MARINE_CANDIDATE_ID, 
+ COMMENT, 
+ USER_LOGIN, 
+ UPDATE_DATE 
+FROM  
+ [dbo].[CANDIDATE_COMMENT] WITH (NOLOCK)  
+WHERE 
+ MARINE_CANDIDATE_ID = @intPersonID]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,62 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetAllOrgsRSS]" directorySegmentName="seg_2" id="198F1A5B-95F2-42B5-9FEB-2092E684418C">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+  @FirstChar varchar(1), 
+  @LastChar varchar(1) 
+ ) 
+ 
+AS 
+ 
+DECLARE @LowerFirstChar varchar(1) = LOWER(@FirstChar) 
+DECLARE @UpperFirstChar varchar(1) = UPPER(@FirstChar) 
+DECLARE @LowerLastChar varchar(1) = LOWER(@LastChar) 
+DECLARE @UpperLastChar varchar(1) = UPPER(@LastChar) 
+ 
+DECLARE @NameFilter varchar(20) = RTRIM('[' + @LowerFirstChar + '-' + @LowerLastChar + @UpperFirstChar + '-' + @UpperLastChar + ']%') 
+ 
+SELECT  
+ RO.[ORGANIZATION_ID]   AS ORGANIZATION_ID 
+      ,RO.[STATE_CODE]    AS STATE_CODE 
+      ,RO.[ORGANIZATION_TYPE]  AS ORGANIZATION_TYPE 
+      ,RO.[MEPS_ORGANIZATION_ID] AS MEPS_ORGANIZATION_ID 
+      ,RO.[NAME]     AS NAME 
+      ,RO.[SHORT_NAME]    AS SHORT_NAME 
+      ,RO.[MCC_CODE]    AS MCC_CODE 
+      ,RO.[TO_PROD_RECRUITERS]  AS TO_PROD_RECRUITERS 
+      ,RO.[STREET]     AS STREET 
+      ,RO.[STREET2]     AS STREET2 
+      ,RO.[CITY]     AS CITY 
+      ,RO.[ZIP_CODE]    AS ZIP_CODE 
+      ,RO.[ISOPEN]     AS ISOPEN 
+      ,RO.[DELETED]     AS DELETED 
+      ,RO.[IS_ASSIGNED]    AS IS_ASSIGNED 
+      ,RO.[USER_LOGIN]    AS USER_LOGIN 
+      ,RO.[UPDATE_DATE]    AS UPDATE_DATE 
+      ,RO.[EFFECTIVE_DATE]   AS EFFECTIVE_DATE 
+      ,RO.[rowguid]     AS rowguid 
+      ,RO.[poc_email]    AS poc_email 
+      ,RO.[OrgUnitId]    AS OrgUnitId 
+      ,RO.[DateClosed]    AS DateClosed 
+      ,RO.[CITY_CODE]    AS CITY_CODE 
+      ,RO.[COUNTY_CODE]    AS COUNTY_CODE 
+      ,RO.[STATE_GEO_CODE]   AS STATE_GEO_CODE 
+      ,OM.[PARENT_ORGANIZATION_ID] AS PARENT_ORGANIZATION_ID 
+   ,Parent.[ORGANIZATION_TYPE] AS PARENT_ORGANIZATION_TYPE 
+   ,Parent.[NAME]    AS PARENT_ORGANIZATION_NAME 
+FROM  
+ [MCRISS].[dbo].[RECRUITING_ORGANIZATION] RO 
+ LEFT OUTER JOIN [mcriss].[dbo].[ORGANIZATION_MAP] OM ON RO.ORGANIZATION_ID = OM.CHILD_ORGANIZATION_ID 
+ LEFT OUTER JOIN [mcriss].[dbo].[RECRUITING_ORGANIZATION] Parent ON Parent.ORGANIZATION_ID = OM.[PARENT_ORGANIZATION_ID] 
+WHERE  
+ RO.[ORGANIZATION_TYPE] = 'RSS' 
+ AND (RO.[DateClosed] IS NULL OR RO.[DateClosed] >= '2015-10-01') 
+ AND Parent.[NAME] LIKE @NameFilter 
+ORDER BY 
+ Parent.[NAME], RO.[NAME]]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

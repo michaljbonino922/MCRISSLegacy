@@ -1,0 +1,23 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetDependentHistory]" directorySegmentName="seg_16" id="E369FA4F-2720-BC0D-C7ED-CC886AD383B0">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@PersonID int 
+AS 
+ 
+SELECT  
+ CD.DEPENDENT_ID, 
+ D.DEPENDENT_TYPE_DESCRIPTION, 
+ CD.LAST_NAME, CD.FIRST_NAME, CD.MIDDLE_NAME, CD.SUFFIX_CD, 
+ CD.VERIFICATION, 
+ CONVERT(CHAR(11), CD.DATE_OF_BIRTH, 106) AS DATE_OF_BIRTH, 
+ CD.DEPENDENT_TYPE 
+FROM  
+ CANDIDATE_DEPENDENT CD INNER JOIN DEPENDENT D ON 
+  (CD.MARINE_CANDIDATE_ID = @PersonID AND 
+  CD.DEPENDENT_TYPE = D.DEPENDENT_TYPE)]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

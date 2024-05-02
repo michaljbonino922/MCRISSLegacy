@@ -1,0 +1,47 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetCommandRecruiter]" directorySegmentName="seg_4" id="8B994CB7-D045-B052-90EB-D225865F4565">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[(@CommandRecruiterId int) 
+ 
+AS 
+ 
+SELECT 
+    n.NWA_ID, n.rowguid AS NwaRowGuid 
+ ,SHIP_ID AS CommandRecruiterId 
+ ,COALESCE(RTRIM(p.LAST_NAME), SPACE(0))  + SPACE(1) +  
+  COALESCE(RTRIM(p.FIRST_NAME), SPACE(0)) + SPACE(1) +  
+  COALESCE(RTRIM(p.LEGAL_MIDDLE_NAME), SPACE(0)) AS Name 
+ ,COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+  COALESCE(RTRIM(rcrtr.LAST_NAME), SPACE(0))  + SPACE(1) +  
+  COALESCE(RTRIM(rcrtr.FIRST_NAME), SPACE(0)) + SPACE(1) +  
+  COALESCE(RTRIM(rcrtr.LEGAL_MIDDLE_NAME), SPACE(0)) AS RecruiterName 
+ ,crc.CommandRecruiterCategoryId 
+ ,crc.ShortName AS CommandRecruiterCategory 
+ ,s.CurrentRankCode 
+ ,s.DateDueHome 
+ ,s.DepartureDate 
+ ,s.SHIP_DATE AS ShipDate 
+FROM 
+ [dbo].[SHIPPER] s 
+INNER JOIN [dbo].[CONTRACT] c 
+ ON c.CONTRACT_ID = s.CONTRACT_ID 
+INNER JOIN [dbo].[NWA] n 
+ ON n.NWA_ID = c.NWA_ID 
+INNER JOIN [dbo].[MARINE_CANDIDATE] mc 
+  ON mc.[MARINE_CANDIDATE_ID] = n.[MARINE_CANDIDATE_ID] 
+INNER JOIN [dbo].[PERSON] p 
+ ON p.PERSON_ID = n.MARINE_CANDIDATE_ID 
+LEFT OUTER JOIN [dbo].[RECRUITING_PERSON] rp 
+ ON rp.RECRUITING_PERSON_ID = n.RECRUITER_OF_RECORD_ID 
+LEFT OUTER JOIN [dbo].[PERSON] rcrtr 
+ ON rcrtr.PERSON_ID = rp.RECRUITING_PERSON_ID 
+LEFT OUTER JOIN usmc.CommandRecruiterCategory crc 
+ ON crc.CommandRecruiterCategoryId = s.CommandRecruiterCategoryId 
+WHERE 
+ s.SHIP_ID = @CommandRecruiterId]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

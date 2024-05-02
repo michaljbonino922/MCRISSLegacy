@@ -1,0 +1,147 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetAchievedReportByType]" directorySegmentName="seg_9" id="F0E3F55E-1E45-6F18-F50D-EB85190A1651">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:37 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+  @FromDate date.me, 
+  @ToDate  date.me,       
+  @OrgUnitID int, 
+        @FY int, 
+        @RecruiterID uniqueiden..er = null 
+ ) 
+ 
+ 
+AS 
+begin 
+ 
+declare @FYStartDt date.me 
+declare @FYEndDt date.me 
+select @FYStartDt = convert(date.me, cast(@FY-1 as varchar(4)) + '/10/1') 
+--print @FYStartDt 
+select @FYEndDt = convert(date.me, cast(@FY as varchar(4)) + '/09/30') 
+--print @FYEndDt 
+-- 
+--select * into #PlanTbl from dbo.Ac.vityObjec.ve ao 
+--where OrgUnitID = @OrgUnitID 
+--and convert(date.me, cast(CalendarYear as varchar(4)) + '/' 
+--+ cast(month as varchar(2)) + '/15') between @FromDate and @ToDate 
+ 
+select * into #PlanTbl from dbo.MonthlyObjec.ve mo 
+where (RecruiterID = @RecruiterID or (@RecruiterID is null and RecruiterID ='00000000-0000-0000-0000-000000000000' and Organiza.onId = @OrgUnitID)) 
+and convert(date.me, cast(year as varchar(4)) + '/' 
++ cast(month as varchar(2)) + '/15') between @FromDate and @ToDate 
+ 
+select * into #AchTbl from dbo.RptDataAnalysis da 
+where (RecruiterID = @RecruiterID or (@RecruiterID is null and OrgId = @OrgUnitID)) 
+and convert(date.me, cast(analysisyear as varchar(4)) + '/' 
++ cast(analysismonth as varchar(2)) + '/15') between  @FromDate and @ToDate 
+ 
+select * into #FYAchTbl from dbo.RptDataAnalysis da 
+where (RecruiterID = @RecruiterID or (@RecruiterID is null and OrgId = @OrgUnitID)) 
+and convert(date.me, cast(analysisyear as varchar(4)) + '/' 
++ cast(analysismonth as varchar(2)) + '/15') between @FYStartDt and @FYEndDt 
+ 
+CREATE TABLE #AnalysisTable   
+ (    
+   TcActAch    INT default 0,  
+         TcMade      INT default 0,  
+         TcAppt      INT default 0,  
+   TcInt       INT default 0,  
+         TcJoin      INT default 0,  
+         TcPlanned   INT default 0, 
+         TCJoinFYTD     INT default 0, 
+         OtActAch    INT default 0,  
+         OtMade      INT default 0,  
+         OtAppt      INT default 0,  
+         OtInt       INT default 0,  
+         OtJoin      INT default 0,  
+         OtPlanned   INT default 0, 
+         OtJoinFYTD     INT default 0, 
+         AcActAch    INT default 0,  
+         AcMade      INT default 0,  
+      AcAppt      INT default 0,  
+   AcInt      INT default 0,  
+   AcJoin         INT default 0,  
+   AcPlanned   INT default 0, 
+         AcJoinFYTD     INT default 0, 
+   MoActAch       INT default 0, 
+   MoMade   INT default 0, 
+   MoAppt   INT default 0,  
+   MoInt   INT default 0,  
+   MoJoin   INT default 0,  
+   MoPlanned   INT default 0, 
+         MoJoinFYTD     INT default 0, 
+   EmActAch  INT default 0,  
+   EmMade   INT default 0,  
+   EmAppt   INT default 0,  
+   EmInt   INT default 0,  
+   EmJoin   INT default 0, 
+   EmPlanned   INT default 0, 
+         EmJoinFYTD     INT default 0      
+   ) 
+ 
+insert into  #AnalysisTable 
+(TcActAch,  TcMade,  TcAppt, TcInt, TcJoin, OtActAch, OtMade, OtAppt, 
+ OtInt,  OtJoin,  AcActAch,  AcMade ,  AcAppt , AcInt,  AcJoin ,  MoActAch,  
+ MoMade ,  MoAppt , MoInt ,  MoJoin , EmActAch ,  EmMade ,  EmAppt, EmInt ,EmJoin) 
+ 
+select sum(TcActAch)  TcActAch ,  
+       sum(TcMade)     TcMade ,  
+       sum(TcAppt)     TcAppt , 
+       sum(TcInt)      TcInt ,  
+    sum(TcJoin)     TcJoin,  
+       sum(OtActAch)  OtActAch,  
+       sum(OtMade)     OtMade,  
+       sum(OtAppt)     OtAppt, 
+       sum(OtInt)      OtInt,  
+    sum(OtJoin)     OtJoin,  
+       sum(AcActAch)  AcActAch,  
+       sum(AcMade)     AcMade ,  
+       sum(AcAppt)     AcAppt , 
+       sum(AcInt)      AcInt,  
+    sum(AcJoin)     AcJoin ,  
+       sum(HvActAch)   MoActAch,  
+       sum(HvMade)     MoMade ,  
+       sum(HvAppt)     MoAppt , 
+       sum(HvInt)      MoInt ,  
+    sum(HvJoin)    MoJoin ,  
+       sum(EpActAch)   EmActAch ,  
+       sum(EpMade)     EmMade ,  
+       sum(EpAppt)     EmAppt, 
+       sum(EpInt)      EmInt,  
+    sum(EpJoin)    EmJoin  
+  from #AchTbl 
+ 
+update #AnalysisTable set TcPlanned = rst.TcPlan, 
+OtPlanned = rst.OtPlan, AcPlanned = rst.AcPlan, 
+MoPlanned = rst.MoPlan, EmPlanned = rst.EmPlan 
+from (select  
+   TelephoneCall TcPlan, 
+   O.ceTra.c OtPlan,  
+   AreaCanvassing AcPlan, 
+   HomeVisit MoPlan, 
+   ElectronicProspec.ng EmPlan  
+from #PlanTbl)rst 
+ 
+update #AnalysisTable set TcJoinFYTD = rst.TcJoinFYTD, 
+OtJoinFYTD = rst.OtJoinFYTD, AcJoinFYTD = rst.AcJoinFYTD, 
+MoJoinFYTD = rst.MoJoinFYTD, EmJoinFYTD = rst.EmJoinFYTD 
+from (select sum(TcJoin) TcJoinFYTD, sum(OtJoin) otJoinFYTD, 
+      sum(AcJoin) AcJoinFYTD, sum(HvJoin) MoJoinFYTD, sum(EpJoin) EmJoinFYTD 
+      from #FYAchTbl) rst 
+--from  
+   
+ 
+select * from #AnalysisTable 
+ 
+drop table #AnalysisTable 
+drop table #AchTbl 
+drop table #FYAchTbl 
+drop table #PlanTbl  
+ 
+end]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+</StoredProcedureSqlServerv2k5>

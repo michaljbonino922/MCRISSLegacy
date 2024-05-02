@@ -1,0 +1,20 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetARNStatusByID]" directorySegmentName="seg_2" id="2DFA4B38-DB44-D386-644D-9889F6BBBA98">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @ID int 
+) 
+AS 
+ 
+SELECT 
+ ARN_STATUS_ID AS ID, 
+ ARN_STATUS_CODE AS Code, 
+ ARN_STATUS_DESCRIPTION AS Descrip.on 
+FROM [dbo].[ARN_STATUS] WITH (NOLOCK)  
+WHERE ARN_STATUS_ID = @ID]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,42 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetFYNumVisits]" directorySegmentName="seg_5" id="9C762248-FAA5-9251-9FAA-F78A04F9553A">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@Organiza.onID  as integer,  
+      @FiscalYear   as integer 
+      
+AS 
+SET NOCOUNT ON 
+ BEGIN 
+  
+  SELECT  
+     cvd.[CollegeVisitDetailID], 
+     cp.CollegePro.leID, 
+     hs.Organiza.on_ID AS Organiza.onID, hs.rowguid, 
+     cp.[FiscalYear],  
+     cp.[SCHOOL_CODE] AS SchoolCode,  
+     cp.PriorityCode,  
+     hs.highschool_name AS CollegeName, 
+     cvd.[NumVisitsPlanned] AS NumFYPlannedVisits,  
+     cvd.[ContractGoal] AS NumFYContractGoal  
+      
+     FROM [USMC].[CollegePro.le] cp 
+                        
+     LEFT OUTER JOIN [MCRISS].[USMC].[CollegeVisitDetail] cvd ON cp.[CollegePro.leID] = cvd.[CollegePro.leID] 
+           
+     INNER JOIN HIGH_SCHOOL hs on hs.School_Code = cp.School_Code 
+ 
+         
+   WHERE hs.Organiza.on_ID = @Organiza.onID 
+   and cp.FiscalYear = @FiscalYear 
+   
+  ORDER BY cp.[PriorityCode], cp.[SCHOOL_CODE] 
+END 
+  
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

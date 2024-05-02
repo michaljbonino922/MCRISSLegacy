@@ -1,0 +1,51 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_6" id="96DBA98E-5DC6-5315-2D8B-B305370E86B1" schemaObject="B106B664-0C0B-E788-08ED-5CF8E449BE22" name="EXT_MCRISS_NwaGUID">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>91A4F5E7-B5CB-18C7-1787-825A33659F02</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  
+ n2.SSN,  
+ n.rowguid AS NwaGUID 
+FROM MCRISS.dbo.NWA n  
+INNER JOIN  
+ ( 
+ SELECT  
+  MAX(n.NWA_ID) AS MAX_NWA_ID,  
+  p.SOCIAL_SECURITY_NUMBER AS SSN 
+ FROM MCRISS.dbo.PERSON p 
+  INNER JOIN MCRISS.dbo.NWA n on p.PERSON_ID = n.MARINE_CANDIDATE_ID 
+ GROUP BY p.SOCIAL_SECURITY_NUMBER 
+ ) n2 
+on n2.MAX_NWA_ID = n.NWA_ID]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="SSN" id="C3289E48-1426-1618-76B2-43345A5B5C19">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>SSN</alias>
+<dataType>UNKNOWN</dataType>
+<expression>SSN</expression>
+<reference>false</reference>
+<viewID>96DBA98E-5DC6-5315-2D8B-B305370E86B1</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="rowguid" id="D6E258DD-BF81-6E26-9BA1-BC8543B730CF">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>NwaGUID</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>NwaGUID</headerAlias>
+<expression>rowguid</expression>
+<reference>false</reference>
+<viewID>96DBA98E-5DC6-5315-2D8B-B305370E86B1</viewID>
+</viewElement>
+</viewElements>
+</TableView>

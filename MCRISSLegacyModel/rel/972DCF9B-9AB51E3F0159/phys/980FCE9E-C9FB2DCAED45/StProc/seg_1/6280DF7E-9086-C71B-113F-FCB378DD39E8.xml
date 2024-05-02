@@ -1,0 +1,20 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetAllLegalO.ense]" directorySegmentName="seg_1" id="6280DF7E-9086-C71B-113F-FCB378DD39E8">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[AS 
+ 
+SELECT 
+ lo.LegalO.enseId, 
+ lo.Descrip.on, 
+ lot.LegalO.enseTypeId AS TypeId, 
+ lot.Descrip.on AS TypeDescrip.on 
+FROM 
+ [usmc].[LegalO.ense] lo WITH (NOLOCK) 
+INNER JOIN [usmc].[LegalO.enseType] lot 
+ ON  lo.LegalO.enseTypeId = lot.LegalO.enseTypeId]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

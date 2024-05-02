@@ -1,0 +1,36 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_CheckExistFYProgramAlloca.onPlan]" directorySegmentName="seg_13" id="0FBE7F10-5BAA-71D8-4AF7-7DD653E0DB14">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@FY  int, 
+ @PlanExists  int OUTPUT 
+AS 
+ 
+SET NOCOUNT ON 
+ 
+--- check for an exis.ng plan for the speci.ed FY 
+IF EXISTS (SELECT PROGRAM_PERIOD_ID FROM PROGRAM_PERIOD WHERE FY = @FY) 
+ BEGIN 
+ -- A plan exists for the speci.ed FY so we can not create a plan for this FY 
+ SET @PlanExists = 1 
+ END  
+ELSE 
+ --- check for an exis.ng plan for the previous FY 
+ BEGIN 
+ IF EXISTS (SELECT PROGRAM_PERIOD_ID FROM PROGRAM_PERIOD WHERE FY = @FY - 1) 
+  BEGIN 
+  --- A plan exists for the previousFY so we can create a plan for this FY 
+  SET @PlanExists = 0 
+  END 
+ ELSE 
+  BEGIN 
+  --- A plan does not exist for the previousFY so we can not create a plan for this FY 
+  --- un.l we .rst create a plan for the previous FY 
+  SET @PlanExists = -1 
+  END 
+ END]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,173 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SP_GENQSN]" directorySegmentName="seg_15" id="23C35BAA-EB4D-A860-DE38-0D2A87FB23F5">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[as 
+ 
+ 
+declare  
+@rec_code  varchar(6), 
+@rec_orgid  int, 
+@rec_sta.on_code varchar(6), 
+@mos_date  date.me, 
+@component_code  varchar(2), 
+@year   char(1), 
+@fy   varchar(4), 
+@gender   char(1), 
+@mcc_code  varchar(5), 
+@msc   char(1), 
+@prgm_assign_dte date.me, 
+@qsn_id   char(9), 
+@qsn_pivot_dte  date.me, 
+@ruc   varchar(5), 
+@split_increment char(1), 
+@status   char(1), 
+@user_login  varchar(15), 
+@update_date  date.me, 
+@mos   varchar(4) 
+ 
+declare arms186 cursor for 
+select  
+ 
+ RECRUITING_STATION_CODE, 
+ COMPONENT_CODE, 
+ convert(int,substring(QUOTA_SEQUENCE_NUMBER,1,1)), 
+ SEX, 
+ CONTRACT_TYPE, 
+ QUOTA_SEQUENCE_NUMBER, 
+ convert(date.me,substring(DATE_SHIP,2,8)), 
+ substring(QUOTA_SEQUENCE_NUMBER,2,5), 
+ SPLIT_INCREMENT_CODE, 
+ STATUS_ACTION_CODE, 
+ PRIMARY_MOS, 
+ RECRUITING_STATION_CODE 
+ from arms..ARMS186 
+ 
+ 
+open arms186 
+ 
+ 
+fetch arms186 into 
+@rec_code, 
+@component_code, 
+@year, 
+@gender, 
+@msc 
+,@qsn_id, 
+@qsn_pivot_dte, 
+@ruc, 
+@split_increment, 
+@status, 
+@mos, 
+@rec_sta.on_code 
+ 
+SET @prgm_assign_dte = NULL 
+set @user_login = 'migra.on' 
+set @update_date = getdate() 
+ 
+ 
+ 
+while (@@FETCH_STATUS = 0) 
+begin--1 
+ 
+ 
+ set @rec_orgid = (select ORGANIZATION_ID from TEMP_RECRUITING_ORGANIZATION  
+ where MCC_CODE = @rec_sta.on_code) 
+ set @mcc_code = (select max(present_mcc)  from marine_organiza.on  
+ where present_ruc = @ruc) 
+  
+ set @mos_date = (select mos_criteria_ed_date from mos_criteria where 
+   MOS = @mos and GENDER = @gender) 
+ 
+ 
+ if @year between 4 and 9 
+ set @fy = '199'+@year 
+ 
+ if @year = 0 
+ set @fy = '2000' 
+  
+ if @year = 1 
+ set @fy = '2001' 
+  
+ if @year = 2 
+ set @fy = '2002' 
+  
+ if @year = 3 
+ set @fy = '2003' 
+ 
+ if @msc = 'G' 
+ set @msc = 'D' 
+ 
+ if @msc = 'A' 
+ set @msc = 'W' 
+ 
+ if @status = 'D'  
+ set @status = 'C' 
+ else set @status = 'A' 
+ 
+ 
+ 
+ 
+if not exists (select 1 from QSN where QSN_ID = @qsn_id ) 
+ begin --2 
+ 
+ 
+ insert into QSN 
+ (QSN_ID,MOS,PROGRAM_ASSIGNMENT_DATE,RUC,ASSIGNED_ORG_ID,QSN_PIVOT_DATE, 
+ SPLIT_INCREMENT,BONUS_CONTROL_NUMBER,STATUS,MSC,GENDER,FY,COMPONENT_CODE,PROGRAM_CRITERIA_ED_DATE, 
+ RECRUITING_ORGANIZATION_ID,MCC_CODE,USER_LOGIN,UPDATE_DATE) 
+ 
+ values 
+ (@qsn_id, @mos,@prgm_assign_Dte,@ruc,@rec_orgid,@qsn_pivot_dte,@split_increment,NULL,@status, 
+ @msc,@gender,@fy,@component_code,@mos_date,@rec_orgid,@mcc_code,@user_login,@update_date) 
+ 
+ print @qsn_id 
+ print 'Was added to the QSN table' 
+ end  --3 
+else 
+ 
+ begin 
+ update QSN 
+ set MOS = @mos, 
+ PROGRAM_ASSIGNMENT_DATE = @prgm_assign_Dte, 
+ RUC = @ruc, 
+ ASSIGNED_ORG_ID = @rec_orgid , 
+ QSN_PIVOT_DATE = @qsn_pivot_dte, 
+ SPLIT_INCREMENT = @split_increment, 
+ BONUS_CONTROL_NUMBER = NULL, 
+ STATUS = @status, 
+ MSC = @msc, 
+ GENDER = @gender, 
+ COMPONENT_CODE = @component_code, 
+ PROGRAM_CRITERIA_ED_DATE = @mos_date, 
+ RECRUITING_ORGANIZATION_ID = @rec_orgid, 
+ FY = @fy, 
+ MCC_CODE = @mcc_code, 
+ UPDATE_DATE = @update_date 
+ 
+ where QSN_ID = @qsn_id 
+  
+ 
+print @qsn_id 
+print 'Updated in QSN' 
+ end  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+fetch arms186 into 
+@rec_code,@component_code,@year,@gender, 
+@msc,@qsn_id,@qsn_pivot_dte, 
+@ruc,@split_increment,@status,@mos, @rec_sta.on_code 
+ 
+end  --1 
+close arms186 
+deallocate arms186]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,110 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_12" id="9AF2CBBC-B8DD-AE81-5623-5C9EBA42418E" schemaObject="B106B664-0C0B-E788-08ED-5CF8E449BE22" name="ChecklistItem">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>C1B5BF60-FF80-026C-5025-4D4A5C1416A1</importedID>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="ChecklistItemId" id="B3CD2EEC-3BA0-14DC-61A6-D2EEBE511C79">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:57 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>A2472728-5FDD-5C9A-02F5-86E4F1D7D868</importedID>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="Complete" id="48F76A0C-FC87-8800-150C-D6BF74518CC6">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:57 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>F1C5E737-0504-48DA-378D-8BFAE9299E06</importedID>
+<use>0</use>
+<domain>91FEE8D3-8598-AD10-5F0A-90AD41572AF8</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="Descrip.on" id="A0EBC013-D900-69EC-86EB-A8C29A0D146C">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:57 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>4D97A926-9452-24E4-0B2F-B0423D8050B3</importedID>
+<use>0</use>
+<domain>CA3579CE-0B53-2D63-1340-310CB84C426B</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="SortOrder" id="21210C12-1C58-39C5-2A2B-D28E922412AB">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:57 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>33295EC3-65D0-C19A-E510-AF4BD8AA9815</importedID>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="ChecklistId" id="3AE1E929-A19B-C34A-4C9B-7DAD6B263C55">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:57 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>EAD6892C-FADB-2B71-902F-45E87C12DE66</importedID>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="513DC0A3-5231-5163-9002-33DEE6E97136" referredColumn="C3EBBC32-10DA-EA4C-DDEC-05F2DE84BEAF"/>
+</associations>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="66CF25B7-03D0-C625-013E-D96BEE3328C4" name="pk_ChecklistItem">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:57 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>CAD3FCD6-0CEE-6FA3-7610-0A62F49C86EB</importedID>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="B3CD2EEC-3BA0-14DC-61A6-D2EEBE511C79"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="E44D41A7-D29A-C7A8-3506-00F148C15F50" name="._ChecklistItem_Checklist">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="3AE1E929-A19B-C34A-4C9B-7DAD6B263C55"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+<tableCheckConstraints itemClass="oracle.dbtools.crest.model.design.constraint.TableLevelConstraint">
+<tableCheckConstraint name="[ACP].[ChecklistItem]" directorySegmentName="seg_10" id="EDE7B7F5-4FAA-18EF-F114-48AE7301BBD8">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:57 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>820F7665-8568-D462-85BE-93D7E0E9B00C</importedID>
+<rule><![CDATA[CONSTRAINT [._ChecklistItem_Checklist]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITH" directorySegmentName="seg_10" id="4C04E245-2A07-2F3B-397B-8F0683E2776D">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:57 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>4AF5C001-A84D-E8F6-84CD-D4681F295520</importedID>
+</tableCheckConstraint>
+</tableCheckConstraints>
+</Table>

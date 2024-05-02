@@ -1,0 +1,176 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetTimesheetWklyHoursSummary]" directorySegmentName="seg_6" id="88801B9D-DF6B-A4EE-008F-42E5D5698445">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@OrgID int, 
+ @RecruiterID uniqueidentifier, 
+ @FiscalYear int, 
+ @Month int, 
+ @Week int  
+    
+AS 
+BEGIN 
+  
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+  
+ DECLARE @CalendarYear int 
+ 
+ IF @Month = 10 OR @Month = 11 OR @Month = 12 
+ BEGIN 
+  SET @CalendarYear = @FiscalYear - 1 
+ END 
+ ELSE 
+ BEGIN 
+  SET @CalendarYear = @FiscalYear 
+ END 
+  
+ DECLARE @CurrentMonth DateTime 
+ SET @CurrentMonth = CAST(CONVERT(varchar(4), @CalendarYear) 
+      + '-' 
+      + CONVERT(varchar(2),@Month)  
+      + '-'  
+      + CONVERT(varchar(2),1) as Date.me) 
+ 
+ DECLARE @PrevMonth DateTime 
+ SET @PrevMonth = DATEADD(month, -1, @CurrentMonth) 
+ 
+ 
+ DECLARE @StartDate date.me 
+ 
+ SELECT @StartDate = StartDate  
+ FROM  
+  ( SELECT 
+    ROW_NUMBER() OVER (ORDER BY startdate) AS WeekNumber, 
+    *  
+   FROM USMC.Objec.veWeek 
+   WHERE  
+    OrgID = @OrgID and year = @CalendarYear 
+    and month = @Month 
+  ) AS ObjWeek 
+ WHERE WeekNumber = @Week 
+  
+  
+ DECLARE @recCount int 
+ SET @recCount = 0 
+ 
+ DECLARE @ObjWeekID uniqueidentifier 
+ DECLARE @WeekStartDate date.me 
+ DECLARE @WeekEndDate date.me 
+ DECLARE @TimeSheetWeekID uniqueidentifier 
+ 
+ CREATE TABLE #TimeSheetSummary 
+ ( 
+  Week int, 
+  Total decimal(9,1), 
+  Produc.ve decimal(9,1), 
+  Support  decimal(9,1), 
+  Unproduc.ve decimal(9,1), 
+  StartDate date.me, 
+  EndDate date.me 
+ ) 
+  
+ DECLARE sql_cursor CURSOR 
+ FOR 
+  SELECT Top 5 ID, StartDate, EndDate FROM USMC.Objec.veWeek 
+  WHERE  
+   OrgId = @OrgID 
+   AND  
+   ( ( Year = @CalendarYear AND Month = @Month ) 
+                OR  
+     ( Year = Year(@PrevMonth) AND Month = Month(@PrevMonth) ) 
+   ) 
+   AND startdate <= @StartDate 
+  ORDER BY StartDate Desc 
+   
+   
+    OPEN sql_cursor 
+  
+ FETCH NEXT FROM sql_cursor INTO @ObjWeekID, @WeekStartDate, @WeekEndDate 
+ 
+ WHILE @@FETCH_STATUS = 0 
+ BEGIN 
+   
+  SET @TimeSheetWeekID = NULL 
+ 
+  SELECT @TimeSheetWeekID = ID  
+  FROM USMC.TimeSheetWeekly 
+  WHERE 
+   Objec.veWeekID = @ObjWeekID 
+   AND RecruiterID = @RecruiterID 
+ 
+   
+  INSERT INTO #TimeSheetSummary 
+  SELECT 
+   @recCount, 
+   (Produc.veTime + SupportTime + Unproduc.veTime) as WeeklyHour, 
+   Produc.veTime,  
+   SupportTime,  
+   Unproduc.veTime, 
+   @WeekStartDate,  
+   @WeekEndDate 
+  FROM  
+   (SELECT  
+      Sum(ISNULL(TelephoneCall, 0)) 
+      +Sum(ISNULL([AreaCanvassing], 0)) 
+      +Sum(ISNULL([HomeVisit], 0)) 
+      +Sum(ISNULL([O.ceTra.c], 0)) 
+      +Sum(ISNULL([ElectronicProspec.ng], 0)) 
+      +Sum(ISNULL([Screening], 0)) 
+      +Sum(ISNULL([Interviewing], 0)) 
+      +Sum(ISNULL([OtherProduc.veTime], 0)) as Produc.veTime 
+       
+      ,Sum(ISNULL([CollegeHighSchoolVisit], 0)) 
+      +Sum(ISNULL([MediaVisit], 0)) 
+      +Sum(ISNULL([ContactVisit], 0)) 
+      +Sum(ISNULL([ListResearch], 0)) 
+      +Sum(ISNULL([EnlistmentPapers], 0)) 
+      +Sum(ISNULL([PooleeMee.ng], 0)) 
+      +Sum(ISNULL([Planning], 0)) 
+      +Sum(ISNULL([OtherSupportTime], 0)) as SupportTime 
+       
+      ,Sum(ISNULL([DriveWalk], 0)) 
+      +Sum(ISNULL([Rou.neAdmin], 0)) 
+      +Sum(ISNULL([MetsMeps], 0)) 
+      +Sum(ISNULL([LunchBreak], 0)) 
+      +Sum(ISNULL([Miscellaneous], 0)) 
+      +Sum(ISNULL([OtherUnproduc.veTime1], 0)) 
+      +Sum(ISNULL([OtherUnproduc.veTime2], 0)) 
+      +Sum(ISNULL([OtherUnproduc.veTime3], 0)) as Unproduc.veTime 
+          
+     FROM USMC.TimeSheetDaily 
+     WHERE TimeSheetWeekID = @TimeSheetWeekID 
+   )AS T1 
+  
+  SET @recCount = @recCount + 1 
+ 
+ FETCH NEXT FROM sql_cursor INTO @ObjWeekID, @WeekStartDate, @WeekEndDate 
+  
+ END  
+  
+ CLOSE sql_cursor 
+ DEALLOCATE sql_cursor 
+ 
+ IF @recCount < 5  
+ BEGIN 
+  WHILE @recCount < 5 
+  BEGIN  
+    
+ 
+   INSERT INTO #TimeSheetSummary 
+   VALUES(@recCount, null, null, null, null, null, null) 
+    
+   SET @recCount = @recCount + 1 
+  END  
+ END 
+ 
+ SELECT * FROM #TimeSheetSummary 
+ 
+ DROP Table #TimeSheetSummary 
+  
+  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

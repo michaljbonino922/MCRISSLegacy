@@ -1,0 +1,46 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_CreateFYProgramAlloca.onPlan]" directorySegmentName="seg_14" id="EAE6B158-E903-1589-F3E3-5D95FFB6B65F">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@PeriodCode int, 
+ @FY  int, 
+ @BeginDate date.me, 
+ @EndDate date.me, 
+ @UserLogin varchar(15) 
+AS 
+ 
+SET NOCOUNT ON 
+ 
+DECLARE @DBID  INT 
+DECLARE @DBNAME NVARCHAR(128) 
+DECLARE @ERRMSG VARCHAR(200) 
+ 
+SET @DBID  = DB_ID()  
+SET @DBNAME  = DB_NAME() 
+ 
+IF EXISTS (SELECT PROGRAM_PERIOD_ID FROM PROGRAM_PERIOD WHERE FY = @FY AND PERIOD_CODE = @PeriodCode) 
+ BEGIN 
+ ---  Raise Error and return 
+ SET @ERRMSG = 'A program alloca.on plan already exists for FY ' + CONVERT(VARCHAR, @FY) + '.' 
+ RAISERROR (@ERRMSG, 16, 1, @DBID, @DBNAME) 
+ RETURN 
+ END  
+ 
+IF EXISTS (SELECT PROGRAM_PERIOD_ID FROM PROGRAM_PERIOD WHERE FY = @FY AND DATEDIFF(DAY, END_DATE, @EndDate) <= 0) 
+ BEGIN 
+ ---  Raise Error and return 
+ SET @ERRMSG = 'The periods in the FY program alloca.on plan can not overlap.  Please adjust the End Date for Period ' + CONVERT(VARCHAR, @PeriodCode) + '.' 
+ RAISERROR (@ERRMSG, 16, 2, @DBID, @DBNAME) 
+ RETURN 
+ END  
+  
+--- OTHERWISE PROCEED WITH INSERT 
+INSERT INTO PROGRAM_PERIOD  
+ (PERIOD_CODE, FY, BEGIN_DATE, END_DATE, USER_LOGIN, UPDATE_DATE) 
+VALUES  
+ (@PeriodCode, @FY, @BeginDate, @EndDate, @UserLogin, GETDATE())]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

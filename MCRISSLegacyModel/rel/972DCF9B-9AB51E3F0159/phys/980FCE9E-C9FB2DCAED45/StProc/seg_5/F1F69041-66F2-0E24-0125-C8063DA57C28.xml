@@ -1,0 +1,45 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetLodgingInfo]" directorySegmentName="seg_5" id="F1F69041-66F2-0E24-0125-C8063DA57C28">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@SchoolCode Integer,  
+      @FiscalYear Integer 
+   
+AS 
+SET NOCOUNT ON 
+  
+  SELECT  
+    --May be needed for insert/update records along with schoolCode, though PointOfContactID should be used 
+    pc.PointOfContactID, CampusContactID AS LodgingInfoID, 
+    cp.[SCHOOL_CODE] AS SchoolCode, 
+    FiscalYear AS FiscalYear, 
+    pc.En.tyTitle AS LodgingName,  
+    [Street1], 
+          [Street2],[City],[State],[ZipCode], 
+    [TelephoneNumber], 
+    [FaxNumber], 
+    [EmailAddress], 
+    [Cost], 
+    City_Code AS CityCode, 
+    County_Code AS CountyCode, 
+    State_code AS StateCode 
+     
+   FROM [MCRISS].[USMC].[PointOfContact] pc 
+     INNER JOIN  [MCRISS].[USMC].CampusContact cc 
+       ON cc.PointOfContactID = pc.PointOfContactID 
+     INNER JOIN  [MCRISS].[USMC].CollegePro.le cp  
+     ON cc.CollegePro.leID = cp.CollegePro.leID 
+   
+  WHERE  cp.SCHOOL_CODE = @SchoolCode 
+    and cp.FiscalYear = @FiscalYear 
+    and pc.En.tyTypeID = 2 
+   
+  --ORDER BY cpr.[SCHOOL_CODE] 
+ 
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,16 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[RemovePost]" directorySegmentName="seg_0" id="7C56201D-8784-8CCE-06E2-F7A316F86CC8">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:44 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @intUserID int, 
+ @intPostID int 
+) 
+AS 
+ 
+DELETE FROM UserPost WHERE [UserID] = @intUserID AND [PostID] = @intPostID]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>30378C7E-748C-F803-F9A3-93DBFA86C9A7</database>
+</StoredProcedureSqlServerv2k5>

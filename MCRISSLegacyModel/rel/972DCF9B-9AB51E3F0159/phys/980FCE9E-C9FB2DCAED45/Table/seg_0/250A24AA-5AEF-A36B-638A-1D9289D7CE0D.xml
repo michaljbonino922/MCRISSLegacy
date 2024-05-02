@@ -1,0 +1,44 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="MIRS_TRANSACTION_LOOKUP" directorySegmentName="seg_0" id="250A24AA-5AEF-A36B-638A-1D9289D7CE0D">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<schemaObject>2A6D9360-3BB2-5CEA-6E99-790D76996FDF</schemaObject>
+<database>24B9F7BA-5DD4-EAB5-4EB1-35B911743E85</database>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="TRANSACTION_TYPE" id="9928153D-2EC4-AB97-FFE9-069C264DD6B4">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:15 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="MIRS_TRANSACTION" id="D66C2110-105E-37AE-5B14-638D045B2573">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:15 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="IMPORT_TRANSACTION" id="FA29287D-C194-173F-D8E8-300DC71FDEB6">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:15 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<defaultValue>(&apos;N&apos;)</defaultValue>
+</ColumnProxy>
+</columnProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="FK_MIRSTRANSLOOKUP_TRANTYPE" id="F60F4530-A468-8E94-D316-04F7A3D06430">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:17 UTC</createdTime>
+<ownerDesignName>create MCRISS_ERROR script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="PK_MIRS_TRANSACTION_LOOKUP" id="4E51C777-65EC-9373-B7AB-20F2BB7ADE98">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:15 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<clustered>true</clustered>
+<fillFactor>90</fillFactor>
+<partitioningColumn>616809E5-5ABB-B227-169E-CFDF244D93E0</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+</TableProxySqlServerv2k5>

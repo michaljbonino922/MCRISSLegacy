@@ -1,0 +1,198 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetLeadsReport]" directorySegmentName="seg_9" id="464DB380-6D46-4A25-6875-74AD18710C1E">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:37 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[(@FromDate     DATETIME, 
+                                         @ToDate       DATETIME, 
+                                         @OrgUnitID    INT) 
+AS 
+   --SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+   DECLARE @FiscalYear   INT 
+SET @FiscalYear = YEAR(GETDATE()) 
+ 
+   IF    MONTH (GETDATE ()) = 10 
+      OR MONTH (GETDATE ()) = 11 
+      OR MONTH (GETDATE ()) = 12 
+BEGIN  
+ SET @FiscalYear = @FiscalYear + 1 
+END 
+ 
+   SELECT l.leadId, 
+  ReserveRUCID,  
+  r.Organiza.onID,  
+  RNK.Descrip.on RankDescrip.on,  
+  RNK.Abbr RankAbbr, 
+  PRN.FirstName,  
+  PRN.MiddleName, 
+  PRN.LastName, 
+  Q.ApplicantPackageTypeID, 
+  APT.Descrip.on ApplicantPackageDescrip.on,  
+  Q.QSNID,  
+  ap.DateSubmited, 
+  ap.DateJoinCredit, 
+  ap.MOSMatchTypeID, 
+  MMT.Descrip.on MOSDescrip.on, 
+  Q.PayGradeType, 
+  S.StatusID,  
+  S.Descrip.on  StatusDescrip.on, 
+  D.Disposi.onID,  
+  D.Descrip.on Disposi.onDescrip.on, 
+  Q.FiscalYear,  
+  l.NWARequestTypeID, 
+  l.ErroneousJoin 
+     INTO #Result_Set 
+     FROM Lead L 
+          INNER JOIN dbo.ApplicantPackage ap ON ap.LeadID = L.LeadID 
+          INNER JOIN dbo.MOSMatchType MMT 
+             ON MMT.MOSMatchTypeID = ap.MOSMatchTypeID 
+          INNER JOIN dbo.ApplicantPackageType APT 
+             ON APT.ApplicantPackageTypeID = ap.ApplicantPackageTypeID 
+          INNER JOIN dbo.QSN Q ON Q.QSNID = ap.QSNID 
+          INNER JOIN dbo.PayGrade PG ON L.PayGradeID = PG.PayGradeID 
+          INNER JOIN dbo.LeadStatusDisposi.on LSD ON L.LeadID = lsd.LeadID 
+          INNER JOIN dbo.StatusDisposi.on SD 
+             ON LSD.StatusDisposi.onID = SD.StatusDisposi.onID 
+          INNER JOIN dbo.status S ON S.StatusID = SD.StatusID 
+          INNER JOIN dbo.Recruiter R ON R.RecruiterID = L.AssignedRecruiterID 
+          INNER JOIN dbo.Person PRN ON PRN.PersonID = R.PersonID 
+          INNER JOIN dbo.Rank RNK ON RNK.RankID = R.RankID 
+          LEFT OUTER JOIN dbo.disposi.on D 
+             ON D.Disposi.onID = SD.Disposi.onID 
+--le. outer join dbo.MOS M on M.Mosid = Q.Mosid --not needed for now 
+ 
+    WHERE     (q.FiscalYear = @FiscalYear) 
+          AND (   l.AtachedPSRSSID IN (SELECT Region 
+                                          FROM [vwOrgUnitIDs] 
+                                         WHERE HQ = @OrgUnitID 
+                                        UNION 
+                                        SELECT RS 
+                                          FROM [vwOrgUnitIDs] 
+                                         WHERE HQ = @OrgUnitID 
+                                        UNION 
+                                        SELECT RS 
+                                          FROM [vwOrgUnitIDs] 
+                                         WHERE Region = @OrgUnitID 
+                                        UNION 
+                                        SELECT RSS 
+                                          FROM [vwOrgUnitIDs] 
+                                         WHERE HQ = @OrgUnitID 
+                                        UNION 
+                                        SELECT RSS 
+                                          FROM [vwOrgUnitIDs] 
+                                         WHERE Region = @OrgUnitID 
+                                        UNION 
+                                        SELECT RSS 
+                                          FROM [vwOrgUnitIDs] 
+                                         WHERE RS = @OrgUnitID 
+                                        UNION 
+                                        SELECT RSS 
+                                          FROM [vwOrgUnitIDs] 
+                                         WHERE RSS = @OrgUnitID 
+                                        UNION 
+                                        SELECT @OrgUnitID) 
+               OR @OrgUnitID = 0 
+               OR @OrgUnitID IS NULL) 
+          AND lsd.StatusDisposi.onID IN (22, 
+                                          28, 
+                                          29, 
+                                          30, 
+                                          31, 
+                                          32, 
+                                          33, 
+                                          34, 
+                                          35, 
+                                          36, 
+                                          37, 
+                                          38) 
+       
+   --union 
+   INSERT INTO #Result_Set (LeadId, 
+                            ReserveRUCID, 
+                            Organiza.onID, 
+                            RankDescrip.on, 
+                            RankAbbr, 
+                            FirstName, 
+                            MiddleName, 
+                            LastName, 
+                            ApplicantPackageTypeID, 
+                            ApplicantPackageDescrip.on, 
+                            QSNID, 
+                            DateSubmited, 
+                            DateJoinCredit, 
+                            MOSMatchTypeID, 
+                            MOSDescrip.on, 
+                            PayGradeType, 
+                            StatusID, 
+                            StatusDescrip.on, 
+                            Disposi.onID, 
+                            Disposi.onDescrip.on, 
+                            FiscalYear, 
+                            NWARequestTypeID, 
+                            ErroneousJoin) 
+      SELECT LeadID,                                        --not a PSR LeadID 
+             CASE WHEN IsOpen = 1 THEN NULL ELSE 0 END AS ReserveRUCID, --bogus se.ng to make RUC convey open status 
+  PSROrgUnitID,  
+             NULL RankDescrip.on, 
+             NULL RankAbbr, 
+             NULL FirstName, 
+             NULL MiddleName, 
+             NULL LastName, 
+  ApplicantPackageTypeID, 
+             NULL ApplicantPackageDescrip.on, 
+             NULL QSNID, 
+  DateOfJoin DateSubmited, 
+  DateOfJoin DateJoinCredit,  
+             CASE WHEN IsOpen = 1 THEN NULL ELSE 1 END AS MOSMatchTypeID, --bogus se.ng to make MMT convey open status 
+             NULL MOSDescrip.on, 
+  PayGradeType, 
+  StatusID, 
+             NULL StatusDescrip.on, 
+             NULL Disposi.onID, 
+             NULL Dispos.onDescrip.on, 
+  '2011' FiscalYear, 
+             NULL NWARequestTypeID, 
+             NULL ErroneousJoin 
+        FROM dbo.vwFiscalYearJoins2011 
+       WHERE     DateOfJoin BETWEEN @FromDate AND @ToDate + 1 
+             AND (   PSROrgUnitID IN (SELECT Region 
+                                        FROM [vwOrgUnitIDs] 
+                                       WHERE HQ = @OrgUnitID 
+                                      UNION 
+                                      SELECT RS 
+                                        FROM [vwOrgUnitIDs] 
+                                       WHERE HQ = @OrgUnitID 
+                                      UNION 
+                                      SELECT RS 
+                                        FROM [vwOrgUnitIDs] 
+                                       WHERE Region = @OrgUnitID 
+                                      UNION 
+                                      SELECT RSS 
+                                        FROM [vwOrgUnitIDs] 
+                                       WHERE HQ = @OrgUnitID 
+                                      UNION 
+                                      SELECT RSS 
+                                        FROM [vwOrgUnitIDs] 
+                                       WHERE Region = @OrgUnitID 
+                                      UNION 
+                                      SELECT RSS 
+                                        FROM [vwOrgUnitIDs] 
+                                       WHERE RS = @OrgUnitID 
+                                      UNION 
+                                      SELECT RSS 
+                                        FROM [vwOrgUnitIDs] 
+                                       WHERE RSS = @OrgUnitID 
+                                      UNION 
+                                      SELECT @OrgUnitID) 
+                  OR @OrgUnitID = 0 
+                  OR @OrgUnitID IS NULL) --And LeadID='E8B6DDFC-A91D-41A5-8D57-FCE84B6587B3' 
+       
+   SELECT * FROM #Result_Set 
+ 
+   --Cleanup 
+   DROP TABLE #Result_Set]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+</StoredProcedureSqlServerv2k5>

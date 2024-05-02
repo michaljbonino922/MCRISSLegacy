@@ -1,0 +1,20 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetDutyPreferences]" directorySegmentName="seg_17" id="9B6DD49A-2F6F-0985-F4A0-F9BEF8C1109B">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@ProgramType varchar(4) 
+AS 
+ 
+SELECT  
+ P.DUTY_PREFERENCE_CODE, D.DUTY_PREFERENCE_DESCRIPTION 
+FROM  
+ PROGRAM_DUTY_PREFERENCE P INNER JOIN DUTY_PREFERENCE D ON P.DUTY_PREFERENCE_CODE = D.DUTY_PREFERENCE_CODE 
+WHERE  
+ P.PROGRAM_CODE = @ProgramType  
+ORDER BY  
+ D.DUTY_PREFERENCE_DESCRIPTION]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

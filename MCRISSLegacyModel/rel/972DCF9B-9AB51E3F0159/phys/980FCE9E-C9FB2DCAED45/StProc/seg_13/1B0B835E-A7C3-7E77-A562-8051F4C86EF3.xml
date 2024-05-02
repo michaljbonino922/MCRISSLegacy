@@ -1,0 +1,177 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetCanvassDataByCardId2]" directorySegmentName="seg_13" id="1B0B835E-A7C3-7E77-A562-8051F4C86EF3">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@CardId   uniqueiden..er  
+ AS 
+BEGIN 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+ DECLARE @SchoolCode uniqueiden..er 
+ DECLARE @SchoolYear int 
+ 
+ CREATE TABLE #RESULTS 
+ ( 
+   Date DATETIME 
+  ,ProspectId UNIQUEIDENTIFIER 
+ ) 
+ 
+ SELECT  
+  @SchoolCode = hs.rowguid,  
+  @SchoolYear = SCHOOL_YEAR  
+ FROM  
+  MCRISS.dbo.HIGH_SCHOOL_PROFILE hsp 
+  INNER JOIN MCRISS.dbo.HIGH_SCHOOL hs 
+   ON hs.SCHOOL_CODE = hsp.SCHOOL_CODE 
+ WHERE hsp.rowguid = @CardId    
+ 
+ INSERT INTO #RESULTS 
+ SELECT 
+  EventDate AS date, 
+  prospec.d 
+ FROM  
+ ( 
+  select  
+   CAST( CONVERT(varchar(4), YEAR(t1.startdate)) + '-' + 
+         CONVERT(varchar(2), MONTH(t1.startdate)) + '-' + 
+         CONVERT(varchar(2), DAY(t1.startdate)) AS date.me) AS EventDate,  
+   t2.prospec.d  
+  from  
+  ( 
+   SELECT  DISTINCT 
+    CAST(CONVERT(varchar(4), YEAR(e.startdate)) + '-' + 
+    CONVERT(varchar(2), MONTH(e.startdate)) + '-' + 
+    CONVERT(varchar(2), DAY(e.startdate)) AS date.me) AS Startdate 
+   FROM  
+    RSSOSS.USMC.Event e  
+    INNER JOIN RSSOSS.USMC.EventSubject es  
+    ON es.subjec.d = @CardId  
+       AND e.id=es.even.d  
+       AND e.EventSourceId = 20 
+    
+   UNION 
+    
+   SELECT DISTINCT 
+    CAST(CONVERT(varchar(4), YEAR(updatedate)) + '-' + 
+    CONVERT(varchar(2), MONTH(updatedate)) + '-' + 
+    CONVERT(varchar(2), DAY(updatedate)) AS date.me) AS Startdate 
+   FROM  
+    PROSPECTING.USMC.ImportEvent AS ie  
+    INNER JOIN PROSPECTING.USMC.ImportPerson AS iper ON (iper.ImportEventId = ie.ImportEventId) 
+    INNER JOIN PROSPECTING.USMC.Person AS per ON per.PersonId = iper.PersonId  
+    INNER JOIN PROSPECTING.USMC.Prospect AS p ON p.PersonId = iper.PersonId  
+    INNER join PROSPECTING.USMC.ProspectStatusHistory psh  
+     ON p.prospec.d=psh.prospec.d  
+      AND psh.Disposi.onId IN (2, 3, 4)  
+   WHERE  
+    ie.SchoolId = @SchoolCode and ie.Gradua.onYear = @SchoolYear 
+    AND ie.ImportEventStatusTypeId = 3 
+  ) t1  
+  LEFT OUTER JOIN  
+  ( 
+   select  
+    psh.prospec.d,  
+    min(psh.updatedate) as updatedate  
+    FROM PROSPECTING.USMC.ImportEvent AS ie  
+    INNER JOIN PROSPECTING.USMC.ImportPerson AS iper ON (iper.ImportEventId = ie.ImportEventId) 
+    INNER JOIN PROSPECTING.USMC.Person AS per ON per.PersonId = iper.PersonId  
+    INNER JOIN PROSPECTING.USMC.Prospect AS p ON p.PersonId = iper.PersonId  
+    inner join PROSPECTING.USMC.ProspectStatusHistory psh on p.prospec.d=psh.prospec.d and  
+                 psh.Disposi.onId IN (2,3, 4)  
+                WHERE  
+     ie.SchoolId = @SchoolCode and ie.Gradua.onYear = @SchoolYear 
+     AND ie.ImportEventStatusTypeId = 3 
+    group by psh.prospec.d 
+  ) t2  
+  ON (CONVERT(VARCHAR(10), t1.startdate, 120)) >= ( CONVERT(VARCHAR(10), t2.updatedate, 120))  
+   
+   
+ ) t3 
+ WHERE ProspectId IS NOT NULL 
+ GROUP BY EventDate, ProspectId 
+ 
+ INSERT INTO #RESULTS 
+ SELECT 
+  EventDate AS date, 
+  prospec.d 
+ FROM  
+ ( 
+  select  
+   CAST( CONVERT(varchar(4), YEAR(t1.startdate)) + '-' + 
+         CONVERT(varchar(2), MONTH(t1.startdate)) + '-' + 
+         CONVERT(varchar(2), DAY(t1.startdate)) AS date.me) AS EventDate,  
+   t2.prospec.d  
+  from  
+  ( 
+   SELECT  DISTINCT 
+    CAST(CONVERT(varchar(4), YEAR(e.startdate)) + '-' + 
+    CONVERT(varchar(2), MONTH(e.startdate)) + '-' + 
+    CONVERT(varchar(2), DAY(e.startdate)) AS date.me) AS Startdate 
+   FROM  
+    RSSOSS.USMC.Event e  
+    INNER JOIN RSSOSS.USMC.EventSubject es  
+    ON es.subjec.d = @CardId  
+       AND e.id=es.even.d  
+       AND e.EventSourceId = 20 
+    
+   UNION 
+    
+   SELECT DISTINCT 
+    CAST(CONVERT(varchar(4), YEAR(updatedate)) + '-' + 
+    CONVERT(varchar(2), MONTH(updatedate)) + '-' + 
+    CONVERT(varchar(2), DAY(updatedate)) AS date.me) AS Startdate 
+   FROM  
+    PROSPECTING.USMC.ImportEvent AS ie  
+    INNER JOIN PROSPECTING.USMC.ImportPerson AS iper ON (iper.ChildImportEventId = ie.ImportEventId) 
+    INNER JOIN PROSPECTING.USMC.Person AS per ON per.PersonId = iper.PersonId  
+    INNER JOIN PROSPECTING.USMC.Prospect AS p ON p.PersonId = iper.PersonId  
+    INNER join PROSPECTING.USMC.ProspectStatusHistory psh  
+     ON p.prospec.d=psh.prospec.d  
+      AND psh.Disposi.onId IN (2, 3, 4)  
+   WHERE  
+    ie.SchoolId = @SchoolCode and ie.Gradua.onYear = @SchoolYear 
+    AND ie.ImportEventStatusTypeId = 3 
+  ) t1  
+  LEFT OUTER JOIN  
+  ( 
+   select  
+    psh.prospec.d,  
+    min(psh.updatedate) as updatedate  
+    FROM PROSPECTING.USMC.ImportEvent AS ie  
+    INNER JOIN PROSPECTING.USMC.ImportPerson AS iper ON (iper.ChildImportEventId = ie.ImportEventId) 
+    INNER JOIN PROSPECTING.USMC.Person AS per ON per.PersonId = iper.PersonId  
+    INNER JOIN PROSPECTING.USMC.Prospect AS p ON p.PersonId = iper.PersonId  
+    inner join PROSPECTING.USMC.ProspectStatusHistory psh on p.prospec.d=psh.prospec.d and  
+                 psh.Disposi.onId IN (2,3, 4)  
+                WHERE  
+     ie.SchoolId = @SchoolCode and ie.Gradua.onYear = @SchoolYear 
+     AND ie.ImportEventStatusTypeId = 3 
+    group by psh.prospec.d 
+  ) t2  
+  ON (CONVERT(VARCHAR(10), t1.startdate, 120)) >= ( CONVERT(VARCHAR(10), t2.updatedate, 120))  
+   
+   
+ ) t3 
+ WHERE ProspectId IS NOT NULL 
+ GROUP BY EventDate, ProspectId 
+ 
+-- SELECT * FROM #RESULTS 
+-- ORDER BY Date ASC, ProspectId 
+ 
+ SELECT  r.date 
+   ,COUNT(DISTINCT r.ProspectId) AS cumscrubbed 
+    FROM #RESULTS r 
+-- WHERE r.date IN (SELECT MIN(r2.date) 
+--      FROM #RESULTS r2 
+--      WHERE r2.ProspectId = r.ProspectId) 
+ GROUP BY r.date 
+ 
+ DROP TABLE #RESULTS 
+                          
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

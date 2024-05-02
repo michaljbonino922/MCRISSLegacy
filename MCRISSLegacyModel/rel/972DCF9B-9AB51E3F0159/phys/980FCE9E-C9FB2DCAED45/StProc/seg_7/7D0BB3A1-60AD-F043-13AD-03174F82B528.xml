@@ -1,0 +1,320 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUpdateObjec.veSheet]" directorySegmentName="seg_7" id="7D0BB3A1-60AD-F043-13AD-03174F82B528">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@OrgID     uniqueidentifier, 
+    @RecruiterID     uniqueidentifier, 
+    @Year     int, 
+    @Month     int, 
+    @MonthObjetv     xml, 
+    @WeekObjetv     xml, 
+    @UpdatedByUserID     uniqueidentifier 
+ 
+AS 
+BEGIN 
+ 
+ -- Start the transac.on 
+ BEGIN TRANSACTION 
+     
+    DECLARE @MonthObjID uniqueidentifier 
+    SET @MonthObjID = NULL 
+     
+    SELECT @MonthObjID = ID FROM USMC.MonthlyObjec.ve 
+     WHERE  
+     Organiza.onId = @OrgID 
+     AND RecruiterID = @RecruiterID   
+        AND Year = @Year 
+     AND Month = @Month 
+  
+ DECLARE @WeekObjTable TABLE  
+ (  
+  StartDate date.me , 
+  EndDate date.me , 
+  GoalPercentage decimal(5, 2) , 
+  NwaObjec.ve int , 
+  InterviewObjec.ve int , 
+  TelephoneCallObjec.ve int , 
+  O.ceTra.cObjec.ve int , 
+  AreaCanvassingObjec.ve int , 
+  HomeVisitObjec.ve int , 
+  ElectronicProspec.ngObjec.ve int  
+ ) 
+ 
+ DECLARE @MonthObjTable TABLE  
+   (  
+    TelephoneCallABP decimal(4, 2) , 
+    O.ceTra.cABP decimal(4, 2) , 
+    AreaCanvassingABP decimal(4, 2) , 
+    HomeVisitABP decimal(4, 2) , 
+    ElectronicProspec.ngABP decimal(4, 2) , 
+    ContractCount int , 
+    Nwa int , 
+    Interview int , 
+    TelephoneCall int , 
+    O.ceTra.c int , 
+    AreaCanvassing int , 
+    HomeVisit int , 
+    ElectronicProspec.ng int 
+   ) 
+   
+ INSERT INTO @MonthObjTable  
+    ( 
+     TelephoneCallABP 
+     ,O.ceTra.cABP 
+     ,AreaCanvassingABP 
+     ,HomeVisitABP 
+     ,ElectronicProspec.ngABP 
+     ,ContractCount 
+     ,Nwa 
+     ,Interview  
+     ,TelephoneCall  
+     ,O.ceTra.c  
+     ,AreaCanvassing  
+     ,HomeVisit  
+     ,ElectronicProspec.ng  
+    ) 
+  SELECT  
+   ParamValues.MonthObj.query('AdjBpTc').value('.', 'int') 
+  ,ParamValues.MonthObj.query('AdjBpOt').value('.', 'int') 
+  ,ParamValues.MonthObj.query('AdjBpAc').value('.', 'int') 
+  ,ParamValues.MonthObj.query('AdjBpHv').value('.', 'int') 
+  ,ParamValues.MonthObj.query('AdjBpEp').value('.', 'int') 
+  ,ParamValues.MonthObj.query('Contract').value('.', 'int') 
+  ,ParamValues.MonthObj.query('Nwa').value('.', 'int') 
+  ,ParamValues.MonthObj.query('Interview').value('.', 'int') 
+  ,ParamValues.MonthObj.query('Tc').value('.', 'int') 
+  ,ParamValues.MonthObj.query('Ot').value('.', 'int') 
+  ,ParamValues.MonthObj.query('Ac').value('.', 'int') 
+  ,ParamValues.MonthObj.query('Hv').value('.', 'int') 
+  ,ParamValues.MonthObj.query('Dc').value('.', 'int')       
+  FROM @MonthObjetv.nodes('MonthlyObjec.ve') as ParamValues(MonthObj) 
+      
+    IF @MonthObjID IS NOT NULL 
+    BEGIN 
+   
+  UPDATE [USMC].[MonthlyObjec.ve] 
+  SET  [TelephoneCallABP] = m.TelephoneCallABP 
+     ,[O.ceTra.cABP] = m.O.ceTra.cABP 
+     ,[AreaCanvassingABP] = m.AreaCanvassingABP 
+     ,[HomeVisitABP] = m.HomeVisitABP 
+     ,[ElectronicProspec.ngABP] = m.ElectronicProspec.ngABP 
+     ,[ContractCount] = m.ContractCount 
+     ,[LastUpdateDate] = GETDATE() 
+     ,[LastUpdateUserId] = @UpdatedByUserID 
+     ,[Nwa] = m.Nwa 
+     ,[Interview] = m.Interview 
+     ,[TelephoneCall] = m.TelephoneCall 
+     ,[O.ceTra.c] = m.O.ceTra.c 
+     ,[AreaCanvassing] = m.AreaCanvassing 
+     ,[HomeVisit] = m.HomeVisit 
+     ,[ElectronicProspec.ng] = m.ElectronicProspec.ng 
+   
+  FROM @MonthObjTable m 
+  WHERE 
+    [ID] = @MonthObjID 
+   
+  INSERT INTO @WeekObjTable  
+     ( 
+      StartDate 
+      ,EndDate 
+      ,GoalPercentage 
+      ,NwaObjec.ve 
+      ,InterviewObjec.ve 
+      ,TelephoneCallObjec.ve 
+      ,O.ceTra.cObjec.ve 
+      ,AreaCanvassingObjec.ve 
+      ,HomeVisitObjec.ve 
+      ,ElectronicProspec.ngObjec.ve 
+     ) 
+   
+  SELECT 
+   ParamValues.WeekObj.query('start').value('.', 'varchar(10)') 
+  ,ParamValues.WeekObj.query('end').value('.', 'varchar(10)') 
+  ,ParamValues.WeekObj.query('Goal').value('.', 'int') 
+  ,ParamValues.WeekObj.query('Nwa').value('.', 'int') 
+  ,ParamValues.WeekObj.query('Interview').value('.', 'int') 
+  ,ParamValues.WeekObj.query('Tc').value('.', 'int') 
+  ,ParamValues.WeekObj.query('Ot').value('.', 'int') 
+  ,ParamValues.WeekObj.query('Ac').value('.', 'int') 
+  ,ParamValues.WeekObj.query('Hv').value('.', 'int') 
+  ,ParamValues.WeekObj.query('Dc').value('.', 'int') 
+  FROM  @WeekObjetv.nodes('WeekList/Week') as ParamValues(WeekObj) 
+   
+  DELETE FROM USMC.WeeklyObjec.ve 
+  WHERE  
+  MonthlyObjec.veID=@MonthObjID 
+   
+  INSERT INTO USMC.WeeklyObjec.ve 
+      (ID 
+      ,MonthlyObjec.veID 
+      ,StartDate 
+      ,EndDate 
+      ,GoalPercentage 
+      ,NwaObjec.ve 
+      ,InterviewObjec.ve 
+      ,TelephoneCallObjec.ve 
+      ,O.ceTra.cObjec.ve 
+      ,AreaCanvassingObjec.ve 
+      ,HomeVisitObjec.ve 
+      ,ElectronicProspec.ngObjec.ve 
+      ,LastUpdateDate 
+      ,LastUpdateUserId) 
+  SELECT 
+   newid() 
+   ,@MonthObjID 
+   ,StartDate 
+   ,EndDate 
+   ,GoalPercentage 
+   ,NwaObjec.ve 
+   ,InterviewObjec.ve 
+   ,TelephoneCallObjec.ve 
+   ,O.ceTra.cObjec.ve 
+   ,AreaCanvassingObjec.ve 
+   ,HomeVisitObjec.ve 
+   ,ElectronicProspec.ngObjec.ve 
+   ,GETDATE() 
+   ,@UpdatedByUserID 
+  FROM @WeekObjTable 
+   
+     
+    END 
+    ELSE  -- NEW Objec.ve 
+    BEGIN 
+   
+  SET @MonthObjID = newid() 
+      
+  INSERT INTO USMC.MonthlyObjec.ve 
+      (ID 
+      ,Organiza.onId 
+      ,RecruiterID 
+      ,Year 
+      ,Month 
+      ,TelephoneCallABP 
+      ,O.ceTra.cABP 
+      ,AreaCanvassingABP 
+      ,HomeVisitABP 
+      ,ElectronicProspec.ngABP 
+      ,ContractCount 
+      ,Nwa 
+      ,Interview 
+      ,TelephoneCall 
+      ,O.ceTra.c 
+      ,AreaCanvassing 
+      ,HomeVisit 
+      ,ElectronicProspec.ng 
+      ,LastUpdateDate 
+      ,LastUpdateUserId) 
+  SELECT  
+    @MonthObjID 
+   ,@OrgID 
+   ,@RecruiterID 
+   ,@Year 
+   ,@Month 
+   ,TelephoneCallABP 
+   ,O.ceTra.cABP 
+   ,AreaCanvassingABP 
+   ,HomeVisitABP 
+   ,ElectronicProspec.ngABP 
+   ,ContractCount 
+   ,Nwa 
+   ,Interview  
+   ,TelephoneCall  
+   ,O.ceTra.c  
+   ,AreaCanvassing  
+   ,HomeVisit  
+   ,ElectronicProspec.ng 
+   ,GETDATE() 
+   ,@UpdatedByUserID 
+  FROM @MonthObjTable 
+    
+  INSERT INTO @WeekObjTable  
+     ( 
+      StartDate 
+      ,EndDate 
+      ,GoalPercentage 
+      ,NwaObjec.ve 
+      ,InterviewObjec.ve 
+      ,TelephoneCallObjec.ve 
+      ,O.ceTra.cObjec.ve 
+      ,AreaCanvassingObjec.ve 
+      ,HomeVisitObjec.ve 
+      ,ElectronicProspec.ngObjec.ve 
+     ) 
+   
+  SELECT 
+   ParamValues.WeekObj.query('start').value('.', 'varchar(10)') 
+  ,ParamValues.WeekObj.query('end').value('.', 'varchar(10)') 
+  ,ParamValues.WeekObj.query('Goal').value('.', 'int') 
+  ,ParamValues.WeekObj.query('Nwa').value('.', 'int') 
+  ,ParamValues.WeekObj.query('Interview').value('.', 'int') 
+  ,ParamValues.WeekObj.query('Tc').value('.', 'int') 
+  ,ParamValues.WeekObj.query('Ot').value('.', 'int') 
+  ,ParamValues.WeekObj.query('Ac').value('.', 'int') 
+  ,ParamValues.WeekObj.query('Hv').value('.', 'int') 
+  ,ParamValues.WeekObj.query('Dc').value('.', 'int') 
+  FROM  @WeekObjetv.nodes('WeekList/Week') as ParamValues(WeekObj) 
+   
+  INSERT INTO USMC.WeeklyObjec.ve 
+      (ID 
+      ,MonthlyObjec.veID 
+      ,StartDate 
+      ,EndDate 
+      ,GoalPercentage 
+      ,NwaObjec.ve 
+      ,InterviewObjec.ve 
+      ,TelephoneCallObjec.ve 
+      ,O.ceTra.cObjec.ve 
+      ,AreaCanvassingObjec.ve 
+      ,HomeVisitObjec.ve 
+      ,ElectronicProspec.ngObjec.ve 
+      ,LastUpdateDate 
+      ,LastUpdateUserId) 
+  SELECT 
+   newid() 
+   ,@MonthObjID 
+   ,StartDate 
+   ,EndDate 
+   ,GoalPercentage 
+   ,NwaObjec.ve 
+   ,InterviewObjec.ve 
+   ,TelephoneCallObjec.ve 
+   ,O.ceTra.cObjec.ve 
+   ,AreaCanvassingObjec.ve 
+   ,HomeVisitObjec.ve 
+   ,ElectronicProspec.ngObjec.ve 
+   ,GETDATE() 
+   ,@UpdatedByUserID 
+  FROM @WeekObjTable 
+     
+     
+     
+     
+     
+    END 
+      
+  
+  
+     
+     
+ -- Rollback the transac.on if there were any errors 
+ IF @@ERROR <> 0 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+ 
+  -- Raise an error and return 
+  RAISERROR ('Error occurred while performing the change.', 16, 1) 
+  RETURN 
+ END 
+ 
+   
+ -- If we reach this point, the commands completed successfully 
+ --         Commit the transac.on.... 
+ COMMIT TRANSACTION 
+  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

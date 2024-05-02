@@ -1,0 +1,95 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SPGEN_CANDSTATUS]" directorySegmentName="seg_26" id="0040BE65-0EF6-495E-0B05-8F74E3207577">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@nwa_id    int, 
+@stage     varchar(7), 
+@type    varchar(3), 
+@status_e._date date.me 
+ 
+as 
+ 
+declare @comments   varchar(40), 
+ @status_type  char(1), 
+ @user_login  varchar(15), 
+ @update_date  date.me 
+ 
+select @comments = NULL 
+select @user_login = 'migra.on' 
+select @update_date = getdate() 
+ 
+if @type = 'ENL' 
+ begin 
+   select @status_type = 'E' 
+   if @stage = 'NWA' 
+    begin 
+  insert CANDIDATE_STATUS 
+ (NWA_ID,STATUS_EFFECTIVE_DATE,COMMENTS,STATUS_TYPE,STATUS_CODE,DISPOSITION_CODE 
+      ,USER_LOGIN,UPDATE_DATE) 
+  values(@nwa_id, @status_e._date,@comments,@status_type,'A','F', 
+ @user_login,@update_date) 
+ end 
+   if @stage = 'CON' 
+    begin 
+  insert CANDIDATE_STATUS 
+ (NWA_ID,STATUS_EFFECTIVE_DATE,COMMENTS,STATUS_TYPE,STATUS_CODE,DISPOSITION_CODE 
+      ,USER_LOGIN,UPDATE_DATE) 
+  values(@nwa_id, @status_e._date,@comments,@status_type,'B','K', 
+ @user_login,@update_date) 
+   
+ end 
+   if @stage = 'SHP' 
+    begin 
+  insert CANDIDATE_STATUS 
+ (NWA_ID,STATUS_EFFECTIVE_DATE,COMMENTS,STATUS_TYPE,STATUS_CODE,DISPOSITION_CODE 
+      ,USER_LOGIN,UPDATE_DATE) 
+  values(@nwa_id, @status_e._date,@comments,@status_type,'C','N', 
+ @user_login,@update_date) 
+  
+    end 
+   if @stage = 'DEP_CON' 
+    begin 
+  insert CANDIDATE_STATUS 
+ (NWA_ID,STATUS_EFFECTIVE_DATE,COMMENTS,STATUS_TYPE,STATUS_CODE,DISPOSITION_CODE 
+      ,USER_LOGIN,UPDATE_DATE) 
+  values(@nwa_id, @status_e._date,@comments,@status_type,'B','L', 
+ @user_login,@update_date) 
+ 
+ end 
+   if @stage = 'DEP_SHP' 
+    begin 
+  insert CANDIDATE_STATUS 
+ (NWA_ID,STATUS_EFFECTIVE_DATE,COMMENTS,STATUS_TYPE,STATUS_CODE,DISPOSITION_CODE 
+      ,USER_LOGIN,UPDATE_DATE) 
+  values(@nwa_id, @status_e._date,@comments,@status_type,'C','O', 
+ @user_login,@update_date) 
+  
+ end 
+ end 
+ else 
+  begin 
+   select @status_type = 'O' 
+   if @stage = 'NWA' 
+    begin 
+  insert CANDIDATE_STATUS 
+ (NWA_ID,STATUS_EFFECTIVE_DATE,COMMENTS,STATUS_TYPE,STATUS_CODE,DISPOSITION_CODE 
+      ,USER_LOGIN,UPDATE_DATE) 
+  values(@nwa_id, @status_e._date,@comments,@status_type,'A','F', 
+ @user_login,@update_date) 
+  
+ end 
+   if @stage = 'CON' 
+    begin 
+  insert CANDIDATE_STATUS 
+ (NWA_ID,STATUS_EFFECTIVE_DATE,COMMENTS,STATUS_TYPE,STATUS_CODE,DISPOSITION_CODE 
+      ,USER_LOGIN,UPDATE_DATE) 
+  values(@nwa_id, @status_e._date,@comments,@status_type,'B','W', 
+ @user_login,@update_date) 
+  
+ end 
+  end]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

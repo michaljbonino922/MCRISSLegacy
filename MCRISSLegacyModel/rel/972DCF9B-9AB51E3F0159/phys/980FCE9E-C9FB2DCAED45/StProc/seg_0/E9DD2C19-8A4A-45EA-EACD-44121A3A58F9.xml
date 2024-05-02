@@ -1,0 +1,215 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_ShowMirsErrorsByTopic]" directorySegmentName="seg_0" id="E9DD2C19-8A4A-45EA-EACD-44121A3A58F9">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:09 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@ERROR_CATEGORY  varchar(15), 
+@ERROR_DATE  datetime = NULL 
+ 
+as 
+set NOCOUNT ON 
+if @ERROR_DATE is null 
+set @ERROR_DATE = getdate() 
+ 
+if @ERROR_CATEGORY in ('PERSONAL','ASVAB','MEDICAL','SPECIAL','CONTRACT','ACCESSION','FTP', 'SSN','ROLLBACK') 
+BEGIN 
+ 
+ --Create Temp Table to store Codes per Error Type 
+ 
+ create table #temp_cd 
+ ( 
+ cd  varchar(2), 
+ error_type varchar(15) 
+ ) 
+ 
+--PERSONAL 
+ insert into #temp_cd values 
+ ('8','PERSONAL') 
+ insert into #temp_cd values 
+ ('16','PERSONAL') 
+ insert into #temp_cd values 
+ ('20','PERSONAL') 
+--ASVAB 
+ insert into #temp_cd values 
+ ('2','ASVAB') 
+--MEDICAL 
+ insert into #temp_cd values 
+ ('7','MEDICAL') 
+--SPECIAL EXAM 
+ insert into #temp_cd values 
+ ('10','SPECIAL') 
+--CONTRACT 
+ insert into #temp_cd values 
+ ('15','CONTRACT') 
+ insert into #temp_cd values 
+ ('36','CONTRACT') 
+ insert into #temp_cd values 
+ ('37','CONTRACT') 
+ insert into #temp_cd values 
+ ('41','CONTRACT') 
+ insert into #temp_cd values 
+ ('42','CONTRACT') 
+ insert into #temp_cd values 
+ ('46','CONTRACT') 
+ insert into #temp_cd values 
+ ('48','CONTRACT') 
+--ACCESSION 
+ insert into #temp_cd values 
+ ('24','ACCESSION') 
+ insert into #temp_cd values 
+ ('38','ACCESSION') 
+ insert into #temp_cd values 
+ ('43','ACCESSION') 
+ insert into #temp_cd values 
+ ('44','ACCESSION') 
+ insert into #temp_cd values 
+ ('45','ACCESSION') 
+ insert into #temp_cd values 
+ ('49','ACCESSION') 
+--SSN 
+ insert into #temp_cd values 
+ ('47','SSN') 
+--FTP 
+ insert into #temp_cd values 
+ ('25','FTP') 
+ insert into #temp_cd values 
+ ('26','FTP') 
+ insert into #temp_cd values 
+ ('27','FTP') 
+ insert into #temp_cd values 
+ ('28','FTP') 
+ insert into #temp_cd values 
+ ('29','FTP') 
+ 
+--ROLLBACK 
+ insert into #temp_cd values 
+ ('52','ROLLBACK') 
+ insert into #temp_cd values 
+ ('53','ROLLBACK') 
+ 
+--BEGIN SELECT LOGIC  
+ IF @ERROR_CATEGORY IN ('PERSONAL','ASVAB','MEDICAL','SPECIAL', 'SSN','ROLLBACK') 
+ BEGIN 
+  
+--FOR 'PERSONAL, ASVAB, MEDICAL, SPECIAL, SSN' 
+ 
+  select  mil.Mirs_Import_Id, 
+   mil.File_Name, 
+   mil.SSN, 
+   mil.fourK, 
+   mil.Update_Date, 
+   el.Error_Log_Id, 
+   el.Error_Cd, 
+   em.Error_Desc, 
+   el.Severity_Cd, 
+   es.Severity_Desc, 
+   el.Exception_Msg, 
+   el.Tech_Notes, 
+   el.Update_date 
+  from  MIRS_IMPORT_LOG mil, 
+   MIRS_IMPORT_ERROR mie, 
+   ERROR_LOG el, 
+   ERROR_MESSAGES em, 
+   ERROR_SEVERITY es 
+  where  mil.MIRS_IMPORT_ID = mie.MIRS_IMPORT_ID and 
+   mie.ERROR_LOG_ID = el.ERROR_LOG_ID and 
+   el.SEVERITY_CD = es.SEVERITY_CD and 
+   el.ERROR_CD = em.ERROR_CD and 
+   datepart(YYYY, el.update_date) = datepart(YYYY, @ERROR_DATE) and 
+   datepart(MM, el.update_date) = datepart(MM, @ERROR_DATE) and 
+   datepart(DD, el.update_date) = datepart(DD, @ERROR_DATE) and 
+   el.error_log_id = mie.error_log_id and 
+   el.error_cd in (select cd from #temp_cd where ERROR_TYPE = @ERROR_CATEGORY) 
+ 
+ END 
+ ELSE 
+  IF @ERROR_CATEGORY IN ('CONTRACT','ACCESSION') 
+  BEGIN 
+--FOR 'CONTRACT, ACCESSION......' 
+ 
+  select  mil.Mirs_Import_Id, 
+   mil.File_Name, 
+   mil.SSN, 
+   mil.fourK, 
+   mil.Dep_Enlistment_Date, 
+   mil.Accession_Enlistment_Date, 
+   mil.Accession_Date, 
+   mil.Update_Date, 
+   el.Error_Log_Id, 
+   el.Error_Cd, 
+   em.Error_Desc, 
+   el.Severity_Cd, 
+   es.Severity_Desc, 
+   el.Exception_Msg, 
+   el.Tech_Notes, 
+   el.Update_date 
+  from  MIRS_IMPORT_LOG mil, 
+   MIRS_IMPORT_ERROR mie, 
+   ERROR_LOG el, 
+   ERROR_MESSAGES em, 
+   ERROR_SEVERITY es 
+  where  mil.MIRS_IMPORT_ID = mie.MIRS_IMPORT_ID and 
+   mie.ERROR_LOG_ID = el.ERROR_LOG_ID and 
+   el.SEVERITY_CD = es.SEVERITY_CD and 
+   el.ERROR_CD = em.ERROR_CD and 
+   datepart(YYYY, el.update_date) = datepart(YYYY, @ERROR_DATE) and 
+   datepart(MM, el.update_date) = datepart(MM, @ERROR_DATE) and 
+   datepart(DD, el.update_date) = datepart(DD, @ERROR_DATE) and 
+   el.error_log_id = mie.error_log_id and 
+   el.error_cd in (select cd from #temp_cd where ERROR_TYPE = @ERROR_CATEGORY) 
+    
+   
+ 
+  END 
+   ELSE 
+    IF @ERROR_CATEGORY = 'FTP' 
+    BEGIN 
+      
+--FOR  'FTP' 
+    select  el.Error_Log_Id, 
+     el.Error_Cd, 
+     em.Error_Desc, 
+     el.Severity_Cd, 
+     es.Severity_Desc, 
+     el.Exception_Msg, 
+     el.Tech_Notes, 
+     el.Update_date 
+ 
+    from 
+    ERROR_LOG el, 
+    ERROR_MESSAGES em, 
+    ERROR_SEVERITY es 
+    where 
+    el.Error_Cd = em.Error_Cd and 
+    datepart(YYYY, el.update_date) = datepart(YYYY, @ERROR_DATE) and 
+    datepart(MM, el.update_date) = datepart(MM, @ERROR_DATE) and 
+    datepart(DD, el.update_date) = datepart(DD, @ERROR_DATE) and     
+    el.Severity_Cd = es.Severity_Cd and 
+    el.error_cd in (select cd from #temp_cd where ERROR_TYPE = @ERROR_CATEGORY) 
+     
+ 
+ 
+    END 
+     
+    
+      
+ 
+  
+ 
+ 
+ 
+ 
+ 
+END 
+ 
+ELSE 
+ BEGIN 
+ PRINT 'THE 1ST PARAMETER MUST BE ONE OF THE FOLLOWING:' 
+ PRINT 'PERSONAL, ASVAB,MEDICAL,SPECIAL, CONTRACT,ACCESSION,FTP, SSN' 
+ END 
+ 
+drop table #temp_cd]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>24B9F7BA-5DD4-EAB5-4EB1-35B911743E85</database>
+</StoredProcedureSqlServerv2k5>

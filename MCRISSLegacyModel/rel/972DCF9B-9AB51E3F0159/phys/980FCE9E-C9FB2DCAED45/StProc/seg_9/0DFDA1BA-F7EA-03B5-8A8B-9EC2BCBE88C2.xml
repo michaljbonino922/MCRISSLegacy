@@ -1,0 +1,23 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetQsnDataByQsnID]" directorySegmentName="seg_9" id="0DFDA1BA-F7EA-03B5-8A8B-9EC2BCBE88C2">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @QSN_ID int 
+) 
+AS 
+ 
+SELECT  
+ QSN_ID, 
+ CONTRACT_ID, 
+ MOS, 
+ BONUS_CONTROL_NUMBER, 
+ BONUS_AMOUNT, 
+ KICKER_CONTROL 
+FROM QSN WITH (NOLOCK) 
+WHERE QSN_ID = @QSN_ID]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

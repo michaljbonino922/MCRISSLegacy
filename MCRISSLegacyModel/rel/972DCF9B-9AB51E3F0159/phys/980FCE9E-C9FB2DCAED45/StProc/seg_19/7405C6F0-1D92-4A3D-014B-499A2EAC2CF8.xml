@@ -1,0 +1,21 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetOCSDropReasons]" directorySegmentName="seg_19" id="7405C6F0-1D92-4A3D-014B-499A2EAC2CF8">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@Category varchar(4) 
+AS 
+ 
+SELECT  
+ DROP_REASON_CODE,  
+ DROP_REASON_CODE + ' - ' + DROP_REASON_DESCRIPTION AS DROP_REASON_DESCRIPTION 
+FROM  
+ OCS_DROP_REASON 
+WHERE 
+ DROP_REASON_CATEGORY = @Category 
+ORDER BY 
+ DROP_REASON_CODE]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

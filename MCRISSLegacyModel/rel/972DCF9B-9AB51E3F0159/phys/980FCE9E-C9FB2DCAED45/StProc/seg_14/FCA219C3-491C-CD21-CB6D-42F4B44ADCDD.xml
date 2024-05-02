@@ -1,0 +1,39 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_dbaCreateCandidateStatusEntry]" directorySegmentName="seg_14" id="FCA219C3-491C-CD21-CB6D-42F4B44ADCDD">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@nwa_id int, 
+ @status_e.ec.ve_date date.me, 
+ @status_type char(1), 
+ @status_code varchar(10), 
+ @disposi.on_code varchar(20), 
+ @user_login varchar(15) 
+ AS 
+ 
+/* 
+Create Candidate Status Entries in Candidate_Status table 
+*/ 
+insert into candidate_status  
+( nwa_id, 
+ status_e.ec.ve_date, 
+ status_type, 
+ status_code, 
+ disposi.on_code, 
+ user_login, 
+ update_date 
+) values 
+( @nwa_id, 
+ @status_e.ec.ve_date, 
+ @status_type, 
+ @status_code, 
+ @disposi.on_code, 
+ @user_login, 
+ getdate() 
+) 
+ 
+/* End Create Candidate_Status Entry */]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

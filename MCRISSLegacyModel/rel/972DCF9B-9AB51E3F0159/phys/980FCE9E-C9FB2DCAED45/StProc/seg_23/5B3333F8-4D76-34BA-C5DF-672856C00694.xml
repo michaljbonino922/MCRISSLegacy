@@ -1,0 +1,155 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_TestUpdateDQNWAs]" directorySegmentName="seg_23" id="5B3333F8-4D76-34BA-C5DF-672856C00694">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@SSNPre.x   varchar(9), 
+ @NumberToDQ  int, 
+ @DQCode   char(1),  
+ @DQDate   date.me = NULL, 
+ @UserLogin  varchar(15) = 'SA' 
+AS 
+ 
+DECLARE @NWAID   int 
+DECLARE @SSN    char(9) 
+ 
+DECLARE @i   int 
+DECLARE @ErrMsg   varchar(100) 
+ 
+DECLARE @Ini.alSSN   char(9) 
+DECLARE @FirstSSN  char(9) 
+DECLARE @LastSSN  char(9) 
+DECLARE @SSNMessage  varchar(100) 
+DECLARE @LenSSNPre.x   int 
+ 
+DECLARE @StatusType  char(1) 
+DECLARE @StatusCode  char(1) 
+DECLARE @Disposi.onCode char(1) 
+DECLARE @NewDisposi.onCode char(1) 
+ 
+DECLARE @Status   char(1) 
+DECLARE @Disposi.on  char(1) 
+ 
+DECLARE @DBID    int 
+DECLARE @DBNAME   nvarchar(128) 
+ 
+SET NOCOUNT ON 
+ 
+ 
+SELECT  
+ @DBID = DB_ID(),  
+ @DBNAME = DB_NAME() 
+ 
+ 
+--- MAKE SURE THE NUMBER OF PEOPLE TO BE CONTRACTED IS BETWEEN 1 AND 9999 
+IF @NumberToDQ NOT BETWEEN 1 AND 9999 
+BEGIN 
+ RAISERROR ('You must enter a number between 1 and 9999.', 16, 1, @DBID, @DBNAME) 
+ RETURN  
+END 
+ 
+ 
+--- MAKE SURE THE SSN PREFIX IS 5 CHARACTERS LONG 
+SET @LenSSNPre.x = LEN(@SSNPre.x) 
+ 
+--- IF THE SSN PREFIX IS LESS THAN 5 CHARACTERS LONG, APPEND 0's UNTIL IT'S 5 CHARACTERS LONG 
+IF @LenSSNPre.x < 5 
+BEGIN 
+ SET @SSNPre.x = RTRIM(@SSNPre.x) + REPLICATE('0', 5 - LEN(@SSNPre.x)) 
+END 
+ 
+--- INITIALIZE THE COUNTER 
+SET @i = 1 
+ 
+ 
+SET @Ini.alSSN = CASE  
+   WHEN LEN(@SSNPre.x) = 9 THEN @SSNPre.x 
+   WHEN EXISTS (SELECT 1 FROM PERSON P WHERE P.SOCIAL_SECURITY_NUMBER LIKE @SSNPre.x + '%') 
+    THEN CONVERT(CHAR(9), CONVERT(INT, (SELECT MAX(P.SOCIAL_SECURITY_NUMBER) FROM PERSON P  
+         WHERE P.SOCIAL_SECURITY_NUMBER LIKE @SSNPre.x + '%') + 1)) 
+   ELSE @SSNPre.x + '0000' 
+   END 
+ 
+ 
+WHILE @i <= @NumberToDQ 
+BEGIN 
+ --- DEFINE THE SSN FOR THE PERSON TO BE CONTRACTED 
+ SET @SSN = CONVERT(CHAR(9), CONVERT(INT, @Ini.alSSN) + (@i - 1)) 
+ 
+ 
+ 
+ --- get the NWAID and Status/Disposi.on 
+ EXEC sp_GetCurrentStatusDisposi.on @SSN = @SSN, @NWAID = @NWAID OUTPUT,  
+      @StatusType = @StatusType OUTPUT, @StatusCode = @StatusCode OUTPUT,  
+      @Disposi.onCode = @Disposi.onCode OUTPUT  
+ 
+ 
+ IF @StatusType = 'E' AND @StatusCode = 'A' AND @Disposi.onCode = 'F' 
+ BEGIN 
+   
+  --- START THE TRANSACTION 
+  BEGIN TRANSACTION 
+ 
+  --- INSERT CANDIDATE STATUS DATA 
+  EXEC sp_UpdateCandidateStatus @NWAID = @NWAID, @StatusE.ec.veDate = @DQDate, @StatusType = @StatusType,  
+     @StatusCode = @StatusCode, @Disposi.onCode = @DQCode, @UserLogin = @UserLogin 
+ 
+ 
+  IF @@ERROR != 0 OR @@ROWCOUNT = 0 
+  BEGIN 
+   ROLLBACK TRANSACTION 
+   SET @ErrMsg = 'An error occurred upda.ng the status data for SSN ' + @SSN + '.' 
+   RAISERROR (@ErrMsg, 16, 2, @DBID, @DBNAME) 
+   RETURN 
+  END 
+ 
+  --- IF WE MAKE IT HERE COMMIT THE TRANSACTION 
+  COMMIT TRANSACTION 
+ END 
+ ELSE 
+ BEGIN 
+  SELECT @ErrMsg = CASE  
+     WHEN @Status != 'A' THEN 'The SSN you entered does not belong to an NWA.' 
+     WHEN @Disposi.on != 'F' THEN 'This NWA has already been DQ''d.' 
+    END 
+  
+  RAISERROR (@ErrMsg, 16, 3, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ 
+ SELECT 
+  @FirstSSN = CASE @i 
+    WHEN 1 THEN @SSN 
+    ELSE @FirstSSN 
+    END, 
+  @LastSSN = CASE  
+    WHEN @i BETWEEN 1 AND @NumberToDQ THEN @SSN 
+    ELSE @LastSSN  
+    END 
+ 
+ 
+ --- INCREMENT THE COUNTER 
+ SET @i = @i + 1 
+END 
+ 
+SET NOCOUNT OFF 
+ 
+ 
+--- DEFINE THE MESSAGE TO DISPLAY 
+SET @SSNMessage = CASE  
+   WHEN (@FirstSSN IS NOT NULL AND LEN(@FirstSSN) = 9) AND 
+    (@LastSSN IS NOT NULL AND LEN(@LastSSN) = 9)  
+   THEN 
+    'SSN ' + @FirstSSN + ' to ' + @LastSSN + ' DQ''d.' 
+   ELSE SPACE(0) 
+   END 
+ 
+ 
+IF @SSNMessage IS NOT NULL AND LEN(@SSNMessage) > 0 
+BEGIN 
+ PRINT @SSNMessage 
+END]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

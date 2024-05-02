@@ -1,0 +1,124 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SP_HP_PROCESS176]" directorySegmentName="seg_21" id="74456752-6757-8E6B-E415-C70A207A4B8A">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[AS  
+ 
+set ANSI_WARNINGS ON 
+set ANSI_NULLS ON 
+declare @school_code   int, 
+  @dod_code  varchar(9), 
+  @school_year      numeric(4), 
+  @priority_code  char(1), 
+  @status_code  varchar(4), 
+  @access_code  varchar(9), 
+  @recruiter_id  int, 
+  @pct   numeric(18), 
+  @male_srs  int, 
+  @female_srs  int, 
+  @asvab_resp  varchar(1), 
+  @asvab_month  date.me, 
+  @asvab_count  int, 
+  @grad_date  date.me, 
+  @user_login  varchar(15), 
+  @update_date  date.me 
+ 
+declare arms_176 cursor for 
+select   HS_CODE, 
+  substring(PRIORITY,1,1), 
+  HIGH_SCHOOL_STATUS_CODE, 
+  HIGH_SCHOOL_FILE_ACCESS_CODE, 
+  PCT_COLLEGE, 
+  MALE_SRS, 
+  FEMALE_SRS, 
+  ASVAB_RESP, 
+  HIGH_SCHOOL_GRADUATION_DATE 
+from  arms..arms_176  
+ 
+open arms_176 
+ 
+fetch arms_176 
+     into @dod_code, @priority_code, @status_code, @access_code, @pct, 
+       @male_srs, @female_srs, @asvab_resp, @grad_date 
+ 
+select @recruiter_id = NULL 
+select @school_year = 2001 
+ 
+ 
+while (@@FETCH_STATUS = 0) 
+begin 
+  set @user_login = 'migra.on' 
+ set @update_date = getdate() 
+     set @school_code = (select SCHOOL_CODE 
+       from mcriss..HIGH_SCHOOL 
+       where DOD_CODE = @dod_code) 
+ 
+  if @school_code is not NULL 
+    begin 
+ if @priority_code not in ('1','2','3') set  @priority_code = 'N' 
+ if @grad_date < getdate() set @grad_date = '2000-06-01' 
+-- logic  approved by Major Asmus and Reginald Holt, see email from November 6, 2000 
+ 
+ 
+    print @school_code  
+ 
+ execute spGetAsvabInforma.on @dod_code, @asvab_month OUTPUT, @asvab_count OUTPUT 
+-- Gets ASVAB informa.on from the OLAP SCHOOL_ASVAB table 
+ 
+       if not exists (select 1 from HIGH_SCHOOL_PROFILE where SCHOOL_CODE = @school_code 
+   and SCHOOL_YEAR = @school_year) 
+  begin 
+ 
+  insert  mcriss..HIGH_SCHOOL_PROFILE 
+ 
+  (SCHOOL_CODE,SCHOOL_YEAR,PRIORITY_CODE,STATUS_CODE,ACCESS_CODE,RECRUITER_ID,PERCENT_TO_COLLEGE, 
+  MALE_SENIORS,FEMALE_SENIORS,ASVAB_RESP,ASVAB_MONTH,ASVAB_NUM,SCHEDULED_GRAD_DATE,USER_LOGIN,UPDATE_DATE) 
+ 
+       values(@school_code, @school_year, @priority_code, @status_code, 
+              @access_code, @recruiter_id, @pct, 
+          @male_srs, @female_srs, @asvab_resp, @asvab_month, 
+        @asvab_count, @grad_date,@user_login,@update_date) 
+ 
+ print 'Inserted into HIGH_SCHOOL_PROFILE' 
+  end 
+ 
+  else 
+  begin 
+  print 'upda.ng HS_PROFILE' 
+  update mcriss..HIGH_SCHOOL_PROFILE 
+   set  
+   PRIORITY_CODE = @priority_code, 
+   STATUS_CODE = @status_code, 
+   ACCESS_CODE = @access_code, 
+   RECRUITER_ID = @recruiter_id, 
+   PERCENT_TO_COLLEGE = @pct, 
+   MALE_SENIORS = @male_srs, 
+   FEMALE_SENIORS = @female_srs, 
+   ASVAB_RESP = @asvab_resp, 
+   ASVAB_MONTH = @asvab_month, 
+   ASVAB_NUM = @asvab_count, 
+   SCHEDULED_GRAD_DATE = @grad_date, 
+   USER_LOGIN = @user_login, 
+   UPDATE_DATE = @update_date 
+   where SCHOOL_CODE = @school_code and 
+   SCHOOL_YEAR = @school_year 
+   end 
+ 
+       end 
+     fetch arms_176 
+        into @dod_code, @priority_code, @status_code, @access_code, @pct, 
+          @male_srs, @female_srs, @asvab_resp, @grad_date 
+       
+end 
+ 
+ 
+close arms_176 
+ 
+set ANSI_WARNINGS OFF 
+set ANSI_NULLS OFF 
+deallocate arms_176]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

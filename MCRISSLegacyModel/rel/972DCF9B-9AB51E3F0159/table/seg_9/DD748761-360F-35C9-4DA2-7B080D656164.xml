@@ -1,0 +1,145 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_9" id="DD748761-360F-35C9-4DA2-7B080D656164" schemaObject="0F1D31BC-D866-598F-919F-7247404CB53C" name="onTask">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>F9296892-C263-ED9A-4F96-E2C075113DC1</importedID>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="ID" id="8641665E-D07E-5DB4-6BCB-EEEFB00FC30F">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:05 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>6DE16641-804F-4947-AA15-8317B2C731FB</importedID>
+<use>0</use>
+<usesDefaultValue>true</usesDefaultValue>
+<defaultValue>(newid())</defaultValue>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementColumn>true</autoIncrementColumn>
+<identityColumn>true</identityColumn>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="Billet" id="3576FDC1-5701-2FE2-BAFE-6915EF6F44C0">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:05 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>C79E4A31-0968-9E5C-32B7-C8A125E6D143</importedID>
+<use>0</use>
+<domain>FE83DFFA-9B1F-A4B4-9720-4461C50F7960</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="Evalua.onTaskGroupID" id="6EC76AD0-BFE9-BB30-D080-652A9C46F50C">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:05 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>DB930D10-D9FC-C557-3D5A-756BAAF816D9</importedID>
+<use>0</use>
+<domain>0B32FEBA-0818-67BE-914F-5328B1856905</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="Title" id="43F9E8E9-18CC-DEB5-4274-7C928A364518">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:05 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>38964898-2E85-9994-3321-AC5D3371CF43</importedID>
+<use>0</use>
+<domain>C45F815B-6F4D-438B-2204-A43002B546DD</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="Designa.on" id="598541B2-7F7D-CFE0-4B33-9CA8914FB94D">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:05 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>4872DC17-264F-DE3A-0192-F6C50A6BEFF2</importedID>
+<use>0</use>
+<domain>429DB81C-B38B-9EFA-A0CA-C5A1DC3956FC</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="Reference" id="1FA68B49-FC3E-1EC0-0693-7DA9FF0A2B84">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:05 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>ED0E7CAD-C7FE-05CC-EF3A-48D57F81DE0D</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>FE83DFFA-9B1F-A4B4-9720-4461C50F7960</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="259EB75C-72C1-777B-3BBC-0796BC0C9F04" name="PK_BilletEvalua.onTask">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:05 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>FF6221C2-1C2A-2979-961B-FF1A857C14B6</importedID>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="8641665E-D07E-5DB4-6BCB-EEEFB00FC30F"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+<tableCheckConstraints itemClass="oracle.dbtools.crest.model.design.constraint.TableLevelConstraint">
+<tableCheckConstraint name="[USMC].[BilletEvalua.onTask]" directorySegmentName="seg_5" id="4007F35E-EA26-4C28-0FA6-4A5CDC951630">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:05 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>83490482-E836-8336-1C0C-7748ADB97E4E</importedID>
+<rule><![CDATA[CONSTRAINT [FK_BilletEvalua.onTask_Evalua.onTaskGroup]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="[USMC].[Evalua.onTask]" directorySegmentName="seg_5" id="F1B009DF-04F0-FF39-CED4-32E74B06C07C">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:05 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>19EB32D5-A7C5-A745-7D2A-94DF3938AC76</importedID>
+<rule><![CDATA[CONSTRAINT [FK_Evalua.onTask_Evalua.onTaskGroup]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="[USMC].[Evalua.onTask]v1" directorySegmentName="seg_5" id="D6D604C3-E1DF-F92D-D891-F9522CB29D55">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:05 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>8548AF22-0AEF-4D4F-1A5F-BEE66F33A589</importedID>
+<rule><![CDATA[CONSTRAINT [FK_Evalua.onTask_MonthEvalua.on]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITH" directorySegmentName="seg_5" id="3F57B06E-3914-EFCE-6971-ABC44DB05823">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:05 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>BDFC219C-9A1F-2439-2D1F-DF59355CE456</importedID>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITHv1" directorySegmentName="seg_5" id="E8D54A22-B92E-E618-6D14-897A6E1B979B">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:05 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>3CFDA161-81BB-5100-40E2-041CE081576B</importedID>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITHv2" directorySegmentName="seg_5" id="BAFFE7BF-71D8-AC49-F0DD-C88249AC9B46">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:05 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>BC9C1A9D-C243-7433-8216-BFA2E0B6595A</importedID>
+</tableCheckConstraint>
+</tableCheckConstraints>
+</Table>

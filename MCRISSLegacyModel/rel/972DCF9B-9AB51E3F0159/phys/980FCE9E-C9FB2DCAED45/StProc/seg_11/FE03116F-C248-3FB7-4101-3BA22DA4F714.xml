@@ -1,0 +1,100 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertOrUpdateCollegePro.lePFTUsingGuid]" directorySegmentName="seg_11" id="FE03116F-C248-3FB7-4101-3BA22DA4F714">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@CollegePro.lePFTID  uniqueiden..er, 
+       @CollegePro.leID  uniqueiden..er, 
+       @SchoolCode uniqueiden..er, 
+       @FiscalYear int, 
+             @PullUpLoca.on varchar(100), 
+             @CrunchLoca.on varchar(100), 
+             @RunRoute varchar(80), 
+             @UserLogin varchar(50), 
+             @PushUpLoca.on varchar(100) = null 
+              
+         
+AS 
+  
+ SET NOCOUNT ON 
+ 
+ DECLARE @SchoolCodeint int 
+ 
+ BEGIN TRANSACTION 
+ 
+ Select @SchoolCodeint  = School_Code FROM High_School hs where hs.rowguid = @SchoolCode 
+ 
+ 
+ IF NOT EXISTS (SELECT '1' from [USMC].[CollegePro.le]  where CollegePro.leID = @CollegePro.leID 
+              and @CollegePro.leID IS NOT NULL) 
+ 
+ BEGIN 
+    INSERT INTO [MCRISS].[USMC].[CollegePro.le] 
+         ([CollegePro.leID],[SCHOOL_CODE], [FiscalYear], 
+     [UserLogin], [UpdateDate]) 
+      VALUES          
+         (@CollegePro.leID,@SchoolCodeint,@FiscalYear,  
+     @UserLogin, GetDate())   
+ END   
+ 
+ --IMPORTANT NOTE: Add begin and end transac.on 
+ IF EXISTS (SELECT '1' from [USMC].[CollegePro.lePFT]  where CollegePro.lePFTID = @CollegePro.lePFTID 
+                 and @CollegePro.lePFTID IS NOT NULL) 
+  
+ -- then update the exisi.ng record 
+ BEGIN  
+        UPDATE [MCRISS].[USMC].[CollegePro.lePFT] 
+        SET  
+        
+       --Cannot update [CollegePro.leID] once it is inserted  
+       --[CollegePro.leID] = @CollegePro.leID 
+          
+         [PullUpLoca.on] = @PullUpLoca.on, 
+         [PushUpLoca.on] = @PushUpLoca.on, 
+          [CrunchLoca.on] = @CrunchLoca.on, 
+          [RunRoute] = @RunRoute,  
+          [UserLogin] = @UserLogin, 
+          [UpdateDate] = GetDate() 
+          
+        WHERE CollegePro.lePFTID = @CollegePro.lePFTID 
+         and @CollegePro.lePFTID IS NOT NULL 
+ END  
+    
+ --ELSE  PROCEED WITH INSERT 
+ ELSE 
+ BEGIN 
+     
+        INSERT INTO [MCRISS].[USMC].[CollegePro.lePFT] 
+             ([CollegePro.lePFTID],[CollegePro.leID], 
+         [PullUpLoca.on], [PushUpLoca.on], [CrunchLoca.on], 
+         [RunRoute],[UserLogin], [UpdateDate]) 
+       
+        VALUES          
+            (@CollegePro.lePFTID,@CollegePro.leID, 
+         @PullUpLoca.on, @PushUpLoca.on,  
+         @CrunchLoca.on, @RunRoute,  
+            @UserLogin,GetDate()) 
+      
+ END 
+     
+ -- Rollback the transac.on if there were any errors 
+ IF @@ERROR <> 0 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+ 
+  -- Raise an error and return 
+  RAISERROR ('Error occurred while performing the change.', 16, 1) 
+  RETURN 
+ END 
+  
+  
+ COMMIT TRANSACTION 
+  
+     
+ --- CLEAN UP 
+ SET NOCOUNT OFF]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

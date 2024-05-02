@@ -1,0 +1,363 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetOrdersView]" directorySegmentName="seg_8" id="D215D32D-2C25-9A55-5F1B-A698F8FD4EF1">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @OrgID int = 0, 
+ @OrdersRequestStatusID int, 
+ @GenderCode char(1), 
+ @ProgramCodes varchar(200), --pipe-separated string, es.mated max length = 36 
+ @ProgramTypeCodes varchar(50), --pipe-separated string, es.mated max length = 10 
+ @ProgramFiscalYear int, 
+ @ProgramClass varchar(20), 
+ @ProgramIncrement int, 
+ @SortColumnNumber int, 
+ @ColumnSortOrder bit = 1, 
+ @startRowIndex int, 
+ @maximumRows int, 
+ @maxTotalRowsToSort int 
+) 
+AS 
+ 
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+declare @totalrows int 
+declare @isOrgOnlySearch bit 
+declare @isOCSClassSearch bit 
+ 
+if @ProgramIncrement is null and @ProgramClass is null and @ProgramFiscalYear is null  
+set @isOCSClassSearch = 0 
+else 
+set @isOCSClassSearch = 1  
+ 
+--Since most common search is by org only, we make that speedy 
+if @OrdersRequestStatusID is null and @GenderCode is null 
+ and @ProgramCodes is null and @ProgramTypeCodes is null 
+ and @isOCSClassSearch = 0 
+set @isOrgOnlySearch = 1 
+else 
+set @isOrgOnlySearch = 0 
+ 
+--Get all subordinate organiza.ons for the @OrgID 
+declare @SubordinateOrgs as TABLE ( 
+ OrgID int 
+ ) 
+insert into @SubordinateOrgs (OrgID) values (@OrgID) 
+insert into @SubordinateOrgs select OSS from [usmc].[vwRecrui.ngOrgIDs] where HQ = @OrgID and OSS is not null 
+insert into @SubordinateOrgs select OSS from [usmc].[vwRecrui.ngOrgIDs] where Region = @OrgID and OSS is not null 
+insert into @SubordinateOrgs select OSS from [usmc].[vwRecrui.ngOrgIDs] where District = @OrgID and OSS is not null 
+insert into @SubordinateOrgs select OSS from [usmc].[vwRecrui.ngOrgIDs] where RS = @OrgID and OSS is not null 
+ 
+--Get all NWAIDs with class records matching @ProgramClass, @ProgramFilter, @ProgramFiscalYear 
+declare @NWAsInSpeci.edClasses as TABLE ( 
+ NWA_ID int 
+ ) 
+if (@isOCSClassSearch = 1) 
+insert into @NWAsInSpeci.edClasses 
+ select NWA_ID from OCS, OCS_CLASS 
+  where OCS.OCS_CLASS_ID = OCS_CLASS.CLASS_ID 
+     and (OCS_CLASS.TRAINING_TYPE_CODE = @ProgramClass or @ProgramClass is null) 
+     and (OCS_CLASS.FISCAL_YEAR = @ProgramFiscalYear or @ProgramFiscalYear is null) 
+     and (OCS_CLASS.CLASS_NUMBER = @ProgramIncrement or @ProgramIncrement is null) 
+ 
+--Get the count.  Split out speedy OrgOnly search. 
+IF @isOrgOnlySearch = 1 
+BEGIN 
+SELECT @totalrows = COUNT(*) FROM 
+ [USMC].[ORDERS_REQUEST] ordersRequest 
+ INNER JOIN [dbo].[NWA] nwa on ordersRequest.NWA_ID = nwa.NWA_ID 
+ INNER JOIN [dbo].[MARINE_CANDIDATE] mc on nwa.MARINE_CANDIDATE_ID = mc.MARINE_CANDIDATE_ID 
+WHERE 
+ nwa.ORGANIZATION_OF_RECORD_ID in (SELECT OrgID from @SubordinateOrgs) 
+END 
+ELSE 
+BEGIN 
+--Less speedy.  We want the count so that we can know whether or not sor.ng/paging will cripple the search 
+SELECT @totalrows = COUNT(*) FROM 
+ [USMC].[ORDERS_REQUEST] ordersRequest 
+ INNER JOIN [dbo].[NWA] nwa on ordersRequest.NWA_ID = nwa.NWA_ID 
+ INNER JOIN [dbo].[OFFICER_CONTRACT] contract on contract.NWA_ID = nwa.NWA_ID 
+ INNER JOIN [dbo].[MARINE_CANDIDATE] mc on nwa.MARINE_CANDIDATE_ID = mc.MARINE_CANDIDATE_ID 
+ LEFT OUTER JOIN [dbo].[NROTC_CONTRACT] nc on nc.CONTRACT_ID = contract.CONTRACT_ID 
+WHERE 
+ nwa.ORGANIZATION_OF_RECORD_ID in (SELECT OrgID from @SubordinateOrgs) 
+ AND (mc.GENDER_CODE = @GenderCode OR @GenderCode is null) 
+ AND (ordersRequest.ORDERS_REQUEST_STATUS_ID = @OrdersRequestStatusID or @OrdersRequestStatusID is null) 
+ AND (@ProgramCodes like '%|' + nwa.OFFICER_COMPONENT_CODE + '|%' or @ProgramCodes is null) 
+ AND (@ProgramTypeCodes like '%|' + CAST(nc.PROGRAM_TYPE as varchar(10)) + '|%' or @ProgramTypeCodes is null) 
+ AND ((nwa.NWA_ID in (select NWA_ID from @NWAsInSpeci.edClasses)) or @isOCSClassSearch = 0) 
+END 
+ 
+--If no records, return quickly 
+IF @totalrows = 0 
+RETURN 
+ELSE 
+--If count is less than @maxTotalRowsToSort, we'll sort and page.  
+IF @totalrows < @maxTotalRowsToSort 
+BEGIN 
+declare @WorkingResultSet as TABLE ( 
+ ORDERS_REQUEST_ID int, 
+ NWA_ID int, 
+ ORGANIZATION_OF_RECORD_ID int, 
+ FIRST_NAME varchar(100), 
+ MIDDLE_NAME varchar(20), 
+ LAST_NAME varchar(100), 
+ SSN varchar(15), 
+ RS varchar(45), 
+ OSS varchar(45), 
+ PROGRAM varchar(50), 
+ CLASS_TYPE varchar(20), 
+ GENDER_CODE varchar(1), 
+ STATUS varchar(40), 
+ DISPOSITION varchar(40), 
+ ORDERS_REQUEST_STATUS varchar(20), 
+ ORDERS_REQUEST_DATE date.me, 
+ ORDERS_GENERATED_DATE date.me, 
+ ORDERS_TYPE varchar(20), 
+ ORDERS_CANCELLED_DATE date.me, 
+ ORDERS_COMPLETED_DATE date.me 
+) 
+ 
+--remember org-only search is split out for speed 
+IF @isOrgOnlySearch = 1 
+BEGIN 
+INSERT INTO @WorkingResultSet 
+SELECT  
+ ordersRequest.ORDERS_REQUEST_ID, 
+ nwa.NWA_ID, 
+ nwa.ORGANIZATION_OF_RECORD_ID, 
+ person.FIRST_NAME, 
+ person.LEGAL_MIDDLE_NAME AS MIDDLE_NAME, 
+ person.LAST_NAME, 
+ person.SOCIAL_SECURITY_NUMBER as SSN, 
+ parents.NAME AS RS, 
+ ro.NAME as OSS, 
+ cc.COMPONENT_DESCRIPTION as PROGRAM, 
+ usmc.GetClassTypeForOrders(nwa.NWA_ID) as CLASS_TYPE, 
+ mc.GENDER_CODE, 
+ sd.STATUS_DESCRIPTION as STATUS, 
+ sd.DISPOSITION_DESCRIPTION as DISPOSITION, 
+ ordersRequestStatus.DESCRIPTION as ORDERS_REQUEST_STATUS, 
+ ordersRequest.REQUEST_DATE as ORDERS_REQUEST_DATE, 
+ ordersRequest.GENERATED_DATE as ORDERS_GENERATED_DATE, 
+ ot.DESCRIPTION as ORDERS_TYPE, 
+ ordersRequest.CANCELLED_DATE as ORDERS_CANCELLED_DATE, 
+ ordersRequest.COMPLETED_DATE as ORDERS_COMPLETED_DATE 
+FROM 
+ [USMC].[ORDERS_REQUEST] ordersRequest 
+ INNER JOIN [dbo].[NWA] nwa on ordersRequest.NWA_ID = nwa.NWA_ID 
+ INNER JOIN [dbo].[OFFICER_CONTRACT] contract on contract.NWA_ID = nwa.NWA_ID 
+ INNER JOIN [dbo].[MARINE_CANDIDATE] mc on nwa.MARINE_CANDIDATE_ID = mc.MARINE_CANDIDATE_ID 
+ INNER JOIN [dbo].[PERSON] person on nwa.MARINE_CANDIDATE_ID = person.PERSON_ID 
+ INNER JOIN [dbo].[RECRUITING_ORGANIZATION] ro on nwa.ORGANIZATION_OF_RECORD_ID = ro.ORGANIZATION_ID 
+ INNER JOIN (select ro.ORGANIZATION_ID, parent.NAME from RECRUITING_ORGANIZATION ro, ORGANIZATION_MAP om, RECRUITING_ORGANIZATION parent 
+     where ro.ORGANIZATION_ID = om.CHILD_ORGANIZATION_ID and om.PARENT_ORGANIZATION_ID = parent.ORGANIZATION_ID 
+     union 
+    select ORGANIZATION_ID, SHORT_NAME as NAME from RECRUITING_ORGANIZATION where ORGANIZATION_ID = 910) 
+    parents on nwa.ORGANIZATION_OF_RECORD_ID = parents.ORGANIZATION_ID  
+ INNER JOIN [dbo].COMPONENT_CODE cc on nwa.OFFICER_COMPONENT_CODE = cc.COMPONENT_CODE 
+ INNER JOIN [USMC].[ORDERS_REQUEST_STATUS] ordersRequestStatus on ordersRequest.ORDERS_REQUEST_STATUS_ID = ordersRequestStatus.ORDERS_REQUEST_STATUS_ID 
+ INNER JOIN (select NWA_ID, max(CANDIDATE_STATUS_ID) as CURRENT_STATUS_ID FROM CANDIDATE_STATUS group by NWA_ID) csd on nwa.nwa_ID = csd.nwa_id 
+ INNER JOIN [dbo].[CANDIDATE_STATUS] cs on nwa.NWA_ID = cs.NWA_ID and cs.CANDIDATE_STATUS_ID = csd.CURRENT_STATUS_ID 
+ INNER JOIN [dbo].[STATUS_DISPOSITION] sd ON cs.[STATUS_TYPE]=sd.[STATUS_TYPE] AND cs.[STATUS_CODE]=sd.[STATUS_CODE] AND cs.[DISPOSITION_CODE]=sd.[DISPOSITION_CODE] 
+ LEFT OUTER JOIN [dbo].[NROTC_CONTRACT] nc on nc.CONTRACT_ID = contract.CONTRACT_ID 
+ LEFT OUTER JOIN [USMC].[ORDERS_TYPE] ot on ordersRequest.ORDERS_TYPE_ID = ot.ORDERS_TYPE_ID 
+WHERE 
+ nwa.ORGANIZATION_OF_RECORD_ID in (SELECT OrgID from @SubordinateOrgs) 
+ 
+END 
+ELSE 
+--not "just by org" search 
+BEGIN 
+INSERT INTO @WorkingResultSet 
+SELECT  
+ ordersRequest.ORDERS_REQUEST_ID, 
+ nwa.NWA_ID, 
+ nwa.ORGANIZATION_OF_RECORD_ID, 
+ person.FIRST_NAME, 
+ person.LEGAL_MIDDLE_NAME AS MIDDLE_NAME, 
+ person.LAST_NAME, 
+ person.SOCIAL_SECURITY_NUMBER as SSN, 
+ parents.NAME AS RS, 
+ ro.NAME as OSS, 
+ cc.COMPONENT_DESCRIPTION as PROGRAM, 
+ usmc.GetClassTypeForOrders(nwa.NWA_ID) as CLASS_TYPE, 
+ mc.GENDER_CODE, 
+ sd.STATUS_DESCRIPTION as STATUS, 
+ sd.DISPOSITION_DESCRIPTION as DISPOSITION, 
+ ordersRequestStatus.DESCRIPTION as ORDERS_REQUEST_STATUS, 
+ ordersRequest.REQUEST_DATE as ORDERS_REQUEST_DATE, 
+ ordersRequest.GENERATED_DATE as ORDERS_GENERATED_DATE, 
+ ot.DESCRIPTION as ORDERS_TYPE, 
+ ordersRequest.CANCELLED_DATE as ORDERS_CANCELLED_DATE, 
+ ordersRequest.COMPLETED_DATE as ORDERS_COMPLETED_DATE 
+FROM 
+ [USMC].[ORDERS_REQUEST] ordersRequest 
+ INNER JOIN [dbo].[NWA] nwa on ordersRequest.NWA_ID = nwa.NWA_ID 
+ INNER JOIN [dbo].[OFFICER_CONTRACT] contract on contract.NWA_ID = nwa.NWA_ID 
+ INNER JOIN [dbo].[MARINE_CANDIDATE] mc on nwa.MARINE_CANDIDATE_ID = mc.MARINE_CANDIDATE_ID 
+ INNER JOIN [dbo].[PERSON] person on nwa.MARINE_CANDIDATE_ID = person.PERSON_ID 
+ INNER JOIN [dbo].[RECRUITING_ORGANIZATION] ro on nwa.ORGANIZATION_OF_RECORD_ID = ro.ORGANIZATION_ID 
+ INNER JOIN (select ro.ORGANIZATION_ID, parent.NAME from RECRUITING_ORGANIZATION ro, ORGANIZATION_MAP om, RECRUITING_ORGANIZATION parent 
+     where ro.ORGANIZATION_ID = om.CHILD_ORGANIZATION_ID and om.PARENT_ORGANIZATION_ID = parent.ORGANIZATION_ID 
+     union 
+    select ORGANIZATION_ID, SHORT_NAME as NAME from RECRUITING_ORGANIZATION where ORGANIZATION_ID = 910) 
+    parents on nwa.ORGANIZATION_OF_RECORD_ID = parents.ORGANIZATION_ID  
+ INNER JOIN [dbo].COMPONENT_CODE cc on nwa.OFFICER_COMPONENT_CODE = cc.COMPONENT_CODE 
+ INNER JOIN [USMC].[ORDERS_REQUEST_STATUS] ordersRequestStatus on ordersRequest.ORDERS_REQUEST_STATUS_ID = ordersRequestStatus.ORDERS_REQUEST_STATUS_ID 
+ INNER JOIN (select NWA_ID, max(CANDIDATE_STATUS_ID) as CURRENT_STATUS_ID FROM CANDIDATE_STATUS group by NWA_ID) csd on nwa.nwa_ID = csd.nwa_id 
+ INNER JOIN [dbo].[CANDIDATE_STATUS] cs on nwa.NWA_ID = cs.NWA_ID and cs.CANDIDATE_STATUS_ID = csd.CURRENT_STATUS_ID 
+ INNER JOIN [dbo].[STATUS_DISPOSITION] sd ON cs.[STATUS_TYPE]=sd.[STATUS_TYPE] AND cs.[STATUS_CODE]=sd.[STATUS_CODE] AND cs.[DISPOSITION_CODE]=sd.[DISPOSITION_CODE] 
+ LEFT OUTER JOIN [dbo].[NROTC_CONTRACT] nc on nc.CONTRACT_ID = contract.CONTRACT_ID 
+ LEFT OUTER JOIN [USMC].[ORDERS_TYPE] ot on ordersRequest.ORDERS_TYPE_ID = ot.ORDERS_TYPE_ID 
+WHERE 
+ nwa.ORGANIZATION_OF_RECORD_ID in (SELECT OrgID from @SubordinateOrgs) 
+ AND (mc.GENDER_CODE = @GenderCode OR @GenderCode is null) 
+ AND (ordersRequest.ORDERS_REQUEST_STATUS_ID = @OrdersRequestStatusID OR @OrdersRequestStatusID is null) 
+ AND (@ProgramCodes like '%|' + nwa.OFFICER_COMPONENT_CODE + '|%' or @ProgramCodes is null) 
+ AND (@ProgramTypeCodes like '%|' + CAST(nc.PROGRAM_TYPE as varchar(10)) + '|%' or @ProgramTypeCodes is null) 
+ AND ((nwa.NWA_ID in (select NWA_ID from @NWAsInSpeci.edClasses)) or @isOCSClassSearch = 0) 
+END 
+ 
+--use the working result set (generated by the recruiter or non-recruiter branches) to get correct sort and page 
+SELECT @totalrows AS TotalRows, 
+ ORDERS_REQUEST_ID, 
+ NWA_ID, 
+ ORGANIZATION_OF_RECORD_ID, 
+ FIRST_NAME, 
+ MIDDLE_NAME, 
+ LAST_NAME, 
+ SSN, 
+ RS, 
+ OSS, 
+ PROGRAM, 
+ CLASS_TYPE, 
+ GENDER_CODE, 
+ STATUS, 
+ DISPOSITION, 
+ ORDERS_REQUEST_STATUS, 
+ ORDERS_REQUEST_DATE, 
+ ORDERS_GENERATED_DATE, 
+ ORDERS_TYPE, 
+ ORDERS_CANCELLED_DATE, 
+ ORDERS_COMPLETED_DATE 
+FROM 
+(SELECT  
+ ROW_NUMBER() OVER ( ORDER BY  
+  --NOTE THREE COLUMN SORT FOR SortColumnNumber 1 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 1 THEN LAST_NAME END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 1 THEN LAST_NAME END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 1 THEN FIRST_NAME END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 1 THEN FIRST_NAME END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 1 THEN MIDDLE_NAME END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 1 THEN MIDDLE_NAME END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 2 THEN SSN END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 2 THEN SSN END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 3 THEN RS END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 3 THEN RS END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 4 THEN OSS END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 4 THEN OSS END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 5 THEN PROGRAM END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 5 THEN PROGRAM END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 6 THEN CLASS_TYPE END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 6 THEN CLASS_TYPE END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 7 THEN GENDER_CODE END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 7 THEN GENDER_CODE END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 8 THEN STATUS END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 8 THEN STATUS END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 9 THEN DISPOSITION END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 9 THEN DISPOSITION END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 10 THEN ORDERS_REQUEST_STATUS END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 10 THEN ORDERS_REQUEST_STATUS END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 11 THEN ORDERS_REQUEST_DATE END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 11 THEN ORDERS_REQUEST_DATE END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 12 THEN ORDERS_GENERATED_DATE END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 12 THEN ORDERS_GENERATED_DATE END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 13 THEN ORDERS_TYPE END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 13 THEN ORDERS_TYPE END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 14 THEN ORDERS_COMPLETED_DATE END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 14 THEN ORDERS_COMPLETED_DATE END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 15 THEN ORDERS_CANCELLED_DATE END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 15 THEN ORDERS_CANCELLED_DATE END END DESC, 
+ 
+       CASE WHEN @ColumnSortOrder <> 0 and @ColumnSortOrder <> 1 and (@SortColumnNumber < 1 or @SortColumnNumber > 4) 
+    THEN LAST_NAME END ASC 
+ ) as RowNum, 
+ * 
+FROM  
+ @WorkingResultSet 
+) as Orders 
+ WHERE @startRowIndex is null OR (RowNum BETWEEN @startRowIndex AND (@startRowIndex + @maximumRows) - 1) 
+ Order By RowNum 
+END 
+ELSE 
+--too many rows for e.cient sor.ng and paging, so we just get the top page of unsorted records 
+BEGIN 
+SELECT TOP (@maximumrows) @totalrows AS TotalRows, 
+ ordersRequest.ORDERS_REQUEST_ID, 
+ nwa.NWA_ID, 
+ nwa.ORGANIZATION_OF_RECORD_ID, 
+ person.FIRST_NAME, 
+ person.LEGAL_MIDDLE_NAME AS MIDDLE_NAME, 
+ person.LAST_NAME, 
+ person.SOCIAL_SECURITY_NUMBER as SSN, 
+ parents.NAME AS RS, 
+ ro.NAME as OSS, 
+ cc.COMPONENT_DESCRIPTION as PROGRAM, 
+ usmc.GetClassTypeForOrders(nwa.NWA_ID) as CLASS_TYPE, 
+ mc.GENDER_CODE, 
+ sd.STATUS_DESCRIPTION as STATUS, 
+ sd.DISPOSITION_DESCRIPTION as DISPOSITION, 
+ ordersRequestStatus.DESCRIPTION as ORDERS_REQUEST_STATUS, 
+ ordersRequest.REQUEST_DATE as ORDERS_REQUEST_DATE, 
+ ordersRequest.GENERATED_DATE as ORDERS_GENERATED_DATE, 
+ ot.DESCRIPTION as ORDERS_TYPE, 
+ ordersRequest.CANCELLED_DATE as ORDERS_CANCELLED_DATE, 
+ ordersRequest.COMPLETED_DATE as ORDERS_COMPLETED_DATE 
+FROM 
+ [USMC].[ORDERS_REQUEST] ordersRequest 
+ INNER JOIN [dbo].[NWA] nwa on ordersRequest.NWA_ID = nwa.NWA_ID 
+ INNER JOIN [dbo].[OFFICER_CONTRACT] contract on contract.NWA_ID = nwa.NWA_ID 
+ INNER JOIN [dbo].[MARINE_CANDIDATE] mc on nwa.MARINE_CANDIDATE_ID = mc.MARINE_CANDIDATE_ID 
+ INNER JOIN [dbo].[PERSON] person on nwa.MARINE_CANDIDATE_ID = person.PERSON_ID 
+ INNER JOIN [dbo].[RECRUITING_ORGANIZATION] ro on nwa.ORGANIZATION_OF_RECORD_ID = ro.ORGANIZATION_ID 
+ INNER JOIN (select ro.ORGANIZATION_ID, parent.NAME from RECRUITING_ORGANIZATION ro, ORGANIZATION_MAP om, RECRUITING_ORGANIZATION parent 
+     where ro.ORGANIZATION_ID = om.CHILD_ORGANIZATION_ID and om.PARENT_ORGANIZATION_ID = parent.ORGANIZATION_ID 
+     union 
+    select ORGANIZATION_ID, SHORT_NAME as NAME from RECRUITING_ORGANIZATION where ORGANIZATION_ID = 910) 
+    parents on nwa.ORGANIZATION_OF_RECORD_ID = parents.ORGANIZATION_ID  
+ INNER JOIN [dbo].COMPONENT_CODE cc on nwa.OFFICER_COMPONENT_CODE = cc.COMPONENT_CODE 
+ INNER JOIN [USMC].[ORDERS_REQUEST_STATUS] ordersRequestStatus on ordersRequest.ORDERS_REQUEST_STATUS_ID = ordersRequestStatus.ORDERS_REQUEST_STATUS_ID 
+ INNER JOIN (select NWA_ID, max(CANDIDATE_STATUS_ID) as CURRENT_STATUS_ID FROM CANDIDATE_STATUS group by NWA_ID) csd on nwa.nwa_ID = csd.nwa_id 
+ INNER JOIN [dbo].[CANDIDATE_STATUS] cs on nwa.NWA_ID = cs.NWA_ID and cs.CANDIDATE_STATUS_ID = csd.CURRENT_STATUS_ID 
+ INNER JOIN [dbo].[STATUS_DISPOSITION] sd ON cs.[STATUS_TYPE]=sd.[STATUS_TYPE] AND cs.[STATUS_CODE]=sd.[STATUS_CODE] AND cs.[DISPOSITION_CODE]=sd.[DISPOSITION_CODE] 
+ LEFT OUTER JOIN [dbo].[NROTC_CONTRACT] nc on nc.CONTRACT_ID = contract.CONTRACT_ID 
+ LEFT OUTER JOIN [USMC].[ORDERS_TYPE] ot on ordersRequest.ORDERS_TYPE_ID = ot.ORDERS_TYPE_ID 
+WHERE 
+ nwa.ORGANIZATION_OF_RECORD_ID in (SELECT OrgID from @SubordinateOrgs) 
+ AND (mc.GENDER_CODE = @GenderCode OR @GenderCode is null) 
+ AND (ordersRequest.ORDERS_REQUEST_STATUS_ID = @OrdersRequestStatusID OR @OrdersRequestStatusID is null) 
+ AND (@ProgramCodes like '%|' + nwa.OFFICER_COMPONENT_CODE + '|%' or @ProgramCodes is null) 
+ AND (@ProgramTypeCodes like '%|' + CAST(nc.PROGRAM_TYPE as varchar(10)) + '|%' or @ProgramTypeCodes is null) 
+ AND ((nwa.NWA_ID in (select NWA_ID from @NWAsInSpeci.edClasses)) or @isOCSClassSearch = 0) 
+END]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

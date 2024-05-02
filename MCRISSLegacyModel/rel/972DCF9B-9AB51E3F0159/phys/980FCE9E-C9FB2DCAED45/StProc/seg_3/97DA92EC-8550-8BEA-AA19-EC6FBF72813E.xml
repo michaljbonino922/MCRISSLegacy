@@ -1,0 +1,46 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetCandidateEduca.on]" directorySegmentName="seg_3" id="97DA92EC-8550-8BEA-AA19-EC6FBF72813E">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[(  
+ @ID as uniqueiden..er 
+) 
+AS 
+ 
+SELECT 
+ ce.rowguid AS ID 
+ ,[MARINE_CANDIDATE_ID] 
+ ,ce.[SCHOOL_CODE] 
+ ,[EDUCATION_LEVEL] 
+ ,[SCHOOL_END_DATE] 
+ ,[YEAR_GRADUATED] 
+ ,[EDUCATION_TIER] 
+ ,[EDUCATION_CODE] 
+ ,[CIVILIAN_EDUCATION_MAJOR_CODE] 
+ ,[PROJECTED_COMPL_DATE] 
+ ,[FIRST_SENIOR] 
+ ,[VERIFICATION] 
+ ,[CUMULATIVE_GPA] 
+ ,[HIGH_MATH_LEVEL] 
+ ,[CURRENT_GPA] 
+ ,[CREDIT_HOURS] 
+ ,[FULL_TIME_STUDENT] 
+ ,[PROJECTED_TIER] 
+ ,[IsLawSchool] 
+ ,[Educa.onType] 
+ ,[Educa.onCertSubCatID] 
+ ,ce.[USER_LOGIN] 
+ ,ce.[UPDATE_DATE] 
+ ,s.[SCHOOL_TYPE] AS [SchoolType] 
+ ,COALESCE(ce.SCHOOL_END_DATE, ce.PROJECTED_COMPL_DATE, ce.UPDATE_DATE) AS [SortDate] 
+FROM  
+ [dbo].[CANDIDATE_EDUCATION] ce WITH (NOLOCK) 
+INNER JOIN HIGH_SCHOOL s 
+ ON s.SCHOOL_CODE = ce.SCHOOL_CODE 
+WHERE 
+ ce.rowguid = @ID]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

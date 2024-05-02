@@ -1,0 +1,81 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_8" id="7190ADBB-942E-41B2-58E3-93F148BEB9CE" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="JuniorTalkEvent">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:54 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>ED295193-86FB-4EB0-233F-703E22F818A3</importedID>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="ID" id="10CB534A-DE79-C28A-D426-8B86B8262924">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:01 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>93B2F846-08AA-FA5B-7845-B4B7B7E0F60F</importedID>
+<use>0</use>
+<domain>5B1C7CF5-EF3B-C5B8-1E76-224B54D9B1CB</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="BDE82600-D4C7-1943-DC5C-5F8C35664DEE" referredColumn="B1D1C2ED-58BA-EF71-1682-D40B2FCA4FF7"/>
+</associations>
+</Column>
+<Column name="NumberOfJuniors" id="4A26A0EC-5EC0-17A1-D35D-88754B42D511">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:01 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>1180B652-3D20-F640-5427-FBA4D3ADD6AE</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>8C77819C-1B2F-24A0-C36D-F924235A9668</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="4DCC1C15-3A27-7D91-90BC-6771F9BCA6EC" name="PK_JuniorTalkEvent">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:01 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>6AA9421D-94A5-E18F-732C-E4BCFD2399BB</importedID>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="10CB534A-DE79-C28A-D426-8B86B8262924"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="94D3EC50-D9D0-BB70-B82F-A595EFAF4D28" name="FK_JuniorTalkEvent_Event">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="10CB534A-DE79-C28A-D426-8B86B8262924"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+<tableCheckConstraints itemClass="oracle.dbtools.crest.model.design.constraint.TableLevelConstraint">
+<tableCheckConstraint name="[USMC].[JuniorTalkEvent]" directorySegmentName="seg_3" id="36C8D2C9-B577-24EC-F6D9-051C84B5C010">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:01 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>987E9ADA-723F-BCB7-AF95-3B483A2F8530</importedID>
+<rule><![CDATA[CONSTRAINT [FK_JuniorTalkEvent_Event]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITH" directorySegmentName="seg_3" id="58375CC9-147D-C862-CCE7-C19CBEDAE0BC">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:01 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>6D512792-0696-DEE4-0CD4-6FD731615298</importedID>
+</tableCheckConstraint>
+</tableCheckConstraints>
+</Table>

@@ -1,0 +1,22 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetSchoolEnrollments]" directorySegmentName="seg_29" id="C615EC24-F031-A204-79C2-80EBB4A02B99">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:39 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @ID uniqueiden..er 
+) 
+AS 
+ 
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+SELECT 
+ * 
+FROM  
+ [ACP].[SchoolEnrollment] 
+WHERE  
+ Educa.onId = @ID]]></body>
+<schema>569A41D8-8F40-0619-141C-F4C9436AAF46</schema>
+<database>2D7ED536-DF8E-3523-7DC3-4228EBAF5F66</database>
+</StoredProcedureSqlServerv2k5>

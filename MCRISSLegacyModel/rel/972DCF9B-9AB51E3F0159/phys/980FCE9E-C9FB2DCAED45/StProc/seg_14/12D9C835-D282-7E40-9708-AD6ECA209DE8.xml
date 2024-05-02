@@ -1,0 +1,74 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_DBACreateOCSRecord]" directorySegmentName="seg_14" id="12D9C835-D282-7E40-9708-AD6ECA209DE8">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@ocs_class_id int, 
+@nwa_id int, 
+@scheduled_ship_date date.me, 
+@pebd date.me, 
+@report_date date.me, 
+@class_result_date date.me, 
+@company char(1), 
+@platoon int, 
+@class_result_code char(1), 
+@component_code varchar(2), 
+@drop_reason varchar(3), 
+@display_record char(1), 
+@class_standing int, 
+@class_average .oat, 
+@academic_average .oat, 
+@military_skills_average .oat, 
+@leadership_average .oat, 
+@user_login varchar(15) 
+ 
+AS 
+ 
+insert into OCS 
+( 
+ocs_class_id, 
+nwa_id, 
+scheduled_ship_date, 
+pebd, 
+report_date, 
+class_result_date, 
+company, 
+platoon, 
+class_result_code, 
+component_code, 
+drop_reason, 
+display_record, 
+class_standing, 
+class_average, 
+academic_average, 
+military_skills_average, 
+leadership_average, 
+user_login, 
+update_date 
+) 
+values 
+( 
+@ocs_class_id,   --ocs_class_id, 
+@nwa_id,   --nwa_id, 
+@scheduled_ship_date,  --scheduled_ship_date, 
+@pebd,    --pebd, 
+@report_date,   --report_date, 
+@class_result_date,  --class_result_date, 
+@company,   --company, 
+@platoon,   --platoon, 
+@class_result_code,  --class_result_code, 
+@component_code,  --component_code, 
+@drop_reason,   --drop_reason 
+@display_record,  --display_record 
+@class_standing,  --class_standing 
+@class_average,  --class_average 
+@academic_average,  --academic_average 
+@military_skills_average,  --military_skills_average 
+@leadership_average,  --leadership_average 
+@user_login,   --user_login, 
+getdate()   --update_date 
+)]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

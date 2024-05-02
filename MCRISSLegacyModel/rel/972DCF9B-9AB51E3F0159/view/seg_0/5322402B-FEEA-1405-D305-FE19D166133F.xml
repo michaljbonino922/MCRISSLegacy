@@ -1,0 +1,67 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_0" id="5322402B-FEEA-1405-D305-FE19D166133F" schemaObject="2A6D9360-3BB2-5CEA-6E99-790D76996FDF" name="vw_Update_Candidate_Telephone">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>72D81660-A989-E259-A1A3-69191EE9EDAD</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT     dbo.PERSON.PERSON_ID, 'C' AS Type, LEFT(LTRIM(RTRIM(LEFT(dbo.Working_USNA.[Personal Phone #], CHARINDEX('-', dbo.Working_USNA.[Personal Phone #], 1)  
+                      - 1))), 4) AS AreaCode, REPLACE(RIGHT(dbo.Working_USNA.[Personal Phone #], 8), '-', '') AS Number 
+FROM         dbo.Working_USNA INNER JOIN 
+                      dbo.PERSON ON dbo.Working_USNA.CSSN = dbo.PERSON.SOCIAL_SECURITY_NUMBER]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="PERSON_ID" id="E56D3873-3885-8BA8-DD0B-4F15F0E63DE1">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>PERSON_ID</alias>
+<dataType>UNKNOWN</dataType>
+<expression>PERSON_ID</expression>
+<reference>false</reference>
+<viewID>5322402B-FEEA-1405-D305-FE19D166133F</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="&apos;C&apos;" id="DC1F0F31-011D-CC55-E957-740043D5154B">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Type</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>Type</headerAlias>
+<expression>&apos;C&apos;</expression>
+<reference>false</reference>
+<viewID>5322402B-FEEA-1405-D305-FE19D166133F</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="LEFT(LTRIM(RTRIM(LEFT(dbo.Working_USNA.[Personal Phone #],CHARINDEX(&apos;-&apos;,dbo.Working_USNA.[Personal Phone #],1) - 1))),4)" id="8B92E072-AFA8-3EA7-4D92-C4898ABAB0D8">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>AreaCode</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>AreaCode</headerAlias>
+<expression>LEFT(LTRIM(RTRIM(LEFT(dbo.Working_USNA.[Personal Phone #],CHARINDEX(&apos;-&apos;,dbo.Working_USNA.[Personal Phone #],1) - 1))),4)</expression>
+<reference>false</reference>
+<viewID>5322402B-FEEA-1405-D305-FE19D166133F</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="REPLACE(RIGHT(dbo.Working_USNA.[Personal Phone #],8),&apos;-&apos;,&apos;&apos;)" id="8BCAC253-C3B1-F13D-497F-C96762A7482A">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Number</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>Number</headerAlias>
+<expression>REPLACE(RIGHT(dbo.Working_USNA.[Personal Phone #],8),&apos;-&apos;,&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>5322402B-FEEA-1405-D305-FE19D166133F</viewID>
+</viewElement>
+</viewElements>
+</TableView>

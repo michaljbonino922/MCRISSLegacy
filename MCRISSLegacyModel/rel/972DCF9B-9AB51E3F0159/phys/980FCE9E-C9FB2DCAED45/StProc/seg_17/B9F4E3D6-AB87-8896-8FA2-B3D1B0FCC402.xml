@@ -1,0 +1,30 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetMCFIPFAPTAP]" directorySegmentName="seg_17" id="B9F4E3D6-AB87-8896-8FA2-B3D1B0FCC402">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@ContractID int 
+AS 
+ 
+SELECT 
+ CASE PROGRAM_TYPE 
+  WHEN 'MCFAP' THEN 'A' 
+  WHEN 'MCFIP' THEN 'I' 
+  WHEN 'MCTAP' THEN 'T' 
+  ELSE PROGRAM_TYPE 
+ END AS PROGRAM_TYPE,  
+ CONVERT(VARCHAR(11), SUBMIT_DATE, 106) AS SUBMIT_DATE, 
+ CONVERT(VARCHAR(11), ENROLLMENT_DATE, 106) AS ENROLLMENT_DATE, 
+ CONVERT(VARCHAR(11), DISENROLLMENT_DATE, 106) AS DISENROLLMENT_DATE, 
+ CONVERT(VARCHAR(11), AGREEMENT_DATE, 106) AS AGREEMENT_DATE, 
+ ENROLLMENT_YEARS, CUMULATIVE_AMOUNT_PAID 
+FROM  
+ FIP_FAP_TAP  
+WHERE 
+ CONTRACT_ID = @ContractID 
+ORDER BY 
+ PROGRAM_TYPE]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

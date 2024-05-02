@@ -1,0 +1,132 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUpdateRecrui.ngPersonInTrainingEnvnmt]" directorySegmentName="seg_12" id="282A61C6-F378-B825-A6D9-14BB1673FC37">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@SSN varchar(9),  
+ @OrgID int,  
+ @MOS varchar(4),  
+ @TourBeginDate date, 
+ @LastName varchar(20),  
+ @FirstName varchar(20),  
+ @MidName varchar(20),  
+ @Su.x varchar(5),  
+ @Recrui.ngRole varchar(2),  
+ @Rank  varchar(10), 
+ @UserLogin varchar(15) 
+  
+AS 
+ 
+SET NOCOUNT ON 
+ 
+DECLARE @PersonID int 
+ 
+INSERT INTO MCRISS.[dbo].[PERSON] 
+           ([SOCIAL_SECURITY_NUMBER] 
+           ,[FIRST_NAME] 
+           ,[LEGAL_MIDDLE_NAME] 
+           ,[LAST_NAME] 
+           ,[SUFFIX_CD] 
+           ,[USER_LOGIN] 
+           ,[UPDATE_DATE] 
+           ,[rowguid]) 
+     VALUES 
+           (@SSN 
+           ,@FirstName 
+           ,@MidName 
+           ,@LastName 
+           ,@Su.x 
+           ,@UserLogin 
+           ,GETDATE() 
+           ,NEWID() 
+     ) 
+ 
+SET @PersonID = @@IDENTITY 
+ 
+INSERT INTO MCRISS.[dbo].[MARINE] 
+           ([MARINE_ID] 
+           ,[USER_LOGIN] 
+           ,[UPDATE_DATE] 
+           ,[rowguid] 
+           ) 
+VALUES 
+           (@PersonID 
+           ,@UserLogin 
+           ,GETDATE() 
+           ,NEWID() 
+     ) 
+     
+DECLARE @BilletBeginDate date.me 
+SET @BilletBeginDate=@TourBeginDate 
+ 
+--- GET MCC CODE 
+DECLARE @PresentMCC varchar(3) 
+SELECT @PresentMCC = MCC_CODE FROM RECRUITING_ORGANIZATION WHERE ORGANIZATION_ID = @OrgID 
+ 
+--- DEFINE PAY GRADE 
+DECLARE @PayGrade varchar(3) 
+SELECT @PayGrade = COALESCE((SELECT TOP 1 PAY_GRADE_CODE FROM PAY_GRADE WHERE RANK_CODE = @Rank ORDER BY UPDATE_DATE ASC), SPACE(0)) 
+ 
+-- BIZ: All Recrui.ng Persons MUST already be in the MARINE table. 
+-- MARINE 
+IF EXISTS (SELECT 1 FROM MARINE WHERE MARINE_ID = @PersonID) 
+BEGIN 
+ UPDATE MARINE 
+ SET 
+  PRESENT_MONITORED_COMMAND_CODE = @PresentMCC, 
+  PRESENT_GRADE_CODE = @PayGrade,  
+  BILLET_MOS = @MOS,  
+  USER_LOGIN = @UserLogin,  
+  UPDATE_DATE = GETDATE() 
+ WHERE 
+  MARINE_ID = @PersonID 
+END 
+ 
+-- RECRUITING_PERSON 
+IF EXISTS (SELECT 1 FROM RECRUITING_PERSON WHERE RECRUITING_PERSON_ID = @PersonID) 
+BEGIN 
+ UPDATE  
+  RECRUITING_PERSON  
+ SET  
+  ORGANIZATION_ID = @OrgID, 
+  RECRUITING_ROLE_ID = @Recrui.ngRole, 
+  RANK_CODE = @Rank,  
+  PAY_GRADE_CODE = @PayGrade,  
+  DELETED = 'N',  
+  TOUR_BEGIN_DATE = @TourBeginDate,  
+  BILLET_BEGIN_DATE = @BilletBeginDate,  
+  IS_ASSIGNED = 'N',  
+  ON_PRODUCTION = 'N',  
+  USER_LOGIN = @UserLogin,  
+  UPDATE_DATE = GETDATE(),  
+  MANUAL_ADD = 1 
+ WHERE 
+  RECRUITING_PERSON_ID = @PersonID 
+END 
+ELSE 
+BEGIN 
+ INSERT INTO RECRUITING_PERSON  
+  ( 
+  RECRUITING_PERSON_ID,  
+  ORGANIZATION_ID,  
+  RECRUITING_ROLE_ID,  
+  RANK_CODE,  
+  PAY_GRADE_CODE,  
+  DELETED,  
+  TOUR_BEGIN_DATE,  
+  BILLET_BEGIN_DATE,  
+  IS_ASSIGNED,  
+  ON_PRODUCTION,  
+  USER_LOGIN,  
+  UPDATE_DATE,  
+  MANUAL_ADD 
+  ) 
+ VALUES  
+  (@PersonID, @OrgID, @Recrui.ngRole, @Rank, @PayGrade, 'N', @TourBeginDate, @BilletBeginDate, 'N', 'N', @UserLogin, GETDATE(), 1) 
+END 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,58 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUpdateScheduledToShipSummary]" directorySegmentName="seg_12" id="C22B420B-50AF-8472-40DC-B784F5099551">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[(@FiscalYear int 
+ ,@Month int 
+ ,@OrgId int 
+ ,@Rmnps int 
+ ,@Kg int 
+ ,@Ka int 
+ ,@Rfnps int 
+ ,@Kf int 
+ ,@Ps int 
+ ) 
+  
+AS 
+ 
+UPDATE 
+ [usmc].[ScheduledToShip] 
+SET 
+ [RMNPS] = @Rmnps 
+ ,[KG] = @Kg 
+ ,[KA] = @Ka  
+ ,[RFNPS] = @Rfnps 
+ ,[KF] = @Kf 
+ ,[PS] = @Ps 
+WHERE 
+ [FiscalYear] = @FiscalYear AND 
+ [Month] = @Month AND 
+ [Organiza.onId] = @OrgId 
+  
+IF @@ROWCOUNT = 0 
+  
+INSERT INTO [usmc].[ScheduledToShip] 
+ ([FiscalYear] 
+ ,[Month] 
+ ,[Organiza.onId] 
+ ,[RMNPS] 
+ ,[KG] 
+ ,[KA] 
+ ,[RFNPS] 
+ ,[KF] 
+ ,[PS]) 
+VALUES 
+ (@FiscalYear 
+ ,@Month 
+ ,@OrgId 
+ ,@Rmnps 
+ ,@Kg 
+ ,@Ka 
+ ,@Rfnps 
+ ,@Kf 
+ ,@Ps)]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

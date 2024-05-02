@@ -1,0 +1,64 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<EntityView class="oracle.dbtools.crest.model.design.logical.EntityView" directorySegmentName="seg_0" id="FC1A76EC-5244-86B3-C1B1-B297FAA83AAC" name="Insert Update Candidate">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>96F93486-020D-F547-5447-597044B1288D</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT     P.PERSON_ID, WU.DOB AS BirthDate, WU.[Ci.zenship (US born = CA]]></userDefinedSQL>
+<validSQL>false</validSQL>
+<viewType>EntityView</viewType>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="PERSON_ID" id="0B2B4B86-218C-2862-4248-C5D3AEC0443F">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>FDBD48A4-C1D1-08A9-729A-E4F64B9A5088</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>PERSON_ID</alias>
+<dataType>UNKNOWN</dataType>
+<expression>PERSON_ID</expression>
+<reference>false</reference>
+<viewID>FC1A76EC-5244-86B3-C1B1-B297FAA83AAC</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="DOB" id="5340068E-2D64-48A8-96BB-5406463B3220">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>54ABE86C-D72E-17FD-CA4A-E602844EC719</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>BirthDate</alias>
+<dataType>UNKNOWN</dataType>
+<expression>DOB</expression>
+<reference>false</reference>
+<viewID>FC1A76EC-5244-86B3-C1B1-B297FAA83AAC</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="zenship (US born =" id="6AAFA6B8-866F-5088-EFCD-A749AD30D3CF">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>FB052CDA-90DC-8A0A-81D4-A4C6AFB30DCB</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>CA</alias>
+<dataType>UNKNOWN</dataType>
+<expression>zenship (US born =</expression>
+<reference>false</reference>
+<viewID>FC1A76EC-5244-86B3-C1B1-B297FAA83AAC</viewID>
+</viewElement>
+</viewElements>
+</EntityView>

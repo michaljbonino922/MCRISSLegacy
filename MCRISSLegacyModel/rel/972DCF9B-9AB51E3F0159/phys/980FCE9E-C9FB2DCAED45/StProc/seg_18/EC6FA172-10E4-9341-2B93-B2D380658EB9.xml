@@ -1,0 +1,25 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetMarineDataBySSN]" directorySegmentName="seg_18" id="EC6FA172-10E4-9341-2B93-B2D380658EB9">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@SSN char(9) 
+AS 
+ 
+SELECT  
+ P.PERSON_ID AS MARINE_ID,  
+ ISNULL(RTRIM(P.LAST_NAME) + ', ', SPACE(0)) + ISNULL(RTRIM(P.FIRST_NAME) + SPACE(1), SPACE(0)) + ISNULL(LEFT(P.LEGAL_MIDDLE_NAME, 1), SPACE(0)) AS MARINE_NAME, 
+ P.SOCIAL_SECURITY_NUMBER AS MARINE_SSN, 
+ ISNULL(RP.RANK_CODE, '') AS RANK, 
+ ISNULL(M.PRESENT_MONITORED_COMMAND_CODE, '') AS PRESENT_MCC, 
+ ISNULL(CONVERT(VARCHAR(11), M.EXPIRATION_OF_ACTIVE_SERVICE, 106), '')  AS EAS, 
+ ISNULL(CONVERT(VARCHAR(11), M.EXPIRATION_OF_CURRENT_CONTRACT, 106), '')  AS ECC 
+FROM  
+ PERSON P INNER JOIN MARINE M ON P.PERSON_ID = M.MARINE_ID 
+ LEFT OUTER JOIN RECRUITING_PERSON RP ON P.PERSON_ID = RP.RECRUITING_PERSON_ID 
+WHERE 
+ P.SOCIAL_SECURITY_NUMBER = @SSN]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,149 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SP_SHIP_PROCESS179]" directorySegmentName="seg_23" id="2C797BC1-BA20-C115-CE30-34E3033254E7">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[AS  
+SET ARITHABORT OFF 
+set arithignore on 
+set ansi_warnings o. 
+ 
+declare   @ssn    varchar(9), 
+  @person_id   int, 
+  @nwa_id   int, 
+  @contract_id   int, 
+  @ship_id   int, 
+  @training_org_id  int, 
+          @ship_type    varchar(4), 
+          @ship_date   date.me, 
+          @special_recogni.on   char(1), 
+          @pay_entry_base_date    date.me, 
+  @recr_asst_recom  char(1), 
+  @pay_grade   varchar(3), 
+  @pay_grade_ed_date  date.me, 
+  @afadbd   date.me, 
+  @con.rm_contract  char(1), 
+  @train_mcc   varchar(3), 
+  @comp_code   varchar(2), 
+  @user_login   varchar(15), 
+  @update_date   date.me, 
+  @prior_svc   varchar(2) 
+ 
+declare arms_179 cursor for 
+select  SSN, 
+        convert(date.me,AFADBD,112), 
+        convert(date.me,PEBD,112), 
+ convert(date.me,CADB,112), 
+  XFER_TO_RS, 
+  RANK, 
+ convert (date.me,DOR,112), 
+ PRIOR_SVC 
+ 
+from  arms..ARMS179 
+  
+open arms_179 
+ 
+fetch arms_179 
+     into @ssn, @afadbd, @pay_entry_base_date, @ship_date, 
+       @train_mcc,@pay_grade,@pay_grade_ed_date, @prior_svc 
+ 
+ 
+ 
+select @special_recogni.on = NULL 
+select @ship_type           = 'ENL' 
+select @user_login     = 'migra.on' 
+select @update_date     = getdate() 
+select @recr_asst_recom     = NULL  
+ 
+while (@@FETCH_STATUS = 0) 
+begin 
+ 
+  select @person_id = PERSON_ID from PERSON 
+      where SOCIAL_SECURITY_NUMBER = @ssn 
+ 
+  select @nwa_id = max(NWA_ID) from NWA 
+         where MARINE_CANDIDATE_ID = @person_id 
+ 
+  select @contract_id = CONTRACT_ID from CONTRACT 
+       where NWA_ID = @nwa_id 
+ 
+select @comp_code = (select component_code from contract where contract_id = @contract_id) 
+ 
+  
+  if @pay_grade = 'E01' 
+  select @pay_grade = 'E1' 
+  if @pay_grade = 'E02' 
+  select @pay_grade = 'E2' 
+  if @pay_grade = 'E03' 
+  select @pay_grade = 'E3' 
+  if @pay_grade = 'E04' 
+  select @pay_grade = 'E4' 
+  if @pay_grade = 'E05' 
+  select @pay_grade = 'E5' 
+  if @pay_grade = 'E06' 
+  select @pay_grade = 'E6' 
+  if @pay_grade = 'E07' 
+  select @pay_grade = 'E7' 
+  
+ 
+ 
+ set @training_org_id = (select TRAINING_ORGANIZATION_ID 
+                                 from TRAINING_ORGANIZATION 
+     where MCC_CODE = @train_mcc) 
+ 
+if @training_org_id is not NULL 
+  begin 
+ 
+  if (not exists(select 1 from mcriss..SHIPPER  
+   where CONTRACT_ID = @contract_id)) 
+     begin 
+ 
+      print @ssn 
+ 
+   if @ship_date is not NULL 
+   begin          
+      
+    
+      insert into SHIPPER 
+   (CONTRACT_ID,SHIP_TYPE,TRAINING_ORGANIZATION_ID,SHIP_DATE, 
+   SPECIAL_RECOGNITION,PAY_ENTRY_BASE_DATE,RECRUITER_ASSISTANCE_RECOM, 
+   PAY_GRADE_CODE,PAY_GRADE_ED_DATE,AFADBD,CONFIRM_CONTRACT, 
+   COMPONENT_CODE,USER_LOGIN,UPDATE_DATE) 
+                     
+      values( @contract_id, @ship_type, @training_org_id,  
+          @ship_date, @special_recogni.on, @pay_entry_base_date, 
+    @recr_asst_recom, @pay_grade, @pay_grade_ed_date, @afadbd, 
+    @con.rm_contract, @comp_code, @user_login,@update_date) 
+ 
+            print @ssn 
+      print 'SSN ADDED TO SHIPPER' 
+ 
+            exec SPGEN_CANDSTATUS @nwa_id,'SHP','ENL',@ship_date 
+ 
+      print 'CANDIDATE STATUS INSERTED' 
+ 
+      
+ 
+         end 
+ else print @ssn+' Not a shipper'  
+   
+   
+ 
+ 
+ 
+end 
+ 
+end 
+else print 'Not a shipper' 
+  
+ fetch arms_179 
+      into @ssn, @afadbd, @pay_entry_base_date, @ship_date, 
+       @train_mcc,@pay_grade,@pay_grade_ed_date, @prior_svc 
+end 
+close arms_179 
+ 
+deallocate  arms_179]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

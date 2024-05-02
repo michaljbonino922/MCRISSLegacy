@@ -1,0 +1,18 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="Proc2044" directorySegmentName="seg_30" id="D29AF4B9-EAEA-1802-3597-48BA244B3792">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:39 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[AS 
+ 
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+SELECT [Parent] 
+      ,[Decendent] as Descendent 
+  FROM [mcriss].[USMC].[vwDecendentRecrui.ngOrgs] 
+order by parent, descendent desc 
+FOR XML PATH('DescendentRecrui.ngOrg'), ROOT('DescendentRecrui.ngOrgs')]]></body>
+<schema>569A41D8-8F40-0619-141C-F4C9436AAF46</schema>
+<database>2D7ED536-DF8E-3523-7DC3-4228EBAF5F66</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,126 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateOCSClassAssignment]" directorySegmentName="seg_25" id="F92CF1BF-129D-CFAE-F2FF-14671EA59043">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@OCSID    int   = 0, 
+ @NWAID   int, 
+ @PEBD   date.me = NULL, 
+ @ShippedProgram  varchar(2) = NULL, 
+ @TrainingType  varchar(8), 
+ @ClassIncrement  int, 
+ @FY   int, 
+ @PreviousTrainingType varchar(8) = NULL, 
+ @PreviousClassIncrement int  = NULL, 
+ @PreviousFY  int  = NULL, 
+ @UserLogin  varchar(15), 
+ @ID   int   = @OCSID OUTPUT 
+AS 
+ 
+SET NOCOUNT ON 
+ 
+DECLARE @DBID    int 
+DECLARE @DBNAME   sysname 
+DECLARE @ErrMsg   varchar(100) 
+ 
+DECLARE @OCSClassID   int 
+DECLARE @PreviousOCSClassID  int 
+ 
+DECLARE @DropReason  varchar(3) 
+DECLARE @UpdateCounter  int 
+ 
+--- INITIALIZE VARIABLES 
+SELECT 
+ @DBID   = DB_ID(),  
+ @DBNAME  = DB_NAME(), 
+ @UpdateCounter = 1 
+ 
+--- RETRIEVE THE OCS CLASS ID 
+SET @OCSClassID = COALESCE((SELECT CLASS_ID FROM OCS_CLASS WHERE TRAINING_TYPE_CODE = @TrainingType AND CLASS_NUMBER = @ClassIncrement AND @FY = FISCAL_YEAR),  
+    (SELECT OCS_CLASS_ID FROM OCS WHERE OCS_ID = @OCSID)) 
+ 
+--- RETRIEVE THE PREVIOUS OCS CLASS ID 
+SET @PreviousOCSClassID = CASE  
+    WHEN @PreviousTrainingType IS NOT NULL AND @PreviousClassIncrement IS NOT NULL AND @PreviousFY IS NOT NULL  
+    THEN COALESCE((SELECT CLASS_ID FROM OCS_CLASS WHERE TRAINING_TYPE_CODE = @PreviousTrainingType AND  
+      CLASS_NUMBER = @PreviousClassIncrement AND FISCAL_YEAR = @PreviousFY),  
+      (SELECT OCS_CLASS_ID FROM OCS WHERE OCS_ID = @OCSID)) 
+    ELSE NULL 
+    END 
+ 
+ 
+IF @OCSClassID IS NULL 
+BEGIN 
+ SET @ErrMsg = 'Invalid Class ID.' 
+ RAISERROR (@ErrMsg, 16, @UpdateCounter, @DBID, @DBNAME) 
+ RETURN 
+ 
+END 
+ 
+ 
+IF EXISTS (SELECT 1 FROM OCS WHERE OCS_ID = @OCSID) 
+BEGIN 
+ --- UPDATE OCS DATA 
+ UPDATE  
+  OCS 
+ SET  
+  PEBD    = @PEBD, 
+  OCS_CLASS_ID   = @OCSClassID,  
+  USER_LOGIN   = @UserLogin,  
+  UPDATE_DATE   = GETDATE() 
+ WHERE  
+  OCS_ID    = @OCSID 
+ 
+ --- return the OCS ID 
+ SET @ID = @OCSID 
+END  
+ELSE 
+BEGIN 
+ --- INSERT OCS DATA 
+ INSERT INTO OCS  
+  (NWA_ID, PEBD, OCS_CLASS_ID, DISPLAY_RECORD, USER_LOGIN, UPDATE_DATE)     
+ VALUES  
+  (@NWAID, @PEBD, @OCSClassID, 'N', @UserLogin, GETDATE())  
+ 
+ --- return the OCS ID 
+ SET @ID = @@IDENTITY 
+ 
+ IF @@ROWCOUNT = 0 
+ BEGIN 
+  SET @ErrMsg = 'The OCS record was not added.' 
+  RAISERROR (@ErrMsg, 16, @UpdateCounter, @DBID, @DBNAME) 
+  RETURN 
+ END 
+END 
+ 
+IF @@ERROR != 0  
+BEGIN 
+ SET @ErrMsg = 'An error occured ' + CASE COALESCE(@OCSID, 0) WHEN 0 THEN 'inser.ng' ELSE 'upda.ng' END + ' the OCS record.' 
+ RAISERROR (@ErrMsg, 16, @UpdateCounter, @DBID, @DBNAME) 
+ RETURN 
+END 
+ 
+IF @NWAID IS NOT NULL AND @ShippedProgram IS NOT NULL 
+BEGIN 
+ --- INCREMENT THE UPDATE COUNTER 
+ SET @UpdateCounter = @UpdateCounter + 1 
+ 
+ EXEC sp_UpdateO.cerComponentCode 
+  @NWAID    = @NWAID, 
+  @O.cerComponentCode  = @ShippedProgram, 
+  @UserLogin  = @UserLogin 
+ 
+ 
+ IF @@ERROR != 0  
+ BEGIN 
+  SET @ErrMsg = 'An error occured upda.ng the shipped program.' 
+  RAISERROR (@ErrMsg, 16, @UpdateCounter, @DBID, @DBNAME) 
+  RETURN 
+ END 
+END 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

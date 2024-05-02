@@ -1,0 +1,65 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetDataAnalysisData]" directorySegmentName="seg_9" id="6C57C814-47AE-A87F-B620-AC8BB3D1B54F">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:37 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@RecruiterID   uniqueiden..er = null, 
+    @OrgID   int = null, 
+    @Year   int, 
+    @Month  int 
+AS 
+BEGIN  
+ 
+-- Here we calculate start and end dates for the selected week, that will be used later   
+ DECLARE @StartDate date.me 
+ DECLARE @EndDate date.me 
+ DECLARE @Prev1MonthDate date.me 
+ DECLARE @Prev2MonthDate date.me 
+ DECLARE @Prev3MonthDate date.me 
+     
+ 
+ SET @EndDate =  CAST( CONVERT(varchar(4), @Year) + '-' +  
+                            CONVERT(varchar(2), @Month) + '-' +  
+                            CONVERT(varchar(2), 1) as Date.me); 
+ 
+   select @Prev1MonthDate = DateAdd(month, -1, @EndDate); 
+   select @Prev2MonthDate = DateAdd(month, -2, @EndDate); 
+   select @Prev3MonthDate = DateAdd(month, -3, @EndDate); 
+ 
+   if (@RecruiterID is not null) 
+    begin 
+    select  
+     CAST( CONVERT(varchar(4), AnalysisYear) + '-' +  
+                            CONVERT(varchar(2), AnalysisMonth) + '-' +  
+                            CONVERT(varchar(2), 1) as Date.me) AnalysisMonth, TcMade, OtMade, AcMade,HvMade, EpMade,TcInt, OtInt,         
+     AcInt, HvInt, EpInt, Nwa,Contract from  
+      dbo.RptDataAnalysis where  
+      ((AnalysisYear = year(@Prev1MonthDate) and  AnalysisMonth = month(@Prev1MonthDate)) or 
+     (AnalysisYear = year(@Prev2MonthDate) and  AnalysisMonth = month(@Prev2MonthDate)) or         
+  (AnalysisYear = year(@Prev3MonthDate) and  AnalysisMonth = month(@Prev3MonthDate))) 
+      and RecruiterID = @RecruiterID 
+     order by AnalysisYear, AnalysisMonth  
+    end 
+   else 
+      begin 
+   select  
+   CAST( CONVERT(varchar(4), AnalysisYear) + '-' +  
+                            CONVERT(varchar(2), AnalysisMonth) + '-' +  
+                            CONVERT(varchar(2), 1) as Date.me) AnalysisMonth, 
+    sum(TcMade) TcMade, sum(OtMade) OtMade, sum(AcMade) AcMade, 
+    sum(HvMade) HvMade, sum(EpMade) EpMade, sum(TcInt) TcInt, sum(OtInt) OtInt,         
+ sum(AcInt) AcInt, sum(HvInt) HvInt, sum(EpInt) EpInt, sum(Nwa) Nwa, 
+    sum(Contract)Contract from  
+      dbo.RptDataAnalysis d inner join DBO.Recruiter r on r.RecruiterID = d.RecruiterID 
+      and r.Organiza.onID = @OrgID where  
+      ((AnalysisYear = year(@Prev1MonthDate) and  AnalysisMonth = month(@Prev1MonthDate)) or 
+     (AnalysisYear = year(@Prev2MonthDate) and  AnalysisMonth = month(@Prev2MonthDate)) or         
+  (AnalysisYear = year(@Prev3MonthDate) and  AnalysisMonth = month(@Prev3MonthDate))) 
+     group by  Organiza.onID, AnalysisYear, AnalysisMonth     
+     order by AnalysisYear, AnalysisMonth  
+      end  
+END]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+</StoredProcedureSqlServerv2k5>

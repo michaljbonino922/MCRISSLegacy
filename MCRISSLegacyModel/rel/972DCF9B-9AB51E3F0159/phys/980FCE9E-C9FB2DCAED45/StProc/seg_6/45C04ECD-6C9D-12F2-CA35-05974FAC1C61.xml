@@ -1,0 +1,23 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetMudQCDate]" directorySegmentName="seg_6" id="45C04ECD-6C9D-12F2-CA35-05974FAC1C61">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@OrgId as int 
+ 
+AS 
+ 
+ 
+SET NOCOUNT ON 
+ 
+ SELECT 
+  ORG_ID, 
+  QC_DATE 
+ FROM 
+  [dbo].[MUD_QC_DATE] WITH (NOLOCK) 
+ WHERE 
+  ORG_ID = @OrgId]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

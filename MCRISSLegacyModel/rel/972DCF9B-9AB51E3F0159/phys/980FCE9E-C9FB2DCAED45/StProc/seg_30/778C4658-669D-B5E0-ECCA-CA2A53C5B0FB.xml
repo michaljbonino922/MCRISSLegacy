@@ -1,0 +1,20 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="Proc2143" directorySegmentName="seg_30" id="778C4658-669D-B5E0-ECCA-CA2A53C5B0FB">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:39 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @PackageId uniqueiden..er 
+) 
+AS 
+ 
+UPDATE [ACP].[ACP].[Package]  
+SET  
+ [Locked] = 0, 
+ [LockedBy] = NULL, 
+ [DateLocked] = NULL  
+WHERE [PackageId] = @PackageId]]></body>
+<schema>569A41D8-8F40-0619-141C-F4C9436AAF46</schema>
+<database>2D7ED536-DF8E-3523-7DC3-4228EBAF5F66</database>
+</StoredProcedureSqlServerv2k5>

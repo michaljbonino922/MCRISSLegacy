@@ -1,0 +1,106 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[EnlistedPoolBoardFindPerson]" directorySegmentName="seg_1" id="3FFB059A-0D4B-BAF5-E456-4C92DD3AF473">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[(@LastName varchar(50) = null 
+ ,@FirstName varchar(50) = null 
+ ,@Ssn varchar(20) = null 
+ ,@OrgId int 
+ ) 
+ 
+AS 
+ 
+SELECT 
+ COALESCE(RTRIM(p.LAST_NAME), SPACE(0))  + SPACE(1) +  
+  COALESCE(RTRIM(p.FIRST_NAME), SPACE(0)) + SPACE(1) +  
+  COALESCE(RTRIM(p.LEGAL_MIDDLE_NAME), SPACE(0)) AS Name 
+ ,n.NWA_ID AS NwaId 
+ ,p.Last_Name 
+ ,p.First_Name 
+ ,p.SOCIAL_SECURITY_NUMBER 
+ ,c.CONTRACT_BEGIN_DATE AS EnlistmentDate 
+ ,c.PROJECTED_SHIP_DATE AS ProjectedShipDate 
+ ,Program =  
+  CASE  
+  WHEN c.COMPONENT_CODE in ('K4','B5','K8','K9' ) THEN m.BILLET_MOS 
+  ELSE (SELECT TOP 1  
+    p.[PROGRAM_CODE] 
+   FROM  
+    [dbo].[PROGRAM_AVAILABILITY] pa 
+   INNER JOIN [PROGRAM] p 
+    ON p.[PROGRAM_ID] = pa.[PROGRAM_ID] 
+   WHERE  
+    pa.[CONTRACT_ID] = c.[CONTRACT_ID] 
+   ORDER BY  
+    pa.[PROGRAM_ASSIGNMENT_DATE] DESC) 
+  END 
+ ,(SELECT  
+   (COUNT(*) / 2.0) 
+  FROM  
+   [dbo].[REFERRAL] r  
+  WHERE 
+   r.[DEP_CONTRACT_ID] = c.[CONTRACT_ID] OR  
+   r.[MARINE_ID] = n.[MARINE_CANDIDATE_ID]) AS EnlistmentCredits 
+ ,hs.HIGHSCHOOL_NAME AS HighSchool 
+ ,COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+  COALESCE(RTRIM(rcrtr.LAST_NAME), SPACE(0))  + SPACE(1) +  
+  COALESCE(RTRIM(rcrtr.FIRST_NAME), SPACE(0)) + SPACE(1) +  
+  COALESCE(RTRIM(rcrtr.LEGAL_MIDDLE_NAME), SPACE(0)) AS RecruiterName 
+ ,CASE mc.[GENDER_CODE] 
+  WHEN 'M' THEN 'Male' 
+  WHEN 'F' THEN 'Female' 
+  ELSE 'NotSpeci.ed' 
+ END AS GenderCode 
+ ,COALESCE( 
+  CASE WHEN n.[CATEGORY_CODE] = 'R' AND mc.[GENDER_CODE] = 'M' THEN 'RegularMaleNonPriorService' END, 
+  CASE WHEN n.[CATEGORY_CODE] = 'R' AND mc.[GENDER_CODE] = 'F' THEN 'RegularFemaleNonPriorService' END, 
+  CASE WHEN n.[CATEGORY_CODE] = 'G' AND mc.[GENDER_CODE] = 'M' THEN 'MaleReserveGround' END, 
+  CASE WHEN n.[CATEGORY_CODE] = 'A' AND mc.[GENDER_CODE] = 'M' THEN 'MaleReserveAir' END, 
+  CASE WHEN n.[CATEGORY_CODE] IN ('G', 'A') AND mc.[GENDER_CODE] = 'F' THEN 'FemaleReserve' END, 
+  CASE WHEN n.[CATEGORY_CODE] = 'P' THEN 'PriorService' END 
+  ) AS CategoryCode 
+ ,cs.[STATUS_CODE] 
+    ,cs.[DISPOSITION_CODE] 
+FROM  
+ [dbo].[NWA] n WITH (NOLOCK) 
+INNER JOIN [dbo].[CONTRACT] c 
+ ON c.NWA_ID = n.NWA_ID 
+INNER JOIN [dbo].[MARINE_CANDIDATE] mc 
+  ON n.[MARINE_CANDIDATE_ID] = mc.[MARINE_CANDIDATE_ID] 
+INNER JOIN [dbo].[PERSON] p 
+ ON p.PERSON_ID = n.MARINE_CANDIDATE_ID 
+LEFT OUTER JOIN dbo.Marine m 
+    ON p.Person_ID = m.Marine_ID 
+LEFT OUTER JOIN [dbo].[RECRUITING_PERSON] rp 
+ ON rp.RECRUITING_PERSON_ID = n.RECRUITER_OF_RECORD_ID 
+LEFT OUTER JOIN [dbo].[PERSON] rcrtr 
+ ON rcrtr.PERSON_ID = rp.RECRUITING_PERSON_ID 
+LEFT OUTER JOIN [dbo].[CANDIDATE_EDUCATION] ce 
+ ON ce.MARINE_CANDIDATE_ID = n.MARINE_CANDIDATE_ID 
+ AND ce.EDUCATION_LEVEL =  
+    (SELECT TOP 1 level =  
+  CASE LEN(educa.on_level)  
+  WHEN 1 THEN '0' + educa.on_level  
+  ELSE educa.on_level  
+  END  
+  FROM dbo.CANDIDATE_EDUCATION 
+  WHERE MARINE_CANDIDATE_ID=n.MARINE_CANDIDATE_ID  
+  ORDER BY level DESC) 
+LEFT OUTER JOIN [dbo].[HIGH_SCHOOL] hs 
+ ON hs.SCHOOL_CODE = ce.SCHOOL_CODE 
+LEFT OUTER JOIN [dbo].[CANDIDATE_STATUS] cs 
+ ON cs.NWA_ID = n.NWA_ID  and  cs.[CANDIDATE_STATUS_ID]  =  
+ (Select max ( [CANDIDATE_STATUS_ID] ) from  [dbo].[CANDIDATE_STATUS] 
+   where NWA_ID=n.NWA_ID ) 
+WHERE 
+ --n.[ORGANIZATION_OF_RECORD_ID] = @OrgId AND 
+ (p.[LAST_NAME] LIKE @LastName OR @LastName IS NULL OR @LastName = '') AND 
+ (p.[FIRST_NAME] LIKE @FirstName OR @FirstName IS NULL OR @FirstName = '') AND  
+ (p.[SOCIAL_SECURITY_NUMBER] LIKE @Ssn OR @Ssn = NULL OR @Ssn = '') 
+ORDER BY  
+ c.[PROJECTED_SHIP_DATE]]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

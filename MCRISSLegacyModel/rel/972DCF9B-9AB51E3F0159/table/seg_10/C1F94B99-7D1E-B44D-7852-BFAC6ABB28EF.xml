@@ -1,0 +1,162 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_10" id="C1F94B99-7D1E-B44D-7852-BFAC6ABB28EF" schemaObject="2A6D9360-3BB2-5CEA-6E99-790D76996FDF" name="RecruitCurrentLead">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:52 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>3323E49D-4CB5-FC8E-E633-A82B19D36D7C</importedID>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="RecruitCurrentLeadID" id="754A1C22-157E-9D22-EFFF-25603B3CE362">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:10 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>867773EF-AB66-27E6-2495-1899CADF5EBA</importedID>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="RecruitID" id="8784A91E-665E-4657-D320-6D1823D90021">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:10 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>8692B90B-D56E-8979-614E-A7ED05932085</importedID>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="9259E6B9-5FAE-5D56-6474-C4DDB49BD244" referredColumn="6412ADED-90F3-01C4-A4CA-15CCFFE937CD"/>
+</associations>
+</Column>
+<Column name="LeadID" id="6EA78310-15F2-1EE4-6040-B0E8E7656C6E">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:10 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>C1118E21-477B-6CF3-C59D-29C410852CC8</importedID>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="BEBE8E74-C2D3-1F4F-321F-7843DEF760A7" referredColumn="3CF68D8E-2E81-74E1-31E0-84D2E06A881C"/>
+</associations>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="E46F7F2F-4A1B-7895-6C09-6CE1B95038F9" name="RecruitCurrentLead_PK">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:10 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>4F4100CA-9A69-240B-1B39-D6F157D4370E</importedID>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="754A1C22-157E-9D22-EFFF-25603B3CE362"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="2062CA2C-FA31-D082-1BEE-23E2D7723ACC" name="RecruitCurrentLead_UK0">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:10 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>DD13EE8C-660C-B4BE-6D49-687AE339B847</importedID>
+<indexState>Unique Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="8784A91E-665E-4657-D320-6D1823D90021"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="51F09341-C8BC-B528-0DDF-C43F5AB1502B" name="LeadID_Recruit_ID_PJ_9_23_15">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:10 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>817CF978-4F5D-BC0F-71DF-35AEA824ECE0</importedID>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="6EA78310-15F2-1EE4-6040-B0E8E7656C6E"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="35E3900F-9031-54EC-7137-FDE03554D151" name="._RecruitCurrentLead_LeadID">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:25 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="6EA78310-15F2-1EE4-6040-B0E8E7656C6E"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="77FE57BC-5884-EEF2-D9E1-043CEDF91A79" name="._RecruitCurrentLead_RecruitID">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:25 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="8784A91E-665E-4657-D320-6D1823D90021"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+<tableCheckConstraints itemClass="oracle.dbtools.crest.model.design.constraint.TableLevelConstraint">
+<tableCheckConstraint name="[dbo].[RecruitCurrentLead]" directorySegmentName="seg_7" id="2F19793A-7E36-E4D5-BEC7-0AF68C28C8B5">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:10 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>2F95DFC8-89C9-0395-7795-E0B9693BE507</importedID>
+<rule><![CDATA[CONSTRAINT [._RecruitCurrentLead_LeadID]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="[dbo].[RecruitCurrentLead]v1" directorySegmentName="seg_7" id="D718DE24-FC8A-E05D-923E-2A87FA053DAC">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:10 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>E1F6420B-42C5-D4FB-7CE4-D1584EF88180</importedID>
+<rule><![CDATA[CONSTRAINT [._RecruitCurrentLead_RecruitID]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITH" directorySegmentName="seg_7" id="CEAD525D-B29B-8636-8BD4-D314A6472163">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:10 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>D2A769AF-FFFA-5E01-1AA2-83BCE0752040</importedID>
+</tableCheckConstraint>
+<tableCheckConstraint name="[ck_LeadID_isForRecruit]" directorySegmentName="seg_7" id="5778DAB4-0FCE-77AE-8F3B-43F534BA00FF">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:10 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>46ECB6F8-7F53-C4B0-1A97-A703D55C858D</importedID>
+<rule><![CDATA[([dbo].[fn_check_lead_is_for_recruit]([LeadID],[RecruitID])=CONVERT([bit],(1),(0)))]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="[dbo].[RecruitCurrentLead]v2" directorySegmentName="seg_7" id="23D4A57F-3088-B914-8F8F-2F889122AFBF">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:10 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>E62E56FC-0A1F-9164-E4CE-9B10074C35DD</importedID>
+<rule><![CDATA[CONSTRAINT [ck_LeadID_isForRecruit]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITHv1" directorySegmentName="seg_7" id="D6BDCBBC-8A5C-3EF4-21D6-E2DF9169B717">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:10 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>060EB8E7-3CAD-4687-EC32-36CB19833EC4</importedID>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITHv2" directorySegmentName="seg_7" id="8804A4AC-2C43-48BF-FC5D-2F979FF95534">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:10 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>C1A1AB10-2CDB-F03A-32E6-363F13EE9933</importedID>
+</tableCheckConstraint>
+</tableCheckConstraints>
+</Table>

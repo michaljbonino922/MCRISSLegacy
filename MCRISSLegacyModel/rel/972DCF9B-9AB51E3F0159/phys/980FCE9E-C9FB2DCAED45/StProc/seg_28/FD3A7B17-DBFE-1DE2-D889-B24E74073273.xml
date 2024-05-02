@@ -1,0 +1,32 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdatePackageData]" directorySegmentName="seg_28" id="FD3A7B17-DBFE-1DE2-D889-B24E74073273">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:58:46 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @PackageId uniqueiden..er, 
+ @Data image, 
+ @UserName varchar(50) 
+) 
+AS 
+BEGIN 
+ 
+ -- Make sure the Package is locked to the User making the call. 
+ IF EXISTS(SELECT 1 FROM [AFP].[USMC].[Package] WHERE PersonId = @PackageId AND LockedBy = @UserName) 
+ BEGIN  
+  UPDATE [AFP].[USMC].[Package] 
+  SET [Data] = @Data 
+  WHERE [PersonId] = @PackageId 
+   
+  -- Record the insert in the history table. 
+  INSERT INTO [AFP].[USMC].[PackageHistory] 
+   ([PersonId], [Ac.on] ,[Actor] ,[Ac.onDate]) 
+  VALUES  
+   (@PackageId, 'Added SF-86 via MCRISS standalone upload.', @UserName, GetDate()) 
+ END 
+ 
+END]]></body>
+<schema>8CB34853-EF8F-3E84-597A-4D88EAE11731</schema>
+<database>DC23F770-7DD9-7021-9572-6AE599ACA3AE</database>
+</StoredProcedureSqlServerv2k5>

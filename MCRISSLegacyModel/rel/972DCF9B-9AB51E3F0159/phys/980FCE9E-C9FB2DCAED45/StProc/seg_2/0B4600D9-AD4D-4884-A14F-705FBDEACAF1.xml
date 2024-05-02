@@ -1,0 +1,17 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetAllRecrui.ngOrgMap]" directorySegmentName="seg_2" id="0B4600D9-AD4D-4884-A14F-705FBDEACAF1">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[AS 
+ 
+SELECT 
+  PARENT_ORGANIZATION_ID AS Parent, 
+  CHILD_ORGANIZATION_ID AS Child 
+FROM [dbo].[ORGANIZATION_MAP] map WITH (NOLOCK) 
+INNER JOIN [dbo].[RECRUITING_ORGANIZATION] ro on  map.CHILD_ORGANIZATION_ID = ro.ORGANIZATION_ID 
+ORDER BY Parent, ro.SHORT_NAME]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

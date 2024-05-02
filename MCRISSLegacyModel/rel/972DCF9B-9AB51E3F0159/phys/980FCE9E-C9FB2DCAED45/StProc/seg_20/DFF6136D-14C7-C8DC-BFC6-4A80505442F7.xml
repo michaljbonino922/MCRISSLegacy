@@ -1,0 +1,28 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetReferralRUCs]" directorySegmentName="seg_20" id="DFF6136D-14C7-C8DC-BFC6-4A80505442F7">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[AS 
+ 
+SET NOCOUNT ON 
+ 
+DECLARE @FY int 
+SET @FY = dbo.GetFY(GETDATE()) 
+ 
+SELECT DISTINCT  
+ Q.RUC, (Q.RUC + ' - ' + MO.UNIT_NAME) AS UNIT_NAME 
+FROM 
+ MCRISS..QSN Q INNER JOIN MCRISS..MARINE_ORGANIZATION MO ON (Q.MCC_CODE = MO.PRESENT_MCC AND Q.RUC = MO.PRESENT_RUC) 
+ INNER JOIN MCRISS..RECRUITING_ORGANIZATION RO ON Q.RECRUITING_ORGANIZATION_ID = RO.ORGANIZATION_ID 
+WHERE 
+ RO.ORGANIZATION_TYPE = 'RS' AND 
+ Q.FY = @FY AND 
+ RO.ISOPEN = 'Y' AND 
+ NOT Q.RUC = 'XXXXX' 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

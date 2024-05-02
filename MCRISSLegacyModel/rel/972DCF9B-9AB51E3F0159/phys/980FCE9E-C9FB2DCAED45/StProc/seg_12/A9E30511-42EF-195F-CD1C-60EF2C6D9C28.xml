@@ -1,0 +1,70 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="Proc801" directorySegmentName="seg_12" id="A9E30511-42EF-195F-CD1C-60EF2C6D9C28">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:37 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@OrgID     int, 
+    @Year     int, 
+    @Month     int, 
+    @WeekList  xml = null 
+ 
+AS 
+BEGIN 
+ 
+ -- Start the transac.on 
+ BEGIN TRANSACTION 
+ 
+ DELETE FROM [DBO].[Objec.veWeek] 
+    WHERE 
+    OrgID = @OrgID AND 
+    Year = @Year AND 
+    Month = @Month 
+     
+    IF @WeekList IS NOT null 
+ BEGIN 
+  DECLARE @WeekListTable TABLE (WeekStart date.me, WeekEnd date.me) 
+   
+  INSERT INTO @WeekListTable (WeekStart, WeekEnd ) 
+  SELECT ParamValues.Weeks.query('start').value('.', 'varchar(10)') 
+    ,ParamValues.Weeks.query('end').value('.', 'varchar(10)') 
+  FROM @WeekList.nodes('WeekList/Week') as ParamValues(Weeks) 
+   
+  INSERT INTO [DBO].[Objec.veWeek] 
+           ([ID] 
+           ,[OrgID] 
+           ,[Year] 
+           ,[Month] 
+           ,[StartDate] 
+           ,[EndDate]) 
+  SELECT  
+    newid()  
+      ,@OrgID 
+      ,@Year 
+      ,@Month 
+      ,WeekStart 
+      ,WeekEnd 
+  FROM  @WeekListTable 
+      
+ END 
+  
+ 
+ -- Rollback the transac.on if there were any errors 
+ IF @@ERROR <> 0 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+ 
+  -- Raise an error and return 
+  RAISERROR ('Error occurred while performing the change.', 16, 1) 
+  RETURN 
+ END 
+ 
+ -- If we reach this point, the commands completed successfully 
+ --         Commit the transac.on.... 
+ COMMIT TRANSACTION 
+  
+END]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+</StoredProcedureSqlServerv2k5>

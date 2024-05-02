@@ -1,0 +1,67 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdatePriorService]" directorySegmentName="seg_25" id="5380587C-B39D-E4B4-DAB1-EEEABF8010D5">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@PersonId   int, 
+ @BeginDate   date.me,  
+ @EndDate   date.me,  
+ @Separa.onCode   varchar(4),  
+ @ReenlistmentCode  varchar(2),  
+ @ServiceCharacter  char(1),  
+ @RecordStatus   varchar(10),  
+ @ServiceID   int, 
+ @EndOfObligatedServiceDate date.me, 
+ @ComponentCode   varchar(2) = NULL,  
+ @PMOSCode   varchar(4) = NULL,  
+ @CurrentlyInReserves  char(1)  = NULL,   
+ @UserLogin   varchar(15) 
+AS 
+ 
+SET @ComponentCode = COALESCE(@ComponentCode, (SELECT TOP 1 N.OFFICER_COMPONENT_CODE FROM NWA N  
+      WHERE N.MARINE_CANDIDATE_ID = @PersonId 
+      ORDER BY N.NWA_ID DESC), SPACE(0)) 
+ 
+ 
+--- PRINT 'COMPONENT CODE = ' + @ComponentCode  
+ 
+ 
+IF EXISTS (SELECT 1 FROM CANDIDATE_PRIOR_SERVICE WHERE MARINE_CANDIDATE_ID = @PersonID AND 
+  COMPONENT_CODE = @ComponentCode AND END_DATE = @EndDate) 
+BEGIN 
+ --- UPDATE PRIOR SERVICE 
+ UPDATE 
+  CANDIDATE_PRIOR_SERVICE 
+ SET 
+  BEGIN_DATE   = @BeginDate,                   
+  SEPARATION_CODE   = @Separa.onCode, 
+  REENLISTMENT_CODE   = @ReenlistmentCode, 
+  SERVICE_CHARACTER   = @ServiceCharacter, 
+  VERIFICATION    = @RecordStatus, 
+  PMOS_CODE    = @PMOSCode,  
+  SERVICE_ID     = @ServiceID, 
+  CURRENTLY_IN_RESERVES   = @CurrentlyInReserves, 
+  END_OF_OBLIGATED_SERVICE_DATE  = @EndOfObligatedServiceDate, 
+  USER_LOGIN        = @UserLogin, 
+  UPDATE_DATE                  = GETDATE() 
+ WHERE  
+  MARINE_CANDIDATE_ID  = @PersonID AND 
+  COMPONENT_CODE    = @ComponentCode AND  
+  END_DATE    = @EndDate 
+END 
+ELSE 
+BEGIN 
+ --- INSERT PRIOR SERVICE 
+ INSERT CANDIDATE_PRIOR_SERVICE  
+  (MARINE_CANDIDATE_ID, BEGIN_DATE, END_DATE, COMPONENT_CODE, SEPARATION_CODE, 
+  REENLISTMENT_CODE, SERVICE_CHARACTER, VERIFICATION, PMOS_CODE, SERVICE_ID, 
+  CURRENTLY_IN_RESERVES, END_OF_OBLIGATED_SERVICE_DATE, USER_LOGIN, UPDATE_DATE) 
+ VALUES  
+  (@PersonID, @BeginDate, @EndDate, @ComponentCode, @Separa.onCode,  
+  @ReenlistmentCode, @ServiceCharacter, @RecordStatus, @PMOSCode, @ServiceID, 
+  @CurrentlyInReserves, @EndOfObligatedServiceDate, @UserLogin, GETDATE()) 
+END]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

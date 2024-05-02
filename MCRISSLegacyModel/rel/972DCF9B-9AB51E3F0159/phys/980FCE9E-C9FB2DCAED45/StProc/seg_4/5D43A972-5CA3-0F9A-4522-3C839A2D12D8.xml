@@ -1,0 +1,65 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetMonthlyTCMadeRpt]" directorySegmentName="seg_4" id="5D43A972-5CA3-0F9A-4522-3C839A2D12D8">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[(   
+    @OrgID   int = null, 
+    @StartDt   date.me, 
+    @EndDt     date.me 
+) 
+ 
+AS 
+BEGIN  
+ -- Declare the return variable here 
+ DECLARE @Result int 
+    DECLARE @TargetDay DateTime 
+    DECLARE @Prior90Days DateTime 
+    DECLARE @DayValue int 
+     
+     
+ SELECT pc.ProspectId, 
+        p.NwaId, 
+       per.LastName + ',' + per.FirstName [Name], 
+       'TC' Ac.vity, 
+       p.Source, 
+       hs.HighSchool_Name [School], 
+       rp.Rank_Code + ' ' + pr.Last_Name [Recruiter], 
+       pp.PhoneNumber [Telephone] 
+        
+   FROM Prospec.ng.USMC.ProspectComment pc 
+INNER JOIN Prospec.ng.USMC.ProspectAc.vityComment pac ON pac.ProspectAc.vityCommentId = pc.ProspectAc.vityCommentId 
+INNER JOIN Prospec.ng.USMC.ProspectCommentType pct ON pct.ProspectCommentTypeId = pac.ProspectCommentTypeId 
+INNER JOIN Prospec.ng.USMC.ProspectSchool ps on pc.ProspectId = ps.ProspectId 
+INNER JOIN Prospec.ng.USMC.Prospect p on  p.ProspectId = ps.ProspectId 
+INNER JOIN MCRISS.DBO.HIGH_SCHOOL hs on hs.rowguid = ps.SchoolId 
+INNER JOIN MCRISS.DBO.RECRUITING_PERSON rp on rp.rowguid = p.Recrui.ngPersonId 
+INNER JOIN MCRISS.DBO.PERSON pr on pr.Person_Id = rp.Recrui.ng_Person_Id 
+INNER JOIN Prospec.ng.USMC.Person per on per.PersonId = p.PersonId  
+Le. JOIN Prospec.ng.USMC.PersonPhone pp on pp.PersonId = per.PersonId and pp.PersonPhoneTypeId = 1 
+     WHERE pac.Ac.vity = 'TC' AND 
+     pct.ProspectCommentType IN ('CM', 'Col', 'Col-S', 'Col-R', 'NI', 'NA', 'NH', 'NHCB', 'NHLM')   
+    AND pc.IsApproved = 1 
+    AND  
+          pc.ProspectDate >= @StartDt and pc.ProspectDate <= @EndDt   
+    AND pc.ProspectId IN (SELECT P.ProspectId  
+                           FROM Prospec.ng.USMC.Prospect P 
+                     INNER JOIN USMC.vwMcrissRecrui.ngOrganiza.on Org ON P.Recrui.ngOrganiza.onId=Org.rowguid 
+                          WHERE ORGANIZATION_ID=@OrgID  
+                        ) 
+    AND NOT EXISTS (SELECT p2.ProspectId 
+                   FROM RSSOSS.USMC.Event e 
+             INNER JOIN RSSOSS.USMC.EventSubject s ON e.ID = s.EventId 
+             INNER JOIN RSSOSS.USMC.EventOutcome oc ON e.ID = oc.EventId 
+                   INNER JOIN RSSOSS.USMC.EventType et ON e.EventTypeId = et.ID 
+                   INNER JOIN Prospec.ng.USMC.Prospect p2 ON s.subjectId = pc.ProspectId                    
+              WHERE (InterviewOutcomeId=1 or InterviewOutcomeId=2) -- New Working Applicant or Follow-up 
+                       AND et.Type != 'Follow Up' 
+           AND p2.ProspectId= pc.ProspectId 
+                    AND StartDate < pc.ProspectDate AND StartDate >= DateAdd(day, -90, pc.ProspectDate))      
+    
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

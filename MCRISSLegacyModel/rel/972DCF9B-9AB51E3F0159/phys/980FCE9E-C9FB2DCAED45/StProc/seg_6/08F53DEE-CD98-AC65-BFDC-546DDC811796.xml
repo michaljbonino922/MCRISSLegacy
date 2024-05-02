@@ -1,0 +1,65 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetWeeklyInterviewRpt]" directorySegmentName="seg_6" id="08F53DEE-CD98-AC65-BFDC-546DDC811796">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[(   
+ @Ac.vityName varchar(10) = null, 
+    @OrgID   int = null, 
+    @RecruiterID uniqueidentifier = null, 
+    @StartDt   date.me, 
+    @EndDt     date.me 
+) 
+ 
+AS 
+ 
+BEGIN 
+  
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+  
+ SET  @EndDt = CAST( (STR(Year(@EndDt)) + '-' + STR(MONTH(@EndDt)) + '-' + STR(DAY(@EndDt)) ) AS date.me) 
+ SET  @EndDt = DATEADD(day, 1, @EndDt) 
+  
+ SELECT DISTINCT 
+  p.ProspectId, 
+  p.NwaId, 
+  per.LastName + ', ' + per.FirstName [Name], 
+  P.Ac.vity AS Ac.vity, 
+  p.Source, 
+  hs.HighSchool_Name [School], 
+  rp.Rank_Code + ' ' + pr.Last_Name [Recruiter], 
+  pp.PhoneNumber [Telephone] 
+  ,NULL as Note 
+  ,NULL as Comment 
+  ,NULL as disposi.on 
+  FROM RSSOSS.USMC.Event e 
+   INNER JOIN RSSOSS.USMC.EventOwners eo ON e.ID = eo.EventId 
+  INNER JOIN RSSOSS.USMC.EventSubject s ON e.ID = s.EventId 
+  INNER JOIN RSSOSS.USMC.EventOutcome oc ON e.ID = oc.EventId 
+  INNER JOIN RSSOSS.USMC.EventType et ON e.EventTypeId = et.ID 
+  INNER JOIN Prospec.ng.USMC.Prospect p ON s.subjectId = p.ProspectId 
+  INNER JOIN Prospec.ng.USMC.Person per ON per.PersonId = p.PersonId 
+  LEFT OUTER JOIN Prospec.ng.USMC.PersonPhone pp ON per.PersonId = pp.PersonId and pp.PersonPhoneTypeId = 1 
+  INNER JOIN Prospec.ng.USMC.ProspectSchool ps ON ps.ProspectId = p.ProspectId 
+  INNER JOIN (SELECT ProspectId, Max(LastUpdateDate) as updatedate from Prospec.ng.USMC.ProspectSchool group by prospec.d) maxschool on maxschool.prospec.d = p.prospec.d and ps.lastupdatedate = maxschool.updatedate 
+  INNER JOIN MCRISS.DBO.HIGH_SCHOOL hs on hs.rowguid = ps.SchoolId 
+  INNER JOIN MCRISS.DBO.RECRUITING_PERSON rp on rp.rowguid = eo.CreatorId 
+  INNER JOIN MCRISS.DBO.PERSON pr on pr.Person_Id = rp.Recrui.ng_Person_Id 
+  INNER JOIN USMC.MonthlyObjec.ve mo ON mo.RecruiterID = rp.rowguid and mo.Month = Month(@StartDt) and mo.Year = Year(@StartDt) 
+  LEFT OUTER JOIN MCRISS.dbo.NWA n ON n.rowguid = p.NwaId 
+  WHERE (InterviewOutcomeId=1 or InterviewOutcomeId=2) -- New Working Applicant or Follow-up 
+    AND et.Type != 'Follow Up' 
+    AND e.IsApproved = 1     
+    AND e.StartDate >= @StartDt and e.StartDate < @EndDt     
+    AND (e.Organiza.onId = @OrgID) 
+    AND (Ac.vity = @Ac.vityName or @Ac.vityName IS NULL) 
+    AND rp.TOUR_END_DATE IS NULL 
+    AND (rp.rowguid = @RecruiterID OR @RecruiterID IS NULL) 
+    AND EXISTS (SELECT ID FROM RSSOSS.USMC.WeeklyObjec.ve WHERE MonthlyObjec.veID = mo.ID) 
+    AND(( e.StartDate < n.NWA_DECLARED_DATE OR e.StartDate > DATEADD(day, 90, n.NWA_DECLARED_DATE) or n.nwa_declared_date is null)) 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

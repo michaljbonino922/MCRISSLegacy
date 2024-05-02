@@ -1,0 +1,89 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_dbaCreateDummyDODCode]" directorySegmentName="seg_14" id="854DB186-465F-865C-26CF-78B2FBD33F5C">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@NewDODCode varchar(20) OUTPUT 
+AS 
+ 
+--============================================================================= 
+--   
+-- Insert new high school with NO DOD_CODE 
+-- 
+--============================================================================= 
+ 
+declare @size int 
+declare @max_dod_code varchar(20) 
+ 
+set @max_dod_code=(select max(dod_code) from high_school where dod_code like '000%') 
+--print @max_dod_code 
+ 
+set @size=len(@max_dod_code) 
+--print @size 
+ 
+ 
+IF (@size=9) 
+BEGIN 
+  set @size=@size-len(@max_dod_code+1) 
+-- print @size  
+ set @max_dod_code='000000'+convert(varchar(9),(@max_dod_code+1)) 
+ set @NewDODCode=@max_dod_code 
+ print @max_dod_code 
+ 
+END 
+ 
+IF (@size=8) 
+BEGIN 
+  set @size=@size-len(@max_dod_code+1) 
+-- print @size  
+ set @max_dod_code='0000000'+convert(varchar(8),(@max_dod_code+1)) 
+ set @NewDODCode=@max_dod_code 
+ print @max_dod_code 
+ 
+END 
+ 
+IF (@size=7) 
+BEGIN 
+  set @size=@size-len(@max_dod_code+1) 
+-- print @size  
+ set @max_dod_code='00000000'+convert(varchar(7),(@max_dod_code+1)) 
+ set @NewDODCode=@max_dod_code 
+ print @max_dod_code 
+ 
+END 
+ 
+ 
+IF (@size=6) 
+BEGIN 
+  set @size=@size-len(@max_dod_code+1) 
+-- print @size  
+ set @max_dod_code='000000000'+convert(varchar(6),(@max_dod_code+1)) 
+ set @NewDODCode=@max_dod_code 
+ print @max_dod_code 
+ 
+END 
+ 
+IF (@size=5) 
+BEGIN 
+  set @size=@size-len(@max_dod_code+1) 
+-- print @size  
+ set @max_dod_code='0000000000'+convert(varchar(5),(@max_dod_code+1)) 
+ set @NewDODCode=@max_dod_code 
+ print @max_dod_code 
+ 
+END 
+ 
+ 
+ 
+ELSE 
+ IF(@size>9) 
+  BEGIN 
+  print 'The maximum dod code is greater than 9 digits.  Please add school manually!' 
+END 
+ 
+ 
+--============================================================================================]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

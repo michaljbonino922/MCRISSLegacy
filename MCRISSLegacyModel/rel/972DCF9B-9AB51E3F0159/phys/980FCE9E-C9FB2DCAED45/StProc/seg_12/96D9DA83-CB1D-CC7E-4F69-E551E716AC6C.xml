@@ -1,0 +1,141 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[M8412_Get_Experience_Report]" directorySegmentName="seg_12" id="96D9DA83-CB1D-CC7E-4F69-E551E716AC6C">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@Billet varchar(20), 
+ @OrgID int 
+AS 
+SET NOCOUNT ON 
+ 
+-- If NULL, assume MCRC level (OrgID 900) 
+SET @OrgID = COALESCE(@OrgID, 900) 
+ 
+/* 
+------------------------------------------------------------------------------ 
+--- Create Temp Tables --- 
+ 
+The #SUBORGS table will be populated with all OrgIDs that are in the child hierarchy 
+of the input @OrgID.  USED is a bit that is necessary for popula.ng the data 
+to .ag whether an OrgID's children have been joined yet.  This is to make 
+sure the direct children of an OrgID are only inserted once. 
+ 
+The #IDS table is used only to temporarily store the OrgIDs that children are being 
+retrieved for.  Because it is an itera.ve process, this table is necessary so that 
+we know which OrgIDs to toggle the USED .ag on in the #SUBORGS table. 
+------------------------------------------------------------------------------ 
+*/ 
+CREATE TABLE #SUBORGS (ORG_ID int NOT NULL, ORG_TYPE varchar(3), USED bit NOT NULL) 
+CREATE TABLE #IDS (ORG_ID int NOT NULL) 
+ 
+-- Seed the temp table with the input OrgID 
+INSERT INTO #SUBORGS 
+SELECT ORGANIZATION_ID, 
+ ORGANIZATION_TYPE, 
+ 0 
+FROM RECRUITING_ORGANIZATION 
+WHERE ORGANIZATION_ID = @OrgID 
+ 
+-- Con.nue processing un.l we have goten to the RS level 
+WHILE (SELECT COUNT(1) FROM #SUBORGS WHERE USED = 0 AND ORG_TYPE = 'RS') = 0 
+BEGIN 
+ 
+-- Save all OrgIDs in the #SUBORGS table that we haven't goten children for yet. 
+INSERT INTO #IDS 
+SELECT ORG_ID 
+FROM #SUBORGS 
+WHERE USED = 0 
+ 
+-- Insert new children (with Used .ag = 0) into the #SUBORGS table. 
+INSERT INTO #SUBORGS 
+SELECT OM.CHILD_ORGANIZATION_ID, RO.ORGANIZATION_TYPE, 0 
+FROM ORGANIZATION_MAP OM INNER JOIN #SUBORGS SO ON OM.PARENT_ORGANIZATION_ID = SO.ORG_ID AND SO.USED = 0 
+ INNER JOIN RECRUITING_ORGANIZATION RO ON OM.CHILD_ORGANIZATION_ID = RO.ORGANIZATION_ID 
+ 
+-- Set the USED .ag to 1 for the OrgIDs that we just processed. 
+UPDATE #SUBORGS 
+SET USED = 1 
+WHERE ORG_ID IN (SELECT * FROM #IDS) 
+ 
+-- No need to save the OrgIDs that we just got children for.  They will remain in the #SUBORGS table 
+-- and are now marked as used/processed. 
+DELETE FROM #IDS 
+ 
+END 
+ 
+DECLARE @BilletWithSpecialChars VARCHAR(20) 
+ 
+SET @BilletWithSpecialChars = CASE @Billet 
+    WHEN 'RI' THEN '%RI' 
+    WHEN 'CT' THEN '% CT %' 
+    WHEN 'MEPS' THEN '%MEPS%' 
+    WHEN 'OPS' THEN '%OPS%' 
+    WHEN 'RECSCH' THEN '%RCTR SCH%' 
+   END 
+ 
+CREATE TABLE #EXPERIENCE_TEMP(PERSON_ID INT NULL, LAST_NAME VARCHAR(20) NULL, FIRST_NAME VARCHAR(20) NULL, RANK VARCHAR(10) NULL, 
+ SOCIAL_SECURITY_NUMBER VARCHAR(9) NULL, DISTRICT VARCHAR(15) NULL, CURRENT_BILLET VARCHAR(25) NULL, 
+ CURRENT_BILLET_DATE DATETIME NULL, DCTB DATETIME NULL, DATE_LAST_HELD_BILLET DATETIME NULL, MONTHS_HELD_BILLET INT NULL) 
+ 
+INSERT INTO 
+ #EXPERIENCE_TEMP 
+SELECT 
+ PV.PERSON_ID, 
+ PV.LAST_NAME, 
+ PV.FIRST_NAME, 
+ (SELECT R.RANK_CODE FROM M8412_Lk_Rank R WHERE R.RANK_ID = RP.RANK_ID) AS RANK, 
+ PV.SOCIAL_SECURITY_NUMBER, 
+ CASE WHEN RIGHT(RP.CURRENT_LOCATION, 3) = 'MCD' THEN 
+   (SELECT RO.SHORT_NAME FROM RECRUITING_ORGANIZATION RO 
+   WHERE RO.ORGANIZATION_ID = RP.LOCATION_ID) 
+  ELSE 
+   (SELECT RO.SHORT_NAME FROM RECRUITING_ORGANIZATION RO 
+   INNER JOIN ORGANIZATION_MAP OM ON RO.ORGANIZATION_ID = OM.PARENT_ORGANIZATION_ID 
+   WHERE OM.CHILD_ORGANIZATION_ID = RP.LOCATION_ID) 
+  END AS DISTRICT, 
+ RP.BILLET AS CURRENT_BILLET, 
+ RP.DATE_BILLET AS CURRENT_BILLET_DATE, 
+ RP.DATE_CURR_TOUR_BEGAN AS DCTB, 
+ (SELECT MAX(RH.BILLET_END_DATE) FROM M8412_Recruit_History RH WHERE RH.PERSON_ID = PV.PERSON_ID) AS DATE_LAST_HELD_BILLET, 
+ NULL 
+FROM  
+ M8412_Person_View PV 
+ INNER JOIN M8412_Recruit_Person RP ON 
+  (PV.PERSON_ID = RP.PERSON_ID) 
+ INNER JOIN #SUBORGS SO ON 
+  (RP.LOCATION_ID = SO.ORG_ID) 
+WHERE 
+ EXISTS(SELECT 1 FROM M8412_Recruit_History RH WHERE RH.PERSON_ID = PV.PERSON_ID AND RH.BILLET LIKE @BilletWithSpecialChars) 
+ 
+-- UPDATE MONTHS_HELD_BILLET 
+UPDATE 
+ #EXPERIENCE_TEMP 
+SET 
+ MONTHS_HELD_BILLET =  (SELECT 
+     SUM(CASE WHEN RH2.BILLET_END_DATE IS NULL 
+      THEN  DATEDIFF(MONTH, RH2.BILLET_BEGIN_DATE, GETDATE()) 
+      ELSE  DATEDIFF(MONTH, RH2.BILLET_BEGIN_DATE, RH2.BILLET_END_DATE) 
+     END) 
+    FROM 
+     M8412_Recruit_History RH2 
+    WHERE 
+     RH1.PERSON_ID = RH2.PERSON_ID AND 
+     RH2.BILLET LIKE @BilletWithSpecialChars) 
+FROM 
+ M8412_Recruit_History RH1 
+WHERE 
+ #EXPERIENCE_TEMP.PERSON_ID = RH1.PERSON_ID AND 
+ RH1.BILLET LIKE @BilletWithSpecialChars 
+ 
+-- RETURN RESULTS 
+SELECT * FROM #EXPERIENCE_TEMP 
+ 
+-- CLEAN UP 
+DROP TABLE #SUBORGS 
+DROP TABLE #IDS  
+DROP TABLE #EXPERIENCE_TEMP 
+SET NOCOUNT OFF]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

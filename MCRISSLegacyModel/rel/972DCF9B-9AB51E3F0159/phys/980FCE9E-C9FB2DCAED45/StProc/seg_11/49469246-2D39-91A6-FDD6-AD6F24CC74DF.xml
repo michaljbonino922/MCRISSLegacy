@@ -1,0 +1,352 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[PopulateWeeklyFlatTbl]" directorySegmentName="seg_11" id="49469246-2D39-91A6-FDD6-AD6F24CC74DF">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:37 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[AS 
+   BEGIN 
+      --delete  from DBO.RptDataAnalysis 
+      DELETE FROM psr.dbo.WeeklyMonthlyAc.vity 
+       WHERE Ac.vityDate >= CONVERT (date, (GETDATE() - 90)) 
+ 
+      --or RecruiterId is null 
+      DELETE FROM psr.dbo.weeklyAchievedObjec.ve 
+ 
+      INSERT INTO [PSR].[dbo].[WeeklyAchievedObjec.ve] ([StartDate], 
+                                                         [EndDate], 
+                                                         [TCCallsObj], 
+                                                         [OTScreenedObj], 
+                                                         [ACContactsObj], 
+                                                         [MOMadeObj], 
+                                                         [EMMadeObj], 
+                                                         [IntvwObj], 
+                                                         [NWAObj], 
+                                                         [JoinsObj], 
+                                                         [UpdatedByUser], 
+                                                         [DateUpdated], 
+                                                         [ORGANIZATION_ID], 
+                                                         [RecruiterID]) 
+         SELECT [StartDate], 
+                [EndDate], 
+                [TelephoneCallObjec.ve], 
+                [O.ceTra.cObjec.ve], 
+                [AreaCanvassingObjec.ve], 
+                [HomeVisitObjec.ve], 
+                [ElectronicProspec.ngObjec.ve], 
+                [InterviewObjec.ve], 
+                [NwaObjec.ve], 
+                [ContractCount], 
+                wo.[LastUpdateUserId], 
+                wo.[LastUpdateDate], 
+                [Organiza.onId], 
+                [RecruiterID] 
+           FROM [PSR].[dbo].[WeeklyObjec.ve] wo 
+                INNER JOIN [PSR].[dbo].[MonthlyObjec.ve] mo 
+                   ON wo.[MonthlyObjec.veID] = mo.ID 
+ 
+      DECLARE @startDt   DATETIME 
+      SELECT @startDt = CONVERT (date, (GETDATE() - 90)) 
+ 
+      WHILE (@startDt <= CONVERT (date, (GETDATE()))) 
+      BEGIN 
+         --if (year(getdate()) <> year(@startDt) and month(getdate()) <> month(@startDt)) 
+         --begin 
+         INSERT INTO psr.dbo.WeeklyMonthlyAc.vity (Ac.vityDate, 
+                                                    RecruiterID, 
+                                                    Organiza.on_id) 
+            --insert into DBO.RptDataAnalysisBySrc( 
+            SELECT @startDt, RecruiterID, Organiza.onid FROM dbo.Recruiter 
+ 
+         SELECT @startDt = dateadd (day, 1, @startDt) 
+      END 
+ 
+      SELECT c1.leadid, 
+             c1.contactsourceid, 
+             c1.contactypeid, 
+             c1.ContactOutcomeID, 
+             c1.date, 
+             Ac.vityProspectResponseTypeID 
+        INTO #Contact2 
+        FROM DBO.Contact c1 
+       WHERE     isDeleted = 0 
+             AND ContactOutcomeID != 9 
+             AND ContactOutcomeID != 10 
+ 
+      SELECT DISTINCT c1.leadid, 
+                      c1.contactsourceid, 
+                      c1.contactypeid, 
+                      c1.date 
+        INTO #Contact 
+        FROM (SELECT leadid, 
+                     contactsourceid, 
+                     contactypeid, 
+                     date 
+                FROM DBO.Contact) c1 
+             INNER JOIN 
+             (SELECT leadid, min (date) date 
+                FROM DBO.Contact 
+               WHERE     isDeleted = 0 
+                     AND ContactOutcomeID != 9 
+                     AND ContactOutcomeID != 10 
+              GROUP BY leadid) c2 
+                ON c1.date = c2.date AND c1.leadid = c2.leadid 
+ 
+      UPDATE psr.dbo.WeeklyMonthlyAc.vity 
+         SET TCCalls = rst.TcCalls, 
+             TcCallsCon = rst.TcMade, 
+             OTScreened = rst.OtMade, 
+             AcContacts = rst.AcContacts, 
+             MoMade = rst.HvMade, 
+             MoMadeCon = rst.HvMade, 
+             EMMade = rst.EpMade, 
+             EMMadeCon = rst.EpMadeCon 
+        FROM psr.dbo.WeeklyMonthlyAc.vity d 
+             INNER JOIN 
+             (SELECT sum (CASE WHEN ContactTypeId = 1 THEN 1 ELSE 0 END) 
+                        TcCalls, 
+                     sum ( 
+                        CASE 
+                           WHEN ContactTypeId = 1 AND ContactOutcomeID = 5 
+                           THEN 
+                              1 
+                           ELSE 
+                              0 
+                        END) 
+                        TcMade, 
+                     sum ( 
+                        CASE 
+                           WHEN     ContactTypeId = 3 
+                                AND ContactOutcomeID IS NOT NULL 
+                           THEN 
+                              1 
+                           ELSE 
+                              0 
+                        END) 
+                        OtMade, 
+                     sum ( 
+                        CASE 
+                           WHEN ContactTypeId = 2 AND ContactOutcomeID = 11 
+                           THEN 
+                              1 
+                           ELSE 
+                              0 
+                        END) 
+                        AcContacts, 
+                     sum ( 
+                        CASE 
+                           WHEN ContactTypeId = 4 AND ContactOutcomeID = 16 
+                           THEN 
+                              1 
+                           ELSE 
+                              0 
+                        END) 
+                        HvMade, 
+                     sum ( 
+                        CASE 
+                           WHEN     ContactTypeId = 4 
+                                AND Ac.vityProspectResponseTypeID 
+                                       IS NOT NULL 
+                                AND Ac.vityProspectResponseTypeID <> 6 
+                           THEN 
+                              1 
+                           ELSE 
+                              0 
+                        END) 
+                        HvMadeCon, 
+                     sum ( 
+                        CASE 
+                           WHEN     ContactTypeId = 5 
+                                AND ContactOutcomeID IS NOT NULL 
+                           THEN 
+                              1 
+                           ELSE 
+                              0 
+                        END) 
+                        EpMade, 
+                     sum ( 
+                        CASE 
+                           WHEN     ContactTypeId = 5 
+                                AND Ac.vityProspectResponseTypeID 
+                                       IS NOT NULL 
+                                AND Ac.vityProspectResponseTypeID <> 6 
+                           THEN 
+                              1 
+                           ELSE 
+                              0 
+                        END) 
+                        EpMadeCon, 
+                     year (c.date) year, 
+                     month (c.date) month, 
+                     day (c.date) day, 
+                     l.AssignedRecruiterId RecruiterId 
+                FROM --select l.LeadID, c.Date, ContactTypeId from 
+                     DBO.LEAD l 
+                     INNER JOIN #Contact2 c 
+                        ON     l.LeadId = c.LeadId 
+                           AND AssignedRecruiterId IS NOT NULL 
+              GROUP BY l.AssignedRecruiterId, 
+                       year (c.date), 
+                       month (c.date), 
+                       day (c.date)) rst 
+                ON     rst.Year = year (Ac.vityDate) 
+                   AND rst.month = month (Ac.vityDate) 
+                   AND rst.day = day (Ac.vityDate) 
+                   AND rst.RecruiterId = d.RecruiterId 
+ 
+      -- 
+      UPDATE psr.dbo.WeeklyMonthlyAc.vity 
+         SET TcCallsApp = rst.TcAppt, 
+             --OtAppt = rst.OtAppt, 
+             AcContactsApp = rst.AcAppt, 
+             MOMadeApp = rst.HvAppt, 
+             EMMadeApp = rst.EpAppt 
+        FROM psr.dbo.WeeklyMonthlyAc.vity d 
+             INNER JOIN 
+             (SELECT sum (CASE ContactTypeId WHEN 1 THEN 1 ELSE 0 END) TcAppt, 
+                     sum (CASE ContactTypeId WHEN 3 THEN 1 ELSE 0 END) OtAppt, 
+                     sum (CASE ContactTypeId WHEN 2 THEN 1 ELSE 0 END) AcAppt, 
+                     sum (CASE ContactTypeId WHEN 4 THEN 1 ELSE 0 END) HvAppt, 
+                     sum (CASE ContactTypeId WHEN 5 THEN 1 ELSE 0 END) EpAppt, 
+                     year (ci.StartDateTime) year, 
+                     month (ci.StartDateTime) month, 
+                     day (ci.StartDateTime) day, 
+                     l.AssignedRecruiterId RecruiterId 
+                FROM DBO.LEAD l 
+                     INNER JOIN #Contact c 
+                        ON     l.LeadId = c.LeadId 
+                           AND AssignedRecruiterId IS NOT NULL 
+                     INNER JOIN DBO.ScheduledEvent e ON l.LeadId = e.LeadID 
+                     INNER JOIN DBO.CalendarItem ci 
+                        ON ci.CalendarItemID = e.CalendarItemEventID 
+               WHERE e.ScheduledEventTypeId = 1 --or e.ScheduledInterviewOutcomeId = 2 
+              GROUP BY l.AssignedRecruiterId, 
+                       year (ci.StartDateTime), 
+                       month (ci.StartDateTime), 
+                       day (ci.StartDateTime)) rst 
+                ON     rst.Year = year (Ac.vityDate) 
+                   AND rst.month = month (Ac.vityDate) 
+                   AND rst.day = day (Ac.vityDate) 
+                   AND rst.RecruiterId = d.RecruiterId 
+ 
+      -- 
+      UPDATE psr.dbo.WeeklyMonthlyAc.vity 
+         SET TcCallsInt = rst.TcInt, 
+             OtScreenedInt = rst.OtInt, 
+             AcContactsInt = rst.AcInt, 
+             MOMadeInt = rst.HvInt, 
+             EMMadeInt = rst.EpInt 
+        FROM psr.dbo.WeeklyMonthlyAc.vity d 
+             INNER JOIN 
+             (SELECT sum (CASE ContactTypeId WHEN 1 THEN 1 ELSE 0 END) TcInt, 
+                     sum (CASE ContactTypeId WHEN 3 THEN 1 ELSE 0 END) OtInt, 
+                     sum (CASE ContactTypeId WHEN 2 THEN 1 ELSE 0 END) AcInt, 
+                     sum (CASE ContactTypeId WHEN 4 THEN 1 ELSE 0 END) HvInt, 
+                     sum (CASE ContactTypeId WHEN 5 THEN 1 ELSE 0 END) EpInt, 
+                     year (ci.StartDateTime) year, 
+                     month (ci.StartDateTime) month, 
+                     day (ci.StartDateTime) day, 
+                     l.AssignedRecruiterId RecruiterId 
+                FROM DBO.LEAD l 
+                     INNER JOIN #Contact c 
+                        ON     l.LeadId = c.LeadId 
+                           AND AssignedRecruiterId IS NOT NULL 
+                     INNER JOIN DBO.ScheduledEvent e ON l.LeadId = e.LeadID 
+                     INNER JOIN DBO.CalendarItem ci 
+                        ON ci.CalendarItemID = e.CalendarItemEventID 
+               WHERE e.ScheduledEventTypeId = 2 
+              GROUP BY l.AssignedRecruiterId, 
+                       year (ci.StartDateTime), 
+                       month (ci.StartDateTime), 
+                       day (ci.StartDateTime)) rst 
+                ON     rst.Year = year (Ac.vityDate) 
+                   AND rst.month = month (Ac.vityDate) 
+                   AND rst.day = day (Ac.vityDate) 
+                   AND rst.RecruiterId = d.RecruiterId 
+ 
+      -- 
+      UPDATE psr.dbo.WeeklyMonthlyAc.vity 
+         SET Nwas = rst.Nwa, Joins = rst.Contract 
+        FROM psr.dbo.WeeklyMonthlyAc.vity d 
+             INNER JOIN 
+             (SELECT sum (CASE s.StatusID WHEN 5 THEN 1 ELSE 0 END) Nwa, 
+                     sum (CASE s.StatusID WHEN 6 THEN 1 ELSE 0 END) Contract, 
+                     year (ld.DateUpdated) year, 
+                     month (ld.DateUpdated) month, 
+                     day (ld.DateUpdated) day, 
+                     l.AssignedRecruiterId RecruiterId 
+                FROM DBO.LEAD l 
+                     INNER JOIN #Contact c 
+                        ON     l.LeadId = c.LeadId 
+                           AND AssignedRecruiterId IS NOT NULL 
+                     INNER JOIN DBO.LeadStatusDisposi.on ld 
+                        ON ld.LeadID = l.LeadId 
+                     INNER JOIN DBO.StatusDisposi.on sd 
+                        ON ld.StatusDisposi.onID = sd.StatusDisposi.onID 
+                     INNER JOIN DBO.Status s ON s.StatusID = sd.StatusID 
+              GROUP BY l.AssignedRecruiterId, 
+                       year (ld.DateUpdated), 
+                       month (ld.DateUpdated), 
+                       day (ld.DateUpdated)) rst 
+                ON     rst.Year = year (Ac.vityDate) 
+                   AND rst.month = month (Ac.vityDate) 
+                   AND rst.day = day (Ac.vityDate) 
+                   AND rst.RecruiterId = d.RecruiterId 
+ 
+      --  update DBO.RptDataAnalysis set  OrgId = r.Organiza.onID from DBO.RptDataAnalysis d 
+      --inner join dbo.Recruiter r on d.RecruiterId = r.RecruiterId 
+ 
+   -- this is organiza.onal level daily summary  
+      INSERT INTO [PSR].[dbo].[WeeklyMonthlyAc.vity] ([ORGANIZATION_ID], 
+                                                       [Ac.vityDate], 
+                                                       [TCCalls], 
+                                                       [TCCallsCon], 
+                                                       [TCCallsApp], 
+                                                       [TCCallsInt], 
+                                                       [OTScreened], 
+                                                       [OTScreenedInt], 
+                                                       [ACContacts], 
+                                                       [ACContactsApp], 
+                                                       [ACContactsInt], 
+                                                       [MOMade], 
+                                                       [MOMadeCon], 
+                                                       [MOMadeApp], 
+                                                       [MOMadeInt], 
+                                                       [EMMade], 
+                                                       [EMMadeCon], 
+                                                       [EMMadeApp], 
+                                                       [EMMadeInt], 
+                                                       [NWAs], 
+                                                       [Joins]) 
+         SELECT [ORGANIZATION_ID], 
+                [Ac.vityDate], 
+                sum ([TCCalls]), 
+                sum ([TCCallsCon]), 
+                sum ([TCCallsApp]), 
+                sum ([TCCallsInt]), 
+                sum ([OTScreened]), 
+                sum ([OTScreenedInt]), 
+                sum ([ACContacts]), 
+                sum ([ACContactsApp]), 
+                sum ([ACContactsInt]), 
+                sum ([MOMade]), 
+                sum ([MOMadeCon]), 
+                sum ([MOMadeApp]), 
+                sum ([MOMadeInt]), 
+                sum ([EMMade]), 
+                sum ([EMMadeCon]), 
+                sum ([EMMadeApp]), 
+                sum ([EMMadeInt]), 
+                sum ([NWAs]), 
+                sum ([Joins]) 
+           FROM [PSR].[dbo].[WeeklyMonthlyAc.vity] 
+          WHERE RecruiterId IS NOT NULL AND [Ac.vityDate] > CONVERT (date, (GETDATE() - 90)) 
+         GROUP BY [ORGANIZATION_ID], [Ac.vityDate] 
+ 
+      DROP TABLE #Contact 
+   --delete from psr.dbo.WeeklyMonthlyAc.vity where RecruiterId is null 
+ 
+   END]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+</StoredProcedureSqlServerv2k5>

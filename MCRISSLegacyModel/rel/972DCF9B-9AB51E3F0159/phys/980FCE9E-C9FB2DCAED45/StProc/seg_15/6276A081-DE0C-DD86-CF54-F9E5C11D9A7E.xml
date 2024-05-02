@@ -1,0 +1,118 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateImportPersonStagingStatusForDuplicates]" directorySegmentName="seg_15" id="6276A081-DE0C-DD86-CF54-F9E5C11D9A7E">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:56 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @ImportEventId uniqueiden..er 
+)  
+AS 
+BEGIN 
+ 
+-- DECLARE @ImportEventId UNIQUEIDENTIFIER 
+-- SET @ImportEventId = 'B30F4CDA-18B5-4D2A-B088-669CF41B2D23' 
+ 
+ CREATE TABLE #TEMP_PERSON_FIND 
+ ( 
+   ImportPersonStagingId UNIQUEIDENTIFIER 
+  ,PersonId UNIQUEIDENTIFIER 
+  ,ProspectId UNIQUEIDENTIFIER 
+  ,LastUpdateDate DATETIME 
+ ) 
+ 
+ CREATE TABLE #TEMP_PERSON 
+ ( 
+   ImportPersonStagingId UNIQUEIDENTIFIER 
+  ,PersonId UNIQUEIDENTIFIER 
+  ,ProspectId UNIQUEIDENTIFIER 
+  ,ImportStatusID INT 
+ ) 
+ 
+ 
+ INSERT INTO #TEMP_PERSON_FIND 
+ SELECT IPS.ImportPersonStagingId, PP.PersonId, PRO.ProspectId, PRO.LastUpdateDate 
+ FROM [UPLOAD].ImportPersonStaging IPS WITH (NOLOCK) 
+ INNER JOIN [USMC].PersonPhone PP WITH (NOLOCK) ON IPS.Phone = PP.PhoneNumber 
+          AND PP.LastUpdateDate IN ( SELECT MAX(PP2.LastUpdateDate) 
+                 FROM USMC.PersonPhone PP2 WITH (NOLOCK) 
+                 WHERE PP.PersonId = PP2.PersonId) 
+          AND PP.PhoneNumber IS NOT NULL 
+          AND PP.PhoneNumber <> '' 
+          AND IPS.Phone <> '' 
+          AND IPS.Phone IS NOT NULL 
+ INNER JOIN [USMC].Person P WITH (NOLOCK) ON PP.PersonID = P.PersonID AND P.LASTNAME = IPS.LastName AND p.FirstName = IPS.FirstName 
+    INNER JOIN [USMC].Prospect PRO WITH (NOLOCK) ON P.PersonID = PRO.PersonId  
+ WHERE IPS.ImportEventId = @ImportEventId 
+  AND IPS.ImportStatusID <> 5 
+ 
+ INSERT INTO #TEMP_PERSON 
+ SELECT TPF.ImportPersonStagingId, TPF.PersonId, TPF.ProspectId, 7 
+ FROM #TEMP_PERSON_FIND TPF 
+ WHERE LastUpdateDate IN ( SELECT MAX(TPF2.LastUpdateDate) 
+        FROM #TEMP_PERSON_FIND TPF2 
+        WHERE TPF.ImportPersonStagingId = TPF2.ImportPersonStagingId) 
+ 
+ 
+ UPDATE TP 
+ SET TP.ImportStatusID = 8 
+ FROM #TEMP_PERSON TP 
+ INNER JOIN USMC.Person P WITH (NOLOCK) ON TP.PersonId = P.PersonId 
+ WHERE SocialSecurityNumber IS NOT NULL 
+ 
+ UPDATE TP 
+ SET TP.ImportStatusID = 8 
+ FROM #TEMP_PERSON TP 
+ INNER JOIN USMC.Prospect P WITH (NOLOCK) ON TP.PersonId = P.PersonId 
+ WHERE ProspectDisposi.onId <> 1 
+  AND TP.ImportStatusID <> 8 
+ 
+ UPDATE TP 
+ SET TP.ImportStatusID = 8 
+ FROM #TEMP_PERSON TP 
+ INNER JOIN USMC.PersonAddress PA WITH (NOLOCK) ON TP.PersonId = PA.PersonId 
+ WHERE CITY_CODE IS NOT NULL  
+  OR COUNTY_CODE IS NOT NULL 
+  OR STATE_CODE IS NOT NULL 
+  AND TP.ImportStatusID <> 8 
+ 
+ UPDATE TP 
+ SET TP.ImportStatusID = 8 
+ FROM #TEMP_PERSON TP 
+ INNER JOIN USMC.PersonEmail PE WITH (NOLOCK) ON TP.PersonId = PE.PersonId 
+             AND PE.LastUpdateDate IN ( SELECT MAX(PE2.LastUpdateDate) 
+                    FROM USMC.PersonEmail PE2 WITH (NOLOCK) 
+                    WHERE PE.PersonId = PE2.PersonId) 
+ WHERE TP.ImportStatusID <> 8 
+ 
+ UPDATE TP 
+ SET TP.ImportStatusID = 8 
+ FROM #TEMP_PERSON TP 
+ INNER JOIN USMC.ProspectComment PC WITH (NOLOCK) ON TP.ProspectId = PC.ProspectId 
+             AND PC.LastUpdateDate IN ( SELECT MAX(PC2.LastUpdateDate) 
+                    FROM USMC.ProspectComment PC2 WITH (NOLOCK) 
+                    WHERE PC.ProspectId = PC2.ProspectId) 
+ WHERE TP.ImportStatusID <> 8 
+ 
+ UPDATE TP 
+ SET TP.ImportStatusID = 8 
+ FROM #TEMP_PERSON TP 
+ INNER JOIN RSSOSS.USMC.EventSubject ES WITH (NOLOCK) ON TP.PersonId = ES.SubjectId 
+ INNER JOIN RSSOSS.USMC.Event E WITH (NOLOCK) ON ES.EventId = E.Id  
+            AND E.LastUpdateDate IN ( SELECT MAX(E2.LastUpdateDate) 
+                   FROM RSSOSS.USMC.EventSubject ES2 WITH (NOLOCK) 
+                   INNER JOIN RSSOSS.USMC.Event E2 WITH (NOLOCK) ON ES.EventId = E2.Id 
+                   WHERE ES.Id = ES2.Id) 
+ WHERE TP.ImportStatusID <> 8 
+  
+ UPDATE IPS 
+ SET IPS.ImportStatusID = TP.ImportStatusID 
+ FROM #TEMP_PERSON TP 
+ INNER JOIN [UPLOAD].ImportPersonStaging IPS ON TP.ImportPersonStagingId = IPS.ImportPersonStagingId 
+  
+ DROP TABLE #TEMP_PERSON 
+ DROP TABLE #TEMP_PERSON_FIND 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,36 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetCurrentFyVisitRecapInfo]" directorySegmentName="seg_5" id="539B7C7D-F7D0-3F2C-3D39-6979475643E0">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@Organiza.onId  int, 
+             @SchoolCode   int, 
+    @FiscalYear   int 
+AS 
+BEGIN 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+ SELECT [CurrentFyVisitRecapId] 
+      ,[Organiza.onId] 
+      ,[Appointments] 
+      ,[Contacts] 
+      ,[Interviews] 
+      ,[Nwas] 
+      ,[Date] 
+      ,[Purpose] 
+      ,[School_Code] AS SchoolCode 
+      ,[FiscalYear] 
+      ,[LastUpdateUserId] 
+  FROM [MCRISS].[USMC].[CurrentFYVisitRecap] 
+     
+  WHERE Organiza.onId = @Organiza.onId and 
+  School_Code = @SchoolCode and 
+        FiscalYear = @FiscalYear 
+        
+    
+END]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,43 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_DeleteCandidateProfessedExam]" directorySegmentName="seg_14" id="ECA222E2-F3F9-CB34-CF27-44B9201AF9D0">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@MarineCandidateID int, 
+ @ProfessedExamType  char(1), 
+ @ExamDate  date.me, 
+ @ExamEnteredDate  date.me, 
+ @UserLogin  varchar(15)  
+AS  
+ 
+--- UPDATE THE USER_LOGIN BEFORE DELETING THE RECORD 
+IF EXISTS (SELECT 1 FROM CANDIDATE_PROFESSED_EXAM  
+  WHERE MARINE_CANDIDATE_ID = @MarineCandidateID AND 
+  PROFESSED_EXAM_TYPE = @ProfessedExamType AND 
+  EXAM_DATE = @ExamDate AND 
+  EXAM_ENTERED_DATE = @ExamEnteredDate) 
+BEGIN 
+ UPDATE 
+  CANDIDATE_PROFESSED_EXAM 
+ SET 
+  USER_LOGIN = @UserLogin 
+ WHERE  
+  MARINE_CANDIDATE_ID = @MarineCandidateID AND 
+  PROFESSED_EXAM_TYPE = @ProfessedExamType AND 
+  EXAM_DATE = @ExamDate AND 
+  EXAM_ENTERED_DATE = @ExamEnteredDate 
+END 
+ 
+ 
+--- DELETE THE RECORD 
+DELETE FROM  
+ CANDIDATE_PROFESSED_EXAM 
+WHERE  
+ MARINE_CANDIDATE_ID = @MarineCandidateID AND 
+ PROFESSED_EXAM_TYPE = @ProfessedExamType AND 
+ EXAM_DATE = @ExamDate AND 
+ EXAM_ENTERED_DATE = @ExamEnteredDate]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

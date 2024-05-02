@@ -1,0 +1,92 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<EntityView class="oracle.dbtools.crest.model.design.logical.EntityView" directorySegmentName="seg_0" id="6289C26D-4192-BB4B-054A-57EB742726C5" name="vwCountries2">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>B9B35CC1-F66A-677A-A334-4B034F53C39F</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT '1' as weighted,  '-1' AS ID, STATE_CODE AS Code, COUNTRY_DESCRIPTION AS Name 
+FROM  dbo.GEO_LOCATION WITH (NOLOCK) 
+WHERE ((ISNUMERIC(STATE_CODE) = 1) AND (STATE_CODE > 56) AND (COUNTRY_DESCRIPTION IS NOT NULL) AND (LTRIM(COUNTRY_DESCRIPTION) <> '') AND  
+               (CITY_CODE = '0') AND (COUNTY_CODE = '0') OR 
+               (ISNUMERIC(STATE_CODE) = 0) AND (COUNTRY_DESCRIPTION IS NOT NULL) AND (LTRIM(COUNTRY_DESCRIPTION) <> '') AND (CAST(CITY_CODE AS int) = 0)  
+               AND (CAST(COUNTY_CODE AS int) = 0)) and STATE_Code = 'US' 
+Union                
+SELECT '2' as weighted,  '-1' AS ID, STATE_CODE AS Code, COUNTRY_DESCRIPTION AS Name 
+FROM  dbo.GEO_LOCATION WITH (NOLOCK) 
+WHERE ((ISNUMERIC(STATE_CODE) = 1) AND (STATE_CODE > 56) AND (COUNTRY_DESCRIPTION IS NOT NULL) AND (LTRIM(COUNTRY_DESCRIPTION) <> '') AND  
+               (CITY_CODE = '0') AND (COUNTY_CODE = '0') OR 
+               (ISNUMERIC(STATE_CODE) = 0) AND (COUNTRY_DESCRIPTION IS NOT NULL) AND (LTRIM(COUNTRY_DESCRIPTION) <> '') AND (CAST(CITY_CODE AS int) = 0)  
+               AND (CAST(COUNTY_CODE AS int) = 0)) and STATE_Code <> 'US']]></userDefinedSQL>
+<validSQL>false</validSQL>
+<viewType>EntityView</viewType>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="&apos;1&apos;" id="CF894856-59A5-73F1-E980-3519BA460804">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>332FDA77-C8B2-6BBA-B82F-2BF65BC52C22</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>weighted</alias>
+<dataType>UNKNOWN</dataType>
+<expression>&apos;1&apos;</expression>
+<reference>false</reference>
+<viewID>6289C26D-4192-BB4B-054A-57EB742726C5</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="&apos;-1&apos;" id="EE551668-1186-F28A-FE3E-080A4B7FC1C1">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>3508762B-3FBE-D45B-82AA-36E92B979A40</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>ID</alias>
+<dataType>UNKNOWN</dataType>
+<expression>&apos;-1&apos;</expression>
+<reference>false</reference>
+<viewID>6289C26D-4192-BB4B-054A-57EB742726C5</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="STATE_CODE" id="FE41878A-6A36-8668-8FAA-1BA2A61E7906">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>EA5CA090-7D90-E073-741F-669C4CCD3709</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Code</alias>
+<dataType>UNKNOWN</dataType>
+<expression>STATE_CODE</expression>
+<reference>false</reference>
+<viewID>6289C26D-4192-BB4B-054A-57EB742726C5</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="COUNTRY_DESCRIPTION" id="649B0595-7037-9AAE-1CC5-1498EB999725">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>08597544-E8A1-D421-5F15-B6852EE7C2C8</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Name</alias>
+<dataType>UNKNOWN</dataType>
+<expression>COUNTRY_DESCRIPTION</expression>
+<reference>false</reference>
+<viewID>6289C26D-4192-BB4B-054A-57EB742726C5</viewID>
+</viewElement>
+</viewElements>
+</EntityView>

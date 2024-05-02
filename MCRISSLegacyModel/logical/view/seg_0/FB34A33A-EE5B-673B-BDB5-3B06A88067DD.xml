@@ -1,0 +1,70 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<EntityView class="oracle.dbtools.crest.model.design.logical.EntityView" directorySegmentName="seg_0" id="FB34A33A-EE5B-673B-BDB5-3B06A88067DD" name="vwStates">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>C4AD0490-C120-23BC-8743-6188EE2B8738</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  
+ '-1' AS ID,  
+ STATE_CODE As Code,  
+ STATE_TEXT As [Name] 
+FROM [dbo].[GEO_LOCATION] WITH (NOLOCK) 
+WHERE  
+ (ISNUMERIC(STATE_CODE) = 1) AND (STATE_CODE <> '00') AND (COUNTY_CODE IN ('000', '0')) AND (CITY_CODE IN ('0', '0000'))]]></userDefinedSQL>
+<validSQL>false</validSQL>
+<viewType>EntityView</viewType>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="&apos;-1&apos;" id="D63C7F80-D7BE-F1ED-7773-7EA3438E113B">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>224FE59D-16C1-A796-A530-8CCCBB42B6E5</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>ID</alias>
+<dataType>UNKNOWN</dataType>
+<expression>&apos;-1&apos;</expression>
+<reference>false</reference>
+<viewID>FB34A33A-EE5B-673B-BDB5-3B06A88067DD</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="STATE_CODE" id="C20218E2-5FDB-BC6C-4D3A-2B8494C089DE">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>B6240C05-F8CF-5679-6697-A2AB7E0979E5</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Code</alias>
+<dataType>UNKNOWN</dataType>
+<expression>STATE_CODE</expression>
+<reference>false</reference>
+<viewID>FB34A33A-EE5B-673B-BDB5-3B06A88067DD</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="STATE_TEXT" id="38DEB423-7A9C-0B59-BEEE-9DE8F6DFA1DF">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>62024AA3-7826-A087-5DCF-A1AC86C73D7B</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Name</alias>
+<dataType>UNKNOWN</dataType>
+<expression>STATE_TEXT</expression>
+<reference>false</reference>
+<viewID>FB34A33A-EE5B-673B-BDB5-3B06A88067DD</viewID>
+</viewElement>
+</viewElements>
+</EntityView>

@@ -1,0 +1,56 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetHSCCVisitCardView_PJ_9_19_17]" directorySegmentName="seg_13" id="10DC9E03-F0B2-17C7-13A7-7356705230FC">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[(  
+ @SchoolPro.leID uniqueiden..er = null, 
+ @SchoolYear int = null 
+) 
+AS 
+ 
+ 
+SELECT TOP 1 
+ hsv.DatePrepared AS DatePrepared, 
+ hs.HIGHSCHOOL_NAME AS SchoolName, 
+ hs.SCHOOL_TYPE AS SchoolType, 
+ rp.rowguid AS RecruiterID, 
+ COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+ COALESCE(RTRIM(per.LAST_NAME), SPACE(0))  + SPACE(1) +  
+ COALESCE(RTRIM(per.FIRST_NAME), SPACE(0)) + SPACE(1) +  
+ COALESCE(RTRIM(per.LEGAL_MIDDLE_NAME), SPACE(0)) AS Recruiter, 
+ hs.STREET AS Street1, 
+ hs.STREET2 AS Street2, 
+ hs.CITY AS City, 
+ hs.STATE_CODE AS State, 
+ hs.ZIP_CODE AS ZipCode, 
+ hs.TELEPHONE_NUMBER AS TelephoneNumber, 
+ ms.SectorDesignator AS Sector, 
+ hs.SCHOOL_CODE AS SchoolCode,   
+ prf.PRIORITY_CODE AS Priority, 
+ prf.ACCESS_CODE AS Access, 
+ prf.SCHOOL_YEAR AS SchoolYear, 
+ hsv.ToSchool AS ToSchool, 
+ hsv.Calendar AS Calendar, 
+ hsv.Remark AS Remark, 
+ null AS TakeOnes 
+FROM  
+ [MCRISS].[dbo].[HIGH_SCHOOL] hs 
+ INNER JOIN [MCRISS].[dbo].[HIGH_SCHOOL_PROFILE] prf ON prf.SCHOOL_CODE = hs.SCHOOL_CODE  
+ INNER JOIN [MCRISS].[dbo].[HIGH_SCHOOL_ACCESS] hsa ON hsa.ACCESS_CODE = prf.ACCESS_CODE 
+ INNER JOIN [MCRISS].[dbo].[HIGH_SCHOOL_PRIORITY] hsp ON hsp.PRIORITY_CODE = prf.PRIORITY_CODE 
+ LEFT JOIN [RSSOSS].[USMC].[HSCCVisitCard] hsv ON hsv.School_Code = hs.SCHOOL_CODE AND hsv.School_Year = prf.School_Year  
+ INNER JOIN RSSOSS.USMC.vwMcrissRecrui.ngOrganiza.on org ON hs.ORGANIZATION_ID = org.ORGANIZATION_ID 
+ INNER JOIN RSSOSS.USMC.MapsSectorZip msz ON SUBSTRING(hs.ZIP_CODE,1,5) = msz.Zip 
+ INNER JOIN RSSOSS.USMC.MapsSectorRecruiter msr ON msz.SectorID = msr.SectorID  
+ INNER JOIN RSSOSS.USMC.MapsSector ms ON msz.SectorID = ms.SectorID 
+ INNER JOIN RSSOSS.USMC.vwMcrissRecrui.ngPerson rp ON prf.Recruiter_ID = rp.RECRUITING_PERSON_ID 
+ INNER JOIN [MCRISS].[dbo].[PERSON] per ON rp.RECRUITING_PERSON_ID = per.PERSON_ID 
+ WHERE 
+  (prf.rowguid = @SchoolPro.leID OR @SchoolPro.leID IS NULL)  
+   
+ORDER BY msr.LastUpdateDate DESC]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

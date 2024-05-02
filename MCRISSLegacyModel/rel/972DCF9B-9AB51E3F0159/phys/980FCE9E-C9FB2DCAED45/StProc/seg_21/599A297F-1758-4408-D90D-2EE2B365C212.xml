@@ -1,0 +1,30 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_InsertWaiver179]" directorySegmentName="seg_21" id="599A297F-1758-4408-D90D-2EE2B365C212">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@nwa_id   int, 
+@waiver_id  int, 
+@waiver_status_code char(1), 
+@waiver_submission_date date.me, 
+@approval_date  date.me, 
+@occasion_id  int, 
+@user_login  varchar(15), 
+@update_date  date.me 
+as 
+ 
+if not exists (select 1 from CANDIDATE_WAIVER where NWA_ID = @nwa_id and 
+  WAIVER_ID = @waiver_id and OCCASION_ID = @occasion_id) 
+begin 
+ 
+ insert CANDIDATE_WAIVER 
+ (NWA_ID,WAIVER_ID,WAIVER_STATUS_CODE,WAIVER_SUBMISSION_DATE, 
+ APPROVAL_DATE,OCCASION_ID,USER_LOGIN,UPDATE_DATE) 
+ values 
+ (@nwa_id, @waiver_id, @waiver_status_code, @waiver_submission_date, 
+ @approval_date, @occasion_id, @user_login, @update_date) 
+end]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

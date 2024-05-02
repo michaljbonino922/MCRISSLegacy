@@ -1,0 +1,381 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[CreateLead]" directorySegmentName="seg_9" id="2421F63F-F943-C302-7667-9815C300E516">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:37 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ -- Person 
+ @FirstName varchar(15),  
+ @LastName varchar(15),  
+ @SSN varchar(9),  
+ @MiddleName varchar(10),  
+ @DateOfBirth date.me, 
+  
+ --Lead 
+ @Gender varchar(1), 
+ @DOR date.me, 
+ @PayGradeID int, 
+ @PrimaryMOSID int, 
+ @AddtlMOSID1 int, 
+ @AddtlMOSID2 int, 
+ @PresentRUCID int, 
+ @DateRECC date.me, 
+ @DateEndAc.veService date.me, 
+ @ReserveRUCID int, 
+ @MCC varchar(20), 
+ @ComponentCode varchar(2), 
+ @ReserveComponentCode varchar(2), 
+ @MaritalStatusID int, 
+ @NumberDependents int, 
+ @CompositeScore int, 
+ @DrawCaseCode varchar(15), 
+ @ReEnlistmentCode varchar(15), 
+ @ConductAvgService .oat, 
+ @Pro.ciencyAvgService .oat, 
+ @AtachedPSRSS int, 
+  
+ -- LeadPhones 
+ @PrimaryPhone varchar(20), 
+ @SecondaryPhone varchar(20), 
+ @Ter.aryPhone varchar(20), 
+ @NOK1 varchar(20), 
+ @NOK2 varchar(20), 
+  
+ -- EmailAddress 
+ @EmailAddress1 varchar(255), 
+ @EmailAddress2 varchar(255), 
+  
+ -- Address 
+ @Street1 varchar(50), 
+ @Street2 varchar(50), 
+ @CityID varchar(4), 
+ @StateID varchar(2), 
+ @CountyID varchar(3), 
+ @ZipCode varchar(9), 
+ @CountryID varchar(2), 
+ 
+ -- ASVABResult 
+ @ASVAB_GT int, 
+ @ASVAB_MM int, 
+ @ASVAB_CL int, 
+ @ASVAB_EL int 
+  
+) 
+AS 
+ 
+BEGIN 
+ DECLARE @varNewPersonID uniqueiden..er 
+ DECLARE @varNewRecruitID uniqueiden..er 
+ DECLARE @varNewLeadID uniqueiden..er 
+ DECLARE @varNewRecruitCurrentLeadID uniqueiden..er 
+ DECLARE @varNewLeadPhoneID uniqueiden..er 
+ DECLARE @varNewAddressID uniqueiden..er 
+ DECLARE @varNewEmailID1 uniqueiden..er 
+ DECLARE @varNewEmailID2 uniqueiden..er 
+ DECLARE @varNewAsvabID uniqueiden..er 
+ DECLARE @varNewLeadStatusID uniqueiden..er 
+ DECLARE @UnassignedDisposi.on varchar(50) 
+ DECLARE @UnassignedStatusDisposi.onID int 
+  
+ BEGIN TRANSACTION 
+  
+ IF EXISTS(SELECT PersonID FROM [dbo].[Person] WHERE [SSN] = @SSN) 
+ BEGIN  -- Person already exists, do not insert 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+  
+  -- Raise an error and return 
+  RAISERROR ('Person with the given SSN already exists, cannot create as a lead. ', 16, 1) 
+  RETURN 
+ END 
+ 
+ ELSE 
+ BEGIN 
+  select @varNewPersonID = NEWID() 
+  select @varNewRecruitID = NEWID() 
+  select @varNewLeadID = NEWID() 
+  select @varNewRecruitCurrentLeadID = NEWID() 
+  select @varNewLeadPhoneID = NEWID() 
+  select @varNewAddressID = NEWID() 
+  select @varNewEmailID1 = NEWID() 
+  select @varNewEmailID2 = NEWID() 
+  select @varNewAsvabID = NEWID() 
+  select @varNewLeadStatusID = NEWID() 
+ 
+  -- insert Person 
+  -- insert Recruit 
+  -- insert Lead 
+  -- insert RecruitCurrentLead 
+  -- insert Address 
+  -- insert LeadPhones 
+  -- insert LeadStatusDisposi.on 
+  -- insert ASVABResult 
+  -- insert EmailAddress 
+ 
+  INSERT INTO [dbo].[Person] 
+  ( 
+   PersonID,  
+   FirstName,  
+   LastName,  
+   SSN,  
+   MiddleName,  
+   DateOfBirth 
+  ) 
+  VALUES  
+  ( 
+   @varNewPersonID,  
+   @FirstName,  
+   @LastName,  
+   @SSN,  
+   @MiddleName,  
+   @DateOfBirth 
+  ) 
+   
+  INSERT INTO [dbo].[Recruit] 
+  ( 
+   RecruitID, 
+   PersonID 
+  ) 
+  VALUES  
+  ( 
+   @varNewRecruitID, 
+   @varNewPersonID 
+  ) 
+  
+  INSERT INTO [dbo].[Lead]  
+  ( 
+   [LeadID], 
+   [RecruitID], 
+   [Gender], 
+   [DOR], 
+   [PayGradeID], 
+   [PrimaryMOSID], 
+   [AddtlMOSID1], 
+   [AddtlMOSID2], 
+   [PresentRUCID], 
+   [DateRECC], 
+   [DateEndAc.veService], 
+   [ReserveRUCID], 
+   [MCC], 
+   [ComponentCode], 
+   [ReserveComponentCode], 
+   [MaritalStatusID], 
+   [NumberDependents], 
+   [CompositeScore], 
+   [DrawCaseCode], 
+   [ReEnlistmentCode], 
+   [ConductAvgService], 
+   [Pro.ciencyAvgService], 
+   [AtachedPSRSSID] 
+  ) 
+  VALUES  
+  ( 
+   @varNewLeadID, 
+   @varNewRecruitID, 
+   @Gender, 
+   @DOR, 
+   @PayGradeID, 
+   @PrimaryMOSID, 
+   @AddtlMOSID1, 
+   @AddtlMOSID2, 
+   @PresentRUCID, 
+   @DateRECC, 
+   @DateEndAc.veService, 
+   @ReserveRUCID, 
+   @MCC, 
+   @ComponentCode, 
+   @ReserveComponentCode, 
+   @MaritalStatusID, 
+   @NumberDependents, 
+   @CompositeScore, 
+   @DrawCaseCode, 
+   @ReEnlistmentCode, 
+   @ConductAvgService, 
+   @Pro.ciencyAvgService, 
+   @AtachedPSRSS 
+  ) 
+   
+  INSERT INTO [dbo].[RecruitCurrentLead] 
+  ( 
+   [RecruitCurrentLeadID],  
+   [RecruitID],  
+   [LeadID] 
+  ) 
+  VALUES 
+  ( 
+   @varNewRecruitCurrentLeadID, 
+   @varNewRecruitID,  
+   @varNewLeadID 
+  ) 
+  
+  INSERT INTO [dbo].[LeadPhones] 
+  ( 
+   [LeadPhonesID], 
+   [LeadID], 
+   [PrimaryPhone], 
+   [SecondaryPhone], 
+   [Ter.aryPhone], 
+   [NOK1], 
+   [NOK2] 
+  ) 
+  VALUES 
+  ( 
+   @varNewLeadPhoneID, 
+   @varNewLeadID, 
+   @PrimaryPhone, 
+   @SecondaryPhone, 
+   @Ter.aryPhone, 
+   @NOK1, 
+   @NOK2 
+  ) 
+ 
+  INSERT INTO [dbo].[Address] 
+  ( 
+   [AddressID], 
+   [LeadID],  
+   [Street1], 
+   [Street2], 
+   [CityID], 
+   [StateID], 
+   [CountyID], 
+   [ZipCode], 
+   [CountryID] 
+  ) 
+  VALUES 
+  (  
+   @varNewAddressID, 
+   @varNewLeadID,  
+   @Street1, 
+   @Street2, 
+   @CityID, 
+   @StateID, 
+   @CountyID, 
+   @ZipCode, 
+   @CountryID 
+  ) 
+ 
+  -- check for empty email addresses before inser.ng 
+  IF @EmailAddress1 IS NOT NULL 
+  BEGIN   
+   INSERT INTO [dbo].[EmailAddress]  
+   ( 
+    [EmailAddressID],  
+    [LeadID],  
+    [EmailAddressTypeID],  
+    [Email],  
+    [DateUpdated],  
+    [IsCurrent] 
+   ) 
+   VALUES 
+   ( 
+    @varNewEmailID1,  
+    @varNewLeadID,  
+    1,  
+    @EmailAddress1,  
+    GETDATE(),  
+    1 
+   ) 
+  END 
+   
+  IF @EmailAddress2 IS NOT NULL 
+  BEGIN   
+   INSERT INTO [dbo].[EmailAddress]  
+   ( 
+    [EmailAddressID],  
+    [LeadID],  
+    [EmailAddressTypeID],  
+    [Email],  
+    [DateUpdated],  
+    [IsCurrent] 
+   ) 
+   VALUES 
+   ( 
+    @varNewEmailID2,  
+    @varNewLeadID,  
+    2,  
+    @EmailAddress2,  
+    GETDATE(),  
+    1 
+   ) 
+  END 
+   
+  INSERT INTO [dbo].[ASVABResult]  
+  ( 
+   ASVABResultID,  
+   GT,  
+   MM,  
+   CL,  
+   EL, 
+   LeadID 
+  ) 
+  VALUES 
+  ( 
+   @varNewAsvabID,  
+   @ASVAB_GT,  
+   @ASVAB_MM,  
+   @ASVAB_CL,  
+   @ASVAB_EL,  
+   @varNewLeadID 
+  ) 
+   
+  SELECT @UnassignedDisposi.on =  
+   CASE WHEN Lead.DateEndAc.veService < GETDATE() OR Lead.DateEndAc.veService IS NULL 
+   THEN 'All Other Leads' 
+    WHEN Lead.DateEndAc.veService >= GETDATE() 
+   THEN 'Ac.ve Component' 
+   END 
+  FROM Lead where LeadID = @varNewLeadID 
+    
+  SELECT @UnassignedStatusDisposi.onID = StatusDisposi.onID 
+  FROM StatusDisposi.on, Status, Disposi.on 
+  WHERE StatusDisposi.on.StatusID = Status.StatusID 
+  AND StatusDisposi.on.Disposi.onID = Disposi.on.Disposi.onID 
+  AND Status.Descrip.on = 'Unassigned' AND Disposi.on.Descrip.on = @UnassignedDisposi.on 
+   
+  INSERT INTO [dbo].[LeadStatusDisposi.on] 
+  ( 
+   [LeadStatusDisposi.onID],  
+   [StatusDisposi.onID],  
+   [LeadID],  
+   [DateUpdated] 
+  ) 
+  VALUES 
+  ( 
+   @varNewLeadStatusID,  
+   @UnassignedStatusDisposi.onID,  
+   @varNewLeadID,  
+   GETDATE() 
+  ) 
+ 
+ 
+ END 
+  
+ -- Rollback the transac.on if there were any errors 
+ IF @@ERROR <> 0 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+  
+  -- Raise an error and return 
+  RAISERROR ('Error occurred while performing the change.', 16, 1) 
+  RETURN 
+ END 
+  
+ -- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+ IF @@ROWCOUNT > 1 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+  
+  -- Raise an error and return 
+  RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+  RETURN 
+ END 
+  
+ -- If we reach this point, the commands completed successfully. 
+ COMMIT TRANSACTION 
+END]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+</StoredProcedureSqlServerv2k5>

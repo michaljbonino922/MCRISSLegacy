@@ -1,0 +1,94 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetHSCCSeniorPoolees]" directorySegmentName="seg_13" id="95831A90-9F97-94DC-256E-4C95E37F47D8">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @SchoolYear int, 
+ @SchoolPro.leID uniqueiden..er 
+) 
+AS 
+ 
+DECLARE @StartDt date.me 
+DECLARE @EndDt date.me 
+ 
+DECLARE @syst varchar(20) 
+DECLARE @syed varchar(20) 
+ 
+SELECT @syst = str(@SchoolYear -1) + '/7/1' 
+SELECT @StartDt = convert(date.me, @syst, 101)  
+ 
+SELECT @syed = str(@SchoolYear) + '/6/30' 
+SELECT @EndDt = convert(date.me, @syed, 101)  
+ 
+DECLARE @SchoolCode int 
+ 
+SELECT @SchoolCode = School_Code FROM MCRISS.dbo.HIGH_SCHOOL_PROFILE WHERE rowguid = @SchoolPro.leID 
+ 
+--Star.ng in 2013 Gradutated Year .eld is used in place of contracted date  
+--to determine Senior Poolees 
+IF @SchoolYear < 2013  
+BEGIN 
+ SELECT       
+  COALESCE(RTRIM(per.LAST_NAME), SPACE(0))  + SPACE(1) +  
+  COALESCE(RTRIM(per.FIRST_NAME), SPACE(0)) + SPACE(1) +  
+  COALESCE(RTRIM(per.LEGAL_MIDDLE_NAME), SPACE(0)) AS PooleeName, 
+  prs.ProspectId AS ProspectID, 
+  nwa.rowguid AS NWAID, 
+  con.CONTRACT_BEGIN_DATE AS EnlistmentDate, 
+  NULL AS SchoolEndDate, 
+  NULL AS IsFirstSenior 
+ FROM   MCRISS.dbo.HIGH_SCHOOL_PROFILE prf  
+  INNER JOIN  
+    ( SELECT dis.nct MARINE_CANDIDATE_ID, School_Code 
+     FROM MCRISS.dbo.CANDIDATE_EDUCATION 
+     WHERE SCHOOL_CODE = @SchoolCode 
+     AND ((EDUCATION_LEVEL = '11' AND EDUCATION_CODE = 'S') 
+     OR (EDUCATION_LEVEL = '11' AND EDUCATION_CODE = 'M')) 
+  ) AS ced 
+    ON prf.SCHOOL_CODE = ced.School_Code 
+  INNER JOIN MCRISS.dbo.HIGH_SCHOOL hs ON prf.SCHOOL_CODE = hs.SCHOOL_CODE 
+  INNER JOIN MCRISS.dbo.NWA nwa ON ced.MARINE_CANDIDATE_ID = nwa.MARINE_CANDIDATE_ID  
+  INNER JOIN MCRISS.dbo.CONTRACT con ON nwa.NWA_ID = con.NWA_ID  
+  INNER JOIN MCRISS.dbo.Person per ON NWA.MARINE_CANDIDATE_ID = per.PERSON_ID 
+  LEFT JOIN Prospec.ng.USMC.Prospect prs ON prs.NwaId = nwa.rowguid   
+ WHERE prf.rowguid = @SchoolPro.leID   
+ and con.Contract_Begin_Date <= @EndDt 
+ and con.Contract_Begin_Date >= @StartDt 
+ ORDER BY EnlistmentDate  
+END 
+ 
+ELSE 
+BEGIN 
+ SELECT       
+   COALESCE(RTRIM(per.LAST_NAME), SPACE(0))  + SPACE(1) +  
+   COALESCE(RTRIM(per.FIRST_NAME), SPACE(0)) + SPACE(1) +  
+   COALESCE(RTRIM(per.LEGAL_MIDDLE_NAME), SPACE(0)) AS PooleeName, 
+   prs.ProspectId AS ProspectID, 
+   nwa.rowguid AS NWAID, 
+   con.CONTRACT_BEGIN_DATE AS EnlistmentDate, 
+   NULL AS SchoolEndDate, 
+   NULL AS IsFirstSenior 
+  FROM   MCRISS.dbo.HIGH_SCHOOL_PROFILE prf  
+   INNER JOIN  
+     ( SELECT dis.nct MARINE_CANDIDATE_ID, School_Code 
+      FROM MCRISS.dbo.CANDIDATE_EDUCATION 
+      WHERE SCHOOL_CODE = @SchoolCode 
+      AND YEAR_GRADUATED =  @SchoolYear 
+      AND ((EDUCATION_LEVEL = '11' AND EDUCATION_CODE = 'S') 
+      OR (EDUCATION_LEVEL = '11' AND EDUCATION_CODE = 'M')) 
+   ) AS ced 
+     ON prf.SCHOOL_CODE = ced.School_Code        
+   INNER JOIN MCRISS.dbo.HIGH_SCHOOL hs ON prf.SCHOOL_CODE = hs.SCHOOL_CODE 
+   INNER JOIN MCRISS.dbo.NWA nwa ON ced.MARINE_CANDIDATE_ID = nwa.MARINE_CANDIDATE_ID  
+   INNER JOIN MCRISS.dbo.CONTRACT con ON nwa.NWA_ID = con.NWA_ID  
+   INNER JOIN MCRISS.dbo.Person per ON NWA.MARINE_CANDIDATE_ID = per.PERSON_ID 
+   LEFT JOIN Prospec.ng.USMC.Prospect prs ON prs.NwaId = nwa.rowguid   
+  WHERE prf.rowguid = @SchoolPro.leID  
+  AND  prf.SCHOOL_YEAR =  @SchoolYear  
+  ORDER BY EnlistmentDate  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

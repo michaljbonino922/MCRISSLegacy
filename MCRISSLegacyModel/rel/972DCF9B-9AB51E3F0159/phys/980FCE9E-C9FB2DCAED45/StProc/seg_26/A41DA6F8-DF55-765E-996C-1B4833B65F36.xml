@@ -1,0 +1,1432 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[spArmsExportTest]" directorySegmentName="seg_26" id="A41DA6F8-DF55-765E-996C-1B4833B65F36">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@SEED_DATE date.me = null , @CID int = null, @VIEW_MODE char(1) = 'N'               
+AS                 
+BEGIN 
+/*===========================================================================                    
+Purpose:  To populate the ARMS_EXPORT table in MCRISS with data, collected                 
+from the appropriate tables in MCRISS.  Once per day  a java program is executed at approximately 2200 hours. 
+The java program executes this procedure.  
+The java program takes the contents of the ARMS_EXPORT table and generates a FILE that is FTP'd 
+to an IP ADDRESS speci.ed by ARMS. 
+=============================================================================                
+Author:  GySgt Reginald Holt    MCRC                    
+        
+990601,  Gy Holt:  Fixed CATEGORY_P to contain values 'L' or 'P'        
+ 
+20000713, Gregory Gonzalez,  1> Converted to MS SQL Server Transact_SQL 
+            2> modify descrip.on 
+20000713, Gregory Gonzalez   op.mize select statements 
+20001018, Gregory Gonzalez    1>combine stored procs into one.  
+    2>add exported data as one string to ARMS_EXPORT table. 
+20001023, Gregory Gonzalez 1>Add logic from SP_PROJSHIPCUR to this procedure. Now we only 
+    need one stored proc to generate Arms Export Data 
+200001024, Gregory Gonzalez Rigth jus.fy all numbers and pad with zeros when applicable 
+20010711, GG   Filter where parent org is RS Bal.more, SCR 879, Patch 30A 
+20010712, GG   Ensure date comparison only takes into account year,month, date 
+    using .mestamp will cause records to be missed. Speci.cally those 
+    whose ship date is equal to the day when the daemon is executed 
+20010816  GG   Turning on 4th MCD 
+20010823  GG   SCR 1158: DLAB being sent when applicant did not take dlab 
+20010910, Robert McAndrew Turning on the 8th MCD 
+20011102, GG   SCR 1530:  Remove district .ltering. Mcriss-Rs is fully deployed 
+20011121, GG   SCR ????:  Change se.ng of pmos from 9917 to 9971.  (per Gy Cal) 
+20011127, GG   SCR 1356:  Sending blanks for future training 
+20011203, GG   ??      :  Incorrect date .lter applied when retrieving shipper records 
+20011208, GG   SCR 1651:  modify date range to today -7 days to today plus 15 days 
+==========================================================================*/                
+print 'Declaring Localized Variables' 
+ 
+declare @EXPORTED_DATA  varchar(1000) 
+declare  @FROM_DATE date.me 
+declare  @TO_DATE date.me   
+ 
+declare @MARINE_ID numeric(16),                    
+ @NWA_ID numeric(16),                 
+ @CONTRACT_ID numeric(16), 
+ @SHIP_ID numeric(16),    
+ @SSN char(10),                    
+ @LAST_NAME_TEXT char(26) , 
+ @FIRST_NAME_TEXT char(20),                    
+ @MIDDLE_NAME_TEXT char(20), 
+ @CADENCY_NAME_TEXT char(4), 
+ @ARC char(3), 
+ @AFADBD char(8),                  
+ @ARC_DATE char(8),                
+ @BIRTH_COUNTY_CODE char(3),                
+ @BIRTH_DATE char(8),                    
+     @BIRTH_STATE_CODE char(2),                
+ @CITIZENSHIP_CODE char(2),                
+ @CITIZEN_ORIG_GEO_LOC char(2),                    
+ @CIV_ED_YEARS_COMP char(2),                    
+ @CIV_ED_CERT char(1) ,                    
+ @COMPONENT_CODE char(2) ,                    
+ @CURRENT_CITY_CODE char(4) ,                    
+ @CURRENT_CITY_TEXT char(30),                    
+ @CURRENT_COUNTY_CODE char(3),                    
+ @CURRENT_STATE_CODE char(2),                    
+ @CURRENT_STREET_TEXT char(40),                    
+ @CURRENT_ZIP_CODE char(9),                    
+ @DEF_LANG_APT_BAT_DATE char(8),                    
+ @DEF_LANG_APT_BAT_SCORE char(3), 
+ @DEPENDENT_ID1 int,                    
+ @DEPENDENT_ID2 int,                    
+ @DEPENDENT_ID3 int,                    
+ @DEPENDENT_ID4 int,                    
+ @DEPENDENT_1_RELATIONSHIP char(2), 
+ @DEPENDENT_1_DATE_OF_BIRTH char(8), 
+ @DEPENDENT_1_FIRST_NAME_TEXT char(20), 
+ @DEPENDENT_1_MIDDLE_NAME_TEXT char(20), 
+ @DEPENDENT_1_LAST_NAME_TEXT char(26) , 
+ @DEPENDENT_1_SUFFIX_CD char(4), 
+ @DEPENDENT_2_RELATIONSHIP char(2), 
+ @DEPENDENT_2_DATE_OF_BIRTH char(8), 
+ @DEPENDENT_2_FIRST_NAME_TEXT char(20), 
+ @DEPENDENT_2_MIDDLE_NAME_TEXT char(20), 
+ @DEPENDENT_2_LAST_NAME_TEXT char(26), 
+ @DEPENDENT_2_SUFFIX_CD char(4), 
+ @DEPENDENT_3_RELATIONSHIP char(2), 
+ @DEPENDENT_3_DATE_OF_BIRTH char(8), 
+ @DEPENDENT_3_FIRST_NAME_TEXT char(20), 
+ @DEPENDENT_3_MIDDLE_NAME_TEXT char(20) , 
+ @DEPENDENT_3_LAST_NAME_TEXT char(26), 
+ @DEPENDENT_3_SUFFIX_CD char(4), 
+ @DISTRICT_CODE char(2),                   
+ @DUTY_PREFERENCE_CODE char(3),                    
+ @EDPT_DATE char(8) ,                    
+ @EDPT_SCORE_CODE char(3) ,                    
+ @ENGLISH_DIAGNOSTIC_SCORE_CODE char(3),                    
+ @ENLISTMENT_OR_ACCEPTANCE_DATE char(8),                    
+ @ENLISTMENT_REFERRAL_AMOUNT char(2),                    
+ @ENTNAC_COMPLETED_DATE char(8) ,                    
+ @ETHNIC_CODE char(1),                 
+ @FORGN_LANG_CODE_1 char(2) , 
+ @FORGN_LANG_CODE_2 char(2) , 
+ @FORGN_LANG_CODE_3 char(2) , 
+ @FORGN_LANG_CODE_4 char(2) , 
+ @EYE_COLOR_CODE char(5) , 
+ @FUTURE_TRAINING char(3), 
+ @HAIR_COLOR_CODE char(5) ,                
+ @HEIGHT_DIMENSION char(2) ,                
+ @HOME_OF_RECORD_CITY_CODE char(4)  ,                    
+ @HOME_OF_RECORD_COUNTY_CODE char(3) ,                    
+ @HOME_OF_RECORD_STATE_CODE char(2) ,                    
+ @HOME_OF_RECORD_ZIP_CODE char(9) ,                    
+ @HOME_TELEPHONE_NUMBER_CODE char(10) ,                    
+ @INDIVIDUAL_WEIGHT_QUANTITY char(3) ,                    
+ @INDUCTION_STATUS_CODE char(1) ,                    
+ @HIGH_SCHOOL_LAST_ATTEND_DATE char(4),                    
+ @MARITAL_STATUS_CODE char(1)  ,                    
+ @MEPS_AFQT_SCORE_CODE char(2) ,                    
+ @MEPS_ASVAB_COMP_GT_SCORE_QY char(3),                    
+ @MEPS_ASVAB_COMP_MM_SCORE_QY char(3) ,                    
+ @MEPS_ASVAB_COMP_EL_SCORE_QY char(3),                    
+ @MEPS_ASVAB_COMP_CL_SCORE_QY char(3),                    
+ @MEPS_RAW_ASVAB_AR_SCORE_QY char(2) ,                    
+ @MEPS_RAW_ASVAB_WK_SCORE_QY char(2) ,                    
+ @MEPS_RAW_ASVAB_AS_SCORE_QY char(2) ,                    
+ @MEPS_RAW_ASVAB_CS_SCORE_QY char(2) ,                    
+ @MEPS_RAW_ASVAB_EI_SCORE_QY char(2) ,                    
+ @MEPS_RAW_ASVAB_GS_SCORE_QY char(2) ,                    
+ @MEPS_RAW_ASVAB_MC_SCORE_QY char(2) ,                    
+ @MEPS_RAW_ASVAB_MK_SCORE_QY char(2) ,                    
+ @MEPS_RAW_ASVAB_NO_SCORE_QY char(2) ,                    
+ @MEPS_RAW_ASVAB_PC_SCORE_QY char(2) ,                    
+ @MEPS_RAW_ASVAB_VE_SCORE_QY char(2) ,                
+     @MEPS_MCC char(3) ,                    
+ @MEPS_ASVAB_TEST_ID char(3) ,                    
+ @MEPS_ASVAB_TEST_DATE char(8) ,                    
+ @PAY_ENTRY_BASE_DATE char(8) ,                    
+ @PRESENT_GRADE_CODE char(3) ,                    
+ @PRESENT_GRADE_RANK_DATE char(8) ,                    
+ @PRIMARY_MOS_CODE char(4) ,                    
+ @PRIOR_SERVICE_CODE char(2),                    
+ @PRIOR_SERVICE_ENTRY_DATE char(8) ,                    
+ @PROGRAM_ENLISTED_FOR_CODE char(2),                    
+ @PROJECTED_ACTIVE_DUTY_DATE char(8),                    
+ @PUBLIC_AFFAIRS_INTERVIEW_CODE char(1) ,                    
+ @QUOTA_SERIAL_NUMBER char(9),                    
+ @RACE_CODE char(1),                    
+ @RECRUIT_MCC char(3) ,                    
+ @RECRUITER_ASSIST_RECOMMEND_CD char(1) ,                    
+ @RECRUITING_STATION_MONITOR_CD char(3) ,                    
+ @RECRUITING_SUB_STATION_CODE char(5),                    
+ @RELIGION_CODE char(2),                    
+ @RESERVE_REPORTING_UNIT_CODE char(5) ,                    
+ @RESERVE_BONUS_CONTROL_NUM char(8) ,                    
+ @SEX_CODE char(1),                    
+ @SHIP_DATE char(8) ,                    
+     @SOURCE_OF_ENTRY_CODE char(4) ,                
+ @TERM_OF_ENLISTMENT_QY char(1),                    
+ @VALID_DRIVERS_LICENSE_CODE char(1) ,                    
+ @VISUAL_ACUITY_TEST_LC_QTY char(3)  ,                    
+ @VISUAL_ACUITY_TEST_LU_QTY char(3)  ,                    
+ @VISUAL_ACUITY_TEST_RC_QTY char(3)  ,                    
+ @VISUAL_ACUITY_TEST_RU_QTY char(3)  ,       
+ @VISUAL_COLOR_CODE char(1) ,                    
+ @YOUTH_PROGRAM_CODE char(3),                
+ @REF_TYPE char(5) ,                
+     @CATEGORY_P char(1) ,                
+     @RD_1_MOS char(4) ,             
+ @RECRUIT_ENLISTMENT_RESERVE_MCC char(3) , 
+     @PROGRAM_ENLISTED_FOR_BONUS_CD char(2) ,          
+ @PROGRAM_ENLISTED_FOR_COLLEGE_CODE char(2) , 
+     @MSC char(1) ,               
+ @FILLER1 char(100) , 
+ @FILLER2 char(100) , 
+ @PROJECTED_TRAIN_COMPLETE_DATE char(8)  
+ 
+ 
+ 
+ select @LAST_NAME_TEXT =space(26)  
+ select @FIRST_NAME_TEXT =space(20)                    
+ select @MIDDLE_NAME_TEXT =space(20) 
+ select @CADENCY_NAME_TEXT =space(4) 
+ select @ARC =space(3) 
+ select @AFADBD =space(8)                  
+ select @ARC_DATE =space(8)                
+ select @BIRTH_COUNTY_CODE = space(3)                
+ select @BIRTH_DATE =space(8)                    
+     select @BIRTH_STATE_CODE =space(2)                
+ select @CITIZENSHIP_CODE =space(2)                
+ select @CITIZEN_ORIG_GEO_LOC =space(2)                    
+ select @CIV_ED_YEARS_COMP =space(2)                    
+ select @CIV_ED_CERT =space(1)                     
+ select @COMPONENT_CODE =space(2)                     
+ select @CURRENT_CITY_CODE =space(4)                     
+ select @CURRENT_CITY_TEXT =space(30)                    
+ select @CURRENT_COUNTY_CODE =space(3)                    
+ select @CURRENT_STATE_CODE =space(2)                    
+ select @CURRENT_STREET_TEXT =space(40)                    
+ select @CURRENT_ZIP_CODE =space(9)                    
+ select @DEF_LANG_APT_BAT_DATE =space(8)                    
+ select @DEF_LANG_APT_BAT_SCORE =space(3) 
+ select @DEPENDENT_1_RELATIONSHIP =space(2) 
+ select @DEPENDENT_1_DATE_OF_BIRTH =space(8) 
+ select @DEPENDENT_1_FIRST_NAME_TEXT =space(20) 
+ select @DEPENDENT_1_MIDDLE_NAME_TEXT =space(20) 
+ select @DEPENDENT_1_LAST_NAME_TEXT =space(26)  
+ select @DEPENDENT_1_SUFFIX_CD =space(4) 
+ select @DEPENDENT_2_RELATIONSHIP =space(2) 
+ select @DEPENDENT_2_DATE_OF_BIRTH =space(8) 
+ select @DEPENDENT_2_FIRST_NAME_TEXT =space(20) 
+ select @DEPENDENT_2_MIDDLE_NAME_TEXT =space(20) 
+ select @DEPENDENT_2_LAST_NAME_TEXT =space(26) 
+ select @DEPENDENT_2_SUFFIX_CD =space(4) 
+ select @DEPENDENT_3_RELATIONSHIP =space(2) 
+ select @DEPENDENT_3_DATE_OF_BIRTH =space(8) 
+ select @DEPENDENT_3_FIRST_NAME_TEXT =space(20) 
+ select @DEPENDENT_3_MIDDLE_NAME_TEXT =space(20)  
+ select @DEPENDENT_3_LAST_NAME_TEXT =space(26) 
+ select @DEPENDENT_3_SUFFIX_CD =space(4) 
+ select @DISTRICT_CODE =space(2)                   
+ select @DUTY_PREFERENCE_CODE =space(3)                    
+ select @EDPT_DATE =space(8)                     
+ select @EDPT_SCORE_CODE =space(3)                     
+ select @ENGLISH_DIAGNOSTIC_SCORE_CODE =space(3)                    
+ select @ENLISTMENT_OR_ACCEPTANCE_DATE =space(8)                    
+ select @ENLISTMENT_REFERRAL_AMOUNT =space(2)                    
+ select @ENTNAC_COMPLETED_DATE =space(8)                     
+ select @ETHNIC_CODE =space(1)                 
+ select @FORGN_LANG_CODE_1 =space(2)  
+ select @FORGN_LANG_CODE_2 =space(2)  
+ select @FORGN_LANG_CODE_3 =space(2)  
+ select @FORGN_LANG_CODE_4 =space(2)  
+ select @EYE_COLOR_CODE=space(5) 
+ select @FUTURE_TRAINING =space(3) 
+ select @HAIR_COLOR_CODE= space(5) 
+ select @HEIGHT_DIMENSION =space(2)                 
+ select @HOME_OF_RECORD_CITY_CODE =space(4)                      
+ select @HOME_OF_RECORD_COUNTY_CODE =space(3)                     
+ select @HOME_OF_RECORD_STATE_CODE =space(2)                     
+ select @HOME_OF_RECORD_ZIP_CODE =space(9)                     
+ select @HOME_TELEPHONE_NUMBER_CODE =space(10)                     
+ select @INDIVIDUAL_WEIGHT_QUANTITY =space(3)                     
+ select @INDUCTION_STATUS_CODE =space(1)                     
+ select @HIGH_SCHOOL_LAST_ATTEND_DATE =space(4)                    
+ select @MARITAL_STATUS_CODE =space(1)                      
+ select @MEPS_AFQT_SCORE_CODE =space(2)      
+ select @MEPS_ASVAB_COMP_GT_SCORE_QY =space(3)                    
+ select @MEPS_ASVAB_COMP_MM_SCORE_QY =space(3)                     
+ select @MEPS_ASVAB_COMP_EL_SCORE_QY =space(3)                    
+ select @MEPS_ASVAB_COMP_CL_SCORE_QY =space(3)                    
+ select @MEPS_RAW_ASVAB_AR_SCORE_QY =space(2)                  
+ select @MEPS_RAW_ASVAB_WK_SCORE_QY =space(2)                     
+ select @MEPS_RAW_ASVAB_AS_SCORE_QY =space(2)                     
+ select @MEPS_RAW_ASVAB_CS_SCORE_QY =space(2)                     
+ select @MEPS_RAW_ASVAB_EI_SCORE_QY =space(2)                     
+ select @MEPS_RAW_ASVAB_GS_SCORE_QY =space(2)                     
+ select @MEPS_RAW_ASVAB_MC_SCORE_QY =space(2)                     
+ select @MEPS_RAW_ASVAB_MK_SCORE_QY =space(2)                     
+ select @MEPS_RAW_ASVAB_NO_SCORE_QY =space(2)                     
+ select @MEPS_RAW_ASVAB_PC_SCORE_QY =space(2)                     
+ select @MEPS_RAW_ASVAB_VE_SCORE_QY =space(2)                 
+     select @MEPS_MCC =space(3)                     
+ select @MEPS_ASVAB_TEST_ID =space(3)                     
+ select @MEPS_ASVAB_TEST_DATE =space(8)                     
+ select @PAY_ENTRY_BASE_DATE =space(8)                     
+ select @PRESENT_GRADE_CODE =space(3)                     
+ select @PRESENT_GRADE_RANK_DATE =space(8)                     
+ select @PRIMARY_MOS_CODE =space(4)                     
+ select @PRIOR_SERVICE_CODE = 'NO' 
+ select @PRIOR_SERVICE_ENTRY_DATE =space(8)                     
+ select @PROGRAM_ENLISTED_FOR_CODE =space(2)                    
+ select @PROJECTED_ACTIVE_DUTY_DATE =space(8)                    
+ select @PUBLIC_AFFAIRS_INTERVIEW_CODE =space(1)                     
+ select @QUOTA_SERIAL_NUMBER =space(9)                    
+ select @RACE_CODE =space(1)                    
+ select @RECRUIT_MCC =space(3)                     
+ select @RECRUITER_ASSIST_RECOMMEND_CD =space(1)                     
+ select @RECRUITING_STATION_MONITOR_CD =space(3)                     
+ select @RECRUITING_SUB_STATION_CODE =space(5)                    
+ select @RELIGION_CODE =space(2)                    
+ select @RESERVE_REPORTING_UNIT_CODE =space(5)                     
+ select @RESERVE_BONUS_CONTROL_NUM =space(8)                     
+ select @SEX_CODE =space(1)                    
+ select @SHIP_DATE =space(8)                     
+     select @SOURCE_OF_ENTRY_CODE =space(4)                 
+ select @TERM_OF_ENLISTMENT_QY =space(1)                    
+ select @VALID_DRIVERS_LICENSE_CODE =space(1)                     
+ select @VISUAL_ACUITY_TEST_LC_QTY =space(3)                      
+ select @VISUAL_ACUITY_TEST_LU_QTY =space(3)                      
+ select @VISUAL_ACUITY_TEST_RC_QTY =space(3)                      
+ select @VISUAL_ACUITY_TEST_RU_QTY =space(3)                      
+ select @VISUAL_COLOR_CODE =space(1)                     
+ select @YOUTH_PROGRAM_CODE =space(3)                
+ select @REF_TYPE =space(5)                 
+     select @CATEGORY_P =space(1)                 
+     select @RD_1_MOS =space(4)              
+ select @RECRUIT_ENLISTMENT_RESERVE_MCC =space(3)  
+     select @PROGRAM_ENLISTED_FOR_BONUS_CD =space(2)           
+ select @PROGRAM_ENLISTED_FOR_COLLEGE_CODE =space(2)  
+     select @MSC =space(1)                
+ select @FILLER1= space(100) 
+ select @FILLER2=space(100) 
+ select @PROJECTED_TRAIN_COMPLETE_DATE =space(8)  
+ 
+ 
+ 
+ 
+ 
+ 
+if (@SEED_DATE is null) begin 
+ select @FROM_DATE = getdate() 
+ select @FROM_DATE = convert(date.me,convert(varchar(4),datepart(YYYY,@FROM_DATE)) + '-' + convert(varchar(2),datepart(MM,@FROM_DATE)) + '-' + convert(varchar(2),datepart(DD,@FROM_DATE))) 
+end 
+else 
+ select @FROM_DATE = dateadd(dd, -7, @SEED_DATE) 
+ select @TO_DATE = dateadd(dd, 15, @SEED_DATE)   
+ 
+ 
+ 
+ 
+declare @year varchar(4), @month varchar(2), @day varchar(2) 
+declare @todayStartTime date.me, @todayEndTime date.me, @toDateEndTime date.me 
+ 
+set @year = datepart(yyyy,@FROM_DATE) 
+set @month = datepart(mm,@FROM_DATE) 
+set @day = datepart(dd,@FROM_DATE) 
+set @todayStartTime = convert(date.me,@year + '-' + @month + '-' + @day + ' 00:00:00') 
+set @todayEndTime = convert(date.me,@year + '-' + @month + '-' + @day + ' 23:59:59.997') 
+ 
+set @year = datepart(yyyy,@TO_DATE) 
+set @month = datepart(mm,@TO_DATE) 
+set @day = datepart(dd,@TO_DATE) 
+set @toDateEndTime = convert(date.me,@year + '-' + @month + '-' + @day + ' 23:59:59:997') 
+ 
+if (@VIEW_MODE in ('Y')) begin 
+ print 'View Mode: No Entries Will be Made to Arms Export Table' 
+end else begin 
+ print 'Insert Mode: Exported Records will be added to Arms Export Table' 
+end 
+ 
+if (@CID is null) begin 
+ print 'Declaring Cursor' 
+ 
+    declare PRE_ENL_CUR cursor for   
+ select dis.nct C.CONTRACT_ID    
+ from CONTRACT C le. outer join shipper s on c.contract_id = s.contract_id 
+ where  ((C.PROJECTED_SHIP_DATE between @todayStartTime and @toDateEndTime and  
+  s.contract_id is null and c.projected_training_org_id in (1,2)) or  
+  (s.contract_Id is not null and S.SHIP_DATE between @todayStartTime and @todayEndTime and 
+  s.training_organiza.on_id in (1,2))) 
+        and C.COMPONENT_CODE in ('B5', 'K4', 'K5', 'K8', 'K9')  
+  and C.DISCHARGE_DATE is null  
+end else begin 
+ declare PRE_ENL_CUR cursor for   
+         select dis.nct C.CONTRACT_ID    
+         from CONTRACT C   
+         where CONTRACT_ID =  @CID 
+end 
+ 
+ 
+ 
+                        
+print 'Opening Cursor'   
+open PRE_ENL_CUR   
+fetch PRE_ENL_CUR into @CONTRACT_ID   
+while (@@FETCH_STATUS = 0)  begin           
+ select @LAST_NAME_TEXT =space(26)  
+ select @FIRST_NAME_TEXT =space(20)                    
+ select @MIDDLE_NAME_TEXT =space(20) 
+ select @CADENCY_NAME_TEXT =space(4) 
+ select @ARC =space(3) 
+ select @AFADBD =space(8)                  
+ select @ARC_DATE =space(8)                
+ select @BIRTH_COUNTY_CODE = space(3)                
+ select @BIRTH_DATE =space(8)                    
+     select @BIRTH_STATE_CODE =space(2)                
+ select @CITIZENSHIP_CODE =space(2)                
+ select @CITIZEN_ORIG_GEO_LOC =space(2)                    
+ select @CIV_ED_YEARS_COMP =space(2)                    
+ select @CIV_ED_CERT =space(1)                     
+ select @COMPONENT_CODE =space(2)                     
+ select @CURRENT_CITY_CODE =space(4)                     
+ select @CURRENT_CITY_TEXT =space(30)                    
+ select @CURRENT_COUNTY_CODE =space(3)                    
+ select @CURRENT_STATE_CODE =space(2)                    
+ select @CURRENT_STREET_TEXT =space(40)                    
+ select @CURRENT_ZIP_CODE =space(9)                    
+ select @DEF_LANG_APT_BAT_DATE =space(8)                    
+ select @DEF_LANG_APT_BAT_SCORE =space(3) 
+ select @DEPENDENT_1_RELATIONSHIP =space(2) 
+ select @DEPENDENT_1_DATE_OF_BIRTH =space(8) 
+ select @DEPENDENT_1_FIRST_NAME_TEXT =space(20) 
+ select @DEPENDENT_1_MIDDLE_NAME_TEXT =space(20) 
+ select @DEPENDENT_1_LAST_NAME_TEXT =space(26)  
+ select @DEPENDENT_1_SUFFIX_CD =space(4) 
+ select @DEPENDENT_2_RELATIONSHIP =space(2) 
+ select @DEPENDENT_2_DATE_OF_BIRTH =space(8) 
+ select @DEPENDENT_2_FIRST_NAME_TEXT =space(20) 
+ select @DEPENDENT_2_MIDDLE_NAME_TEXT =space(20) 
+ select @DEPENDENT_2_LAST_NAME_TEXT =space(26) 
+ select @DEPENDENT_2_SUFFIX_CD =space(4) 
+ select @DEPENDENT_3_RELATIONSHIP =space(2) 
+ select @DEPENDENT_3_DATE_OF_BIRTH =space(8) 
+ select @DEPENDENT_3_FIRST_NAME_TEXT =space(20) 
+ select @DEPENDENT_3_MIDDLE_NAME_TEXT =space(20)  
+ select @DEPENDENT_3_LAST_NAME_TEXT =space(26) 
+ select @DEPENDENT_3_SUFFIX_CD =space(4) 
+ select @DISTRICT_CODE =space(2)                   
+ select @DUTY_PREFERENCE_CODE =space(3)                    
+ select @EDPT_DATE =space(8)                     
+ select @EDPT_SCORE_CODE =space(3)                     
+ select @ENGLISH_DIAGNOSTIC_SCORE_CODE =space(3)                    
+ select @ENLISTMENT_OR_ACCEPTANCE_DATE =space(8)                    
+ select @ENLISTMENT_REFERRAL_AMOUNT =space(2)                    
+ select @ENTNAC_COMPLETED_DATE =space(8)                     
+ select @ETHNIC_CODE =space(1)                 
+ select @FORGN_LANG_CODE_1 =space(2)  
+ select @FORGN_LANG_CODE_2 =space(2)  
+ select @FORGN_LANG_CODE_3 =space(2)  
+ select @FORGN_LANG_CODE_4 =space(2)  
+ select @EYE_COLOR_CODE=space(5) 
+ select @FUTURE_TRAINING =space(3) 
+ select @HAIR_COLOR_CODE= space(5) 
+ select @HEIGHT_DIMENSION =space(2)                 
+ select @HOME_OF_RECORD_CITY_CODE =space(4)                      
+ select @HOME_OF_RECORD_COUNTY_CODE =space(3)                     
+ select @HOME_OF_RECORD_STATE_CODE =space(2)                     
+ select @HOME_OF_RECORD_ZIP_CODE =space(9)                     
+ select @HOME_TELEPHONE_NUMBER_CODE =space(10)                     
+ select @INDIVIDUAL_WEIGHT_QUANTITY =space(3)                     
+ select @INDUCTION_STATUS_CODE =space(1)                     
+ select @HIGH_SCHOOL_LAST_ATTEND_DATE =space(4)                    
+ select @MARITAL_STATUS_CODE =space(1)                      
+ select @MEPS_AFQT_SCORE_CODE =space(2)                     
+ select @MEPS_ASVAB_COMP_GT_SCORE_QY =space(3)                    
+ select @MEPS_ASVAB_COMP_MM_SCORE_QY =space(3)                     
+ select @MEPS_ASVAB_COMP_EL_SCORE_QY =space(3)                    
+ select @MEPS_ASVAB_COMP_CL_SCORE_QY =space(3)                    
+ select @MEPS_RAW_ASVAB_AR_SCORE_QY =space(2)                  
+ select @MEPS_RAW_ASVAB_WK_SCORE_QY =space(2)                     
+ select @MEPS_RAW_ASVAB_AS_SCORE_QY =space(2)                     
+ select @MEPS_RAW_ASVAB_CS_SCORE_QY =space(2)                     
+ select @MEPS_RAW_ASVAB_EI_SCORE_QY =space(2)                     
+ select @MEPS_RAW_ASVAB_GS_SCORE_QY =space(2)                     
+ select @MEPS_RAW_ASVAB_MC_SCORE_QY =space(2)                     
+ select @MEPS_RAW_ASVAB_MK_SCORE_QY =space(2)                     
+ select @MEPS_RAW_ASVAB_NO_SCORE_QY =space(2)                     
+ select @MEPS_RAW_ASVAB_PC_SCORE_QY =space(2)                     
+ select @MEPS_RAW_ASVAB_VE_SCORE_QY =space(2)                 
+     select @MEPS_MCC =space(3)                     
+ select @MEPS_ASVAB_TEST_ID =space(3)                     
+ select @MEPS_ASVAB_TEST_DATE =space(8)                     
+ select @PAY_ENTRY_BASE_DATE =space(8)                     
+ select @PRESENT_GRADE_CODE =space(3)                     
+ select @PRESENT_GRADE_RANK_DATE =space(8)                     
+ select @PRIMARY_MOS_CODE =space(4)                     
+ select @PRIOR_SERVICE_CODE = 'NO' 
+ select @PRIOR_SERVICE_ENTRY_DATE =space(8)                     
+ select @PROGRAM_ENLISTED_FOR_CODE =space(2)                    
+ select @PROJECTED_ACTIVE_DUTY_DATE =space(8)                    
+ select @PUBLIC_AFFAIRS_INTERVIEW_CODE =space(1)                     
+ select @QUOTA_SERIAL_NUMBER =space(9)                    
+ select @RACE_CODE =space(1)                    
+ select @RECRUIT_MCC =space(3)                     
+ select @RECRUITER_ASSIST_RECOMMEND_CD =space(1)                     
+ select @RECRUITING_STATION_MONITOR_CD =space(3)                     
+ select @RECRUITING_SUB_STATION_CODE =space(5)                    
+ select @RELIGION_CODE =space(2)                    
+ select @RESERVE_REPORTING_UNIT_CODE =space(5)                     
+ select @RESERVE_BONUS_CONTROL_NUM =space(8)                     
+ select @SEX_CODE =space(1)                    
+ select @SHIP_DATE =space(8)                     
+     select @SOURCE_OF_ENTRY_CODE =space(4)                 
+ select @TERM_OF_ENLISTMENT_QY =space(1)                    
+ select @VALID_DRIVERS_LICENSE_CODE =space(1)                     
+ select @VISUAL_ACUITY_TEST_LC_QTY =space(3)                      
+ select @VISUAL_ACUITY_TEST_LU_QTY =space(3)                      
+ select @VISUAL_ACUITY_TEST_RC_QTY =space(3)                      
+ select @VISUAL_ACUITY_TEST_RU_QTY =space(3)                      
+ select @VISUAL_COLOR_CODE =space(1)                     
+ select @YOUTH_PROGRAM_CODE =space(3)                
+ select @REF_TYPE =space(5)                 
+     select @CATEGORY_P =space(1)                 
+     select @RD_1_MOS =space(4)              
+ select @RECRUIT_ENLISTMENT_RESERVE_MCC =space(3)  
+     select @PROGRAM_ENLISTED_FOR_BONUS_CD =space(2)           
+ select @PROGRAM_ENLISTED_FOR_COLLEGE_CODE =space(2)  
+     select @MSC =space(1)                
+ select @FILLER1= space(100) 
+ select @FILLER2=space(100) 
+ select @PROJECTED_TRAIN_COMPLETE_DATE =space(8)  
+ 
+ 
+ print 'Contract ID=[' + convert(varchar(16),@contract_id) + ']' 
+ 
+ select  @MARINE_ID = N.MARINE_CANDIDATE_ID, @NWA_ID = N.NWA_ID,  
+  @SHIP_ID = S.SHIP_ID, @SSN = '0' + P.SOCIAL_SECURITY_NUMBER, 
+  @LAST_NAME_TEXT =    
+  case  
+   when P.LAST_NAME is null then space(26) 
+   else rtrim(P.LAST_NAME) + space(26 - len(rtrim(P.LAST_NAME))) 
+  end , 
+  @FIRST_NAME_TEXT =  
+  case  
+   when P.FIRST_NAME is null then space(20) 
+   else rtrim(P.FIRST_NAME) + space(20 - len(rtrim(P.FIRST_NAME))) 
+  end , 
+  @MIDDLE_NAME_TEXT=  
+  case  
+   when P.LEGAL_MIDDLE_NAME is null then space(20) 
+   else rtrim(P.LEGAL_MIDDLE_NAME) + space(20 - len(rtrim(P.LEGAL_MIDDLE_NAME))) 
+  end , 
+  @CADENCY_NAME_TEXT =  
+  case  
+   when P.SUFFIX_CD is null then space(4) 
+   else rtrim(P.SUFFIX_CD) + space(4 - len(rtrim(P.SUFFIX_CD))) 
+  end , 
+  @BIRTH_DATE =  
+  case  
+   when MC.DATE_OF_BIRTH is null THEN space(8) 
+   else convert(varchar(8), MC.DATE_OF_BIRTH,112) 
+  end, 
+  @BIRTH_STATE_CODE =  
+  case  
+   when MC.BIRTH_STATE is null THEN '  ' 
+   else MC.BIRTH_STATE 
+  end, 
+  @CITIZENSHIP_CODE =  
+  case  
+   when MC.CITIZENSHIP is null THEN '  ' 
+   else MC.CITIZENSHIP 
+  end, 
+  @CITIZEN_ORIG_GEO_LOC =  
+  case  
+   when MC.COUNTRY_OF_ORIGIN is null THEN '  ' 
+   else MC.COUNTRY_OF_ORIGIN 
+  end, 
+  @COMPONENT_CODE =  
+  case  
+   when C.COMPONENT_CODE is null THEN '  ' 
+   else C.COMPONENT_CODE 
+  end, 
+  @DUTY_PREFERENCE_CODE =  
+  case   
+   when C.DUTY_PREFERENCE1 is null THEN '   ' 
+   else ltrim(rtrim(C.DUTY_PREFERENCE1)) 
+  end, 
+  @ENLISTMENT_OR_ACCEPTANCE_DATE = 
+  case   
+   when C.CONTRACT_BEGIN_DATE is null THEN space(8) 
+   else convert(varchar(8), C.CONTRACT_BEGIN_DATE, 112) 
+  end, 
+  @ENTNAC_COMPLETED_DATE =  
+  case  
+   when C.ENTNAC_COMPLETE_DATE is null THEN space(8) 
+   else convert(varchar(8), C.ENTNAC_COMPLETE_DATE, 112) 
+  end, 
+  @ETHNIC_CODE =  
+  case  
+   when MC.ETHNIC_CODE is  null THEN ' ' 
+   else ltrim(rtrim(MC.ETHNIC_CODE)) 
+  end, 
+  @MARITAL_STATUS_CODE =  
+  case  
+   when MC.MARITAL_STATUS_CODE is null THEN ' ' 
+   else ltrim(rtrim(MC.MARITAL_STATUS_CODE)) 
+  end, 
+  @PROJECTED_ACTIVE_DUTY_DATE =  
+  case  
+   when C.PROJECTED_SHIP_DATE is null THEN space(8) 
+   else convert(varchar(8), C.PROJECTED_SHIP_DATE, 112) 
+  end, 
+  @RACE_CODE =  
+  case   
+   when MC.RACE_CODE is null THEN ' ' 
+   else ltrim(rtrim(MC.RACE_CODE)) 
+  end, 
+  @RELIGION_CODE =  
+  case  
+   when MC.RELIGION_CODE is null THEN ' ' 
+   else ltrim(rtrim(MC.RELIGION_CODE)) 
+  end, 
+  @SEX_CODE =  
+  case  
+   when MC.GENDER_CODE is null THEN ' ' 
+   else ltrim(rtrim(MC.GENDER_CODE)) 
+  end, 
+  @TERM_OF_ENLISTMENT_QY =  
+  case  
+   when C.TERM_OF_ENLISTMENT is null THEN '0' 
+   else C.TERM_OF_ENLISTMENT 
+  end, 
+  @VALID_DRIVERS_LICENSE_CODE =  
+  case  
+   when MC.DRIVER_LICENSE_NUM is null then 'N' 
+   else 'Y' 
+  end, 
+  @AFADBD= 
+  case  
+   when S.AFADBD is null THEN space(8) 
+   when S.AFADBD = '' THEN space(8) 
+   else convert(varchar(8), S.AFADBD, 112) 
+  end, 
+  @PRESENT_GRADE_CODE =  
+  case   
+   when  S.PAY_GRADE_CODE is null THEN ' ' 
+   else S.PAY_GRADE_CODE 
+  end, 
+  @PAY_ENTRY_BASE_DATE =  
+  case  
+   when S.PAY_ENTRY_BASE_DATE is null THEN space(8) 
+   else convert(varchar(8), S.PAY_ENTRY_BASE_DATE, 112) 
+  end, 
+ 
+  @PRESENT_GRADE_RANK_DATE =  
+  case  
+   when S.PAY_GRADE_ED_DATE is null THEN space(8) 
+   else convert(varchar(8), S.PAY_GRADE_ED_DATE, 112) 
+  end, 
+  @SHIP_DATE =  
+  case  
+   when S.SHIP_DATE is null THEN space(8) 
+   else convert(varchar(8), S.SHIP_DATE, 112) 
+  end, 
+  @QUOTA_SERIAL_NUMBER =  
+   case 
+    when Q.QSN_ID is null then space(9) 
+    else convert(varchar(9), Q.QSN_ID) 
+   end, 
+  @RESERVE_REPORTING_UNIT_CODE =  
+   case 
+    when Q.RUC is null then space(5) 
+    else rtrim(Q.RUC) + space(5 - len(rtrim(Q.RUC))) 
+   end, 
+  @RESERVE_BONUS_CONTROL_NUM=  
+   case 
+    when Q.BONUS_CONTROL_NUMBER is null then space(8) 
+    else rtrim(Q.BONUS_CONTROL_NUMBER) + space(8 - len(rtrim(Q.BONUS_CONTROL_NUMBER))) 
+   end, 
+  @RD_1_MOS =  
+   case  
+    when Q.MOS is null then space(4) 
+    else Q.MOS 
+   end, 
+         @CURRENT_CITY_CODE =  
+   case  
+    when CA.CITY_CODE is null then space(4) 
+    else rtrim(CA.CITY_CODE) +  space(4 - len(rtrim(CA.CITY_CODE))) 
+   end, 
+         @CURRENT_COUNTY_CODE =  
+   case  
+    when CA.COUNTY_CODE is null then space(3) 
+    else rtrim(CA.COUNTY_CODE) + space(3 - len(rtrim(CA.COUNTY_CODE))) 
+   end, 
+         @CURRENT_STATE_CODE =  
+   case  
+    when CA.STATE_CODE is null then '  ' 
+    else CA.STATE_CODE 
+   end, 
+         @CURRENT_ZIP_CODE =  
+   case  
+    when CA.ZIPCODE is null then space(9) 
+    else rtrim(CA.ZIPCODE) + space(9 - len(rtrim(CA.ZIPCODE))) 
+   end, 
+         @CURRENT_STREET_TEXT =  
+   case  
+    when CA.STREET_ADDRESS is null then space(40) 
+    else substring(ltrim(rtrim(CA.STREET_ADDRESS)),1,40) + 
+     space(40 -len(substring(ltrim(rtrim(CA.STREET_ADDRESS)),1,40))) 
+   end, 
+         @HOME_OF_RECORD_CITY_CODE =  
+   case  
+    when HOR.CITY_CODE is null then space(4) 
+    else rtrim(HOR.CITY_CODE) +  space(4 - len(rtrim(HOR.CITY_CODE))) 
+   end, 
+         @HOME_OF_RECORD_COUNTY_CODE =  
+   case  
+    when HOR.COUNTY_CODE is null then space(3) 
+    else rtrim(HOR.COUNTY_CODE) +  space(34 - len(rtrim(HOR.COUNTY_CODE))) 
+   end, 
+         @HOME_OF_RECORD_STATE_CODE =  
+   case  
+    when HOR.STATE_CODE is null then '  ' 
+    else HOR.STATE_CODE 
+   end, 
+         @HOME_OF_RECORD_ZIP_CODE =  
+   case  
+    when HOR.ZIPCODE is null then space(9) 
+    else rtrim(HOR.ZIPCODE) + space(9 - len(rtrim(HOR.ZIPCODE))) 
+   end, 
+ 
+ 
+  @RECRUIT_ENLISTMENT_RESERVE_MCC =  
+  case  
+   when Q.MCC_CODE is null then space(3) 
+   else rtrim(Q.MCC_CODE) + space(3 - len(rtrim(Q.MCC_CODE))) 
+  end, 
+  @SOURCE_OF_ENTRY_CODE =  
+  case  
+   when C.SOURCE_OF_ENTRY_CODE is null THEN space(4) 
+   else rtrim(C.SOURCE_OF_ENTRY_CODE) + space(4 - len(rtrim(C.SOURCE_OF_ENTRY_CODE))) 
+  end, 
+  @PROJECTED_TRAIN_COMPLETE_DATE = space(8) 
+ from  person p, marine_candidate mc, nwa n le. outer join candidate_address ca on n.marine_candidate_Id = ca.marine_candidate_id and ca.address_type = 'C' 
+  le. outer join candidate_address hor on n.marine_candidate_Id = ca.marine_candidate_id and ca.address_type = 'H', 
+  contract c le. outer join shipper s on c.contract_id = s.contract_id 
+  le. outer join qsn q on q.contract_id = c.contract_id 
+ where c.contract_id = @contract_id and 
+       p.person_id = mc.marine_candidate_id and 
+       mc.marine_candidate_id = n.marine_candidate_id and 
+       n.nwa_id = c.nwa_id 
+  
+ 
+ select @CURRENT_CITY_TEXT =  
+  case  
+   when city_text is null then space(30) 
+   else rtrim(city_text) + space(30 - len(rtrim(city_text))) 
+  end 
+ 
+ from geo_loca.on 
+ where  city_code = @CURRENT_CITY_CODE  and 
+  county_code = @CURRENT_COUNTY_CODE   and 
+  state_code = @CURRENT_STATE_CODE 
+ 
+ 
+ 
+--ARC                
+--ARMY_RADIO_TEST_SCORE_DATE 
+ select @ARC =  
+  case  
+   when CSE.SPECIAL_EXAM_SCORE is null then space(3) 
+   else replicate('0', 3 - len(rtrim(CSE.SPECIAL_EXAM_SCORE))) + rtrim(convert(varchar(3), CSE.SPECIAL_EXAM_SCORE))  
+  end, 
+     @ARC_DATE =   
+  case  
+   when CSE.SPECIAL_EXAM_DATE is null then space(8) 
+   else convert(varchar(8), CSE.SPECIAL_EXAM_DATE,112)                 
+  end 
+ from CANDIDATE_SPECIAL_EXAM CSE  
+ where MARINE_CANDIDATE_ID = @MARINE_ID and CSE.SPECIAL_EXAM_TYPE = 'ARC' and 
+       CSE.SPECIAL_EXAM_DATE in (select max(SPECIAL_EXAM_DATE) 
+        from CANDIDATE_SPECIAL_EXAM 
+               where MARINE_CANDIDATE_ID = @MARINE_ID and SPECIAL_EXAM_TYPE = 'ARC')                 
+ 
+ 
+ --DEF_LANG_APT_BAT_DATE                
+ --DEF_LANG_APT_BAT_SCORE                
+ select @DEF_LANG_APT_BAT_SCORE =     
+  case  
+   when CSE.SPECIAL_EXAM_SCORE is null then space(3) 
+   else replicate('0', 3 - len(rtrim(CSE.SPECIAL_EXAM_SCORE))) + rtrim(convert(varchar(3), CSE.SPECIAL_EXAM_SCORE))  
+  end, 
+     @DEF_LANG_APT_BAT_DATE =   
+  case  
+   when CSE.SPECIAL_EXAM_DATE is null then space(8) 
+   else convert(varchar(8), CSE.SPECIAL_EXAM_DATE,112)                 
+  end 
+ 
+ from CANDIDATE_SPECIAL_EXAM CSE 
+ where MARINE_CANDIDATE_ID = @MARINE_ID and CSE.SPECIAL_EXAM_TYPE = 'DLAB' and 
+       CSE.SPECIAL_EXAM_DATE in (select max(SPECIAL_EXAM_DATE) 
+        from CANDIDATE_SPECIAL_EXAM 
+               where MARINE_CANDIDATE_ID = @MARINE_ID and SPECIAL_EXAM_TYPE = 'DLAB') 
+ 
+ --EDPT_DATE                
+ --EDPT_SCORE_CODE                
+ select @EDPT_SCORE_CODE =  
+  case  
+   when CSE.SPECIAL_EXAM_SCORE is null then space(3) 
+   else replicate('0', 3 - len(rtrim(CSE.SPECIAL_EXAM_SCORE))) + rtrim(convert(varchar(3), CSE.SPECIAL_EXAM_SCORE))  
+  end, 
+     @EDPT_DATE =   
+  case  
+   when CSE.SPECIAL_EXAM_DATE is null then space(8) 
+   else convert(varchar(8), CSE.SPECIAL_EXAM_DATE,112)                 
+  end 
+ from CANDIDATE_SPECIAL_EXAM CSE 
+ where MARINE_CANDIDATE_ID = @MARINE_ID and CSE.SPECIAL_EXAM_TYPE = 'EDPT' and 
+       CSE.SPECIAL_EXAM_DATE in (select max(SPECIAL_EXAM_DATE) 
+        from CANDIDATE_SPECIAL_EXAM 
+               where MARINE_CANDIDATE_ID = @MARINE_ID and SPECIAL_EXAM_TYPE = 'EDPT') 
+ 
+ 
+ select @DISTRICT_CODE = 
+  case  M.DIST_ORG_ID 
+   when 903   then  '01'                
+   when 904   then  '04'                
+   when 905   then  '06'                
+   when 906   then  '08'                
+   when 907   then  '09'                
+   when 908   then  '12'                
+   Else '  ' 
+  end  
+ From  NWA N,  MCORG_VIEW M                
+ where  M.RSS_ORG_ID = N.ORGANIZATION_OF_RECORD_ID  and  
+             N.NWA_ID = @NWA_ID  
+ 
+ 
+ -- CIVILIAN_EDUCATION_YEARS_COMPL                
+ -- CIVILIAN_EDUCATION_CERTIFICATE                
+ select @CIV_ED_YEARS_COMP =  
+  case  
+   when CE.EDUCATION_LEVEL is null then space(2) 
+   when len(CE.EDUCATION_LEVEL) < 2 then CE.EDUCATION_LEVEL + ' ' 
+   else CE.EDUCATION_LEVEL  
+  end, 
+  @CIV_ED_CERT =  
+  case  
+   when CE.EDUCATION_CODE is null then ' ' 
+   else CE.EDUCATION_CODE 
+  end 
+ From CANDIDATE_EDUCATION CE 
+ Where   CE.MARINE_CANDIDATE_ID =  @MARINE_ID and  
+  CE.EDUCATION_LEVEL in (select max(EDUCATION_LEVEL) from CANDIDATE_EDUCATION 
+     WHERE MARINE_CANDIDATE_ID = @MARINE_ID) 
+ 
+ 
+ --ENLISTMENT_REFERRAL_AMOUNT                
+ declare @refCount int 
+ declare @refCountStr char(2) 
+ declare @rankCode varchar(2) 
+ 
+ select @refCount = count(R.DEP_CONTRACT_ID) 
+ from REFERRAL R 
+ Where R.DEP_CONTRACT_ID = @CONTRACT_ID 
+  
+ if (@refCount < 10) 
+  select @refCountStr = '0' + convert(char(1),@refCount) 
+ else 
+  select @refCountStr = convert(char(1),@refCount) 
+ 
+ if (@refCount >= 2) 
+  select @rankCode = 'E2 ' 
+ else 
+  select @rankCode = 'E1 ' 
+  
+ 
+ 
+ select  @ENLISTMENT_REFERRAL_AMOUNT = @refCountStr 
+ 
+  
+ 
+ 
+ --select  @PRESENT_GRADE_CODE = @rankCode 
+ --where contract_id = @contract_id and  
+ -- ltrim(rtrim(ship_id)) != '' 
+ 
+ 
+ 
+  
+ 
+ if (@SHIP_ID is null) begin               
+         select  @FUTURE_TRAINING =  
+   case (MCC_CODE) 
+    when '00000' then space(3) 
+    when null then space(3) 
+    else MCC_CODE 
+   end 
+         From                 
+             TRAINING_ORGANIZATION TRNG, 
+  CONTRACT C 
+         Where                 
+             C.PROJECTED_TRAINING_ORG_ID = TRNG.TRAINING_ORGANIZATION_ID and 
+             C.CONTRACT_ID = @CONTRACT_ID 
+ end else begin 
+         select  @FUTURE_TRAINING =  
+   case (MCC_CODE) 
+    when '00000' then space(3) 
+    when null then space(3) 
+    else MCC_CODE 
+   end 
+         From                 
+             TRAINING_ORGANIZATION TRNG, 
+             SHIPPER S 
+         Where                 
+             S.TRAINING_ORGANIZATION_ID = TRNG.TRAINING_ORGANIZATION_ID and 
+             S.SHIP_ID = @SHIP_ID 
+ end 
+ 
+ 
+ --HEIGHT_DIMENSION                
+ --INDIVIDUAL_WEIGHT_QUANTITY                 
+        select @HEIGHT_DIMENSION =  
+   case 
+    when CME.HEIGHT is null then '00' 
+    else replicate('0',2-len(rtrim(convert(varchar(2), CME.HEIGHT)))) + rtrim(convert(varchar(2), CME.HEIGHT))  
+   end, 
+   @INDIVIDUAL_WEIGHT_QUANTITY =  
+   case 
+    when CME.WEIGHT is null then space(3) 
+    else replicate('0', 3-len(rtrim(convert(varchar(3), CME.WEIGHT)))) + rtrim(convert(varchar(3), CME.WEIGHT))   
+   end 
+        From CANDIDATE_MEDICAL_EXAM CME                
+        Where CME.MARINE_CANDIDATE_ID = @MARINE_ID and       
+  CME.MEDICAL_EXAM_DATE = (Select max(MEDICAL_EXAM_DATE)                  
+                                  From CANDIDATE_MEDICAL_EXAM                  
+                                  Where MARINE_CANDIDATE_ID = @MARINE_ID ) 
+ 
+ declare @areaCode varchar(4), @telNum varchar(10) 
+ 
+              
+ 
+ 
+--HOME_TELEPHONE_NUMBER_CODE                 
+        select @areaCode =  
+  case  
+   when CT.AREA_CODE is not null then substring(ltrim(rtrim(CT.AREA_CODE)),1,3) 
+   else CT.AREA_CODE 
+  end, 
+       @telNum =  
+  case  
+   when CT.TELEPHONE_NUMBER is not null then substring(replace(ltrim(rtrim(CT.TELEPHONE_NUMBER)),'-',''),1,7) 
+   else CT.TELEPHONE_NUMBER 
+  end 
+        From CANDIDATE_TELEPHONE CT                
+        Where  CT.MARINE_CANDIDATE_ID = @MARINE_ID and                
+         CT.TELEPHONE_TYPE = 'H' 
+ 
+ --ensure home telephone is not null 
+ 
+ set @HOME_TELEPHONE_NUMBER_CODE = ''  
+ if (@areaCode is not null) begin 
+  set @HOME_TELEPHONE_NUMBER_CODE = @areaCode 
+ end 
+ 
+ if (@telNum is not null) begin 
+  --dashes already removed.  lets remove some other common symbols that seperate number 
+  set @telNum = replace(@telNum,'/','') 
+  set @telNum = replace(@telNum,'\','') 
+  set @telNum = replace(@telNum,'|','') 
+  set @telNum = replace(@telNum,'.','') 
+  set @telNum = replace(@telNum,',','') 
+  set @telNum = replace(@telNum,':','') 
+  set @telNum = replace(@telNum,';','') 
+  set @telNum = replace(@telNum,'(','') 
+  set @telNum = replace(@telNum,')','') 
+ 
+  --on the o. chance no numbers were entered 
+  if (@telNum is not null) begin  
+   set @HOME_TELEPHONE_NUMBER_CODE = @HOME_TELEPHONE_NUMBER_CODE + @telNum 
+  end 
+ end 
+  set @HOME_TELEPHONE_NUMBER_CODE = @HOME_TELEPHONE_NUMBER_CODE + space(10-len(@HOME_TELEPHONE_NUMBER_CODE)) 
+ 
+ 
+  
+ 
+ 
+ 
+ 
+ 
+--HIGH_SCHOOL_LAST_ATTEND_DATE                 
+        select @HIGH_SCHOOL_LAST_ATTEND_DATE =  
+  case 
+   when CE.SCHOOL_END_DATE is null then space(4) 
+   else convert(varchar(4),datepart(yyyy,CE.SCHOOL_END_DATE))                
+  end 
+        From 
+            CANDIDATE_EDUCATION CE,                 
+            HIGH_SCHOOL HS                
+        Where                 
+      CE.MARINE_CANDIDATE_ID = @MARINE_ID and 
+             CE.SCHOOL_CODE = HS.SCHOOL_CODE and                
+             HS.SCHOOL_TYPE = 'HS' and 
+      CE.EDUCATION_LEVEL in (select max(EDUCATION_LEVEL) from CANDIDATE_EDUCATION 
+     WHERE MARINE_CANDIDATE_ID = @MARINE_ID and SCHOOL_TYPE = 'HS')  
+ 
+ 
+ 
+  select @MEPS_AFQT_SCORE_CODE =  
+   case  
+    when CAB.AFQT_SCORE is null then '00' 
+    else replicate('0', 2 - len(rtrim(CAB.AFQT_SCORE))) + rtrim(convert(varchar(2), CAB.AFQT_SCORE))   
+   end, 
+  @MEPS_ASVAB_COMP_GT_SCORE_QY =  
+   case  
+    when CAB.GT_SCORE is null then '000' 
+    else replicate('0', 3 - len(rtrim(CAB.GT_SCORE))) + rtrim(convert(varchar(3), CAB.GT_SCORE))   
+   end, 
+  @MEPS_ASVAB_COMP_MM_SCORE_QY =  
+   case  
+    when CAB.MM_SCORE is null then '000' 
+    else replicate('0', 3 - len(rtrim(CAB.MM_SCORE))) + rtrim(convert(varchar(3), CAB.MM_SCORE))   
+   end, 
+  @MEPS_ASVAB_COMP_EL_SCORE_QY =  
+   case  
+    when CAB.EL_SCORE is null then '000' 
+    else replicate('0', 3 - len(rtrim(CAB.EL_SCORE))) + rtrim(convert(varchar(3), CAB.EL_SCORE))   
+   end, 
+  @MEPS_ASVAB_COMP_CL_SCORE_QY =  
+   case  
+    when CAB.CL_SCORE is null then '000' 
+    else replicate('0', 3 - len(rtrim(CAB.CL_SCORE))) + rtrim(convert(varchar(3), CAB.CL_SCORE))   
+   end, 
+  @MEPS_RAW_ASVAB_AR_SCORE_QY  =  
+   case  
+    when CAB.AR_SUBTEST is null then '00' 
+    else replicate('0', 2 - len(rtrim(CAB.AR_SUBTEST))) + rtrim(convert(varchar(2), CAB.AR_SUBTEST))   
+ 
+   end, 
+  @MEPS_RAW_ASVAB_WK_SCORE_QY  =  
+   case  
+    when CAB.WK_SUBTEST is null then '00' 
+    else replicate('0', 2 - len(rtrim(CAB.WK_SUBTEST))) + rtrim(convert(varchar(2), CAB.WK_SUBTEST))   
+   end, 
+  @MEPS_RAW_ASVAB_AS_SCORE_QY  =  
+   case  
+    when CAB.AS_SUBTEST is null then '00' 
+    else replicate('0', 2 - len(rtrim(CAB.AS_SUBTEST))) + rtrim(convert(varchar(2), CAB.AS_SUBTEST))   
+   end, 
+  @MEPS_RAW_ASVAB_CS_SCORE_QY  =  
+   case  
+    when CAB.CS_SUBTEST is null then '00' 
+    else replicate('0', 2 - len(rtrim(CAB.CS_SUBTEST))) + rtrim(convert(varchar(2), CAB.CS_SUBTEST))   
+   end, 
+  @MEPS_RAW_ASVAB_EI_SCORE_QY  =  
+   case  
+    when CAB.EI_SUBTEST is null then '00' 
+    else replicate('0', 2 - len(rtrim(CAB.EI_SUBTEST))) + rtrim(convert(varchar(2), CAB.EI_SUBTEST))   
+   end, 
+  @MEPS_RAW_ASVAB_GS_SCORE_QY  =  
+   case  
+    when CAB.GS_SUBTEST is null then '00' 
+    else replicate('0', 2 - len(rtrim(CAB.GS_SUBTEST))) + rtrim(convert(varchar(2), CAB.GS_SUBTEST))   
+   end, 
+  @MEPS_RAW_ASVAB_MC_SCORE_QY  =  
+   case  
+    when CAB.MC_SUBTEST is null then '00' 
+    else replicate('0', 2 - len(rtrim(CAB.MC_SUBTEST))) + rtrim(convert(varchar(2), CAB.MC_SUBTEST))   
+   end, 
+  @MEPS_RAW_ASVAB_MK_SCORE_QY  =  
+   case  
+    when CAB.MK_SUBTEST is null then '00' 
+    else replicate('0', 2 - len(rtrim(CAB.MK_SUBTEST))) + rtrim(convert(varchar(2), CAB.MK_SUBTEST))   
+   end, 
+  @MEPS_RAW_ASVAB_NO_SCORE_QY  =  
+   case  
+    when CAB.NO_SUBTEST is null then '00' 
+    else replicate('0', 2 - len(rtrim(CAB.NO_SUBTEST))) + rtrim(convert(varchar(2), CAB.NO_SUBTEST))   
+   end, 
+  @MEPS_RAW_ASVAB_PC_SCORE_QY  =  
+   case  
+    when CAB.PC_SUBTEST is null then '00' 
+    else replicate('0', 2 - len(rtrim(CAB.PC_SUBTEST))) + rtrim(convert(varchar(2), CAB.PC_SUBTEST))   
+   end, 
+  @MEPS_RAW_ASVAB_VE_SCORE_QY  =  
+   case  
+    when CAB.VE_SUBTEST is null then '00' 
+    else replicate('0', 2 - len(rtrim(CAB.VE_SUBTEST))) + rtrim(convert(varchar(2), CAB.VE_SUBTEST))   
+   end, 
+  @MEPS_ASVAB_TEST_ID =  
+   case  
+    when CAB.VERSION is null then '000' 
+    else replicate('0', 3 - len(rtrim(CAB.VERSION))) + rtrim(convert(varchar(3), CAB.VERSION)) 
+   end, 
+  @MEPS_ASVAB_TEST_DATE =  
+   case  
+    when CAB.ASVAB_DATE is null then space(8) 
+    else convert(varchar(8), CAB.ASVAB_DATE, 112) 
+   end, 
+  @MEPS_MCC = M.MCC_CODE 
+        From CANDIDATE_ASVAB CAB, MEPS_ORGANIZATION_LOOKUP M 
+ Where  CAB.MARINE_CANDIDATE_ID = @MARINE_ID and                
+        CAB.ASVAB_DATE = (select max(CAB.ASVAB_DATE)                 
+    From CANDIDATE_ASVAB CAB                 
+    Where CAB.MARINE_CANDIDATE_ID = @MARINE_ID)  and 
+             CAB.MEPS_ORGANIZATION_ID = M.MEPS_ORGANIZATION_ID  
+          
+ 
+ 
+--PRIOR_SERVICE_ENTRY_DATE                 
+ select @PRIOR_SERVICE_ENTRY_DATE =  
+  case  
+   when CPS.BEGIN_DATE is null then space(8) 
+   else convert(varchar(8), CPS.BEGIN_DATE,112)                 
+  end, 
+     @PRIOR_SERVICE_CODE =  
+  case  
+   when CPS.COMPONENT_CODE is null then 'NO' 
+   else CPS.COMPONENT_CODE 
+  end 
+ From CANDIDATE_PRIOR_SERVICE CPS                
+ Where  CPS.MARINE_CANDIDATE_ID = @MARINE_ID and  
+  CPS.BEGIN_DATE = ( select max(begin_date) 
+     from candidate_prior_service  
+     where marine_candidate_id = @marine_id) 
+ 
+ 
+ 
+ --PEF 
+ select @PROGRAM_ENLISTED_FOR_CODE =  
+  case  
+   when p.program_code is null then space(2) 
+   else p.program_code 
+  end  
+        from program_availability pa, program p 
+ where pa.contract_id = @contract_id and 
+ pa.program_id = p.program_id and p.program_type in('MEOP','QEP','EOP') 
+ 
+ 
+ 
+ select @PROGRAM_ENLISTED_FOR_BONUS_CD =  
+  case  
+   when p.program_code is null then space(2) 
+   else p.program_code 
+  end  
+        from program_availability pa, program p 
+ where pa.contract_id = @contract_id and 
+ pa.program_id = p.program_id and p.program_type in('EBP') 
+ 
+ select @PROGRAM_ENLISTED_FOR_COLLEGE_CODE =  
+  case  
+   when p.program_code is null then space(2) 
+   else p.program_code 
+  end  
+        from program_availability pa, program p 
+ where pa.contract_id = @contract_id and 
+ pa.program_id = p.program_id and p.program_type in('MCCF') 
+ 
+ 
+ if ((rtrim(ltrim(@QUOTA_SERIAL_NUMBER)) != '') or 
+  ((rtrim(ltrim(@PROGRAM_ENLISTED_FOR_COLLEGE_CODE)) = '') and 
+          (rtrim(ltrim(@PROGRAM_ENLISTED_FOR_BONUS_CD)) = '') and 
+          (rtrim(ltrim(@PROGRAM_ENLISTED_FOR_CODE)) = ''))) begin 
+  select @PRIMARY_MOS_CODE = '9900' 
+ end 
+ 
+ if ( (rtrim(ltrim(@PROGRAM_ENLISTED_FOR_COLLEGE_CODE)) != '') or 
+              (rtrim(ltrim(@PROGRAM_ENLISTED_FOR_BONUS_CD)) != '') or 
+          (rtrim(ltrim(@PROGRAM_ENLISTED_FOR_CODE)) != '')) begin 
+  select @PRIMARY_MOS_CODE = '9971' 
+ end 
+ 
+ 
+ select @recrui.ng_sub_sta.on_code =  
+  case  
+   when ro.mcc_code is null then space(5) 
+   else rtrim(ro.mcc_code) + space(5 -len(rtrim(ro.mcc_code))) 
+  end  
+ from nwa n, recrui.ng_organiza.on ro 
+ where n.organiza.on_of_record_id = ro.organiza.on_id and 
+ n.nwa_id = @nwa_id 
+ 
+ 
+ --VISUAL_ACUITY_TEST_LC_QTY                 
+ --VISUAL_ACUITY_TEST_LU_QTY                 
+ --VISUAL_ACUITY_TEST_RC_QTY                 
+ --VISUAL_ACUITY_TEST_RU_QTY                 
+ --VISUAL_COLOR_CODE                 
+ 
+ select @VISUAL_ACUITY_TEST_LC_QTY =                  
+  case  
+   when CME.LEFT_CORR_VISUAL_ACUITY is null then space(3) 
+   else convert(varchar(3), CME.LEFT_CORR_VISUAL_ACUITY) 
+  end, 
+     @VISUAL_ACUITY_TEST_LU_QTY = 
+  case  
+   when CME.LEFT_UNCORR_VISUAL_ACUITY is null then space(3) 
+   else convert(varchar(3), CME.LEFT_UNCORR_VISUAL_ACUITY) 
+  end, 
+            @VISUAL_ACUITY_TEST_RC_QTY = 
+  case  
+   when CME.RIGHT_CORR_VISUAL_ACUITY is null then space(3) 
+   else convert(varchar(3), CME.RIGHT_CORR_VISUAL_ACUITY) 
+  end, 
+            @VISUAL_ACUITY_TEST_RU_QTY = 
+  case  
+   when CME.RIGHT_UNCORR_VISUAL_ACUITY is null then space(3) 
+   else convert(varchar(3), CME.RIGHT_UNCORR_VISUAL_ACUITY) 
+  end, 
+            @VISUAL_COLOR_CODE = 
+  case  
+   when CME.VISUAL_COLOR is null then space(1) 
+   else CME.VISUAL_COLOR 
+  end 
+ From MARINE_CANDIDATE MC le. outer join CANDIDATE_MEDICAL_EXAM CME                
+       on MC.MARINE_CANDIDATE_ID = CME.MARINE_CANDIDATE_ID and 
+   CME.MEDICAL_EXAM_TYPE = 'FULL' and                
+   CME.MEDICAL_EXAM_DATE = (Select max(MEDICAL_EXAM_DATE)                
+      From CANDIDATE_MEDICAL_EXAM CME                
+      Where MARINE_CANDIDATE_ID = MC.MARINE_CANDIDATE_ID and                 
+      MEDICAL_EXAM_TYPE = 'FULL')                
+ where MC.MARINE_CANDIDATE_ID = @MARINE_ID 
+ 
+ 
+ select @forgn_lang_code_1 =  
+  case 
+   when cl.language_code is null then space(2) 
+   else cl.language_code 
+  end 
+ from candidate_language cl 
+ where @marine_id = cl.marine_candidate_id and 
+ cl.language_code = (select max(language_code)  
+    from candidate_language cl 
+    where cl.marine_candidate_id = @marine_id) 
+ 
+ 
+ 
+ select @forgn_lang_code_2 =  
+  case 
+   when cl.language_code is null then space(2) 
+   else cl.language_code 
+  end 
+ from candidate_language cl 
+ where @marine_id = cl.marine_candidate_id and 
+ cl.language_code = (select max(language_code)  
+    from candidate_language  
+    where marine_candidate_id = @marine_id and 
+          language_code not in (@forgn_lang_code_1)) 
+ 
+ select @forgn_lang_code_3 =  
+  case 
+   when cl.language_code is null then space(2) 
+   else cl.language_code 
+  end 
+ from candidate_language cl 
+ where @marine_id = cl.marine_candidate_id and 
+ cl.language_code = (select max(language_code)  
+    from candidate_language  
+    where marine_candidate_id = @marine_id and 
+          language_code not in (@forgn_lang_code_1,@forgn_lang_code_2))  
+ 
+ 
+ select @forgn_lang_code_4 =  
+  case 
+   when cl.language_code is null then space(2) 
+   else cl.language_code 
+  end 
+ from candidate_language cl 
+ where @marine_id = cl.marine_candidate_id and 
+ cl.language_code = (select max(language_code)  
+    from candidate_language  
+    where marine_candidate_id = @marine_id and 
+          language_code not in (@forgn_lang_code_1,@forgn_lang_code_2,@forgn_lang_code_3)) 
+ 
+ 
+ 
+ --DEPENDENTS 
+ select  
+  @dependent_id1 = dependent_id, 
+  @dependent_1_rela.onship =   
+  case 
+    when cd.dependent_type is null then space(2) 
+    else cd.dependent_type 
+   end,  
+  @dependent_1_date_of_birth =   
+   case 
+    when cd.date_of_birth is null then space(8) 
+    else convert(varchar(8),cd.date_of_birth,112) 
+   end,  
+  @dependent_1_last_name_text =   
+   case 
+    when cd.last_name is null then space(26) 
+    else rtrim(cd.last_name) + space(26 - len(rtrim(cd.last_name))) 
+   end,  
+  @dependent_1_.rst_name_text =   
+   case 
+    when cd..rst_name is null then space(20) 
+    else rtrim(cd..rst_name) + space(20 - len(rtrim(cd..rst_name))) 
+   end,  
+  @dependent_1_middle_name_text =   
+   case 
+    when cd.middle_name is null then space(20) 
+    else rtrim(cd.middle_name) + space(20 - len(rtrim(cd.middle_name))) 
+   end,  
+  @dependent_1_su.x_cd =   
+   case 
+    when cd.su.x_cd is null then space(20) 
+    else rtrim(cd.su.x_cd) + space(4 - len(rtrim(cd.su.x_cd))) 
+   end  
+ 
+ from candidate_dependent cd 
+ where @marine_id = cd.marine_candidate_id and 
+ cd.dependent_id = (select max(dependent_id)  
+    from candidate_dependent 
+    where marine_candidate_id = @marine_id) 
+ 
+ --DEPNDT 2 
+ select  
+  @dependent_id2 = dependent_id, 
+  @dependent_2_rela.onship =   
+   case 
+    when cd.dependent_type is null then space(2) 
+    else cd.dependent_type 
+   end,  
+  @dependent_2_date_of_birth =   
+   case 
+    when cd.date_of_birth is null then space(8) 
+    else convert(varchar(8),cd.date_of_birth,112) 
+   end,  
+  @dependent_2_last_name_text =   
+   case 
+    when cd.last_name is null then space(26) 
+    else rtrim(cd.last_name) + space(26 - len(rtrim(cd.last_name))) 
+   end,  
+  @dependent_2_.rst_name_text =   
+   case 
+    when cd..rst_name is null then space(20) 
+    else rtrim(cd..rst_name) + space(20 - len(rtrim(cd..rst_name))) 
+   end,  
+  @dependent_2_middle_name_text =   
+   case 
+    when cd.middle_name is null then space(20) 
+    else rtrim(cd.middle_name) + space(20 - len(rtrim(cd.middle_name))) 
+   end,  
+  @dependent_2_su.x_cd =   
+   case 
+    when cd.su.x_cd is null then space(20) 
+    else rtrim(cd.su.x_cd) + space(4 - len(rtrim(cd.su.x_cd))) 
+   end  
+ 
+ from candidate_dependent cd 
+ where @marine_id = cd.marine_candidate_id and 
+ cd.dependent_id = (select max(dependent_id)  
+    from candidate_dependent 
+    where marine_candidate_id = @marine_id and 
+     dependent_id not in (@dependent_id1)) 
+ 
+ 
+ 
+ 
+ --DEPNDT 3 
+ select  
+  @dependent_id3 = dependent_id, 
+  @dependent_3_rela.onship =   
+   case 
+    when cd.dependent_type is null then space(2) 
+    else cd.dependent_type 
+   end,  
+  @dependent_3_date_of_birth =   
+   case 
+    when cd.date_of_birth is null then space(8) 
+    else convert(varchar(8),cd.date_of_birth,112) 
+   end,  
+  @dependent_3_last_name_text =   
+   case 
+    when cd.last_name is null then space(26) 
+    else rtrim(cd.last_name) + space(26 - len(rtrim(cd.last_name))) 
+   end,  
+  @dependent_3_.rst_name_text =   
+   case 
+    when cd..rst_name is null then space(20) 
+    else rtrim(cd..rst_name) + space(20 - len(rtrim(cd..rst_name))) 
+   end,  
+  @dependent_3_middle_name_text =   
+   case 
+    when cd.middle_name is null then space(20) 
+    else rtrim(cd.middle_name) + space(20 - len(rtrim(cd.middle_name))) 
+   end,  
+  @dependent_3_su.x_cd =   
+   case 
+    when cd.su.x_cd is null then space(20) 
+    else rtrim(cd.su.x_cd) + space(4 - len(rtrim(cd.su.x_cd))) 
+   end  
+ 
+ from candidate_dependent cd 
+ where @marine_id = cd.marine_candidate_id and 
+ cd.dependent_id = (select max(dependent_id)  
+    from candidate_dependent 
+    where marine_candidate_id = @marine_id and 
+     dependent_id not in (@dependent_id1, @dependent_id2)) 
+ 
+ set @EXPORTED_DATA = @SSN + @LAST_NAME_TEXT + @FIRST_NAME_TEXT + @MIDDLE_NAME_TEXT + @CADENCY_NAME_TEXT + @ARC + 
+  @AFADBD + @ARC_DATE+@BIRTH_DATE+@CITIZENSHIP_CODE + @CITIZEN_ORIG_GEO_LOC + 
+  @CIV_ED_YEARS_COMP + @CIV_ED_CERT+@COMPONENT_CODE + 
+  @CURRENT_CITY_CODE+@CURRENT_CITY_TEXT+@CURRENT_COUNTY_CODE+@CURRENT_STATE_CODE+@CURRENT_STREET_TEXT+@CURRENT_ZIP_CODE+ 
+  @DEF_LANG_APT_BAT_DATE+@DEPENDENT_1_RELATIONSHIP+@DEPENDENT_1_DATE_OF_BIRTH+@DEPENDENT_1_FIRST_NAME_TEXT+@DEPENDENT_1_MIDDLE_NAME_TEXT+ 
+  @DEPENDENT_1_LAST_NAME_TEXT+@DEPENDENT_1_SUFFIX_CD+@DEPENDENT_2_RELATIONSHIP+@DEPENDENT_2_DATE_OF_BIRTH+@DEPENDENT_2_FIRST_NAME_TEXT+ 
+  @DEPENDENT_2_MIDDLE_NAME_TEXT + @DEPENDENT_2_LAST_NAME_TEXT + @DEPENDENT_2_SUFFIX_CD + @DEPENDENT_3_RELATIONSHIP + @DEPENDENT_3_DATE_OF_BIRTH + 
+  @DEPENDENT_3_FIRST_NAME_TEXT+@DEPENDENT_3_MIDDLE_NAME_TEXT+@DEPENDENT_3_LAST_NAME_TEXT+@DEPENDENT_3_SUFFIX_CD+@DISTRICT_CODE + 
+  @DUTY_PREFERENCE_CODE+@EDPT_DATE+@ENLISTMENT_OR_ACCEPTANCE_DATE+@ENLISTMENT_REFERRAL_AMOUNT+@ETHNIC_CODE+@FORGN_LANG_CODE_1+ 
+  @FORGN_LANG_CODE_2+@FORGN_LANG_CODE_3+@FORGN_LANG_CODE_4+@FUTURE_TRAINING+@HEIGHT_DIMENSION+@HOME_OF_RECORD_CITY_CODE+ 
+  @HOME_OF_RECORD_COUNTY_CODE+@HOME_OF_RECORD_STATE_CODE+@HOME_OF_RECORD_ZIP_CODE+@HOME_TELEPHONE_NUMBER_CODE+@INDIVIDUAL_WEIGHT_QUANTITY+ 
+  @HIGH_SCHOOL_LAST_ATTEND_DATE+@MARITAL_STATUS_CODE+@MEPS_AFQT_SCORE_CODE+@DEF_LANG_APT_BAT_SCORE+@EDPT_SCORE_CODE+ 
+  @MEPS_ASVAB_COMP_GT_SCORE_QY+@MEPS_ASVAB_COMP_EL_SCORE_QY+@MEPS_ASVAB_COMP_CL_SCORE_QY+@MEPS_ASVAB_COMP_MM_SCORE_QY+ 
+  @MEPS_RAW_ASVAB_GS_SCORE_QY+@MEPS_RAW_ASVAB_AR_SCORE_QY+@MEPS_RAW_ASVAB_WK_SCORE_QY+@MEPS_RAW_ASVAB_PC_SCORE_QY+@MEPS_RAW_ASVAB_NO_SCORE_QY+ 
+  @MEPS_RAW_ASVAB_CS_SCORE_QY+@MEPS_RAW_ASVAB_AS_SCORE_QY+@MEPS_RAW_ASVAB_MK_SCORE_QY+@MEPS_RAW_ASVAB_MC_SCORE_QY+@MEPS_RAW_ASVAB_EI_SCORE_QY+ 
+  @MEPS_RAW_ASVAB_VE_SCORE_QY+@MEPS_MCC+@MEPS_ASVAB_TEST_ID+@MEPS_ASVAB_TEST_DATE+ 
+  @PAY_ENTRY_BASE_DATE+@PRESENT_GRADE_CODE+@PRESENT_GRADE_RANK_DATE+@PRIMARY_MOS_CODE+@PRIOR_SERVICE_CODE+@PRIOR_SERVICE_ENTRY_DATE+ 
+  @PROGRAM_ENLISTED_FOR_BONUS_CD+@PROGRAM_ENLISTED_FOR_CODE+@PROGRAM_ENLISTED_FOR_COLLEGE_CODE+@PROJECTED_ACTIVE_DUTY_DATE+ 
+  @QUOTA_SERIAL_NUMBER+@RACE_CODE+@RD_1_MOS+@RECRUIT_ENLISTMENT_RESERVE_MCC+@RECRUITING_SUB_STATION_CODE+@RELIGION_CODE+ 
+  @RESERVE_REPORTING_UNIT_CODE+@RESERVE_BONUS_CONTROL_NUM+@SEX_CODE+@SHIP_DATE+@SOURCE_OF_ENTRY_CODE+@TERM_OF_ENLISTMENT_QY + 
+  @VALID_DRIVERS_LICENSE_CODE+@VISUAL_ACUITY_TEST_RU_QTY+@VISUAL_ACUITY_TEST_LU_QTY+@VISUAL_ACUITY_TEST_RC_QTY+@VISUAL_ACUITY_TEST_LC_QTY+ 
+  @VISUAL_COLOR_CODE+@PROJECTED_TRAIN_COMPLETE_DATE+@FILLER1+@BIRTH_STATE_CODE+@EYE_COLOR_CODE + @HAIR_COLOR_CODE + @FILLER2 
+ 
+ print 'Exported Data Below' 
+ print @EXPORTED_DATA  
+ if (@VIEW_MODE in ('N')) begin 
+  insert into ARMS_EXPORT (CONTRACT_ID, EXPORTED, EXPORT_DATE,USER_LOGIN,EXPORTED_DATA) 
+  values(@CONTRACT_ID, 'N',getDate(),'ARMS_INTERFACE', 
+  @SSN + @LAST_NAME_TEXT + @FIRST_NAME_TEXT + @MIDDLE_NAME_TEXT + @CADENCY_NAME_TEXT + @ARC + 
+  @AFADBD + @ARC_DATE+@BIRTH_DATE+@CITIZENSHIP_CODE + @CITIZEN_ORIG_GEO_LOC + 
+  @CIV_ED_YEARS_COMP + @CIV_ED_CERT+@COMPONENT_CODE + 
+  @CURRENT_CITY_CODE+@CURRENT_CITY_TEXT+@CURRENT_COUNTY_CODE+@CURRENT_STATE_CODE+@CURRENT_STREET_TEXT+@CURRENT_ZIP_CODE+ 
+  @DEF_LANG_APT_BAT_DATE+@DEPENDENT_1_RELATIONSHIP+@DEPENDENT_1_DATE_OF_BIRTH+@DEPENDENT_1_FIRST_NAME_TEXT+@DEPENDENT_1_MIDDLE_NAME_TEXT+ 
+  @DEPENDENT_1_LAST_NAME_TEXT+@DEPENDENT_1_SUFFIX_CD+@DEPENDENT_2_RELATIONSHIP+@DEPENDENT_2_DATE_OF_BIRTH+@DEPENDENT_2_FIRST_NAME_TEXT+ 
+  @DEPENDENT_2_MIDDLE_NAME_TEXT + @DEPENDENT_2_LAST_NAME_TEXT + @DEPENDENT_2_SUFFIX_CD + @DEPENDENT_3_RELATIONSHIP + @DEPENDENT_3_DATE_OF_BIRTH + 
+  @DEPENDENT_3_FIRST_NAME_TEXT+@DEPENDENT_3_MIDDLE_NAME_TEXT+@DEPENDENT_3_LAST_NAME_TEXT+@DEPENDENT_3_SUFFIX_CD+@DISTRICT_CODE + 
+  @DUTY_PREFERENCE_CODE+@EDPT_DATE+@ENLISTMENT_OR_ACCEPTANCE_DATE+@ENLISTMENT_REFERRAL_AMOUNT+@ETHNIC_CODE+@FORGN_LANG_CODE_1+ 
+  @FORGN_LANG_CODE_2+@FORGN_LANG_CODE_3+@FORGN_LANG_CODE_4+@FUTURE_TRAINING+@HEIGHT_DIMENSION+@HOME_OF_RECORD_CITY_CODE+ 
+  @HOME_OF_RECORD_COUNTY_CODE+@HOME_OF_RECORD_STATE_CODE+@HOME_OF_RECORD_ZIP_CODE+@HOME_TELEPHONE_NUMBER_CODE+@INDIVIDUAL_WEIGHT_QUANTITY+ 
+  @HIGH_SCHOOL_LAST_ATTEND_DATE+@MARITAL_STATUS_CODE+@MEPS_AFQT_SCORE_CODE+@DEF_LANG_APT_BAT_SCORE+@EDPT_SCORE_CODE+ 
+  @MEPS_ASVAB_COMP_GT_SCORE_QY+@MEPS_ASVAB_COMP_EL_SCORE_QY+@MEPS_ASVAB_COMP_CL_SCORE_QY+@MEPS_ASVAB_COMP_MM_SCORE_QY+ 
+  @MEPS_RAW_ASVAB_GS_SCORE_QY+@MEPS_RAW_ASVAB_AR_SCORE_QY+@MEPS_RAW_ASVAB_WK_SCORE_QY+@MEPS_RAW_ASVAB_PC_SCORE_QY+@MEPS_RAW_ASVAB_NO_SCORE_QY+ 
+  @MEPS_RAW_ASVAB_CS_SCORE_QY+@MEPS_RAW_ASVAB_AS_SCORE_QY+@MEPS_RAW_ASVAB_MK_SCORE_QY+@MEPS_RAW_ASVAB_MC_SCORE_QY+@MEPS_RAW_ASVAB_EI_SCORE_QY+ 
+  @MEPS_RAW_ASVAB_VE_SCORE_QY+@MEPS_MCC+@MEPS_ASVAB_TEST_ID+@MEPS_ASVAB_TEST_DATE+ 
+  @PAY_ENTRY_BASE_DATE+@PRESENT_GRADE_CODE+@PRESENT_GRADE_RANK_DATE+@PRIMARY_MOS_CODE+@PRIOR_SERVICE_CODE+@PRIOR_SERVICE_ENTRY_DATE+ 
+  @PROGRAM_ENLISTED_FOR_BONUS_CD+@PROGRAM_ENLISTED_FOR_CODE+@PROGRAM_ENLISTED_FOR_COLLEGE_CODE+@PROJECTED_ACTIVE_DUTY_DATE+ 
+  @QUOTA_SERIAL_NUMBER+@RACE_CODE+@RD_1_MOS+@RECRUIT_ENLISTMENT_RESERVE_MCC+@RECRUITING_SUB_STATION_CODE+@RELIGION_CODE+ 
+  @RESERVE_REPORTING_UNIT_CODE+@RESERVE_BONUS_CONTROL_NUM+@SEX_CODE+@SHIP_DATE+@SOURCE_OF_ENTRY_CODE+@TERM_OF_ENLISTMENT_QY + 
+  @VALID_DRIVERS_LICENSE_CODE+@VISUAL_ACUITY_TEST_RU_QTY+@VISUAL_ACUITY_TEST_LU_QTY+@VISUAL_ACUITY_TEST_RC_QTY+@VISUAL_ACUITY_TEST_LC_QTY+ 
+  @VISUAL_COLOR_CODE+@PROJECTED_TRAIN_COMPLETE_DATE+@FILLER1+@BIRTH_STATE_CODE+@EYE_COLOR_CODE + @HAIR_COLOR_CODE + @FILLER2) 
+ end  
+ fetch PRE_ENL_CUR into @CONTRACT_ID   
+end    
+ 
+print 'Close Cursor' 
+close PRE_ENL_CUR   
+ 
+print 'Deallocate Cursor' 
+deallocate PRE_ENL_CUR   
+ 
+end]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

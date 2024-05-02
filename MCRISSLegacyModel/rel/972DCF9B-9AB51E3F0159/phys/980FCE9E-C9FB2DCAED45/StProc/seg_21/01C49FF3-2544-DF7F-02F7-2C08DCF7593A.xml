@@ -1,0 +1,229 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_InsertContractDepAndHold]" directorySegmentName="seg_21" id="01C49FF3-2544-DF7F-02F7-2C08DCF7593A">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[AS  
+BEGIN 
+ SET NOCOUNT ON 
+ 
+ DECLARE @RETURN_VALUE INT 
+ DECLARE @DEP_HOLD BIT 
+ DECLARE @ComponentCodeID varchar(2) 
+ DECLARE @DepExtension int 
+ DECLARE @DischargeDate date.me 
+ DECLARE @DischargeReasonID varchar(4) 
+ DECLARE @EnlistmentDate date.me 
+ DECLARE @EntnacCompleteDate date.me 
+ DECLARE @EntnacSubmitDate date.me 
+ DECLARE @IsCatP char(1) 
+ DECLARE @IsIn410Program bit 
+ DECLARE @ISTCrunches int 
+ DECLARE @ISTDate date.me 
+ DECLARE @ISTHang int 
+ DECLARE @ISTPullups int 
+ DECLARE @ISTQuali.ed varchar(1) 
+ DECLARE @ISTRunTimeMinutes int 
+ DECLARE @ISTRunTimeSeconds int 
+ DECLARE @MissingDocs varchar(250) 
+ DECLARE @NwaID int 
+ DECLARE @ProjectedShipDate date.me 
+ DECLARE @ProjectedTrainingOrganiza.onID int 
+ DECLARE @SpecialInterest varchar(15) 
+ DECLARE @TermOfEnlistment int 
+ DECLARE @YouthProgramCode varchar(3) 
+ DECLARE @LastEditBy varchar(50) 
+ DECLARE @StsChgDepcy bit 
+ DECLARE @StsChgEdu bit 
+ DECLARE @StsChgPhys bit 
+ DECLARE @StsChgDrug bit 
+ DECLARE @StsChgMoral bit 
+ DECLARE @StsChgAtrRisk bit 
+ DECLARE @StsChgOther bit 
+ DECLARE @StsChgOtherDesc varchar(20) 
+ DECLARE @StsChgRemark varchar(500) 
+ DECLARE @MEPSContractDate DATETIME 
+ 
+ DECLARE cur_contracts CURSOR FAST_FORWARD FOR 
+ SELECT  MC.COMPONENT_CODE 
+   ,NULL 
+   ,NULL 
+   ,NULL 
+   ,GETDATE() 
+   ,NULL 
+   ,NULL 
+   ,NULL 
+   ,NULL 
+   ,NULL 
+   ,NULL 
+   ,NULL 
+   ,NULL 
+   ,NULL 
+   ,NULL  
+   ,NULL 
+   ,NULL 
+   ,MC.NWA_ID 
+   ,MC.PROJECTED_SHIP_DATE 
+   ,MC.PROJECTED_TRAINING_ORG_ID 
+   ,NULL 
+   ,MC.TERM_OF_ENLISTMENT 
+   ,NULL 
+   ,'MIRS INTERFACE' 
+   ,NULL 
+   ,NULL 
+   ,NULL 
+   ,NULL 
+   ,NULL 
+   ,NULL 
+   ,NULL 
+   ,NULL 
+   ,NULL 
+   ,MC.CONTRACT_BEGIN_DATE 
+ FROM MIContract MC 
+ INNER JOIN CANDIDATE_STATUS CS ON MC.NWA_ID = CS.NWA_ID 
+          AND CS.CANDIDATE_STATUS_ID IN (SELECT MAX(CS2.CANDIDATE_STATUS_ID) 
+                 FROM CANDIDATE_STATUS CS2 
+                 WHERE CS.NWA_ID = CS2.NWA_ID) 
+ WHERE MC.CONTRACTED_IN_MCRISS = 0 
+  AND MC.DEP_HOLD IS NOT NULL 
+  AND (((CS.STATUS_TYPE + CS.STATUS_CODE + CS.DISPOSITION_CODE = 'EADH') AND DATEDIFF(DAY,MC.CONTRACT_BEGIN_DATE,GETDATE()) > 30) OR (CS.STATUS_TYPE + CS.STATUS_CODE + CS.DISPOSITION_CODE = 'EAF')) 
+   
+ OPEN cur_contracts 
+ FETCH NEXT FROM cur_contracts INTO  @ComponentCodeID 
+          ,@DepExtension  
+          ,@DischargeDate  
+          ,@DischargeReasonID  
+          ,@EnlistmentDate 
+          ,@EntnacCompleteDate  
+          ,@EntnacSubmitDate  
+          ,@IsCatP  
+          ,@IsIn410Program  
+          ,@ISTCrunches  
+          ,@ISTDate  
+          ,@ISTHang  
+          ,@ISTPullups  
+          ,@ISTQuali.ed  
+          ,@ISTRunTimeMinutes   
+          ,@ISTRunTimeSeconds  
+          ,@MissingDocs  
+          ,@NwaID 
+          ,@ProjectedShipDate 
+          ,@ProjectedTrainingOrganiza.onID 
+          ,@SpecialInterest  
+          ,@TermOfEnlistment 
+          ,@YouthProgramCode 
+          ,@LastEditBy 
+          ,@StsChgDepcy 
+          ,@StsChgEdu 
+          ,@StsChgPhys 
+          ,@StsChgDrug 
+          ,@StsChgMoral 
+          ,@StsChgAtrRisk 
+          ,@StsChgOther 
+          ,@StsChgOtherDesc 
+          ,@StsChgRemark 
+          ,@MEPSContractDate 
+ 
+ WHILE (@@FETCH_STATUS = 0) 
+ BEGIN 
+ 
+  EXEC @RETURN_VALUE = [USMC].[InsertContract]  @ComponentCodeID 
+              ,@DepExtension 
+              ,@DischargeDate 
+              ,@DischargeReasonID 
+              ,@EnlistmentDate 
+              ,@EntnacCompleteDate 
+              ,@EntnacSubmitDate 
+              ,@IsCatP 
+              ,@IsIn410Program 
+              ,@ISTCrunches 
+              ,@ISTDate 
+              ,@ISTHang 
+              ,@ISTPullups 
+              ,@ISTQuali.ed 
+              ,@ISTRunTimeMinutes 
+              ,@ISTRunTimeSeconds 
+              ,@MissingDocs 
+              ,@NwaID 
+              ,@ProjectedShipDate 
+              ,@ProjectedTrainingOrganiza.onID 
+              ,@SpecialInterest 
+              ,@TermOfEnlistment 
+              ,@YouthProgramCode 
+              ,@LastEditBy 
+              ,@StsChgDepcy 
+              ,@StsChgEdu 
+              ,@StsChgPhys 
+              ,@StsChgDrug 
+              ,@StsChgMoral 
+              ,@StsChgAtrRisk 
+              ,@StsChgOther 
+              ,@StsChgOtherDesc 
+              ,@StsChgRemark 
+              ,@EnlistmentDate --MEPS_CONTRACT_DATE 
+ 
+  IF (@RETURN_VALUE > 0 AND @RETURN_VALUE IS NOT NULL) 
+  BEGIN 
+    INSERT INTO CANDIDATE_STATUS 
+    ( 
+     NWA_ID,  
+     STATUS_EFFECTIVE_DATE,  
+     STATUS_TYPE,  
+     STATUS_CODE,  
+     DISPOSITION_CODE,  
+     USER_LOGIN,  
+     UPDATE_DATE 
+    ) 
+    VALUES 
+    ( 
+     @NwaID,  
+     @EnlistmentDate, 
+     'E',  
+     'B',  
+     'K',   
+     @LastEditBy, 
+     GETDATE() 
+    ) 
+  END 
+ 
+  OPEN cur_contracts 
+  FETCH NEXT FROM cur_contracts INTO  @ComponentCodeID 
+           ,@DepExtension  
+           ,@DischargeDate  
+           ,@DischargeReasonID  
+           ,@EnlistmentDate 
+           ,@EntnacCompleteDate  
+           ,@EntnacSubmitDate  
+           ,@IsCatP  
+           ,@IsIn410Program  
+           ,@ISTCrunches  
+           ,@ISTDate  
+           ,@ISTHang  
+           ,@ISTPullups  
+           ,@ISTQuali.ed  
+           ,@ISTRunTimeMinutes   
+           ,@ISTRunTimeSeconds  
+           ,@MissingDocs  
+           ,@NwaID 
+           ,@ProjectedShipDate 
+           ,@ProjectedTrainingOrganiza.onID 
+           ,@SpecialInterest  
+           ,@TermOfEnlistment 
+           ,@YouthProgramCode 
+           ,@LastEditBy 
+           ,@StsChgDepcy 
+           ,@StsChgEdu 
+           ,@StsChgPhys 
+           ,@StsChgDrug 
+           ,@StsChgMoral 
+           ,@StsChgAtrRisk 
+           ,@StsChgOther 
+           ,@StsChgOtherDesc 
+           ,@StsChgRemark 
+           ,@MEPSContractDate 
+ END 
+END]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

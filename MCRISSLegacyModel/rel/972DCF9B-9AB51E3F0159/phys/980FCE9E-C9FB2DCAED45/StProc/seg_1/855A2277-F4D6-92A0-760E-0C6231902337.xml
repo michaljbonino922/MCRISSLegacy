@@ -1,0 +1,22 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[FirstSeniorActualExists]" directorySegmentName="seg_1" id="855A2277-F4D6-92A0-760E-0C6231902337">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@planType varchar(3), 
+    @schoolCode int, 
+ @schoolYear int 
+AS 
+BEGIN 
+  
+ SELECT Count(*) FROM Mcriss.dbo.HIGH_SCHOOL_PLAN  
+ WHERE PLAN_TYPE = @planType AND SCHOOL_CODE = @schoolCode 
+ AND SCHOOL_YEAR = @schoolYear 
+ AND ACTUAL_MONTH is not null 
+   
+  
+END]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

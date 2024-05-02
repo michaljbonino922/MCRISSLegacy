@@ -1,0 +1,41 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateMCRISSUser]" directorySegmentName="seg_25" id="0C398BE7-B6D6-9523-C70D-37BBD8A7550C">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@UserID  varchar(30), 
+ @OrgID  int, 
+ @OrgType varchar(10), 
+ @UserLogin varchar(15)  = 'sa' 
+AS 
+ 
+--- DEFINE THE MCC CODE 
+DECLARE @MCC varchar(5) 
+ 
+SET @MCC = CASE @OrgType 
+  WHEN 'MEPS' THEN (SELECT MCC_CODE FROM MEPS_ORGANIZATION_LOOKUP WHERE MEPS_ORGANIZATION_ID = @OrgID) 
+  ELSE (SELECT MCC_CODE FROM RECRUITING_ORGANIZATION WHERE ORGANIZATION_ID = @OrgID) 
+  END  
+ 
+IF EXISTS (SELECT 1 FROM USER_LIST WHERE USER_ID = @UserID) 
+BEGIN 
+ --- UPDATE THE MCC CODE IF THE USER EXISTS 
+ UPDATE  
+  USER_LIST 
+ SET  
+  MCC_CODE  = @MCC,  
+  USER_LOGIN  = COALESCE(@UserLogin, SYSTEM_USER, 'sa'),  
+  UPDATE_DATE  = GETDATE() 
+ WHERE  
+  USER_ID  = @UserID 
+END 
+ELSE 
+BEGIN 
+ --- ADD THE USER ACCOUNT IF IT DOESN'T EXIST 
+ INSERT INTO USER_LIST (USER_ID, MCC_CODE, USER_LOGIN, UPDATE_DATE) 
+ VALUES (@UserID, @MCC, COALESCE(@UserLogin, SYSTEM_USER, 'sa'), GETDATE()) 
+END]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

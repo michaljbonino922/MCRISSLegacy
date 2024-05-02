@@ -1,0 +1,68 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateCandidateDependent]" directorySegmentName="seg_24" id="3A41BCAD-5613-AE2F-3688-AEADD3930AD3">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@DependentID  int = NULL, 
+ @PersonID   int, 
+ @LastName   varchar(20), 
+ @FirstName   varchar(30), 
+ @MiddleName  varchar(20), 
+ @Su.xCd   varchar(5), 
+ @DateOfBirth  date.me, 
+ @DependentType  varchar(2), 
+ @Veri.ca.on  char(1), 
+ @UserLogin  varchar(15) 
+ 
+AS 
+ 
+BEGIN 
+ IF EXISTS (SELECT 1 FROM CANDIDATE_DEPENDENT WHERE DEPENDENT_ID = @DependentID AND MARINE_CANDIDATE_ID =@PersonID) 
+ 
+  BEGIN 
+  
+   UPDATE  CANDIDATE_DEPENDENT 
+   SET  DATE_OF_BIRTH = @DateOfBirth, 
+    LAST_NAME = @LastName, 
+    FIRST_NAME = @FirstName, 
+    MIDDLE_NAME = @MiddleName, 
+    SUFFIX_CD = @Su.xCd, 
+    DEPENDENT_TYPE = @DependentType, 
+    VERIFICATION = @Veri.ca.on, 
+    USER_LOGIN = @UserLogin,  
+    UPDATE_DATE = GETDATE() 
+   WHERE  DEPENDENT_ID = @DependentID  
+    AND MARINE_CANDIDATE_ID = @PersonID 
+  END 
+ ELSE 
+  
+  BEGIN 
+    
+   INSERT INTO CANDIDATE_DEPENDENT (MARINE_CANDIDATE_ID, 
+       LAST_NAME, 
+       FIRST_NAME, 
+       MIDDLE_NAME, 
+       SUFFIX_CD,  
+       DEPENDENT_TYPE, 
+       VERIFICATION, 
+       DATE_OF_BIRTH, 
+       USER_LOGIN,  
+       UPDATE_DATE)  
+   VALUES  
+       (@PersonID, 
+       @LastName, 
+       @FirstName, 
+       @MiddleName, 
+       @Su.xCd,  
+       @DependentType, 
+       @Veri.ca.on, 
+       @DateOfBirth, 
+       @UserLogin,  
+       GETDATE()) 
+   
+  END 
+END]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,131 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetO.cerPersonView]" directorySegmentName="seg_7" id="3C7AD6FC-3853-4CE7-85B7-C3D3071E485E">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @star.ngRow int = 1, 
+ @PageSize int = 15, 
+ @FirstName varchar(20) = null, 
+ @LastName varchar(20) = null, 
+ @SSN varchar(9) = null 
+) 
+ 
+AS 
+ 
+SET ARITHABORT ON; 
+ 
+--This will return one more row that they asked for so that they know if there is another page of data. 
+DECLARE @LastRow int 
+SET @LastRow = @star.ngRow + @PageSize 
+ 
+ 
+DECLARE @Sor.ngTable TABLE ( 
+ RowNumber int not null, 
+ NWA_ID INT NOT NULL,  
+ ORGANIZATION_OF_RECORD_ID INT NULL,  
+ SSN CHAR(9) NULL,  
+ RS varchar(100) NULL,  
+ RSS varchar(100) NULL,  
+ FIRST_NAME VARCHAR(40) NULL,  
+ MIDDLE_NAME VARCHAR(40) NULL,  
+ LAST_NAME VARCHAR(40) NULL,  
+ SUFFIX VARCHAR(5) NULL, 
+ Status VARCHAR(40) NULL,  
+ StatusCode VARCHAR(10) NULL, 
+ Disposi.on VARCHAR(40) NULL, 
+ [Date] DateTime, 
+ [Type] char(1)) 
+ 
+DECLARE @Grid TABLE ( 
+ RowNumber int not null, 
+ NWA_ID INT NOT NULL,  
+ ORGANIZATION_OF_RECORD_ID INT NULL,  
+ SSN CHAR(9) NULL,  
+ RS varchar(100) NULL,  
+ RSS varchar(100) NULL,  
+ FIRST_NAME VARCHAR(40) NULL,  
+ MIDDLE_NAME VARCHAR(40) NULL,  
+ LAST_NAME VARCHAR(40) NULL,  
+ SUFFIX VARCHAR(5) NULL, 
+ Status VARCHAR(40) NULL,  
+ StatusCode VARCHAR(10) NULL, 
+ Disposi.on VARCHAR(40) NULL, 
+ [Date] DateTime, 
+ [Type] char(1)) 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+INSERT INTO @Sor.ngTable (RowNumber, NWA_ID, ORGANIZATION_OF_RECORD_ID, SSN, RS, RSS, FIRST_NAME, MIDDLE_NAME, LAST_NAME) 
+SELECT  
+ ROW_NUMBER() OVER(Order By LAST_NAME, FIRST_NAME, LEGAL_MIDDLE_NAME),  
+ NWA_ID,  
+ ORGANIZATION_OF_RECORD_ID,  
+ SOCIAL_SECURITY_NUMBER,  
+ null,  
+ null,  
+ FIRST_NAME,  
+ LEGAL_MIDDLE_NAME,  
+ LAST_NAME 
+FROM dbo.PERSON p WITH (NOLOCK) 
+INNER JOIN NWA n on p.Person_ID = n.Marine_Candidate_ID 
+WHERE  
+ (@FirstName is null OR FIRST_NAME like @FirstName) AND 
+ (@LastName is null OR LAST_NAME like @LastName) AND 
+ (@SSN is null OR SOCIAL_SECURITY_NUMBER like @SSN)   
+ 
+INSERT INTO @Grid 
+SELECT *  
+FROM @Sor.ngTable 
+WHERE RowNumber >= @star.ngRow AND RowNumber <= @LastRow 
+ 
+UPDATE @Grid SET  
+ n.[Type] = cns.STATUS_Type, 
+ n.Status = cns.STATUS_DESCRIPTION,  
+ n.StatusCode = cns.STATUS_CODE, 
+ n.Disposi.on = cns.DISPOSITION_DESCRIPTION,  
+ n.Date = cns.Status_e.ec.ve_date 
+FROM @Grid n 
+ INNER JOIN USMC.vwCurrentNwaStatus cns on n.NWA_ID = cns.NWA_ID 
+ 
+UPDATE @Grid SET  
+ n.RS = case 
+   when n.ORGANIZATION_OF_RECORD_ID != 910 then rs.[name] 
+   when n.ORGANIZATION_OF_RECORD_ID = 910 then rss.[short_name] 
+ end 
+ , n.RSS = rss.[Name] 
+FROM @Grid n 
+ INNER JOIN Recrui.ng_Organiza.on rss on n.ORGANIZATION_OF_RECORD_ID = rss.ORGANIZATION_ID 
+ LEFT JOIN ORGANIZATION_MAP om ON rss.ORGANIZATION_ID = om.CHILD_ORGANIZATION_ID  
+ LEFT JOIN RECRUITING_ORGANIZATION rs ON om.PARENT_ORGANIZATION_ID = rs.ORGANIZATION_ID 
+ 
+SELECT  
+ RowNumber,  
+ NWA_ID,  
+ ISNULL(FIRST_NAME, '') as FIRST_NAME, 
+ ISNULL(MIDDLE_NAME, '') as MIDDLE_NAME, 
+ ISNULL(LAST_NAME, '') as LAST_NAME, 
+ ISNULL(SUFFIX, '') as SUFFIX,  
+ ISNULL(SSN, '') as SSN, 
+ ISNULL(RS, '') as RS, 
+ ISNULL(RSS, '') as RSS, 
+ ISNULL(Status, '') as Status, 
+ ISNULL(StatusCode, '') as StatusCode, 
+ ISNULL(Disposi.on, '') as Disposi.on,  
+ [Date], 
+ [Type] 
+FROM @Grid]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

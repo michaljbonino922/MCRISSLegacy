@@ -1,0 +1,795 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetOssPACCardRows]" directorySegmentName="seg_13" id="3E69045E-382B-A3BA-B9E3-D71E61BA51F8">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[(  
+ @OrgId uniqueiden..er = null, 
+ @LastName varchar(75) = null, 
+ @FirstName varchar(75) = null, 
+ @SSN varchar(9) = null, 
+ @DateCreatedStart date.me = null, 
+ @DateCreatedEnd date.me = null, 
+ @Ac.onDatedStart date.me = null, 
+ @Ac.onDatedEnd date.me =  null, 
+ @RecruiterId uniqueiden..er = null 
+) 
+AS 
+BEGIN 
+  
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+  
+ SET NOCOUNT ON 
+ SET ARITHABORT ON 
+  
+ DECLARE @Organiza.onID INT 
+ SELECT @Organiza.onID = ORGANIZATION_ID FROM MCRISS.DBO.RECRUITING_ORGANIZATION WHERE rowguid = @orgid 
+ 
+ IF @Organiza.onID IS NULL 
+ BEGIN 
+  SET @Organiza.onID = 0 
+ END 
+ 
+ CREATE TABLE #Person 
+ (  
+   ProspectId   uniqueiden..er, 
+   PersonId   uniqueiden..er, 
+   ApplicantAssetName varchar(240), 
+   Gender             varchar(1), 
+   PACCreateDate  date.me, 
+   NwaId    uniqueiden..er, 
+   Disposi.on   varchar(75), 
+   RecruiterID   uniqueiden..er, 
+   Recruiter   varchar(240), 
+   RecruiterShortName  varchar(240), 
+   Source    varchar(240), 
+   SourceDual   varchar(240) 
+ ) 
+ 
+ CREATE TABLE #Pac 
+ (  
+   ProspectId   uniqueiden..er, 
+   PersonId   uniqueiden..er, 
+   ApplicantAssetName varchar(240), 
+   Gender              varchar(1), 
+   PACCreateDate  date.me, 
+   NwaId    uniqueiden..er, 
+   Disposi.on   varchar(75), 
+   RecruiterID   uniqueiden..er, 
+   Recruiter   varchar(240), 
+   RecruiterShortName  varchar(240), 
+   Source    varchar(240), 
+   SourceDual   varchar(240) 
+ ) 
+ 
+ CREATE TABLE #PacCardTable 
+ ( 
+  ID int IDENTITY primary key, 
+     CreateDate date.me , 
+  ApplicantAssetID uniqueiden..er, 
+  ApplicantAssetName varchar(256), 
+  Gender varchar(1), 
+  SecondaryID uniqueiden..er, 
+  RecruiterID uniqueiden..er, 
+  Recruiter varchar(256), 
+  RecruiterShortName varchar(256), 
+  Disposi.on varchar(256), 
+  EventID uniqueiden..er, 
+  EventType varchar(256), 
+  EventTypeOther varchar(256), 
+  NextScheduledEvent date.me, 
+  Source    varchar(240), 
+  SourceDual   varchar(240) 
+    ) 
+ 
+ IF ( @OrgId IS null 
+   AND @LastName IS null 
+   AND @FirstName IS null 
+   AND @SSN IS null 
+   AND @DateCreatedStart IS null 
+   AND @DateCreatedEnd IS null 
+   AND @Ac.onDatedStart IS null 
+   AND @Ac.onDatedEnd IS null 
+   AND @RecruiterId IS null) 
+ BEGIN 
+  -- return empty table when nothing supplied 
+  SELECT * FROM #PacCardTable 
+   
+ END 
+ ELSE IF ( @DateCreatedStart IS null 
+     AND @DateCreatedEnd IS null 
+     AND @Ac.onDatedStart IS null 
+     AND @Ac.onDatedEnd IS null 
+   ) 
+ BEGIN 
+   
+  -- this sec.on is for Find Person in Working File 
+   
+  DECLARE @FirstNamePart VARCHAR(76) 
+  DECLARE @LastNamePart VARCHAR(76) 
+  DECLARE @SSNpart VARCHAR(9) 
+ 
+  SET @FirstNamePart = CASE WHEN @FirstName IS NULL THEN NULL ELSE @FirstName + '%' END 
+  SET @LastNamePart = CASE WHEN @LastName IS NULL THEN NULL ELSE @LastName + '%' END 
+  SET @SSNpart = CASE WHEN LEN(@SSN) = 9 AND @SSN IS NOT NULL THEN @SSN  
+          WHEN @SSN IS NOT NULL THEN '%' + @SSN 
+             ELSE NULL END 
+   
+   
+  IF ( (@LastNamePart IS NOT NULL) AND (@FirstNamePart IS NOT NULL) AND (@SSNpart IS NOT NULL) ) 
+  BEGIN 
+   INSERT INTO #Person 
+   SELECT  
+    pr.[ProspectId],  
+    pr.[PersonId], 
+    COALESCE(RTRIM(ps.LastName), SPACE(0))  + SPACE(1) +  
+       COALESCE(RTRIM(ps.FirstName), SPACE(0)) + SPACE(1) +  
+       COALESCE(RTRIM(ps.MiddleName), SPACE(0)) AS ApplicantAssetName, 
+    ps.Gender, 
+    pr.PACCreateDate, 
+    pr.NwaId, 
+    CASE  
+     WHEN pr.NwaId IS NULL THEN  (SELECT Top 1 ProspectDisposi.onType FROM [USMC].[ProspectDisposi.on] WHERE ProspectDisposi.onId = pr.ProspectDisposi.onId) 
+     ELSE ( SELECT [DISPOSITION_DESCRIPTION] 
+       FROM 
+        MCRISS.dbo.NWA n 
+        INNER JOIN MCRISS.[dbo].[CANDIDATE_STATUS] cs ON n.NWA_ID = cs.NWA_ID 
+        INNER JOIN MCRISS.[dbo].[STATUS_DISPOSITION] sd ON  
+         cs.[STATUS_TYPE] = sd.[STATUS_TYPE]  AND  
+         cs.[STATUS_CODE] = sd.[STATUS_CODE] AND 
+         cs.[DISPOSITION_CODE] = sd.[DISPOSITION_CODE] 
+       WHERE 
+        n.rowguid = pr.NwaId 
+        AND cs.[CANDIDATE_STATUS_ID] = (SELECT MAX([CANDIDATE_STATUS_ID]) FROM MCRISS.[dbo].[CANDIDATE_STATUS] WHERE NWA_ID = n.NWA_ID) 
+     ) 
+    END AS Disposi.on, 
+    pr.Recrui.ngPersonId AS RecruiterID, 
+    COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+       COALESCE(RTRIM(rcp.LAST_NAME), SPACE(0))  + SPACE(1) +  
+       COALESCE(RTRIM(rcp.FIRST_NAME), SPACE(0)) + SPACE(1) +  
+       COALESCE(RTRIM(rcp.LEGAL_MIDDLE_NAME), SPACE(0))  
+    AS Recruiter, 
+       COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+       COALESCE(RTRIM(rcp.LAST_NAME), SPACE(0))  
+    AS RecruiterShortName, 
+    pr.source AS Source, 
+    pr.sourceDual AS SourceDual 
+   FROM  
+    [PROSPECTING].[USMC].[Person] ps  
+    INNER JOIN [PROSPECTING].[USMC].[Prospect] pr ON ps.[PersonId] = pr.PersonId 
+    INNER JOIN MCRISS.[dbo].[RECRUITING_ORGANIZATION] ro ON ro.[rowguid] = pr.[Recrui.ngOrganiza.onId] 
+    INNER JOIN [MCRISS].[dbo].[RECRUITING_PERSON] rp ON pr.Recrui.ngPersonId = rp.rowguid 
+    INNER JOIN [MCRISS].[dbo].[PERSON] rcp ON rp.RECRUITING_PERSON_ID = rcp.PERSON_ID 
+   WHERE  
+    ro.[ORGANIZATION_ID] = @Organiza.onID AND [ProspectDisposi.onId] > 1 
+    AND ps.LastName LIKE @LastNamePart 
+    AND ps.FirstName LIKE @FirstNamePart 
+    AND ps.SocialSecurityNumber LIKE @SSNpart 
+  END 
+  ELSE IF ( (@LastNamePart IS NOT NULL) AND (@FirstNamePart IS NOT NULL) ) 
+  BEGIN 
+   INSERT INTO #Person 
+   SELECT  
+    pr.[ProspectId],  
+    pr.[PersonId], 
+    COALESCE(RTRIM(ps.LastName), SPACE(0))  + SPACE(1) +  
+       COALESCE(RTRIM(ps.FirstName), SPACE(0)) + SPACE(1) +  
+       COALESCE(RTRIM(ps.MiddleName), SPACE(0)) AS ApplicantAssetName, 
+    ps.Gender, 
+    pr.PACCreateDate, 
+    pr.NwaId, 
+    CASE  
+     WHEN pr.NwaId IS NULL THEN  (SELECT Top 1 ProspectDisposi.onType FROM [USMC].[ProspectDisposi.on] WHERE ProspectDisposi.onId = pr.ProspectDisposi.onId) 
+     ELSE ( SELECT [DISPOSITION_DESCRIPTION] 
+       FROM 
+        MCRISS.dbo.NWA n 
+        INNER JOIN MCRISS.[dbo].[CANDIDATE_STATUS] cs ON n.NWA_ID = cs.NWA_ID 
+        INNER JOIN MCRISS.[dbo].[STATUS_DISPOSITION] sd ON  
+         cs.[STATUS_TYPE] = sd.[STATUS_TYPE]  AND  
+         cs.[STATUS_CODE] = sd.[STATUS_CODE] AND 
+         cs.[DISPOSITION_CODE] = sd.[DISPOSITION_CODE] 
+       WHERE 
+        n.rowguid = pr.NwaId 
+        AND cs.[CANDIDATE_STATUS_ID] = (SELECT MAX([CANDIDATE_STATUS_ID]) FROM MCRISS.[dbo].[CANDIDATE_STATUS] WHERE NWA_ID = n.NWA_ID) 
+     ) 
+    END AS Disposi.on, 
+    pr.Recrui.ngPersonId AS RecruiterID, 
+    COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+       COALESCE(RTRIM(rcp.LAST_NAME), SPACE(0))  + SPACE(1) +  
+       COALESCE(RTRIM(rcp.FIRST_NAME), SPACE(0)) + SPACE(1) +  
+       COALESCE(RTRIM(rcp.LEGAL_MIDDLE_NAME), SPACE(0))  
+    AS Recruiter, 
+       COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+       COALESCE(RTRIM(rcp.LAST_NAME), SPACE(0))  
+    AS RecruiterShortName, 
+    pr.source AS Source, 
+    pr.sourceDual AS SourceDual 
+   FROM  
+    [PROSPECTING].[USMC].[Person] ps  
+    INNER JOIN [PROSPECTING].[USMC].[Prospect] pr ON ps.[PersonId] = pr.PersonId 
+    INNER JOIN MCRISS.[dbo].[RECRUITING_ORGANIZATION] ro ON ro.[rowguid] = pr.[Recrui.ngOrganiza.onId] 
+    INNER JOIN [MCRISS].[dbo].[RECRUITING_PERSON] rp ON pr.Recrui.ngPersonId = rp.rowguid 
+    INNER JOIN [MCRISS].[dbo].[PERSON] rcp ON rp.RECRUITING_PERSON_ID = rcp.PERSON_ID 
+   WHERE  
+    ro.[ORGANIZATION_ID] = @Organiza.onID AND [ProspectDisposi.onId] > 1 
+    AND ps.LastName LIKE @LastNamePart 
+    AND ps.FirstName LIKE @FirstNamePart 
+   
+  END 
+  ELSE IF ( (@LastNamePart IS NOT NULL) AND (@SSNpart IS NOT NULL) ) 
+  BEGIN 
+   INSERT INTO #Person 
+   SELECT  
+    pr.[ProspectId],  
+    pr.[PersonId], 
+    COALESCE(RTRIM(ps.LastName), SPACE(0))  + SPACE(1) +  
+       COALESCE(RTRIM(ps.FirstName), SPACE(0)) + SPACE(1) +  
+       COALESCE(RTRIM(ps.MiddleName), SPACE(0)) AS ApplicantAssetName, 
+    ps.Gender, 
+    pr.PACCreateDate, 
+    pr.NwaId, 
+    CASE  
+     WHEN pr.NwaId IS NULL THEN  (SELECT Top 1 ProspectDisposi.onType FROM [USMC].[ProspectDisposi.on] WHERE ProspectDisposi.onId = pr.ProspectDisposi.onId) 
+     ELSE ( SELECT [DISPOSITION_DESCRIPTION] 
+       FROM 
+        MCRISS.dbo.NWA n 
+        INNER JOIN MCRISS.[dbo].[CANDIDATE_STATUS] cs ON n.NWA_ID = cs.NWA_ID 
+        INNER JOIN MCRISS.[dbo].[STATUS_DISPOSITION] sd ON  
+         cs.[STATUS_TYPE] = sd.[STATUS_TYPE]  AND  
+         cs.[STATUS_CODE] = sd.[STATUS_CODE] AND 
+         cs.[DISPOSITION_CODE] = sd.[DISPOSITION_CODE] 
+       WHERE 
+        n.rowguid = pr.NwaId 
+        AND cs.[CANDIDATE_STATUS_ID] = (SELECT MAX([CANDIDATE_STATUS_ID]) FROM MCRISS.[dbo].[CANDIDATE_STATUS] WHERE NWA_ID = n.NWA_ID) 
+     ) 
+    END AS Disposi.on, 
+    pr.Recrui.ngPersonId AS RecruiterID, 
+    COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+       COALESCE(RTRIM(rcp.LAST_NAME), SPACE(0))  + SPACE(1) +  
+       COALESCE(RTRIM(rcp.FIRST_NAME), SPACE(0)) + SPACE(1) +  
+       COALESCE(RTRIM(rcp.LEGAL_MIDDLE_NAME), SPACE(0))  
+    AS Recruiter, 
+       COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+       COALESCE(RTRIM(rcp.LAST_NAME), SPACE(0))  
+    AS RecruiterShortName, 
+    pr.source AS Source, 
+    pr.sourceDual AS SourceDual 
+   FROM  
+    [PROSPECTING].[USMC].[Person] ps  
+    INNER JOIN [PROSPECTING].[USMC].[Prospect] pr ON ps.[PersonId] = pr.PersonId 
+    INNER JOIN MCRISS.[dbo].[RECRUITING_ORGANIZATION] ro ON ro.[rowguid] = pr.[Recrui.ngOrganiza.onId] 
+    INNER JOIN [MCRISS].[dbo].[RECRUITING_PERSON] rp ON pr.Recrui.ngPersonId = rp.rowguid 
+    INNER JOIN [MCRISS].[dbo].[PERSON] rcp ON rp.RECRUITING_PERSON_ID = rcp.PERSON_ID 
+   WHERE  
+    ro.[ORGANIZATION_ID] = @Organiza.onID AND [ProspectDisposi.onId] > 1 
+    AND ps.LastName LIKE @LastNamePart 
+    AND ps.SocialSecurityNumber LIKE @SSNpart 
+   
+  END 
+  ELSE IF ( (@FirstNamePart IS NOT NULL) AND (@SSNpart IS NOT NULL) ) 
+  BEGIN 
+   INSERT INTO #Person 
+   SELECT  
+    pr.[ProspectId],  
+    pr.[PersonId], 
+    COALESCE(RTRIM(ps.LastName), SPACE(0))  + SPACE(1) +  
+       COALESCE(RTRIM(ps.FirstName), SPACE(0)) + SPACE(1) +  
+       COALESCE(RTRIM(ps.MiddleName), SPACE(0)) AS ApplicantAssetName, 
+    ps.Gender, 
+    pr.PACCreateDate, 
+    pr.NwaId, 
+    CASE  
+     WHEN pr.NwaId IS NULL THEN  (SELECT Top 1 ProspectDisposi.onType FROM [USMC].[ProspectDisposi.on] WHERE ProspectDisposi.onId = pr.ProspectDisposi.onId) 
+     ELSE ( SELECT [DISPOSITION_DESCRIPTION] 
+       FROM 
+        MCRISS.dbo.NWA n 
+        INNER JOIN MCRISS.[dbo].[CANDIDATE_STATUS] cs ON n.NWA_ID = cs.NWA_ID 
+        INNER JOIN MCRISS.[dbo].[STATUS_DISPOSITION] sd ON  
+         cs.[STATUS_TYPE] = sd.[STATUS_TYPE]  AND  
+         cs.[STATUS_CODE] = sd.[STATUS_CODE] AND 
+         cs.[DISPOSITION_CODE] = sd.[DISPOSITION_CODE] 
+       WHERE 
+        n.rowguid = pr.NwaId 
+        AND cs.[CANDIDATE_STATUS_ID] = (SELECT MAX([CANDIDATE_STATUS_ID]) FROM MCRISS.[dbo].[CANDIDATE_STATUS] WHERE NWA_ID = n.NWA_ID) 
+     ) 
+    END AS Disposi.on, 
+    pr.Recrui.ngPersonId AS RecruiterID, 
+    COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+       COALESCE(RTRIM(rcp.LAST_NAME), SPACE(0))  + SPACE(1) +  
+       COALESCE(RTRIM(rcp.FIRST_NAME), SPACE(0)) + SPACE(1) +  
+       COALESCE(RTRIM(rcp.LEGAL_MIDDLE_NAME), SPACE(0))  
+    AS Recruiter, 
+       COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+       COALESCE(RTRIM(rcp.LAST_NAME), SPACE(0))  
+    AS RecruiterShortName, 
+    pr.source AS Source, 
+    pr.sourceDual AS SourceDual 
+   FROM  
+    [PROSPECTING].[USMC].[Person] ps  
+    INNER JOIN [PROSPECTING].[USMC].[Prospect] pr ON ps.[PersonId] = pr.PersonId 
+    INNER JOIN MCRISS.[dbo].[RECRUITING_ORGANIZATION] ro ON ro.[rowguid] = pr.[Recrui.ngOrganiza.onId] 
+    INNER JOIN [MCRISS].[dbo].[RECRUITING_PERSON] rp ON pr.Recrui.ngPersonId = rp.rowguid 
+    INNER JOIN [MCRISS].[dbo].[PERSON] rcp ON rp.RECRUITING_PERSON_ID = rcp.PERSON_ID 
+   WHERE  
+    ro.[ORGANIZATION_ID] = @Organiza.onID AND [ProspectDisposi.onId] > 1 
+    AND ps.FirstName LIKE @FirstNamePart 
+    AND ps.SocialSecurityNumber LIKE @SSNpart 
+   
+  END 
+  ELSE IF ( (@LastNamePart IS NOT NULL)  ) 
+  BEGIN 
+   INSERT INTO #Person 
+   SELECT  
+    pr.[ProspectId],  
+    pr.[PersonId], 
+    COALESCE(RTRIM(ps.LastName), SPACE(0))  + SPACE(1) +  
+       COALESCE(RTRIM(ps.FirstName), SPACE(0)) + SPACE(1) +  
+       COALESCE(RTRIM(ps.MiddleName), SPACE(0)) AS ApplicantAssetName, 
+    ps.Gender, 
+    pr.PACCreateDate, 
+    pr.NwaId, 
+    CASE  
+     WHEN pr.NwaId IS NULL THEN  (SELECT Top 1 ProspectDisposi.onType FROM [USMC].[ProspectDisposi.on] WHERE ProspectDisposi.onId = pr.ProspectDisposi.onId) 
+     ELSE ( SELECT [DISPOSITION_DESCRIPTION] 
+       FROM 
+        MCRISS.dbo.NWA n 
+        INNER JOIN MCRISS.[dbo].[CANDIDATE_STATUS] cs ON n.NWA_ID = cs.NWA_ID 
+        INNER JOIN MCRISS.[dbo].[STATUS_DISPOSITION] sd ON  
+         cs.[STATUS_TYPE] = sd.[STATUS_TYPE]  AND  
+         cs.[STATUS_CODE] = sd.[STATUS_CODE] AND 
+         cs.[DISPOSITION_CODE] = sd.[DISPOSITION_CODE] 
+       WHERE 
+        n.rowguid = pr.NwaId 
+        AND cs.[CANDIDATE_STATUS_ID] = (SELECT MAX([CANDIDATE_STATUS_ID]) FROM MCRISS.[dbo].[CANDIDATE_STATUS] WHERE NWA_ID = n.NWA_ID) 
+     ) 
+    END AS Disposi.on, 
+    pr.Recrui.ngPersonId AS RecruiterID, 
+    COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+       COALESCE(RTRIM(rcp.LAST_NAME), SPACE(0))  + SPACE(1) +  
+       COALESCE(RTRIM(rcp.FIRST_NAME), SPACE(0)) + SPACE(1) +  
+       COALESCE(RTRIM(rcp.LEGAL_MIDDLE_NAME), SPACE(0))  
+    AS Recruiter, 
+       COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+       COALESCE(RTRIM(rcp.LAST_NAME), SPACE(0))  
+    AS RecruiterShortName, 
+    pr.source AS Source, 
+    pr.sourceDual AS SourceDual 
+   FROM  
+    [PROSPECTING].[USMC].[Person] ps  
+    INNER JOIN [PROSPECTING].[USMC].[Prospect] pr ON ps.[PersonId] = pr.PersonId 
+    INNER JOIN MCRISS.[dbo].[RECRUITING_ORGANIZATION] ro ON ro.[rowguid] = pr.[Recrui.ngOrganiza.onId] 
+    INNER JOIN [MCRISS].[dbo].[RECRUITING_PERSON] rp ON pr.Recrui.ngPersonId = rp.rowguid 
+    INNER JOIN [MCRISS].[dbo].[PERSON] rcp ON rp.RECRUITING_PERSON_ID = rcp.PERSON_ID 
+   WHERE  
+    ro.[ORGANIZATION_ID] = @Organiza.onID AND [ProspectDisposi.onId] > 1 
+    AND ps.LastName LIKE @LastNamePart  
+   
+  END 
+  ELSE IF ( (@FirstNamePart IS NOT NULL)  ) 
+  BEGIN 
+   INSERT INTO #Person 
+   SELECT  
+    pr.[ProspectId],  
+    pr.[PersonId], 
+    COALESCE(RTRIM(ps.LastName), SPACE(0))  + SPACE(1) +  
+       COALESCE(RTRIM(ps.FirstName), SPACE(0)) + SPACE(1) +  
+       COALESCE(RTRIM(ps.MiddleName), SPACE(0)) AS ApplicantAssetName, 
+    ps.Gender, 
+    pr.PACCreateDate, 
+    pr.NwaId, 
+    CASE  
+     WHEN pr.NwaId IS NULL THEN  (SELECT Top 1 ProspectDisposi.onType FROM [USMC].[ProspectDisposi.on] WHERE ProspectDisposi.onId = pr.ProspectDisposi.onId) 
+     ELSE ( SELECT [DISPOSITION_DESCRIPTION] 
+       FROM 
+        MCRISS.dbo.NWA n 
+        INNER JOIN MCRISS.[dbo].[CANDIDATE_STATUS] cs ON n.NWA_ID = cs.NWA_ID 
+        INNER JOIN MCRISS.[dbo].[STATUS_DISPOSITION] sd ON  
+         cs.[STATUS_TYPE] = sd.[STATUS_TYPE]  AND  
+         cs.[STATUS_CODE] = sd.[STATUS_CODE] AND 
+         cs.[DISPOSITION_CODE] = sd.[DISPOSITION_CODE] 
+       WHERE 
+        n.rowguid = pr.NwaId 
+        AND cs.[CANDIDATE_STATUS_ID] = (SELECT MAX([CANDIDATE_STATUS_ID]) FROM MCRISS.[dbo].[CANDIDATE_STATUS] WHERE NWA_ID = n.NWA_ID) 
+     ) 
+    END AS Disposi.on, 
+    pr.Recrui.ngPersonId AS RecruiterID, 
+    COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+       COALESCE(RTRIM(rcp.LAST_NAME), SPACE(0))  + SPACE(1) +  
+       COALESCE(RTRIM(rcp.FIRST_NAME), SPACE(0)) + SPACE(1) +  
+       COALESCE(RTRIM(rcp.LEGAL_MIDDLE_NAME), SPACE(0))  
+    AS Recruiter, 
+       COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+       COALESCE(RTRIM(rcp.LAST_NAME), SPACE(0))  
+    AS RecruiterShortName, 
+    pr.source AS Source, 
+    pr.sourceDual AS SourceDual 
+   FROM  
+    [PROSPECTING].[USMC].[Person] ps  
+    INNER JOIN [PROSPECTING].[USMC].[Prospect] pr ON ps.[PersonId] = pr.PersonId 
+    INNER JOIN MCRISS.[dbo].[RECRUITING_ORGANIZATION] ro ON ro.[rowguid] = pr.[Recrui.ngOrganiza.onId] 
+    INNER JOIN [MCRISS].[dbo].[RECRUITING_PERSON] rp ON pr.Recrui.ngPersonId = rp.rowguid 
+    INNER JOIN [MCRISS].[dbo].[PERSON] rcp ON rp.RECRUITING_PERSON_ID = rcp.PERSON_ID 
+   WHERE  
+    ro.[ORGANIZATION_ID] = @Organiza.onID AND [ProspectDisposi.onId] > 1 
+    AND ps.FirstName LIKE @FirstNamePart 
+   
+  END 
+  ELSE IF ( (@SSNpart IS NOT NULL) ) 
+  BEGIN 
+   INSERT INTO #Person 
+   SELECT  
+    pr.[ProspectId],  
+    pr.[PersonId], 
+    COALESCE(RTRIM(ps.LastName), SPACE(0))  + SPACE(1) +  
+       COALESCE(RTRIM(ps.FirstName), SPACE(0)) + SPACE(1) +  
+       COALESCE(RTRIM(ps.MiddleName), SPACE(0)) AS ApplicantAssetName, 
+    ps.Gender, 
+    pr.PACCreateDate, 
+    pr.NwaId, 
+    CASE  
+     WHEN pr.NwaId IS NULL THEN  (SELECT Top 1 ProspectDisposi.onType FROM [USMC].[ProspectDisposi.on] WHERE ProspectDisposi.onId = pr.ProspectDisposi.onId) 
+     ELSE ( SELECT [DISPOSITION_DESCRIPTION] 
+       FROM 
+        MCRISS.dbo.NWA n 
+        INNER JOIN MCRISS.[dbo].[CANDIDATE_STATUS] cs ON n.NWA_ID = cs.NWA_ID 
+        INNER JOIN MCRISS.[dbo].[STATUS_DISPOSITION] sd ON  
+         cs.[STATUS_TYPE] = sd.[STATUS_TYPE]  AND  
+         cs.[STATUS_CODE] = sd.[STATUS_CODE] AND 
+         cs.[DISPOSITION_CODE] = sd.[DISPOSITION_CODE] 
+       WHERE 
+        n.rowguid = pr.NwaId 
+        AND cs.[CANDIDATE_STATUS_ID] = (SELECT MAX([CANDIDATE_STATUS_ID]) FROM MCRISS.[dbo].[CANDIDATE_STATUS] WHERE NWA_ID = n.NWA_ID) 
+     ) 
+    END AS Disposi.on, 
+    pr.Recrui.ngPersonId AS RecruiterID, 
+    COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+       COALESCE(RTRIM(rcp.LAST_NAME), SPACE(0))  + SPACE(1) +  
+       COALESCE(RTRIM(rcp.FIRST_NAME), SPACE(0)) + SPACE(1) +  
+       COALESCE(RTRIM(rcp.LEGAL_MIDDLE_NAME), SPACE(0))  
+    AS Recruiter, 
+       COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+       COALESCE(RTRIM(rcp.LAST_NAME), SPACE(0))  
+    AS RecruiterShortName, 
+    pr.source AS Source, 
+    pr.sourceDual AS SourceDual 
+   FROM  
+    [PROSPECTING].[USMC].[Person] ps  
+    INNER JOIN [PROSPECTING].[USMC].[Prospect] pr ON ps.[PersonId] = pr.PersonId 
+    INNER JOIN MCRISS.[dbo].[RECRUITING_ORGANIZATION] ro ON ro.[rowguid] = pr.[Recrui.ngOrganiza.onId] 
+    INNER JOIN [MCRISS].[dbo].[RECRUITING_PERSON] rp ON pr.Recrui.ngPersonId = rp.rowguid 
+    INNER JOIN [MCRISS].[dbo].[PERSON] rcp ON rp.RECRUITING_PERSON_ID = rcp.PERSON_ID 
+   WHERE  
+    ro.[ORGANIZATION_ID] = @Organiza.onID AND [ProspectDisposi.onId] > 1 
+    AND ps.SocialSecurityNumber LIKE @SSNpart 
+   
+  END 
+  ELSE 
+  BEGIN 
+     INSERT INTO #Person 
+     SELECT  
+    pr.[ProspectId],  
+    pr.[PersonId], 
+    COALESCE(RTRIM(ps.LastName), SPACE(0))  + SPACE(1) +  
+       COALESCE(RTRIM(ps.FirstName), SPACE(0)) + SPACE(1) +  
+       COALESCE(RTRIM(ps.MiddleName), SPACE(0)) AS ApplicantAssetName, 
+    ps.Gender, 
+    pr.PACCreateDate, 
+    pr.NwaId, 
+    CASE  
+     WHEN pr.NwaId IS NULL THEN  (SELECT Top 1 ProspectDisposi.onType FROM [USMC].[ProspectDisposi.on] WHERE ProspectDisposi.onId = pr.ProspectDisposi.onId) 
+     ELSE ( SELECT [DISPOSITION_DESCRIPTION] 
+       FROM 
+        MCRISS.dbo.NWA n 
+        INNER JOIN MCRISS.[dbo].[CANDIDATE_STATUS] cs ON n.NWA_ID = cs.NWA_ID 
+        INNER JOIN MCRISS.[dbo].[STATUS_DISPOSITION] sd ON  
+         cs.[STATUS_TYPE] = sd.[STATUS_TYPE]  AND  
+         cs.[STATUS_CODE] = sd.[STATUS_CODE] AND 
+         cs.[DISPOSITION_CODE] = sd.[DISPOSITION_CODE] 
+       WHERE 
+        n.rowguid = pr.NwaId 
+        AND cs.[CANDIDATE_STATUS_ID] = (SELECT MAX([CANDIDATE_STATUS_ID]) FROM MCRISS.[dbo].[CANDIDATE_STATUS] WHERE NWA_ID = n.NWA_ID) 
+     ) 
+    END AS Disposi.on, 
+    pr.Recrui.ngPersonId AS RecruiterID, 
+    COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+       COALESCE(RTRIM(rcp.LAST_NAME), SPACE(0))  + SPACE(1) +  
+       COALESCE(RTRIM(rcp.FIRST_NAME), SPACE(0)) + SPACE(1) +  
+       COALESCE(RTRIM(rcp.LEGAL_MIDDLE_NAME), SPACE(0))  
+    AS Recruiter, 
+       COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+       COALESCE(RTRIM(rcp.LAST_NAME), SPACE(0))  
+    AS RecruiterShortName, 
+    pr.source AS Source, 
+    pr.sourceDual AS SourceDual 
+   FROM  
+    [PROSPECTING].[USMC].[Person] ps  
+    INNER JOIN [PROSPECTING].[USMC].[Prospect] pr ON ps.[PersonId] = pr.PersonId 
+    INNER JOIN MCRISS.[dbo].[RECRUITING_ORGANIZATION] ro ON ro.[rowguid] = pr.[Recrui.ngOrganiza.onId] 
+    INNER JOIN [MCRISS].[dbo].[RECRUITING_PERSON] rp ON pr.Recrui.ngPersonId = rp.rowguid 
+    INNER JOIN [MCRISS].[dbo].[PERSON] rcp ON rp.RECRUITING_PERSON_ID = rcp.PERSON_ID 
+   WHERE  
+    ro.[ORGANIZATION_ID] = @Organiza.onID AND [ProspectDisposi.onId] > 1 
+  END 
+ 
+   
+  
+ END -- Find Person in Working File 
+ ELSE 
+ BEGIN  --- Working File Cad View sec.on 
+   
+  IF ( (@DateCreatedStart IS NOT NULL) AND (@DateCreatedEnd IS NOT NULL) ) 
+  BEGIN 
+    
+     INSERT INTO #Person 
+     SELECT  
+    pr.[ProspectId],  
+    pr.[PersonId], 
+    COALESCE(RTRIM(ps.LastName), SPACE(0))  + SPACE(1) +  
+       COALESCE(RTRIM(ps.FirstName), SPACE(0)) + SPACE(1) +  
+       COALESCE(RTRIM(ps.MiddleName), SPACE(0)) AS ApplicantAssetName, 
+    ps.Gender, 
+    pr.PACCreateDate, 
+    pr.NwaId, 
+    CASE  
+     WHEN pr.NwaId IS NULL THEN  (SELECT Top 1 ProspectDisposi.onType FROM [USMC].[ProspectDisposi.on] WHERE ProspectDisposi.onId = pr.ProspectDisposi.onId) 
+     ELSE ( SELECT [DISPOSITION_DESCRIPTION] 
+       FROM 
+        MCRISS.dbo.NWA n 
+        INNER JOIN MCRISS.[dbo].[CANDIDATE_STATUS] cs ON n.NWA_ID = cs.NWA_ID 
+        INNER JOIN MCRISS.[dbo].[STATUS_DISPOSITION] sd ON  
+         cs.[STATUS_TYPE] = sd.[STATUS_TYPE]  AND  
+         cs.[STATUS_CODE] = sd.[STATUS_CODE] AND 
+         cs.[DISPOSITION_CODE] = sd.[DISPOSITION_CODE] 
+       WHERE 
+        n.rowguid = pr.NwaId 
+        AND cs.[CANDIDATE_STATUS_ID] = (SELECT MAX([CANDIDATE_STATUS_ID]) FROM MCRISS.[dbo].[CANDIDATE_STATUS] WHERE NWA_ID = n.NWA_ID) 
+     ) 
+    END AS Disposi.on, 
+    pr.Recrui.ngPersonId AS RecruiterID, 
+    COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+       COALESCE(RTRIM(rcp.LAST_NAME), SPACE(0))  + SPACE(1) +  
+       COALESCE(RTRIM(rcp.FIRST_NAME), SPACE(0)) + SPACE(1) +  
+       COALESCE(RTRIM(rcp.LEGAL_MIDDLE_NAME), SPACE(0))  
+    AS Recruiter, 
+       COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+       COALESCE(RTRIM(rcp.LAST_NAME), SPACE(0))  
+    AS RecruiterShortName, 
+    pr.source AS Source, 
+    pr.sourceDual AS SourceDual 
+   FROM  
+    [PROSPECTING].[USMC].[Person] ps  
+    INNER JOIN [PROSPECTING].[USMC].[Prospect] pr ON ps.[PersonId] = pr.PersonId 
+    INNER JOIN MCRISS.[dbo].[RECRUITING_ORGANIZATION] ro ON ro.[rowguid] = pr.[Recrui.ngOrganiza.onId] 
+    INNER JOIN [MCRISS].[dbo].[RECRUITING_PERSON] rp ON pr.Recrui.ngPersonId = rp.rowguid 
+    INNER JOIN [MCRISS].[dbo].[PERSON] rcp ON rp.RECRUITING_PERSON_ID = rcp.PERSON_ID 
+   WHERE  
+    ro.[ORGANIZATION_ID] = @Organiza.onID AND [ProspectDisposi.onId] > 1 
+    AND ((LEFT(pr.PACCreateDate,11) >= @DateCreatedStart) AND (LEFT(pr.PACCreateDate,11) <= @DateCreatedEnd)  ) 
+ 
+  END 
+  ELSE 
+  BEGIN 
+      
+     INSERT INTO #Person 
+     SELECT  
+    pr.[ProspectId],  
+    pr.[PersonId], 
+    COALESCE(RTRIM(ps.LastName), SPACE(0))  + SPACE(1) +  
+       COALESCE(RTRIM(ps.FirstName), SPACE(0)) + SPACE(1) +  
+       COALESCE(RTRIM(ps.MiddleName), SPACE(0)) AS ApplicantAssetName, 
+    ps.Gender, 
+    pr.PACCreateDate, 
+    pr.NwaId, 
+    CASE  
+     WHEN pr.NwaId IS NULL THEN  (SELECT Top 1 ProspectDisposi.onType FROM [USMC].[ProspectDisposi.on] WHERE ProspectDisposi.onId = pr.ProspectDisposi.onId) 
+     ELSE ( SELECT [DISPOSITION_DESCRIPTION] 
+       FROM 
+        MCRISS.dbo.NWA n 
+        INNER JOIN MCRISS.[dbo].[CANDIDATE_STATUS] cs ON n.NWA_ID = cs.NWA_ID 
+        INNER JOIN MCRISS.[dbo].[STATUS_DISPOSITION] sd ON  
+         cs.[STATUS_TYPE] = sd.[STATUS_TYPE]  AND  
+         cs.[STATUS_CODE] = sd.[STATUS_CODE] AND 
+         cs.[DISPOSITION_CODE] = sd.[DISPOSITION_CODE] 
+       WHERE 
+        n.rowguid = pr.NwaId 
+        AND cs.[CANDIDATE_STATUS_ID] = (SELECT MAX([CANDIDATE_STATUS_ID]) FROM MCRISS.[dbo].[CANDIDATE_STATUS] WHERE NWA_ID = n.NWA_ID) 
+     ) 
+    END AS Disposi.on, 
+    pr.Recrui.ngPersonId AS RecruiterID, 
+    COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+       COALESCE(RTRIM(rcp.LAST_NAME), SPACE(0))  + SPACE(1) +  
+       COALESCE(RTRIM(rcp.FIRST_NAME), SPACE(0)) + SPACE(1) +  
+       COALESCE(RTRIM(rcp.LEGAL_MIDDLE_NAME), SPACE(0))  
+    AS Recruiter, 
+       COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+       COALESCE(RTRIM(rcp.LAST_NAME), SPACE(0))  
+    AS RecruiterShortName, 
+    pr.source AS Source, 
+    pr.sourceDual AS SourceDual 
+   FROM  
+    [PROSPECTING].[USMC].[Person] ps  
+    INNER JOIN [PROSPECTING].[USMC].[Prospect] pr ON ps.[PersonId] = pr.PersonId 
+    INNER JOIN MCRISS.[dbo].[RECRUITING_ORGANIZATION] ro ON ro.[rowguid] = pr.[Recrui.ngOrganiza.onId] 
+    INNER JOIN [MCRISS].[dbo].[RECRUITING_PERSON] rp ON pr.Recrui.ngPersonId = rp.rowguid 
+    INNER JOIN [MCRISS].[dbo].[PERSON] rcp ON rp.RECRUITING_PERSON_ID = rcp.PERSON_ID 
+   WHERE  
+    ro.[ORGANIZATION_ID] = @Organiza.onID AND [ProspectDisposi.onId] > 1 
+  END 
+  
+ END 
+ 
+ 
+ SELECT   
+  es.SubjectId AS ApplicantId 
+  ,e.ID AS EventID 
+  ,et.[type] as EventType 
+  ,e.EventTypeOther 
+  ,e.StartDate 
+  ,e.EventTypeID 
+  ,Organiza.onId 
+ INTO #Events 
+ FROM  
+  #Person p 
+  INNER JOIN [RSSOSS].[USMC].EventSubject es ON (es.SubjectID = p.ProspectId ) 
+  INNER JOIN [RSSOSS].[USMC].[Event] e ON e.ID = es.EventID 
+  inner join [RSSOSS].[USMC].[EventType] et on et.ID = e.EventTypeId 
+ WHERE 
+  e.Organiza.onId = @Organiza.onID AND 
+  e.EventSourceId = 1 --- OSS PAC 
+      
+     
+ CREATE TABLE #EventVisibility 
+ (   
+  EventID uniqueiden..er  
+ ) 
+ 
+ IF (@RecruiterId IS NOT NULL) 
+ BEGIN -- need to apply Event visibility .lter by recruiter 
+   
+  INSERT INTO #EventVisibility 
+  SELECT DISTINCT 
+   ce.EventID 
+  FROM 
+   #Events ce 
+   INNER JOIN RssOss.[USMC].[EventOwners] p ON ce.EventID = p.EventID 
+  WHERE 
+   OwnerId = @RecruiterId 
+   
+    
+  --SELECT DISTINCT 
+  -- s.[SubjectId] as ProspectID 
+  --INTO #VisibleApplicant 
+  --FROM 
+  -- #EventVisibility ev 
+  -- INNER JOIN RssOss.[USMC].[EventSubject] s ON ev.EventID = s.EventId 
+   
+ 
+  INSERT INTO #Pac 
+  SELECT * 
+  FROM  
+    #Person p 
+  --WHERE 
+  -- p.RecruiterID = @RecruiterId OR 
+  -- p.ProspectId IN (SELECT ProspectID FROM #VisibleApplicant )  
+    
+  --DROP TABLE #VisibleApplicant 
+ 
+ END 
+ ELSE 
+ BEGIN 
+  INSERT INTO #Pac SELECT * FROM #Person 
+ END 
+  
+ 
+ INSERT INTO #PacCardTable  
+ (   
+   CreateDate, 
+   ApplicantAssetID, 
+   ApplicantAssetName, 
+   Gender, 
+   SecondaryID, 
+   RecruiterID, 
+   Recruiter, 
+   RecruiterShortName, 
+   Disposi.on, 
+   EventID, 
+   EventType, 
+   EventTypeOther, 
+   NextScheduledEvent, 
+   Source, 
+   SourceDual 
+ ) 
+ SELECT  
+  p.PACCreateDate AS CreateDate 
+  ,p.[ProspectID] AS ApplicantAssetID  
+  ,p.ApplicantAssetName 
+  ,p.Gender 
+  ,p.NwaId AS SecondaryID 
+  ,eo.OwnerId AS RecruiterID 
+  ,COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+      COALESCE(RTRIM(rcp.LAST_NAME), SPACE(0))  + SPACE(1) +  
+      COALESCE(RTRIM(rcp.FIRST_NAME), SPACE(0)) + SPACE(1) +  
+      COALESCE(RTRIM(rcp.LEGAL_MIDDLE_NAME), SPACE(0))  
+  AS Recruiter 
+     ,COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+      COALESCE(RTRIM(rcp.LAST_NAME), SPACE(0))  
+  AS RecruiterShortName  
+  ,p.Disposi.on 
+  ,PEE.id AS EventID 
+  ,et.[Type] as EventType 
+  ,pee.EventTypeOther 
+  ,PEE.StartDate AS NextScheduledEvent 
+  ,p.source AS Source 
+  ,p.sourceDual AS SourceDual 
+ FROM  
+  #Pac p 
+  LEFT OUTER JOIN ( 
+      SELECT  prs2.PROSPECTID 
+        ,e.ID 
+        ,e.startdate 
+        ,e.EventTypeId 
+        ,e.EventTypeOther 
+      FROM [USMC].[Prospect] prs2 
+      INNER JOIN [RSSOSS].[USMC].EventSubject es ON es.SubjectID = prs2.[ProspectID] 
+      INNER JOIN [RSSOSS].[USMC].[Event] e ON e.id = es.even.d 
+            AND e.StartDate IN ( SELECT MIN(e2.StartDate) 
+                  FROM [RSSOSS].[USMC].[Event] e2 
+                  INNER JOIN [RSSOSS].[USMC].EventSubject es2 ON e2.id = es2.even.d 
+                  WHERE es2.SubjectID = es.SubjectID 
+                  and e2.StartDate >= GETDATE()) 
+                   
+    ) PEE ON PEE.prospec.d = p.ProspectId 
+    inner join [RSSOSS].[USMC].[EventType] et on et.ID = PEE.EventTypeId 
+  LEFT OUTER JOIN RssOss.[USMC].[EventOwners] eo ON pee.ID = eo.EventID 
+  INNER JOIN [MCRISS].[dbo].[RECRUITING_PERSON] rp ON eo.OwnerId = rp.rowguid 
+  INNER JOIN [MCRISS].[dbo].[PERSON] rcp ON rp.RECRUITING_PERSON_ID = rcp.PERSON_ID  
+   
+ 
+ CREATE NONCLUSTERED INDEX [IDX_ApplicantAssetID] ON #PacCardTable ( 
+        ApplicantAssetID 
+ )  
+   
+ IF (@RecruiterId IS NOT NULL) 
+ BEGIN -- need to apply Event visibility .lter by recruiter 
+    
+  SELECT DISTINCT pct.*  
+  FROM  
+   #PacCardTable pct 
+   INNER JOIN  [RSSOSS].[USMC].EventSubject es ON es.SubjectID = ApplicantAssetID  
+   INNER JOIN RSSOSS.USMC.Event e ON e.id = es.even.d 
+   inner join [RSSOSS].[USMC].[EventType] et on et.ID = e.EventTypeId  
+  WHERE  
+   ((LEFT(e.StartDate,11) >= Coalesce(@Ac.onDatedStart, LEFT(e.StartDate,11))) 
+   AND (LEFT(e.StartDate,11) <= Coalesce(@Ac.onDatedEnd, LEFT(e.StartDate,11)))  ) 
+   AND ( (pct.EventID IS NULL) OR (pct.EventID IS NOT NULL AND pct.EventID IN (SELECT EventID FROM #EventVisibility )) 
+        --OR RecruiterId = @RecruiterId  
+    ) 
+   AND (NextScheduledEvent >= GETDATE()) 
+ END 
+ ELSE 
+ BEGIN 
+    
+  SELECT DISTINCT pct.*  
+  FROM  
+   #PacCardTable pct 
+   INNER JOIN  [RSSOSS].[USMC].EventSubject es ON es.SubjectID = ApplicantAssetID  
+   INNER JOIN RSSOSS.USMC.Event e ON e.id = es.even.d  
+  WHERE  
+   ((LEFT(e.StartDate,11) >= Coalesce(@Ac.onDatedStart, LEFT(e.StartDate,11))) 
+   AND (LEFT(e.StartDate,11) <= Coalesce(@Ac.onDatedEnd, LEFT(e.StartDate,11)))  ) 
+   AND (NextScheduledEvent >= GETDATE()) 
+ END 
+   
+ 
+ DROP TABLE #Events 
+ DROP TABLE #EventVisibility 
+ DROP TABLE #Person 
+ DROP TABLE #Pac 
+ DROP TABLE #PacCardTable  
+  
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

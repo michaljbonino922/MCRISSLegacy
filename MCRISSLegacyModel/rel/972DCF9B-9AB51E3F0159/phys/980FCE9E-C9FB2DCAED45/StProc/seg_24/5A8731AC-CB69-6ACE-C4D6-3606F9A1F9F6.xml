@@ -1,0 +1,55 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateAc.vityAchieved]" directorySegmentName="seg_24" id="5A8731AC-CB69-6ACE-C4D6-3606F9A1F9F6">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@Organiza.onID as integer, 
+ @Ac.vityDate as date.me, 
+ @TCAtempts as integer, 
+ @TCContacts as integer, 
+ @TCAppointments as integer, 
+ @TCInterviews as integer, 
+ @OTContacts as integer, 
+ @OTInterviews as integer, 
+ @ACContacts as integer, 
+ @ACAppointments as integer, 
+ @ACInterviews as integer, 
+ @HVAtempts as integer, 
+ @HVContacts as integer, 
+ @HVAppointments as integer, 
+ @HVInterviews as integer, 
+ @UserLogin varchar(15) 
+AS 
+ 
+BEGIN   
+ 
+ IF EXISTS (SELECT 1 FROM RSS_ACTIVITY WHERE ORGANIZATION_ID = @Organiza.onID AND ACTIVITY_DATE = @Ac.vityDate)  
+   
+  UPDATE RSS_ACTIVITY  
+  SET  TCS = @TCAtempts,  
+   TC_CONTACTS = @TCContacts, 
+   TC_APPOINTMENTS = @TCAppointments, 
+   TC_INTERVIEWS = @TCInterviews, 
+   OTS = @OTContacts, 
+   OT_INTERVIEWS = @OTInterviews, 
+   ACS = @ACContacts, 
+   AC_APPOINTMENTS = @ACAppointments, 
+   AC_INTERVIEWS = @ACInterviews, 
+   HVS = @HVAtempts, 
+   HV_CONTACTS = @HVContacts, 
+   HV_APPOINTMENTS = @HVAppointments, 
+   HV_INTERVIEWS = @HVInterviews, 
+   USER_LOGIN = @UserLogin,  
+   UPDATE_DATE = GETDATE()  
+  WHERE ORGANIZATION_ID = @Organiza.onID AND ACTIVITY_DATE = @Ac.vityDate  
+ ELSE 
+  INSERT INTO RSS_ACTIVITY (ORGANIZATION_ID, ACTIVITY_DATE, TCS, TC_CONTACTS, TC_APPOINTMENTS, TC_INTERVIEWS, OTS, OT_INTERVIEWS, ACS, AC_APPOINTMENTS,  
+  AC_INTERVIEWS, HVS, HV_CONTACTS, HV_APPOINTMENTS, HV_INTERVIEWS, USER_LOGIN, UPDATE_DATE) 
+  VALUES (@Organiza.onID, @Ac.vityDate, @TCAtempts, @TCContacts, @TCAppointments, @TCInterviews, @OTContacts, @OTInterviews,  
+  @ACContacts, @ACAppointments, @ACInterviews, @HVAtempts, @HVContacts, @HVAppointments, @HVInterviews, @UserLogin, GETDATE()) 
+ 
+END]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,65 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateEnlistedContract]" directorySegmentName="seg_26" id="8987EB6D-CDC9-60CB-B414-E67A4114C759">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@ContractID    int, 
+ @NWAID      int, 
+ @ContractBeginDate  date.me, 
+ @DEPExt     int, 
+ @ProjectedTrainingOrgID int, 
+ @YouthProgramCode   varchar(3) = null, 
+ @SpecialInterest   varchar(15) = null, 
+ @DischargeDate    date.me = null, 
+ @DischargeCode    varchar(4) = null, 
+ @CategoryP     char(1) = null, 
+ @ISTDate     date.me = null, 
+ @ISTPullUps    int = null, 
+ @ISTHang     int = null, 
+ @ISTCrunches    int = null, 
+ @ISTMinutes    int = null, 
+ @ISTResult     varchar(1) = null, 
+ @ISTSeconds    int = null, 
+ @TermOfEnlistment   int = 0, 
+ @ENTNACSubmitDate  date.me = NULL,  
+ @ENTNACCompleteDate  date.me = NULL,  
+ @ComponentCode   varchar(2) = NULL, 
+ @DaysAllowedInDEP  int = NULL,  
+ @LastEditBy    varchar(15) 
+AS 
+ 
+IF EXISTS (SELECT 1 FROM [dbo].[CONTRACT] WHERE CONTRACT_ID = @ContractID) 
+BEGIN 
+ --- UPDATE THE CONTRACT 
+ UPDATE  
+  [dbo].[CONTRACT] 
+ SET   
+  CONTRACT_BEGIN_DATE   = @ContractBeginDate,  
+  DEP_EXTENSION     = @DEPEXt, 
+  PROJECTED_TRAINING_ORG_ID  = @ProjectedTrainingOrgID, 
+  YOUTH_PROGRAM_CODE    = @YouthProgramCode, 
+  SPECIAL_INTEREST    = @SpecialInterest, 
+  DISCHARGE_DATE     = @DischargeDate, 
+  DISCHARGE_CODE     = @DischargeCode, 
+  CATEGORY_P      = @CategoryP, 
+  IST_DATE      = @ISTDate, 
+  IST_PULL_UPS     = @ISTPullUps, 
+  IST_HANG      = @ISTHang, 
+  IST_CRUNCHES     = @ISTCrunches, 
+  IST_MINUTES     = @ISTMinutes, 
+  IST_RESULT      = @ISTResult, 
+  IST_SECONDS     = @ISTSeconds, 
+  TERM_OF_ENLISTMENT    = @TermOfEnlistment, 
+  COMPONENT_CODE    = @ComponentCode,  
+  ENTNAC_SUBMIT_DATE   = @ENTNACSubmitDate,  
+  ENTNAC_COMPLETE_DATE  = @ENTNACCompleteDate,  
+  DAYS_ALLOWED_IN_DEP   = @DaysAllowedInDEP,  
+  USER_LOGIN      = @LastEditBy, 
+  UPDATE_DATE     = GETDATE() 
+ WHERE  
+  CONTRACT_ID     = @ContractID 
+END]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

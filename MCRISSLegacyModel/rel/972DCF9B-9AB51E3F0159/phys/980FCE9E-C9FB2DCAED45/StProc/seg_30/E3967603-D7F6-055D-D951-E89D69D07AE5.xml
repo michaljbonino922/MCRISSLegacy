@@ -1,0 +1,29 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SelectFoldersForSec.on]" directorySegmentName="seg_30" id="E3967603-D7F6-055D-D951-E89D69D07AE5">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:39 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @Sec.onId uniqueiden..er 
+) 
+AS 
+ 
+SELECT 
+ si.[Sec.onItemId], 
+ si.[Sec.onId], 
+ si.[FriendlyName], 
+ si.[Sec.onItemType] 
+FROM  
+ [ACP].[Sec.onItem] si 
+WHERE 
+ si.[Sec.onId] = @Sec.onId 
+ AND 
+ si.[Sec.onItemType] = 1 
+ORDER BY 
+ [SortOrder] 
+ 
+ -- 1 = Folder, see Sec.onItemType table for lookup values]]></body>
+<schema>569A41D8-8F40-0619-141C-F4C9436AAF46</schema>
+<database>2D7ED536-DF8E-3523-7DC3-4228EBAF5F66</database>
+</StoredProcedureSqlServerv2k5>

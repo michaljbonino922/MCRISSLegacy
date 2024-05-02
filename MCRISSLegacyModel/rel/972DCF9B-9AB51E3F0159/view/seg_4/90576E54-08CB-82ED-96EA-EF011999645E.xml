@@ -1,0 +1,78 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_4" id="90576E54-08CB-82ED-96EA-EF011999645E" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="_dta_mv_351">
+<sourceDDLFile>create Prospecting script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>545A879E-0615-0CE2-AA85-C7FF327306C7</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  [USMC].[PersonPhone].[PersonId] as _col_1,  [USMC].[Person].[LastName] as _col_2,  [USMC].[Person].[FirstName] as _col_3,  [USMC].[PersonPhone].[PhoneNumber] as _col_4,  count_big(*) as _col_5 FROM  [USMC].[Person],  [USMC].[PersonPhone],  [USMC].[Prospect]   WHERE  [USMC].[Person].[PersonId] = [USMC].[PersonPhone].[PersonId]  AND  [USMC].[PersonPhone].[PersonId] = [USMC].[Prospect].[PersonId]  GROUP BY  [USMC].[PersonPhone].[PersonId],  [USMC].[Person].[LastName],  [USMC].[Person].[FirstName],  [USMC].[PersonPhone].[PhoneNumber]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[PersonId]" id="6D30B967-ADC7-F444-2819-F1618F2952AA">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_1</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_1</headerAlias>
+<expression>[PersonId]</expression>
+<reference>false</reference>
+<viewID>90576E54-08CB-82ED-96EA-EF011999645E</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[LastName]" id="D5BEAF52-576B-441C-B189-DC9AA9629975">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_2</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_2</headerAlias>
+<expression>[LastName]</expression>
+<reference>false</reference>
+<viewID>90576E54-08CB-82ED-96EA-EF011999645E</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[FirstName]" id="D4A66DB6-18BE-B368-A67C-1E589A55A0B9">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_3</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_3</headerAlias>
+<expression>[FirstName]</expression>
+<reference>false</reference>
+<viewID>90576E54-08CB-82ED-96EA-EF011999645E</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[PhoneNumber]" id="65917C9E-C6A7-B82F-6D31-AC06C29993C0">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_4</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_4</headerAlias>
+<expression>[PhoneNumber]</expression>
+<reference>false</reference>
+<viewID>90576E54-08CB-82ED-96EA-EF011999645E</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="count_big(*)" id="573A2350-7C47-D8B0-4CE0-B4195AEE1297">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_5</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_5</headerAlias>
+<expression>count_big(*)</expression>
+<reference>false</reference>
+<viewID>90576E54-08CB-82ED-96EA-EF011999645E</viewID>
+</viewElement>
+</viewElements>
+</TableView>

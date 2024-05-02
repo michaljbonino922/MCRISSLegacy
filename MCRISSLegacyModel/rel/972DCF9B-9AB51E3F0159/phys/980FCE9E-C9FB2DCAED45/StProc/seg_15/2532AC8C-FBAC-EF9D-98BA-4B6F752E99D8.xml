@@ -1,0 +1,20 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_DeleteNWAID]" directorySegmentName="seg_15" id="2532AC8C-FBAC-EF9D-98BA-4B6F752E99D8">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@nwa_id int 
+AS 
+if @nwa_id is null 
+ begin 
+  print 'NWA_ID CANNOT BE NULL' 
+ end 
+else 
+ begin 
+  delete from nwa 
+  where nwa_id=@nwa_id 
+ end]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

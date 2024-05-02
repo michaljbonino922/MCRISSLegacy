@@ -1,0 +1,78 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_6" id="40B00214-429B-1F83-F8EA-8FA77E3B5587" schemaObject="2A6D9360-3BB2-5CEA-6E99-790D76996FDF" name="vwKeys_OLTP">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>519846B0-E16B-300B-FF06-7D4F3D27DA7E</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT     p.SOCIAL_SECURITY_NUMBER AS SSN, p.PERSON_ID, n.NWA_ID, c.CONTRACT_ID, s.SHIP_ID 
+FROM         [MCRISS-VDB01\OLTP].MCRISS.dbo.PERSON AS p LEFT OUTER JOIN 
+                      [MCRISS-VDB01\OLTP].MCRISS.dbo.NWA AS n ON p.PERSON_ID = n.MARINE_CANDIDATE_ID LEFT OUTER JOIN 
+                      [MCRISS-VDB01\OLTP].MCRISS.dbo.CONTRACT AS c ON n.NWA_ID = c.NWA_ID LEFT OUTER JOIN 
+                      [MCRISS-VDB01\OLTP].MCRISS.dbo.SHIPPER AS s ON c.CONTRACT_ID = s.CONTRACT_ID]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="SOCIAL_SECURITY_NUMBER" id="6159AA8E-29E4-F217-7421-B47AA97036C0">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>SSN</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>SSN</headerAlias>
+<expression>SOCIAL_SECURITY_NUMBER</expression>
+<reference>false</reference>
+<viewID>40B00214-429B-1F83-F8EA-8FA77E3B5587</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="PERSON_ID" id="AAD8BB15-E754-DB5D-7C5C-8F349EB7931E">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>PERSON_ID</alias>
+<dataType>UNKNOWN</dataType>
+<expression>PERSON_ID</expression>
+<reference>false</reference>
+<viewID>40B00214-429B-1F83-F8EA-8FA77E3B5587</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="NWA_ID" id="73A23239-99D7-77C1-CAD7-C7760FF45C00">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>NWA_ID</alias>
+<dataType>UNKNOWN</dataType>
+<expression>NWA_ID</expression>
+<reference>false</reference>
+<viewID>40B00214-429B-1F83-F8EA-8FA77E3B5587</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="CONTRACT_ID" id="848BF078-8A3D-ACB2-8F45-C342D028E1A7">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>CONTRACT_ID</alias>
+<dataType>UNKNOWN</dataType>
+<expression>CONTRACT_ID</expression>
+<reference>false</reference>
+<viewID>40B00214-429B-1F83-F8EA-8FA77E3B5587</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="SHIP_ID" id="D07BDBE1-BDF0-288A-B0D6-844F45F4DE91">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>SHIP_ID</alias>
+<dataType>UNKNOWN</dataType>
+<expression>SHIP_ID</expression>
+<reference>false</reference>
+<viewID>40B00214-429B-1F83-F8EA-8FA77E3B5587</viewID>
+</viewElement>
+</viewElements>
+</TableView>

@@ -1,0 +1,40 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_0" id="C3B27945-C5CA-AF60-1D05-6A9171B9CC65" schemaObject="2A6D9360-3BB2-5CEA-6E99-790D76996FDF" name="CHECK_TABLE">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>8C1AEADC-1C45-F867-0C0B-FD0D8460D56F</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[select name as TBL_NAME, crdate as UPDATE_DATE FROM sysobjects  
+where type = 'U' and status > 1]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="name" id="C1942199-4704-EF86-42AC-90EC6FCD3108">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>TBL_NAME</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>TBL_NAME</headerAlias>
+<expression>name</expression>
+<reference>false</reference>
+<viewID>C3B27945-C5CA-AF60-1D05-6A9171B9CC65</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="crdate" id="120EE29E-4A0A-744C-CF2E-97117CE7892C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>UPDATE_DATE</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>UPDATE_DATE</headerAlias>
+<expression>crdate</expression>
+<reference>false</reference>
+<viewID>C3B27945-C5CA-AF60-1D05-6A9171B9CC65</viewID>
+</viewElement>
+</viewElements>
+</TableView>

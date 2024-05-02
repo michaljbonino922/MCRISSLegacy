@@ -1,0 +1,46 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetOrienta.onEvent]" directorySegmentName="seg_7" id="96AD5F46-210E-A29F-0E4D-4A49CE545711">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[--@PointOfContactID integer, 
+       --@En.tyTypeID integer 
+AS 
+SET NOCOUNT ON 
+BEGIN 
+   --ContactName is a generalize name for any person or place 
+ SELECT  
+  
+ --These columns may be needed by the data contracts for insert/update 
+    oe.[FiscalYear], e.[EventID], e.[EventType], e.[EventName], hs.[HighSchool_Name] AS CollegeName, 
+            
+ hs.[HighSchool_Name], oe.[EventDate], oe.[Remarks], 
+  
+ ec.[Coordina.onBeginDate], ec.[MaterialsDueDate],ec.[OSTPar.cipa.on],  
+ ec.[RequiredLogis.cs],  
+  
+  
+ RTRIM (pc.POCLastName) + ',' + RTRIM(pc.POCFirstName) + '.' + IsNull(substring(pc.POCLegalMiddleName,1,1),'') +  
+    '.' AS POCName, 
+    [POCLastName], [POCLegalMiddleName], [POCFirstName], 
+    [TelephoneNumber] 
+   
+     
+   FROM  
+  [MCRISS].[USMC].[Orienta.onEvent] ore 
+  inner join [MCRISS].[USMC].[Organiza.onEvent] oe ON  ore.Organiza.onEventID = oe.Organiza.onEventID  
+  inner join [MCRISS].[USMC].[Event] e ON  e.EventID = oe.EventID 
+  le. outer join [MCRISS].[USMC].[EventCoordina.on] ec ON  ec.Coordina.onEventID = oe.Coordina.onEventID 
+    le. outer join [MCRISS].[USMC].[PointOfContact] pc ON  pc.PointOfContactID = oe.PointOfContactID  
+  le. outer join [MCRISS].[dbo].High_School hs ON hs.SCHOOL_CODE = oe.CollegeID  
+  --inner join [MCRISS].[USMC].[EventCost] eco ON  oe.EventCostID = oe.EventCostID 
+     --inner join [MCRISS].[USMC].[EventDate] ed ON  oe.EventDateID = oe.EventDateID 
+    
+END 
+  
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

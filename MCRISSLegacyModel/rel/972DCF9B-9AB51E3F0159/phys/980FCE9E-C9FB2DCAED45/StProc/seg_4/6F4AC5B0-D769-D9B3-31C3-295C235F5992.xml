@@ -1,0 +1,40 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetCollegePro.le]" directorySegmentName="seg_4" id="6F4AC5B0-D769-D9B3-31C3-295C235F5992">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@SchoolCode int, 
+      @FiscalYear int 
+       
+  
+  
+AS 
+SET NOCOUNT ON 
+ 
+  SELECT   
+    [CollegePro.leID], hs.[SCHOOL_CODE] AS SchoolCode, 
+    hs.highschool_name AS CollegeName,  
+    [FiscalYear] AS FiscalYear, 
+    [BarronsIndex],[PriorityCode], 
+    [NumMale],[NumFemale],[NumAfricanAmerican], 
+    [NumHispanic],[NumOther],[NumQCPMale],[NumQCPFemale], 
+    [NumQCPAfricanAmerican],[NumQCPHispanic], 
+    [NumQCPOther],[AvgAVT], 
+    [AvgSAT] ,[InStateCost],[OutOfStateCost],[DistanceToCollege], 
+    [TimeToCollegeInMinutes],[SizeOfFreshmanClass], 
+    [PercentLivingOnCampus],[PercentGradua.on] 
+ 
+  FROM [MCRISS].[USMC].[CollegePro.le] cp 
+    RIGHT OUTER JOIN [dbo].High_School hs ON  cp.school_code = hs.school_code 
+            and cp.FiscalYear = @FiscalYear 
+            and hs.school_type <> 'HS'  
+ 
+  WHERE  hs.SCHOOL_CODE = @SchoolCode  
+  ORDER BY hs.[SCHOOL_CODE] 
+ 
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,118 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateQSNAssignment]" directorySegmentName="seg_25" id="133AA686-5D5E-C34E-9C31-36E5F144CD70">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@ContractID int, 
+ @QSNID char(9), 
+ @BonusControlNumber varchar(9), 
+ @BonusAmount int, 
+ @UserLogin varchar(15), 
+ @KickerControlNumber varchar(10) 
+AS 
+ 
+DECLARE @DBID   INT 
+DECLARE @DBNAME  NVARCHAR(128) 
+DECLARE @OldContractID  int 
+DECLARE @ERRMSG  VARCHAR(125) 
+DECLARE @AssignedQSNID char(9) 
+DECLARE @QSNAssignDate date.me 
+DECLARE @QSNStatus char(1) 
+ 
+SELECT  
+ @DBID  = DB_ID(),  
+ @DBNAME = DB_NAME() 
+ 
+--- CHECK TO SEE IF THE QSN HAS ALREADY BEEN ASSIGNED 
+IF EXISTS (SELECT 1 FROM QSN WHERE QSN_ID = @QSNID AND CONTRACT_ID IS NOT NULL)  
+BEGIN 
+ --- make sure the QSN is not being reassigned (i.e., that @OldContractID = @ContractID) 
+ --- it's OK to update the BONUS_CONTROL_NUMBER but not the Contract  
+ --- to reassign a QSN, the user must .rst remove it from a contract then assign it to a new contract 
+ SELECT @OldContractID = CONTRACT_ID FROM QSN WHERE QSN_ID = @QSNID AND CONTRACT_ID IS NOT NULL 
+ IF @OldContractID != @ContractID 
+ BEGIN 
+  SET @ERRMSG = 'The QSN is already assigned.' 
+  RAISERROR (@ERRMSG, 16, 1, @DBID, @DBNAME) 
+  RETURN 
+ END 
+END 
+ 
+--- CHECK TO SEE IF ANOTHER QSN IS ASSIGNED TO THE CONTRACT 
+IF EXISTS (SELECT 1 FROM QSN WHERE CONTRACT_ID = @ContractID AND QSN_ID != @QSNID) 
+BEGIN 
+ SELECT @AssignedQSNID = QSN_ID FROM QSN WHERE CONTRACT_ID = @ContractID AND QSN_ID != @QSNID 
+ SET @ERRMSG = 'QSN ' + @AssignedQSNID + ' is already assigned to this applicant.' + CHAR(10) + CHAR(13) +  
+    'Please refresh the contract screen to see the assigned QSN.' 
+ RAISERROR (@ERRMSG, 16, 2, @DBID, @DBNAME) 
+ RETURN 
+END 
+ 
+ 
+--- CHECK TO SEE IF THE BONUS CONTROL NUMBER IS ASSIGNED TO ANOTHER QSN 
+IF @BonusControlNumber IS NOT NULL  
+BEGIN 
+ IF EXISTS (SELECT QSN_ID FROM QSN WHERE BONUS_CONTROL_NUMBER = @BonusControlNumber) 
+ BEGIN 
+  SELECT @AssignedQSNID = QSN_ID FROM QSN WHERE BONUS_CONTROL_NUMBER = @BonusControlNumber 
+  
+  IF @AssignedQSNID != @QSNID 
+  BEGIN 
+   SET @ERRMSG = 'This bonus control number is already assigned to QSN ' + @AssignedQSNID + '.  The bonus control number can not be assigned to another QSN.' 
+   RAISERROR (@ERRMSG, 16, 3, @DBID, @DBNAME) 
+   RETURN 
+  END 
+ END 
+END 
+ 
+--- CHECK TO SEE IF THE KICKER CONTROL NUMBER IS ASSIGNED TO ANOTHER QSN 
+IF @KickerControlNumber IS NOT NULL 
+BEGIN 
+ IF EXISTS (SELECT QSN_ID FROM QSN WHERE KICKER_CONTROL = @KickerControlNumber) 
+ 
+ BEGIN 
+  SELECT @AssignedQSNID = QSN_ID FROM QSN WHERE KICKER_CONTROL = @KickerControlNumber 
+  
+  IF @AssignedQSNID != @QSNID 
+  BEGIN 
+   SET @ERRMSG = 'This kicker control number is already assigned to QSN ' + @AssignedQSNID + '.  The kicker control number can not be assigned to another QSN.' 
+   RAISERROR (@ERRMSG, 16, 4, @DBID, @DBNAME) 
+   RETURN 
+  END 
+ END 
+END 
+ 
+--- CHECK TO SEE IF THE QSN IS CLOSED OR INACTIVE 
+IF EXISTS (SELECT QSN_ID FROM QSN WHERE QSN_ID = @QSNID) 
+BEGIN 
+ SELECT @QSNStatus = STATUS FROM QSN WHERE QSN_ID = @QSNID  
+ 
+ IF @QSNStatus != 'A' 
+ BEGIN 
+  SET @ERRMSG = 'This QSN is either closed or inac.ve.' 
+  RAISERROR (@ERRMSG, 16, 5, @DBID, @DBNAME) 
+  RETURN 
+ END 
+END 
+ 
+--- IF EVERYTHING IS OK, PROCEED WITH THE UPDATE 
+--- DEFINE THE QSN ASSIGNDATE SO THAT IF THE QSN HAS ALREADY BEEN ASSIGNED (I.E., WE'RE ASSIGNING A BONUS  
+--- OR KICKER CONTROL NUMBER) WE DON'T OVERWRITE THE OLD ASSIGNMENT DATE 
+SELECT @QSNAssignDate = COALESCE(PROGRAM_ASSIGNMENT_DATE, GETDATE()) FROM QSN WHERE QSN_ID = @QSNID 
+ 
+UPDATE  
+ QSN 
+SET   
+ CONTRACT_ID   = @ContractID, 
+ PROGRAM_ASSIGNMENT_DATE = @QSNAssignDate, 
+ BONUS_CONTROL_NUMBER  = @BonusControlNumber, 
+ BONUS_AMOUNT   = @BonusAmount, 
+ KICKER_CONTROL   = @KickerControlNumber,   
+ USER_LOGIN   = @UserLogin, 
+ UPDATE_DATE   = GETDATE() 
+WHERE  
+ QSN_ID    = @QSNID]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

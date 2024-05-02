@@ -1,0 +1,65 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_6" id="13D3B52E-2B0F-E40E-0467-7DFE2E5C6A75" schemaObject="2A6D9360-3BB2-5CEA-6E99-790D76996FDF" name="SHIPPER_ERROR_VIEW">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>DE5B5C9D-8CD1-1809-6379-577D858601C2</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[select mie.error_log_id,el.error_cd, mil.mirs_import_id, mil.fourK 
+ from error_log el, mirs_import_error mie, mirs_import_log mil 
+ where el.error_log_id = mie.error_log_id and 
+ mie.mirs_import_id = mil.mirs_import_id and 
+ el.error_cd = 38]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="error_log_id" id="F5FC1FD7-5FD8-A491-D473-E73655857C8C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>error_log_id</alias>
+<dataType>UNKNOWN</dataType>
+<expression>error_log_id</expression>
+<reference>false</reference>
+<viewID>13D3B52E-2B0F-E40E-0467-7DFE2E5C6A75</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="error_cd" id="6B65A2E5-2150-100F-C9B8-4836FDF760FE">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>error_cd</alias>
+<dataType>UNKNOWN</dataType>
+<expression>error_cd</expression>
+<reference>false</reference>
+<viewID>13D3B52E-2B0F-E40E-0467-7DFE2E5C6A75</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="mirs_import_id" id="48639474-047B-A347-79DC-E10D5389175C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>mirs_import_id</alias>
+<dataType>UNKNOWN</dataType>
+<expression>mirs_import_id</expression>
+<reference>false</reference>
+<viewID>13D3B52E-2B0F-E40E-0467-7DFE2E5C6A75</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="fourK" id="CF0EDCA1-F5F9-EA5F-568F-F026B0424C00">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>fourK</alias>
+<dataType>UNKNOWN</dataType>
+<expression>fourK</expression>
+<reference>false</reference>
+<viewID>13D3B52E-2B0F-E40E-0467-7DFE2E5C6A75</viewID>
+</viewElement>
+</viewElements>
+</TableView>

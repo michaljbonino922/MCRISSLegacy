@@ -1,0 +1,48 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetOssAnnualObjec.ve]" directorySegmentName="seg_8" id="7E878205-35D6-970E-5BF3-72630B77C522">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@Organiza.onId int, 
+    @FiscalYear int    
+AS 
+SET NOCOUNT ON 
+ 
+BEGIN 
+ 
+ -- if somehow there are mul.ple records for the same 
+ -- Organiza.on and Fiscal year then pick the newest record 
+ SELECT TOP (1) 
+  OssAnnualObjec.veId, 
+  Organiza.onId, 
+  FiscalYear, 
+  AdjBusPercentTC, 
+  AdjBusPercentOT, 
+  AdjBusPercentAC, 
+  AdjBusPercentDC, 
+  ContractGoal, 
+  GoalPercentJUL, 
+  GoalPercentAUG, 
+  GoalPercentSEP, 
+  GoalPercentOCT, 
+  GoalPercentNOV, 
+  GoalPercentDEC, 
+  GoalPercentJAN, 
+  GoalPercentFEB, 
+  GoalPercentMAR, 
+  GoalPercentAPR, 
+  GoalPercentMAY, 
+  GoalPercentJUN  
+ FROM [USMC].[OssAnnualObjec.ve] 
+ WHERE Organiza.onId = @Organiza.onId 
+  AND FiscalYear = @FiscalYear 
+ ORDER BY LastUpdatedDate DESC 
+    
+END 
+ 
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,20 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_MICheckMIRSTransactionType]" directorySegmentName="seg_0" id="BFDF5F2E-6146-014B-7BFB-16F7B7796229">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:09 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@WorkID  varchar(5) = NULL, 
+ @WorkIDValid char(1) OUTPUT 
+AS 
+ 
+ 
+SELECT 
+ @WorkIDValid = CASE  
+    WHEN EXISTS (SELECT 1 FROM MIRS_TRANSACTION_LOOKUP MTL WHERE MIRS_TRANSACTION = @WorkID)  
+     THEN 'Y' 
+    ELSE 'N' 
+   END]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>24B9F7BA-5DD4-EAB5-4EB1-35B911743E85</database>
+</StoredProcedureSqlServerv2k5>

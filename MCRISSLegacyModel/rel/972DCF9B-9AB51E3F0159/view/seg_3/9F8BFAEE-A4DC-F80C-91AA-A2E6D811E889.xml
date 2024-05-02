@@ -1,0 +1,65 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_3" id="9F8BFAEE-A4DC-F80C-91AA-A2E6D811E889" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="_dta_mv_318">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>5785BC74-9864-0B19-5E74-1E7706E30E60</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  [USMC].[MapsSector].[Recrui.ngOrganiza.onId] as _col_1,  [USMC].[MapsSectorZip].[Zip] as _col_2,  [USMC].[MapsSector].[SectorDesignator] as _col_3,  count_big(*) as _col_4 FROM  [USMC].[MapsSector],  [USMC].[MapsSectorZip]   WHERE  [USMC].[MapsSector].[SectorID] = [USMC].[MapsSectorZip].[SectorID]  GROUP BY  [USMC].[MapsSector].[Recrui.ngOrganiza.onId],  [USMC].[MapsSectorZip].[Zip],  [USMC].[MapsSector].[SectorDesignator]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[Recrui.ngOrganiza.onId]" id="8945EF76-7CFA-96FD-7080-13D6F70FC680">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_1</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_1</headerAlias>
+<expression>[Recrui.ngOrganiza.onId]</expression>
+<reference>false</reference>
+<viewID>9F8BFAEE-A4DC-F80C-91AA-A2E6D811E889</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[Zip]" id="E9E7084F-634D-88DD-A517-DEB13BA95CA9">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_2</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_2</headerAlias>
+<expression>[Zip]</expression>
+<reference>false</reference>
+<viewID>9F8BFAEE-A4DC-F80C-91AA-A2E6D811E889</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[SectorDesignator]" id="594ACE2E-F4CF-22DF-3EB9-8861A29BF28D">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_3</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_3</headerAlias>
+<expression>[SectorDesignator]</expression>
+<reference>false</reference>
+<viewID>9F8BFAEE-A4DC-F80C-91AA-A2E6D811E889</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="count_big(*)" id="828EA425-A43C-B9B0-5790-898036E52044">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_4</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_4</headerAlias>
+<expression>count_big(*)</expression>
+<reference>false</reference>
+<viewID>9F8BFAEE-A4DC-F80C-91AA-A2E6D811E889</viewID>
+</viewElement>
+</viewElements>
+</TableView>

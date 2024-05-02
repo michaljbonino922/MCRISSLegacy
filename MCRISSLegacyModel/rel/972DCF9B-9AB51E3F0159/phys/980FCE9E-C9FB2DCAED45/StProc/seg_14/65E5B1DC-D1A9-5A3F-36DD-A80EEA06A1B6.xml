@@ -1,0 +1,30 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_DBARemoveEduca.onRecord]" directorySegmentName="seg_14" id="65E5B1DC-D1A9-5A3F-36DD-A80EEA06A1B6">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@MARINE_CANDIDATE_ID int, 
+@SCHOOL_CODE  int, 
+@EDUCATION_LEVEL varchar(2), 
+@EDUCATION_CODE       varchar(1) 
+ 
+AS 
+ 
+declare @USER_LOGIN varchar(15) 
+set @USER_LOGIN = (select le.(current_user,15)) 
+ 
+IF (@MARINE_CANDIDATE_ID IS NOT NULL) AND (@EDUCATION_LEVEL IS NOT NULL) AND (@SCHOOL_CODE IS NOT NULL) 
+BEGIN 
+ DELETE FROM CANDIDATE_EDUCATION 
+ WHERE EDUCATION_LEVEL=@EDUCATION_LEVEL  AND 
+   EDUCATION_CODE=@EDUCATION_CODE  AND 
+   SCHOOL_CODE=@SCHOOL_CODE   AND 
+   MARINE_CANDIDATE_ID=@MARINE_CANDIDATE_ID 
+ PRINT 'CANDIDATE_EDUCATION INFORMATION REMOVED!' 
+END 
+ELSE 
+ PRINT 'MARINE_CANDIDATE_ID, EDUCATION_LEVEL AND SCHOOL_CODE CANNOT BE NULL!']]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,115 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetEnlistedPoolBoardPoolees]" directorySegmentName="seg_5" id="F1631DB0-8649-AB6C-CFE1-07105E0CD518">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[(@BeginDate date.me = null 
+ ,@OrgId int 
+ ) 
+ 
+AS 
+SELECT 
+ COALESCE(RTRIM(p.LAST_NAME), SPACE(0))  + SPACE(1) +  
+  COALESCE(RTRIM(p.FIRST_NAME), SPACE(0)) + SPACE(1) +  
+  COALESCE(RTRIM(p.LEGAL_MIDDLE_NAME), SPACE(0)) AS Name 
+ ,n.NWA_ID AS NwaId 
+ ,n.rowguid AS NwaRowGuid 
+ ,mi.CONTRACT_BEGIN_DATE AS EnlistmentDate 
+ ,case when EXISTS (SELECT PROJECTED_SHIP_DATE FROM MCRISS.dbo.CONTRACT WHERE NWA_ID = n.NWA_ID) then CONVERT(VARCHAR(11), c.PROJECTED_SHIP_DATE, 106) else CONVERT(VARCHAR(11), mi.PROJECTED_SHIP_DATE, 106) end AS ProjectedShipDate 
+ ,Program =  
+  CASE  
+  --WHEN c.COMPONENT_CODE in ('K4','B5','K8','K9' ) THEN m.BILLET_MOS 
+  --According to Joe Walker, the Program is from QSN.MOS for the following COMPONENT_CODE, K4, B5, K8, K9 
+  WHEN c.COMPONENT_CODE in ('K4','B5','K8','K9' ) THEN  
+   ( 
+    SELECT TOP 1  
+     qsn.MOS 
+    FROM [dbo].[QSN] qsn 
+    WHERE qsn.CONTRACT_id=c.[CONTRACT_ID] 
+    ORDER BY qsn.[PROGRAM_ASSIGNMENT_DATE] DESC    
+   ) 
+  ELSE (SELECT TOP 1  
+    p.[PROGRAM_CODE] 
+   FROM  
+    [dbo].[PROGRAM_AVAILABILITY] pa 
+   INNER JOIN [PROGRAM] p 
+    ON p.[PROGRAM_ID] = pa.[PROGRAM_ID] 
+   WHERE  
+    pa.[CONTRACT_ID] = c.[CONTRACT_ID] 
+   ORDER BY  
+    pa.[PROGRAM_ASSIGNMENT_DATE] DESC) 
+  END 
+ ,(SELECT  
+   COUNT(*) 
+  FROM  
+   [dbo].[REFERRAL] r  
+  WHERE 
+   r.[DEP_CONTRACT_ID] = c.[CONTRACT_ID] OR  
+   r.[MARINE_ID] = n.[MARINE_CANDIDATE_ID]) AS EnlistmentCredits 
+ ,(SELECT TOP 1 
+   hs.HIGHSCHOOL_NAME 
+  FROM 
+   [dbo].[CANDIDATE_EDUCATION] ce 
+  LEFT OUTER JOIN [dbo].[HIGH_SCHOOL] hs 
+   ON hs.SCHOOL_CODE = ce.SCHOOL_CODE 
+  WHERE  
+   ce.MARINE_CANDIDATE_ID = n.MARINE_CANDIDATE_ID AND 
+   ce.VERIFICATION = 'VERIFIED' 
+  ORDER BY ce.UPDATE_DATE DESC) AS HighSchool  
+ ,COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+  COALESCE(RTRIM(rcrtr.LAST_NAME), SPACE(0))  + SPACE(1) +  
+  COALESCE(RTRIM(rcrtr.FIRST_NAME), SPACE(0)) + SPACE(1) +  
+  COALESCE(RTRIM(rcrtr.LEGAL_MIDDLE_NAME), SPACE(0)) AS RecruiterName 
+ ,CASE mc.[GENDER_CODE] 
+  WHEN 'M' THEN 'Male' 
+  WHEN 'F' THEN 'Female' 
+  ELSE 'NotSpeci.ed' 
+ END AS GenderCode 
+ ,COALESCE( 
+  CASE WHEN n.[CATEGORY_CODE] = 'R' AND mc.[GENDER_CODE] = 'M' THEN 'RegularMaleNonPriorService' END, 
+  CASE WHEN n.[CATEGORY_CODE] = 'R' AND mc.[GENDER_CODE] = 'F' THEN 'RegularFemaleNonPriorService' END, 
+  CASE WHEN n.[CATEGORY_CODE] = 'G' AND mc.[GENDER_CODE] = 'M' THEN 'MaleReserveGround' END, 
+  CASE WHEN n.[CATEGORY_CODE] = 'A' AND mc.[GENDER_CODE] = 'M' THEN 'MaleReserveAir' END, 
+  CASE WHEN n.[CATEGORY_CODE] IN ('G', 'A') AND mc.[GENDER_CODE] = 'F' THEN 'FemaleReserve' END, 
+  CASE WHEN n.[CATEGORY_CODE] = 'P' THEN 'PriorService' END 
+  ) AS CategoryCode 
+  ,cs.[STATUS_CODE] 
+  ,cs.[DISPOSITION_CODE] 
+FROM  
+ [dbo].[NWA] n WITH (NOLOCK) 
+INNER JOIN [dbo].[MIContract] mi 
+ ON mi.NWA_ID = n.NWA_ID 
+LEFT JOIN [dbo].[CONTRACT] c 
+ ON c.NWA_ID = n.NWA_ID 
+LEFT OUTER JOIN [dbo].[SHIPPER] s 
+ ON s.CONTRACT_ID = c.CONTRACT_ID 
+INNER JOIN [dbo].[MARINE_CANDIDATE] mc 
+  ON n.[MARINE_CANDIDATE_ID] = mc.[MARINE_CANDIDATE_ID] 
+INNER JOIN [dbo].[PERSON] p 
+ ON p.PERSON_ID = n.MARINE_CANDIDATE_ID 
+LEFT OUTER JOIN dbo.Marine m 
+    ON p.Person_ID = m.Marine_ID 
+LEFT OUTER JOIN [dbo].[RECRUITING_PERSON] rp 
+ ON rp.RECRUITING_PERSON_ID = n.RECRUITER_OF_RECORD_ID 
+LEFT OUTER JOIN [dbo].[PERSON] rcrtr 
+ ON rcrtr.PERSON_ID = rp.RECRUITING_PERSON_ID 
+LEFT OUTER JOIN [dbo].[CANDIDATE_STATUS] cs 
+ ON cs.NWA_ID = n.NWA_ID  and  cs.[CANDIDATE_STATUS_ID]  =  
+ (Select max ( [CANDIDATE_STATUS_ID] ) from  [dbo].[CANDIDATE_STATUS] 
+   where NWA_ID=n.NWA_ID ) 
+WHERE       
+ n.[ORGANIZATION_OF_RECORD_ID] = @OrgId AND  
+ s.SHIP_DATE IS NULL AND 
+ NOT EXISTS(SELECT * FROM [dbo].[CANDIDATE_STATUS] cs 
+  WHERE cs.NWA_ID = n.NWA_ID AND cs.STATUS_TYPE = 'E' AND cs.STATUS_CODE = 'B' AND cs.DISPOSITION_CODE = 'L')  
+  AND 
+  ( 
+ (@BeginDate IS NULL OR c.PROJECTED_SHIP_DATE BETWEEN @BeginDate AND DATEADD(d, -1, DATEADD(m, 1, @BeginDate))) 
+ OR ((NOT EXISTS (SELECT CONTRACT_ID FROM MCRISS.dbo.CONTRACT WHERE NWA_ID = n.NWA_ID)) and (@BeginDate IS NULL OR mi.PROJECTED_SHIP_DATE BETWEEN @BeginDate AND DATEADD(d, -1, DATEADD(m, 1, @BeginDate)))) 
+ ) 
+ORDER BY  
+ mi.[PROJECTED_SHIP_DATE]]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

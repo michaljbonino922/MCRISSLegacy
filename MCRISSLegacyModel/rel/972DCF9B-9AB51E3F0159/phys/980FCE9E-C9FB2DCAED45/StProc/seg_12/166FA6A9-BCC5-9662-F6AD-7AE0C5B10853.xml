@@ -1,0 +1,44 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUpdateMcrcMIContractGoal]" directorySegmentName="seg_12" id="166FA6A9-BCC5-9662-F6AD-7AE0C5B10853">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[(@OrgID int 
+ ,@FiscalYear int 
+ ,@MissionValue int 
+ ,@UserLogin varchar(15)) 
+ 
+AS 
+ 
+IF EXISTS (SELECT 1 
+     FROM 
+      MCRISS.dbo.CONTRACTING_MISSION_PLAN_MICONTRACT 
+           WHERE 
+      ORGANIZATION_ID = @OrgID 
+   AND MONTH_CODE =  0 
+   AND FISCAL_YEAR = @FiscalYear 
+   AND CONTRACTING_MISSION_TYPE = 'CMC') 
+BEGIN 
+ UPDATE 
+  MCRISS.dbo.CONTRACTING_MISSION_PLAN_MICONTRACT 
+ SET 
+   [MISSION_VALUE] = @MissionValue 
+  ,[USER_LOGIN] = @UserLogin 
+  ,[UPDATE_DATE] = GetDate() 
+ WHERE 
+   ORGANIZATION_ID = @OrgID AND 
+   [MONTH_CODE] = 0 AND 
+   FISCAL_YEAR = @FiscalYear AND 
+   [CONTRACTING_MISSION_TYPE] = 'CMC' 
+END 
+ELSE 
+BEGIN 
+ INSERT INTO MCRISS.dbo.CONTRACTING_MISSION_PLAN_MICONTRACT 
+  ([ORGANIZATION_ID], [FISCAL_YEAR], [MONTH_CODE], [CONTRACTING_MISSION_TYPE], [MISSION_VALUE], [USER_LOGIN], [UPDATE_DATE]) 
+ VALUES 
+  (@OrgID, @FiscalYear, 0, 'CMC', @MissionValue, @UserLogin, GetDate()) 
+END]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

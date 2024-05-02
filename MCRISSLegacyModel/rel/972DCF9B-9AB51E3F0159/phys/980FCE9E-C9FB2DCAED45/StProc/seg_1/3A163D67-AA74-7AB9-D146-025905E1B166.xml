@@ -1,0 +1,29 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetAdjustedBusinessPercentage]" directorySegmentName="seg_1" id="3A163D67-AA74-7AB9-D146-025905E1B166">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@Recrui.ngOrgID int,  
+ @FiscalYear int, 
+ @Month   int 
+AS 
+ 
+SELECT  
+ ORGANIZATION_ID AS Recrui.ngOrgID, 
+ FISCAL_YEAR AS FiscalYear, 
+ MONTH_CODE As MonthCode, 
+ ISNULL (ABP.TC_PERCENT, 0) AS TC_PERCENT, 
+ ISNULL (ABP.OT_PERCENT, 0) AS OT_PERCENT, 
+ ISNULL (ABP.AC_PERCENT, 0) AS AC_PERCENT, 
+ ISNULL (ABP.HV_PERCENT, 0) AS HV_PERCENT, 
+ ISNULL (ABP.DC_PERCENT, 0) AS DC_PERCENT 
+FROM  
+ [dbo].[ADJUSTED_BUSINESS_PERCENTAGE] ABP WITH (NOLOCK) 
+WHERE  
+ ABP.ORGANIZATION_ID = @Recrui.ngOrgID AND 
+ ABP.FISCAL_YEAR = @FiscalYear AND 
+ ABP.MONTH_CODE = @Month]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

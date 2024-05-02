@@ -1,0 +1,509 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SP_SSRS_RaceEthnicity_Update]" directorySegmentName="seg_23" id="0B645C4B-C933-CE6C-B563-4193D6BBFF79">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@SSN varchar(9) = NULL, 
+ @RaceCode1 varchar(1) = '0', 
+ @Ethnicity2 varchar(1) = '0', 
+ @MEPRace3 varchar(1) = '0', 
+ @MEPCat4 varchar(1) = '0', 
+ @TicketNum varchar(50) = NULL, 
+ @SsrsUser varchar(250) = NULL, 
+ @UpdateNow bit = 0 
+ 
+AS 
+BEGIN 
+ 
+ 
+DECLARE @OopsInValid BIT, 
+  @ValidAndReadyToUpdate BIT 
+ 
+ 
+----------------------------------------------------------- 
+--Handle User GUID Checks (for use with Prospec.ng Data) 
+ 
+DECLARE @SsrsUserExists BIT = (SELECT CASE WHEN EXISTS  
+   (SELECT 1 from UserMgmt.dbo.[User]   
+    where Username = @SsrsUser 
+    GROUP BY Username 
+    HAVING Count(*) = 1) 
+    THEN 1 ELSE 0 END) 
+ 
+IF @SSrsUserExists = 0 AND @UpdateNow = 1 
+BEGIN 
+ select 'Sorry, Username not in UserMgmt' as Ac.onTable 
+ SET @OopsInValid = 1 
+END 
+ 
+IF @SSrsUserExists = 1 AND @UpdateNow = 1 
+BEGIN 
+ DECLARE @SsrsUserGUID varchar(100) 
+ SET @SsrsUserGUID = (SELECT UserID FROM UserMgmt.dbo.[User] where Username = @SsrsUser) 
+ --select @SsrsUserGUID, @SsrsUser 
+END 
+ 
+----------------------------------------------------------- 
+--Check for Good SSN 
+DECLARE @PersonExists BIT = (SELECT CASE WHEN EXISTS  
+   (SELECT 1 from dbo.person p  
+    JOIN marine_candidate mc on p.PERSON_ID = mc.MARINE_CANDIDATE_ID 
+    WHERE p.SOCIAL_SECURITY_NUMBER = LTRIM(RTRIM(@SSN))) 
+    THEN 1 ELSE 0 END) 
+ 
+IF @PersonExists = 0 
+BEGIN 
+ select 'Sorry, Invalid SSN' as Ac.onTable 
+ SET @OopsInValid = 1 
+END 
+ 
+ 
+------------------------------------------ 
+--Scenario Catch:  
+--In case user has only entered par.al details for update: 
+ 
+IF @UpdateNow = 1          --Asked to update 
+ AND @PersonExists = 1  --Gave a good Social 
+ AND  
+   (@RaceCode1    = '0'  --Did not supply all of the codes! 
+   OR @Ethnicity2 = '0' 
+   OR @MEPRace3 = '0' 
+   OR @MEPCat4  = '0') 
+BEGIN 
+ SELECT 'Oops.. Please Complete All Fields' as Ac.onTable  --Warning! 
+ SET @OopsInValid = 1 
+END 
+ 
+ 
+------------------------------------------ 
+--Check to see if All .elds are .lled out Completely 
+ 
+IF @UpdateNow = 1           --Asked to update 
+ AND @SSrsUserExists = 1 --Upda.ng user is in the UserMgmt table 
+ AND @PersonExists = 1   --Gave good Social 
+ AND @RaceCode1  != '0'  --Gave ALL good Codes!! 
+ AND @Ethnicity2 != '0'  --Note: Zero is reserved as 'Please Choose' in SSRS Frontend 
+ AND @MEPRace3 != '0'    --Method will fail if you skip any Codes! 
+ AND @MEPCat4  != '0' 
+BEGIN 
+ SET @ValidAndReadyToUpdate = 1 
+END 
+ 
+ 
+ 
+------------------------------------------ 
+------------------------------------------  
+--Lets Grab Some Data 
+--To prepare for display, update, and history 
+ 
+IF @PersonExists = 1 
+BEGIN 
+ 
+DECLARE 
+  @RaceTemp TABLE( 
+  QNum INT, 
+  SSN VARCHAR(9),  
+  Ac.onTable VARCHAR(250),  
+  IdType VARCHAR(250),  
+  IdKey VARCHAR(250),  
+  FullName VARCHAR(250),  
+  RACE VARCHAR(2),  
+  RACE_DESC VARCHAR(250), 
+  ETHNIC VARCHAR(2),  
+  ETHNIC_DESC VARCHAR(250), 
+  M_RACE VARCHAR(2),  
+  M_RACE_DESC VARCHAR(250), 
+  M_ETHNIC VARCHAR(2),  
+  M_ETHNIC_DESC VARCHAR(250), 
+  LastUpdatedBy VARCHAR(250), 
+  LastUpdatedDate DATETIME 
+   ) 
+ 
+INSERT @RaceTemp( 
+  QNum, 
+  SSN, 
+  Ac.onTable,  
+  IdType,  
+  IdKey,  
+  FullName,  
+  RACE,  
+  RACE_DESC, 
+  ETHNIC,  
+  ETHNIC_DESC, 
+  M_RACE,  
+  M_RACE_DESC, 
+  M_ETHNIC,  
+  M_ETHNIC_DESC, 
+  LastUpdatedBy, 
+  LastUpdatedDate 
+  ) 
+SELECT  QNum, SSN, Ac.onTable, IdType, IdKey, ISNULL(FIRST_NAME,'') + ' ' + ISNULL(LAST_NAME,'') as FullName,  
+  RACE, r.RACE_DESC, 
+  ETHNIC, e.ETHNIC_SHRT_DESCRIPTION as ETHNIC_DESC, 
+  M_RACE, mr.RACE_CATEGORY_DESC as M_RACE_DESC, 
+  M_ETHNIC, me.ETHNIC_CATEGORY_DESC as M_ETHNIC_DESC, 
+  re.LastUpdatedBy, 
+  re.LastUpdatedDate 
+FROM 
+( 
+  select  1 as QNum 
+    ,p.SOCIAL_SECURITY_NUMBER as SSN 
+          ,'MCRISS.dbo.MARINE_CANDIDATE' as Ac.onTable 
+    ,'PERSON_ID' as IdType 
+    ,CAST(p.PERSON_ID AS varchar(50)) AS IdKey 
+    ,p.FIRST_NAME 
+    ,p.LAST_NAME 
+    ,mc.RACE_CODE as RACE 
+    ,mc.ETHNIC_CODE as ETHNIC 
+    ,mc.MEPCOM_RACE_CODE as M_RACE 
+    ,mc.MEPCOM_ETHNIC_CODE as M_ETHNIC 
+    ,mc.USER_LOGIN as LastUpdatedBy 
+    ,mc.UPDATE_DATE as LastUpdatedDate 
+   from dbo.person p (NOLOCK) 
+   JOIN dbo.MARINE_CANDIDATE mc (NOLOCK) on p.PERSON_ID = mc.MARINE_CANDIDATE_ID 
+   WHERE p.SOCIAL_SECURITY_NUMBER = @SSN 
+ 
+  UNION ALL 
+ 
+  select  2 as QNum 
+  , P.SocialSecurityNumber as SSN 
+  , 'Prospec.ng.USMC.PERSON' as Ac.onTable 
+  , 'PersonId' as IdType 
+  , CAST(p.PersonId AS varchar(50)) AS IdKey 
+  , P.FirstName 
+  , P.LastName 
+  , P.Race 
+  , P.Ethnicity 
+  , P.MepcomRace 
+  , P.MepcomEthnicity 
+  , u.UserName 
+  , P.LastUpdateDate 
+  FROM Prospec.ng.USMC.PERSON P (NOLOCK) 
+  LEFT OUTER JOIN UserMgmt.dbo.[User] u (NOLOCK) ON P.LastUpdateUserId = u.UserID 
+  WHERE P.SocialSecurityNumber = @SSN 
+ 
+  UNION ALL 
+ 
+  select  3 as QNum 
+  , P.SocialSecurityNumber as SSN 
+  ,'Prospec.ng.USMC.PROSPECT' as Ac.onTable 
+  , 'ProspectId' as IdType 
+  , CAST(PR.ProspectId AS varchar(50)) AS IdKey 
+  , P.FirstName 
+  , P.LastName 
+  , PR.RaceCode 
+  , PR.EthnicCode 
+  , PR.MepcomRaceCode 
+  , PR.MepcomEthnicCode 
+  , u.UserName 
+  , PR.LastUpdateDate 
+  FROM Prospec.ng.USMC.PERSON P (NOLOCK) 
+    INNER JOIN Prospec.ng.USMC.PROSPECT PR (NOLOCK) ON P.PersonId = PR.PersonId 
+    LEFT OUTER JOIN UserMgmt.dbo.[User] u (NOLOCK) ON PR.LastUpdateUserId = u.UserID 
+  WHERE  
+    P.SocialSecurityNumber = @SSN 
+    --AND (PR.RaceCode IS NOT NULL  
+    --     or PR.EthnicCode IS NOT NULL  
+    --  or PR.MepcomRaceCode IS NOT NULL  
+    --  or PR.MepcomEthnicCode IS NOT NULL)  
+ 
+  UNION ALL 
+ 
+  select  4 as QNum 
+  , P.SocialSecurityNumber 
+  ,'Prospec.ng.USMC.O.cerProspectPac' as Ac.onTable 
+  ,'O.cerProspectPacId' as IdType 
+  , CAST(OPP.O.cerProspectPacId AS varchar(50)) AS IdKey 
+  , P.FirstName 
+  , P.LastName 
+  , OPP.Diversity 
+  , OPP.EthnicCode 
+  , OPP.MepcomRaceCode 
+  , OPP.MepcomEthnicCode 
+  , u.UserName 
+  , OPP.LastUpdateDate 
+  FROM Prospec.ng.USMC.PERSON P (NOLOCK) 
+    INNER JOIN Prospec.ng.USMC.PROSPECT PR (NOLOCK) ON P.PersonId = PR.PersonId 
+    INNER JOIN Prospec.ng.USMC.O.cerProspectPac OPP (NOLOCK) on OPP.ProspectId = pr.ProspectId 
+    LEFT OUTER JOIN UserMgmt.dbo.[User] u (NOLOCK) ON OPP.LastUpdateUserId = u.UserID 
+  WHERE  
+    P.SocialSecurityNumber = @SSN 
+) 
+as re 
+ 
+ le. outer join dbo.ETHNIC e (NOLOCK) on re.ETHNIC = e.ETHNIC_CODE 
+ le. outer join dbo.RACE r (NOLOCK) on re.RACE = r.RACE_CODE 
+ le. outer join dbo.MEPCOM_RACE_CATEGORY mr (NOLOCK) on re.M_RACE = mr.RACE_CATEGORY_CODE 
+ le. outer join dbo.MEPCOM_ETHNIC_CATEGORY me (NOLOCK) on re.M_ETHNIC = me.ETHNIC_CATEGORY_CODE 
+ 
+END 
+ 
+ 
+------------------------------------------ 
+------------------------------------------  
+--Load the History Table: 
+ 
+IF @ValidAndReadyToUpdate = 1 
+BEGIN 
+ INSERT INTO [HelpDesk].[SSRS_Toolbox_Update_History] 
+  ([TicketNum] 
+  ,[Ac.onTable] 
+  ,[Ac.onDesc] 
+  ,[IdType] 
+  ,[IdKey] 
+  ,[SSN] 
+  ,[BeforeUpdate] 
+  ,[A.erUpdate] 
+  ,[USER_LOGIN] 
+  ,[UPDATE_DATE]) 
+ SELECT   
+  @TicketNum, 
+  Ac.onTable, 
+  'Race/Ethnicity Update',  --Ac.onDesc 
+  IdType,  
+  IdKey, 
+  SSN, 
+  ISNULL(RACE,'') + '-' + ISNULL(RACE_DESC,'') + ' | ' +  
+  ISNULL(ETHNIC,'') + '-' + ISNULL(ETHNIC_DESC,'') + ' | ' +  
+  ISNULL(M_RACE,'') + '-' + ISNULL(M_RACE_DESC,'') + ' | ' +  
+  ISNULL(M_ETHNIC,'') + '-' +  ISNULL(M_ETHNIC_DESC,''),  --BeforeUpdate 
+ 
+  @RaceCode1 + '-' +  (SELECT RACE_DESC FROM dbo.RACE WHERE RACE_CODE = @RaceCode1) +' | ' +   
+  @Ethnicity2 + '-' + (SELECT ETHNIC_SHRT_DESCRIPTION FROM dbo.ETHNIC WHERE ETHNIC_CODE = @Ethnicity2) +' | ' +   
+  @MEPRace3 + '-' + (SELECT RACE_CATEGORY_DESC FROM dbo.MEPCOM_RACE_CATEGORY WHERE RACE_CATEGORY_CODE = @MEPRace3) +' | ' +   
+  @MEPCat4 + '-' +  (SELECT ETHNIC_CATEGORY_DESC FROM dbo.MEPCOM_ETHNIC_CATEGORY WHERE ETHNIC_CATEGORY_CODE = @MEPCat4),   
+  --A.erUpdate 
+ 
+  @SsrsUser,  --USER_LOGIN 
+  getdate()   --UPDATE_DATE 
+ 
+ FROM @RaceTemp 
+ WHERE ISNULL(RACE,'') != @RaceCode1 
+  OR ISNULL(ETHNIC,'') != @Ethnicity2 
+  OR ISNULL(M_RACE,'') != @MEPRace3 
+  OR ISNULL(M_ETHNIC,'') != @MEPCat4 
+ 
+ --SELECT * FROM [HelpDesk].[SSRS_Toolbox_Update_History] 
+ --delete FROM [HelpDesk].[SSRS_Toolbox_Update_History] 
+END 
+ 
+ 
+ 
+ 
+------------------------------------------ 
+------------------------------------------  
+--UPDATE THE DATA!!!! 
+--LOGIC WILL ONLY UPDATE IF THERE IS A WRONG CODE 
+ 
+IF @ValidAndReadyToUpdate = 1 
+BEGIN 
+  
+ UPDATE mc 
+ SET  
+   RACE_CODE = @RaceCode1 
+  ,ETHNIC_CODE = @Ethnicity2 
+  ,MEPCOM_RACE_CODE = @MEPRace3 
+  ,MEPCOM_ETHNIC_CODE = @MEPCat4 
+  ,USER_LOGIN = @SsrsUser + '_SSRS'  --USER_LOGIN .. method only works for MCRISS (not Prospec.ng) 
+  ,UPDATE_DATE = getdate() 
+ FROM  
+  dbo.PERSON p  
+  JOIN dbo.MARINE_CANDIDATE mc on p.PERSON_ID = mc.MARINE_CANDIDATE_ID 
+ WHERE  
+  p.SOCIAL_SECURITY_NUMBER = @SSN 
+  AND  
+  (ISNULL(RACE_CODE,'') != @RaceCode1 or 
+   ISNULL(ETHNIC_CODE,'') != @Ethnicity2 or 
+   ISNULL(MEPCOM_RACE_CODE,'') != @MEPRace3 or 
+   ISNULL(MEPCOM_ETHNIC_CODE,'') != @MEPCat4) 
+ 
+ 
+ 
+ UPDATE Prospec.ng.usmc.person 
+ set  
+   Race = @RaceCode1 
+  ,Ethnicity = @Ethnicity2  
+  ,MepcomRace = @MEPRace3 
+  ,MepcomEthnicity = @MEPCat4 
+  ,LastUpdateUserId = @SsrsUserGUID  --Must be GUID 
+  ,LastUpdateDate = getdate()  
+ WHERE  
+  SocialSecurityNumber = @SSN 
+  AND  
+  (ISNULL(Race,'') != @RaceCode1 or 
+   ISNULL(Ethnicity,'') != @Ethnicity2 or 
+   ISNULL(MepcomRace,'') != @MEPRace3 or 
+   ISNULL(MepcomEthnicity,'') != @MEPCat4) 
+ 
+ UPDATE OPP 
+ SET  
+   Diversity = @RaceCode1 
+  ,EthnicCode = @Ethnicity2 
+  ,MepcomRaceCode = @MEPRace3 
+  ,MepcomEthnicCode = @MEPCat4 
+  ,LastUpdateUserId = @SsrsUserGUID  --Must be GUID 
+  ,LastUpdateDate = getdate() 
+ FROM  
+  PROSPECTING.USMC.PERSON P 
+  INNER JOIN PROSPECTING.USMC.PROSPECT PR ON P.PersonId = PR.PersonId 
+  INNER JOIN PROSPECTING.USMC.O.cerProspectPac OPP on OPP.ProspectId = PR.ProspectId 
+ WHERE  
+  P.SocialSecurityNumber = @SSN 
+  AND  
+  (ISNULL(OPP.Diversity,'') != @RaceCode1 or 
+   ISNULL(OPP.EthnicCode,'') != @Ethnicity2 or 
+   ISNULL(OPP.MepcomRaceCode,'') != @MEPRace3 or 
+   ISNULL(OPP.MepcomEthnicCode,'') != @MEPCat4) 
+ 
+ UPDATE PR 
+ SET  
+   RaceCode = @RaceCode1 
+  ,EthnicCode = @Ethnicity2 
+  ,MepcomRaceCode = @MEPRace3 
+  ,MepcomEthnicCode = @MEPCat4 
+  ,LastUpdateUserId = @SsrsUserGUID  --Must be GUID 
+  ,LastUpdateDate = getdate() 
+ FROM  
+  PROSPECTING.USMC.PERSON P 
+  INNER JOIN PROSPECTING.USMC.PROSPECT PR ON P.PersonId = PR.PersonId 
+ WHERE  
+  P.SocialSecurityNumber = @SSN 
+  AND  
+  (ISNULL(PR.RaceCode,'') != @RaceCode1 or 
+   ISNULL(PR.EthnicCode,'') != @Ethnicity2 or 
+   ISNULL(PR.MepcomRaceCode,'') != @MEPRace3 or 
+   ISNULL(PR.MepcomEthnicCode,'') != @MEPCat4) 
+ 
+END 
+ 
+ 
+ 
+---------------------------------------------- 
+---------------------------------------------- 
+--This will show 'on-screen' data 'pre-update' 
+ 
+IF @OopsInValid = 0 OR @UpdateNow = 0 
+BEGIN 
+ SELECT * FROM @RaceTemp 
+END 
+ 
+ 
+---------------------------------------------- 
+---------------------------------------------- 
+--Results (a.er update) 
+--Rerun the 'same' query as earlier to show 'Results' a.er update! 
+--Yes, it is redundant for now... maybe a 'view' later? 
+ 
+IF @UpdateNow = 1 and @ValidAndReadyToUpdate = 1 
+BEGIN 
+SELECT  QNum, SSN, Ac.onTable, IdType, IdKey, ISNULL(FIRST_NAME,'') + ' ' + ISNULL(LAST_NAME,'') as FullName,  
+  RACE, r.RACE_DESC, 
+  ETHNIC, e.ETHNIC_SHRT_DESCRIPTION as ETHNIC_DESC, 
+  M_RACE, mr.RACE_CATEGORY_DESC as M_RACE_DESC, 
+  M_ETHNIC, me.ETHNIC_CATEGORY_DESC as M_ETHNIC_DESC, 
+  re.LastUpdatedBy, 
+  re.LastUpdatedDate 
+ 
+FROM 
+( 
+  select  1 as QNum 
+    ,p.SOCIAL_SECURITY_NUMBER as SSN 
+          ,'MCRISS.dbo.MARINE_CANDIDATE' as Ac.onTable 
+    ,'PERSON_ID' as IdType 
+    ,CAST(p.PERSON_ID AS varchar(50)) AS IdKey 
+    ,p.FIRST_NAME 
+    ,p.LAST_NAME 
+    ,mc.RACE_CODE as RACE 
+    ,mc.ETHNIC_CODE as ETHNIC 
+    ,mc.MEPCOM_RACE_CODE as M_RACE 
+    ,mc.MEPCOM_ETHNIC_CODE as M_ETHNIC 
+    ,mc.USER_LOGIN as LastUpdatedBy 
+    ,mc.UPDATE_DATE as LastUpdatedDate 
+   from dbo.person p (NOLOCK) 
+   JOIN dbo.MARINE_CANDIDATE mc (NOLOCK) on p.PERSON_ID = mc.MARINE_CANDIDATE_ID 
+   WHERE p.SOCIAL_SECURITY_NUMBER = @SSN 
+ 
+  UNION ALL 
+ 
+  select  2 as QNum 
+  , P.SocialSecurityNumber as SSN 
+  , 'Prospec.ng.USMC.PERSON' as Ac.onTable 
+  , 'PersonId' as IdType 
+  , CAST(p.PersonId AS varchar(50)) AS IdKey 
+  , P.FirstName 
+  , P.LastName 
+  , P.Race 
+  , P.Ethnicity 
+  , P.MepcomRace 
+  , P.MepcomEthnicity 
+  , u.UserName 
+  , P.LastUpdateDate 
+  FROM Prospec.ng.USMC.PERSON P (NOLOCK) 
+  LEFT OUTER JOIN UserMgmt.dbo.[User] u (NOLOCK) ON P.LastUpdateUserId = u.UserID 
+  WHERE P.SocialSecurityNumber = @SSN 
+ 
+  UNION ALL 
+ 
+  select  3 as QNum 
+  , P.SocialSecurityNumber as SSN 
+  ,'Prospec.ng.USMC.PROSPECT' as Ac.onTable 
+  , 'ProspectId' as IdType 
+  , CAST(PR.ProspectId AS varchar(50)) AS IdKey 
+  , P.FirstName 
+  , P.LastName 
+  , PR.RaceCode 
+  , PR.EthnicCode 
+  , PR.MepcomRaceCode 
+  , PR.MepcomEthnicCode 
+  , u.UserName 
+  , PR.LastUpdateDate 
+  FROM Prospec.ng.USMC.PERSON P (NOLOCK) 
+    INNER JOIN Prospec.ng.USMC.PROSPECT PR (NOLOCK) ON P.PersonId = PR.PersonId 
+    LEFT OUTER JOIN UserMgmt.dbo.[User] u (NOLOCK) ON PR.LastUpdateUserId = u.UserID 
+  WHERE  
+    P.SocialSecurityNumber = @SSN 
+    --AND (PR.RaceCode IS NOT NULL  
+    --     or PR.EthnicCode IS NOT NULL  
+    --  or PR.MepcomRaceCode IS NOT NULL  
+    --  or PR.MepcomEthnicCode IS NOT NULL)  
+ 
+  UNION ALL 
+ 
+  select  4 as QNum 
+  , P.SocialSecurityNumber 
+  ,'Prospec.ng.USMC.O.cerProspectPac' as Ac.onTable 
+  ,'O.cerProspectPacId' as IdType 
+  , CAST(OPP.O.cerProspectPacId AS varchar(50)) AS IdKey 
+  , P.FirstName 
+  , P.LastName 
+  , OPP.Diversity 
+  , OPP.EthnicCode 
+  , OPP.MepcomRaceCode 
+  , OPP.MepcomEthnicCode 
+  , u.UserName 
+  , OPP.LastUpdateDate 
+  FROM Prospec.ng.USMC.PERSON P (NOLOCK) 
+    INNER JOIN Prospec.ng.USMC.PROSPECT PR (NOLOCK) ON P.PersonId = PR.PersonId 
+    INNER JOIN Prospec.ng.USMC.O.cerProspectPac OPP (NOLOCK) on OPP.ProspectId = pr.ProspectId 
+    LEFT OUTER JOIN UserMgmt.dbo.[User] u (NOLOCK) ON OPP.LastUpdateUserId = u.UserID 
+  WHERE  
+    P.SocialSecurityNumber = @SSN 
+) 
+as re 
+ 
+ le. outer join dbo.ETHNIC e (NOLOCK) on re.ETHNIC = e.ETHNIC_CODE 
+ le. outer join dbo.RACE r (NOLOCK) on re.RACE = r.RACE_CODE 
+ le. outer join dbo.MEPCOM_RACE_CATEGORY mr (NOLOCK) on re.M_RACE = mr.RACE_CATEGORY_CODE 
+ le. outer join dbo.MEPCOM_ETHNIC_CATEGORY me (NOLOCK) on re.M_ETHNIC = me.ETHNIC_CATEGORY_CODE 
+ 
+END 
+ 
+ 
+ 
+--DROP TABLE ##RaceTemp  --NOW USING: @RaceTemp  INSTEAD 
+--SELECT * FROM [HelpDesk].[SSRS_Toolbox_Update_History] 
+END]]></body>
+<schema>E0072523-8B4F-426D-2784-57AD654F1189</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,169 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SP_NWA_PROCESS179]" directorySegmentName="seg_23" id="66E85029-6F4F-F4A5-AE14-BC330C20BAA0">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[AS  
+SET ARITHABORT OFF 
+set arithignore on 
+set ansi_warnings o. 
+ 
+declare @ssn     varchar(9), 
+ @person_id    int, 
+ @org_of_record    int, 
+ @recruiter_of_record   int, 
+ @educa.on_code    char(1), 
+ @educa.on_level   varchar(2), 
+ @nwa_date    date.me, 
+ @projected_ship_month   int, 
+ @source_code    varchar(10), 
+ @rss_resp    varchar(6), 
+ @dep_recr_ssn    varchar(9), 
+ @ac.vity_code    varchar(2), 
+ @ppc     varchar(7), 
+ @component_code    varchar(2), 
+ @prior_srvc    varchar(2), 
+ @air_grnd    char(1), 
+ @new_count    int, 
+ @discharge_count   int, 
+ @dual_source    varchar(3), 
+ @contract_id    int, 
+ @nwa_id    int 
+ 
+ 
+declare arms_179 cursor for 
+select  SSN, 
+        substring(CONT_HIGRD,3,1), 
+        substring(CONT_HIGRD,1,2), 
+        dateadd(day,-1,convert(date.me,DEP_DATEIN,112)), 
+  substring(RSS_RESP,1,5), 
+  convert(int,datepart(mm,convert(date.me,PADD))), 
+  DEP_RECR_SSN, 
+  SRC_RCTD_FRM, 
+  ACTY_RCTD_FRM, 
+  PPC_NO, 
+  COMP_CD, 
+  PRIOR_SVC, 
+  AIR_GRND 
+ 
+ 
+from  arms..ARMS179 
+  
+open arms_179 
+ 
+fetch arms_179 
+     into @ssn, @educa.on_code, @educa.on_level, @nwa_date, 
+       @rss_resp, @projected_ship_month, @dep_recr_ssn, 
+  @source_code, @ac.vity_code,@ppc, @component_code, 
+  @prior_srvc, @air_grnd 
+ 
+set @new_count = 0 
+set @discharge_count = 0 
+print 'Here we go' 
+ 
+while (@@FETCH_STATUS = 0) 
+begin 
+ 
+  select @person_id = (select PERSON_ID from PERSON 
+                       where SOCIAL_SECURITY_NUMBER = @ssn) 
+ 
+ 
+ if @source_code not like '%PPC%' and @ppc like '%[0-9]%' 
+ set @dual_source = 'PPC' 
+ else 
+ set @dual_source = NULL 
+ 
+ if @person_id is not null 
+ begin 
+ 
+  -- Adds a new NWA if one does not exist for the candidate 
+  if not exists (select 1 from NWA where MARINE_CANDIDATE_ID = @person_id) 
+  begin 
+ 
+   execute sp_InsertNWA_179 @person_id,@educa.on_code,@educa.on_level,@nwa_date, 
+     @rss_resp,@projected_ship_month,@dep_recr_ssn, 
+     @source_code,@ac.vity_code,@ppc,@component_code, 
+     @prior_srvc,@air_grnd, @dual_source 
+   
+   print @ssn + '  Added to the NWA Table' 
+ 
+ 
+   set @new_count = @new_count + 1 
+  end 
+ 
+ 
+  else 
+  begin 
+  
+ 
+   -- Adds a new NWA Record if a migra.on record exists and the Declared date's aren't the same. 
+   if exists (select 1 from NWA where NWA_ID = (select MAX(NWA_ID) from NWA where 
+   MARINE_CANDIDATE_ID = @person_id) and NWA_DECLARED_DATE < @nwa_date and  
+   USER_LOGIN = 'migra.on') 
+ 
+   begin 
+ 
+    set @nwa_id = (select MAX(NWA_ID) from NWA where 
+    MARINE_CANDIDATE_ID = @person_id) 
+ 
+    set @contract_id = (select contract_id from contract 
+      where nwa_id = @nwa_id) 
+ 
+    if not exists(select 1 from shipper where contract_id = @contract_id) 
+    begin 
+ 
+    -------This Logic was added as a result of SCR 1133 
+     update contract 
+      set DISCHARGE_DATE = @nwa_date, 
+     DISCHARGE_CODE = 'ZKC', 
+     UPDATE_DATE = getdate(), 
+     USER_LOGIN = 'migra.on' 
+     where CONTRACT_ID = @contract_id 
+ 
+      
+     insert CANDIDATE_STATUS 
+     (NWA_ID, STATUS_EFFECTIVE_DATE,STATUS_TYPE, STATUS_CODE, 
+     DISPOSITION_CODE,USER_LOGIN,UPDATE_DATE) 
+     values 
+     (@nwa_id, @nwa_date, 'E','B','L', 'migra.on',getdate()) 
+ 
+    end 
+     
+ 
+     
+        
+    execute sp_InsertNWA_179 @person_id,@educa.on_code,@educa.on_level,@nwa_date, 
+     @rss_resp,@projected_ship_month,@dep_recr_ssn, 
+     @source_code,@ac.vity_code,@ppc,@component_code, 
+     @prior_srvc,@air_grnd, @dual_source 
+     print @ssn + 'Added to the NWA Table for new Contract' 
+     set @discharge_count = @discharge_count + 1 
+   end 
+    
+  end 
+ 
+ end 
+  
+ 
+ 
+fetch arms_179 
+     into @ssn, @educa.on_code, @educa.on_level, @nwa_date, 
+       @rss_resp, @projected_ship_month, @dep_recr_ssn, 
+  @source_code, @ac.vity_code,@ppc, @component_code, 
+  @prior_srvc, @air_grnd 
+ 
+end 
+close arms_179 
+deallocate arms_179 
+ 
+print '================================================' 
+print '  MIGRATION REPORT' 
+print ' Number of New Recruits Added:' 
+print @new_count 
+print ' Number of New Discharged Recruits Added:' 
+print @discharge_count 
+print '================================================']]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

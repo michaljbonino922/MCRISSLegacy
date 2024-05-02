@@ -1,0 +1,23 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetUser]" directorySegmentName="seg_0" id="A0771183-BF65-9364-D0E3-C2179AE9C8BA">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:44 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @strUsername varchar(50), 
+ @Dis.nguishedName varchar(200) = NULL 
+) 
+AS 
+ 
+IF(@Dis.nguishedName IS NOT NULL) 
+BEGIN 
+ UPDATE [User] SET [Dis.nguishedName] = @Dis.nguishedName WHERE [Username] = @strUsername AND [Dis.nguishedName] IS NULL 
+END 
+ 
+SELECT [ID], [Username], [Dis.nguishedName], [Title], [FirstName], [LastName], [MiddleName], [Email], [Phone], [UserTypeID], [Sta.on_OrgUnitID], [IsAc.ve], [LastAc.vityDate], [LastEditDate]  
+FROM [User] WITH (NOLOCK) 
+WHERE [Username] = @strUsername]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>30378C7E-748C-F803-F9A3-93DBFA86C9A7</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,64 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_7" id="A357F8CC-CC83-A3F2-08FF-80F962778A00" schemaObject="2A6D9360-3BB2-5CEA-6E99-790D76996FDF" name="Bulk_Insert_RolePermission">
+<sourceDDLFile>create UserMgmt script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>74E32671-93D3-D8B1-62E0-73B27511CE6B</importedID>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="ID" id="F1F43EAC-D410-1417-4A23-61FF223CE39E">
+<sourceDDLFile>create UserMgmt script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>105EC27F-D8EF-0056-2C42-3CB368BD0C91</importedID>
+<use>0</use>
+<domain>8C77819C-1B2F-24A0-C36D-F924235A9668</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementColumn>true</autoIncrementColumn>
+<identityColumn>true</identityColumn>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="permission" id="5B02398C-84F9-9DD9-C25F-C10BB78DE4D7">
+<sourceDDLFile>create UserMgmt script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>681C2CBD-E987-CE54-A63D-58CEC5498A5E</importedID>
+<use>0</use>
+<domain>8C77819C-1B2F-24A0-C36D-F924235A9668</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="D46D2681-DBEE-9966-20E9-85FEE6F3AB6A" name="PK_Bulk_Insert_RolePermission">
+<sourceDDLFile>create UserMgmt script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>A453946B-5476-30A5-44CF-59C39FDCB8AA</importedID>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="F1F43EAC-D410-1417-4A23-61FF223CE39E"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="CB96CDC3-B51E-7087-052B-8F75EE89E068" name="Permission">
+<sourceDDLFile>create UserMgmt script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>9ECC9A98-5237-85D4-2202-D4785B8F45F6</importedID>
+<indexState>Unique Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="5B02398C-84F9-9DD9-C25F-C10BB78DE4D7"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+</Table>

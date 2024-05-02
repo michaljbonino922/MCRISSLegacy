@@ -1,0 +1,38 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertO.cerContractBoardStatusHistory]" directorySegmentName="seg_10" id="461DC005-9DD9-DE32-8DC4-184E521FF5BC">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@ContractID int, 
+ @BoardStatusID int, 
+ @BoardID int = null, 
+ @LastEditBy varchar(50) 
+AS 
+ 
+declare @ContractBoardID uniqueiden..er 
+set @ContractBoardID = null 
+ 
+if @BoardID is not null 
+BEGIN 
+ select @ContractBoardID = CONTRACT_BOARD_ID from dbo.OFFICER_CONTRACT_BOARD 
+ where OFFICER_CONTRACT_ID = @ContractID and BOARD_ID = @BoardID 
+ 
+ if @ContractBoardID is null 
+ BEGIN 
+  SET @ContractBoardID = NEWID() 
+ 
+  INSERT INTO dbo.OFFICER_CONTRACT_BOARD 
+   (CONTRACT_BOARD_ID, OFFICER_CONTRACT_ID, BOARD_ID, DATE_ASSIGNED, ASSIGNED_BY) 
+  VALUES 
+   (@ContractBoardID, @ContractID, @BoardID, GETDATE(), @LastEditBy) 
+ END 
+END 
+ 
+INSERT INTO dbo.OFFICER_CONTRACT_BOARD_STATUS_HISTORY  
+ (BOARD_STATUS_HISTORY_ID, OFFICER_CONTRACT_ID, BOARD_STATUS_ID, STATUS_DATE, CONTRACT_BOARD_ID) 
+VALUES  
+ (NEWID(), @ContractID, @BoardStatusID, GETDATE(), @ContractBoardID)]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

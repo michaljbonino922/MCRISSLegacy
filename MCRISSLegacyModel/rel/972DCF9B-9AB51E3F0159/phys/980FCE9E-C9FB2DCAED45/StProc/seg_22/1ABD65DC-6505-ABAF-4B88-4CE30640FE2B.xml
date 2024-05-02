@@ -1,0 +1,96 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_MIGetShippingCriteria]" directorySegmentName="seg_22" id="1ABD65DC-6505-ABAF-4B88-4CE30640FE2B">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@NWAID   int, 
+ @MarineCandidateID int, 
+ @bPendingDependent char(1) OUTPUT, 
+ @bPendingEduca.on char(1) OUTPUT, 
+ @bPendingWaiver  char(1) OUTPUT, 
+ @bQuo.entSerialNumber char(1) OUTPUT, 
+ @Educa.onCode  char(1) OUTPUT, 
+ @Educa.onTier  int OUTPUT, 
+ @Educa.onLevel  int OUTPUT, 
+ @ISTCrunches  int OUTPUT, 
+ @ISTHang  int OUTPUT, 
+ @ISTMinutes  int OUTPUT, 
+ @ISTPullUps  int OUTPUT, 
+ @ISTResult  char(1) OUTPUT, 
+ @ISTSeconds  int OUTPUT 
+AS       
+ 
+DECLARE @ContractID   int 
+DECLARE @ContractBeginDate date.me 
+ 
+--- GET CONTRACT ID AND CONTRACT BEGIN DATE 
+SELECT  
+ @ContractID   = C.CONTRACT_ID, 
+ @ContractBeginDate = C.CONTRACT_BEGIN_DATE 
+FROM  
+ CONTRACT C 
+WHERE  
+ NWA_ID = @NWAID 
+ 
+ 
+--- CHECK FOR PENDING EDUCATION RECORDS 
+SELECT 
+ @bPendingEduca.on = CASE 
+    WHEN EXISTS (SELECT 1 FROM CANDIDATE_EDUCATION WHERE MARINE_CANDIDATE_ID = @MarineCandidateID AND COALESCE(VERIFICATION, 'PENDING') = 'PENDING') THEN 'Y' 
+    ELSE 'N' 
+    END 
+  
+ 
+--- GET EDUCATION LEVEL/CODE/TIER 
+--- ACCOUNT FOR THE EDUCATION TIER BASED ON THE CONTRACT BEGIN DATE PER SCR # 525 VERSION 3.1.12 
+SELECT 
+ @Educa.onTier  = COALESCE((SELECT dbo.GetTier(CE.EDUCATION_CODE, @ContractBeginDate, @MarineCandidateID)), 0), 
+ @Educa.onLevel = CE.EDUCATION_LEVEL,  
+ @Educa.onCode  = CE.EDUCATION_CODE 
+FROM 
+ CANDIDATE_EDUCATION CE INNER JOIN EDUCATION_LEVEL_CODE ELC ON  
+  (CE.MARINE_CANDIDATE_ID = @MarineCandidateID AND 
+  CE.EDUCATION_LEVEL = ELC.EDUCATION_LEVEL_CODE AND  
+  CE.EDUCATION_CODE = ELC.EDUCATION_CODE AND 
+  CE.SCHOOL_END_DATE = dbo.GetMaxSchoolEndDate(CE.MARINE_CANDIDATE_ID)) 
+ 
+--- CHECK FOR PENDING DEPENDENT RECORDS 
+SELECT 
+ @bPendingDependent = CASE 
+    WHEN EXISTS (SELECT 1 FROM CANDIDATE_DEPENDENT WHERE MARINE_CANDIDATE_ID = @MarineCandidateID AND COALESCE(VERIFICATION, 'P') = 'P') THEN 'Y' 
+    ELSE 'N' 
+    END 
+ 
+ 
+ 
+--- CHECK FOR PENDING  WAIVER RECORDS 
+SELECT 
+ @bPendingWaiver = CASE 
+    WHEN EXISTS (SELECT 1 FROM CANDIDATE_WAIVER WHERE NWA_ID = @NWAID AND WAIVER_STATUS_CODE = 'P') THEN 'Y' 
+    ELSE 'N' 
+    END 
+ 
+--- GET IST BLOCK 
+SELECT 
+ @ISTCrunches = IST_CRUNCHES, 
+ @ISTMinutes  = IST_MINUTES, 
+ @ISTHang     = IST_HANG, 
+ @ISTPullups  = IST_PULL_UPS, 
+ @ISTResult   = IST_RESULT, 
+ @ISTSeconds  = IST_SECONDS 
+FROM 
+ CONTRACT 
+WHERE 
+ CONTRACT_ID = @ContractID  
+ 
+ 
+--- CHECK TO SEE IF RESERVIST HAS ASSOCISATED QSN 
+SELECT 
+ @bQuo.entSerialNumber = CASE 
+     WHEN EXISTS(SELECT 1 FROM QSN WHERE CONTRACT_ID = @ContractID)  THEN 'Y' 
+     ELSE 'N' 
+     END]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

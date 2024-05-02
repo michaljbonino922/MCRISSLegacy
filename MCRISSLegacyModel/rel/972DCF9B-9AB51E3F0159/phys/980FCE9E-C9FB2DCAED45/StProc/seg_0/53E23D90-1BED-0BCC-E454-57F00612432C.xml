@@ -1,0 +1,301 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[CreateTrainingFileShell]" directorySegmentName="seg_0" id="53E23D90-1BED-0BCC-E454-57F00612432C">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@Billet   varchar(20),  
+@MOSID   smallint,  
+@RecruiterID uniqueidentifier,  
+@StartDate  date.me,  
+@UserID   uniqueidentifier 
+ 
+AS 
+ 
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+BEGIN TRANSACTION 
+ 
+--Create TrainingFile Record 
+DECLARE @TrainingFileID_Table TABLE ( 
+ ID uniqueidentifier); 
+ 
+Insert into USMC.TrainingFile 
+ (RecruiterID,StartDate,Billet,MOSID,LastUpdatedDate,LastUpdatedBy) 
+OUTPUT INSERTED.ID into @TrainingFileID_Table 
+VALUES 
+ (@RecruiterID,@StartDate,@Billet,@MOSID,getdate(),@UserID) 
+ 
+--Create Mul.MonthEvalua.on Record 
+DECLARE @EvalTypeID smallint, @TrainingFileID uniqueidentifier; 
+ 
+IF @Billet = 'SNCOIC' 
+BEGIN 
+  SET @EvalTypeID = 3 
+END 
+ELSE 
+BEGIN 
+  SET @EvalTypeID = 1 
+END   
+SET @TrainingFileID = (SELECT ID FROM @TrainingFileID_Table) 
+ 
+DECLARE @Mul.MonthEvalID_Table TABLE ( 
+ ID uniqueidentifier); 
+ 
+INSERT INTO USMC.Mul.MonthEvalua.on 
+ (Evalua.onTypeID,TrainingFileID,LastUpdatedDate,LastUpdatedBy) 
+OUTPUT INSERTED.ID into @Mul.MonthEvalID_Table 
+VALUES 
+ (@EvalTypeID,@TrainingFileID,getdate(),@UserID) 
+ 
+--Create Each Of The Separate MonthEvalua.on Records 
+DECLARE @Mul.MonthID uniqueidentifier, @MonthIncrement1 .nyint, @MonthIncrement2 .nyint,  
+  @MonthIncrement3 .nyint; 
+ 
+SET @Mul.MonthID = (SELECT ID FROM @Mul.MonthEvalID_Table) 
+SET @MonthIncrement1 = (SELECT LEFT([Name],1) FROM USMC.Evalua.onType WHERE ID = @EvalTypeID) 
+SET @MonthIncrement2 = (SELECT RIGHT(LEFT([Name],3),1) FROM USMC.Evalua.onType WHERE ID = @EvalTypeID) 
+SET @MonthIncrement3 = (SELECT RIGHT(LEFT([Name],5),1) FROM USMC.Evalua.onType WHERE ID = @EvalTypeID) 
+ 
+INSERT INTO USMC.MonthEvalua.on 
+ (Mul.MonthEvalua.onID,MonthIncrement,LastUpdatedDate,LastUpdatedBy) 
+SELECT @Mul.MonthID,@MonthIncrement1,getdate(),@UserID 
+UNION ALL 
+SELECT @Mul.MonthID,@MonthIncrement2,getdate(),@UserID 
+UNION ALL 
+SELECT @Mul.MonthID,@MonthIncrement3,getdate(),@UserID 
+ 
+--Create Each Of The Separate Evalua.onTask Records 
+DECLARE @BETTitle varchar(200), @BETDesigna.on varchar(10), @ETGID smallint; 
+ 
+DECLARE BETask_Cur CURSOR 
+ FOR SELECT BET.Title, BET.Designa.on, ETG.ID  
+  FROM USMC.BilletEvalua.onTask BET 
+   LEFT JOIN USMC.Evalua.onTaskGroup ETG on BET.Evalua.onTaskGroupID = ETG.ID 
+  WHERE BET.Billet = @Billet 
+  ORDER BY BET.Designa.on 
+ 
+OPEN BETask_Cur 
+ 
+FETCH NEXT FROM BETask_Cur  
+ INTO @BETTitle, @BETDesigna.on, @ETGID 
+ 
+WHILE @@FETCH_STATUS = 0 
+BEGIN 
+ INSERT INTO USMC.Evalua.onTask 
+  (Mul.MonthEvalua.onID,Evalua.onTaskGroupID,Title,Designa.on,LastUpdatedDate,LastUpdatedBy) 
+ VALUES 
+  (@Mul.MonthID,@ETGID,@BETTitle,@BETDesigna.on,getdate(),@UserID) 
+ 
+FETCH NEXT FROM BETask_Cur  
+ INTO @BETTitle, @BETDesigna.on, @ETGID 
+ 
+END 
+ 
+CLOSE BETask_Cur 
+DEALLOCATE BETask_Cur 
+ 
+--Create Each Of The Separate Evalua.on Checklist Records (If OSO) 
+IF @Billet = 'OSO' 
+BEGIN 
+ DECLARE @BECTitle varchar(200), @BECDesigna.on varchar(10); 
+ 
+ DECLARE BEChecklist_Cur CURSOR 
+  FOR SELECT BEC.Title, BEC.Designa.on  
+   FROM USMC.BilletEvalua.onChecklist BEC 
+   WHERE BEC.Billet = @Billet 
+   ORDER BY BEC.Designa.on 
+ 
+ OPEN BEChecklist_Cur 
+ 
+ FETCH NEXT FROM BEChecklist_Cur  
+  INTO @BECTitle, @BECDesigna.on 
+ 
+ WHILE @@FETCH_STATUS = 0 
+ BEGIN 
+  INSERT INTO USMC.Evalua.onChecklist 
+   (Mul.MonthEvalua.onID,Title,Designa.on,LastUpdatedDate,LastUpdatedBy) 
+  VALUES 
+   (@Mul.MonthID,@BECTitle,@BECDesigna.on,getdate(),@UserID) 
+ 
+ FETCH NEXT FROM BEChecklist_Cur  
+  INTO @BECTitle, @BECDesigna.on 
+ 
+ END 
+ 
+ CLOSE BEChecklist_Cur 
+ DEALLOCATE BEChecklist_Cur 
+END  
+ 
+--Create Mul.MonthSummary Record 
+IF @Billet = 'SNCOIC' 
+BEGIN 
+  SET @EvalTypeID = 4 
+END 
+ELSE 
+BEGIN 
+  SET @EvalTypeID = 2 
+END   
+SET @TrainingFileID = (SELECT ID FROM @TrainingFileID_Table) 
+ 
+DECLARE @Mul.MonthSummaryID_Table TABLE ( 
+ ID uniqueidentifier); 
+ 
+INSERT INTO USMC.Mul.MonthSummary 
+ (Evalua.onTypeID,TrainingFileID,LastUpdatedDate,LastUpdatedBy) 
+OUTPUT INSERTED.ID into @Mul.MonthSummaryID_Table 
+VALUES 
+ (@EvalTypeID,@TrainingFileID,getdate(),@UserID) 
+ 
+--Create Each Of The Separate MonthSummary Records 
+DECLARE @Mul.MonthSummaryID uniqueidentifier; 
+ 
+SET @Mul.MonthSummaryID = (SELECT ID FROM @Mul.MonthSummaryID_Table) 
+ 
+INSERT INTO USMC.MonthSummary 
+ (Mul.MonthSummaryID,MonthIncrement,LastUpdatedDate,LastUpdatedBy) 
+SELECT @Mul.MonthSummaryID,@MonthIncrement1,getdate(),@UserID 
+UNION ALL 
+SELECT @Mul.MonthSummaryID,@MonthIncrement2,getdate(),@UserID 
+UNION ALL 
+SELECT @Mul.MonthSummaryID,@MonthIncrement3,getdate(),@UserID 
+ 
+--Create Each Of The Separate MonthMissionSummary Records 
+DECLARE @MonthIndex .nyint; 
+SET @MonthIndex = 1; 
+ 
+WHILE @MonthIndex  <= @MonthIncrement3 
+BEGIN 
+    INSERT INTO USMC.MonthMissionSummary 
+    (Mul.MonthSummaryID, MonthIncrement, LastUpdatedDate, LastUpdatedBy)  
+ SELECT @Mul.MonthSummaryID,@MonthIndex,getdate(),@UserID 
+  
+ SET @MonthIndex = @MonthIndex + 1; 
+END 
+ 
+ 
+--Create Each Of The Separate MonthDutyAreaList Records 
+DECLARE @MSID uniqueidentifier, @BDAName varchar(100); 
+ 
+DECLARE MonthSummary_Cur CURSOR 
+ FOR SELECT ID 
+  FROM USMC.MonthSummary 
+  WHERE Mul.MonthSummaryID = @Mul.MonthSummaryID 
+  ORDER BY MonthIncrement 
+ 
+OPEN MonthSummary_Cur 
+ 
+FETCH NEXT FROM MonthSummary_Cur 
+ INTO @MSID 
+ 
+WHILE @@FETCH_STATUS = 0 
+BEGIN 
+ 
+ DECLARE BilletDutyArea_Cur CURSOR 
+  FOR SELECT [Name]  
+   FROM USMC.BilletDutyArea 
+   WHERE Billet = @Billet 
+ OPEN BilletDutyArea_Cur 
+ 
+ FETCH NEXT FROM BilletDutyArea_Cur 
+  INTO @BDAName 
+ 
+ WHILE @@FETCH_STATUS = 0 
+ BEGIN 
+ 
+  INSERT INTO USMC.MonthDutyAreaList 
+   (MonthSummaryID,[Name],LastUpdatedDate,LastUpdatedBy) 
+  VALUES 
+   (@MSID,@BDAName,getdate(),@UserID) 
+ 
+ FETCH NEXT FROM BilletDutyArea_Cur 
+  INTO @BDAName 
+ 
+ END 
+ 
+ CLOSE BilletDutyArea_Cur 
+ DEALLOCATE BilletDutyArea_Cur 
+ 
+FETCH NEXT FROM MonthSummary_Cur 
+ INTO @MSID 
+ 
+END 
+ 
+CLOSE MonthSummary_Cur 
+DEALLOCATE MonthSummary_Cur 
+ 
+--Create Each FormalTraining Record 
+DECLARE @FTCode varchar(5), @FTType varchar(50), @FTDisplayOrder smallint; 
+ 
+DECLARE FormalTrainingType_Cur CURSOR 
+ FOR SELECT BFT.Code, BFT.Type, BFT.DisplayOrder 
+  FROM USMC.BilletFormalTraining BFT 
+  WHERE BFT.Billet = @Billet 
+  AND BFT.Deleted = 'N' 
+  ORDER BY BFT.ID 
+ 
+OPEN FormalTrainingType_Cur 
+ 
+FETCH NEXT FROM FormalTrainingType_Cur 
+ INTO @FTCode, @FTType, @FTDisplayOrder 
+ 
+WHILE @@FETCH_STATUS = 0 
+BEGIN 
+ 
+ INSERT INTO USMC.FormalTraining 
+  (TrainingFileID,LastUpdatedDate,LastUpdatedBY,Code,Type,DisplayOrder) 
+ VALUES 
+  (@TrainingFileID, getdate(), @UserID, @FTCode, @FTType, @FTDisplayOrder) 
+ 
+FETCH NEXT FROM FormalTrainingType_Cur 
+ INTO @FTCode, @FTType, @FTDisplayOrder 
+ 
+END 
+ 
+CLOSE FormalTrainingType_Cur 
+DEALLOCATE FormalTrainingType_Cur 
+ 
+--Create Training Evalua.on and its tasks 
+SET @TrainingFileID = (SELECT ID FROM @TrainingFileID_Table); 
+ 
+DECLARE @TrainingEvalTypeId .nyint 
+ 
+IF @Billet = 'OSO' 
+BEGIN 
+ SET @TrainingEvalTypeId = 2; 
+END 
+ELSE 
+BEGIN 
+ SET @TrainingEvalTypeId = 1; 
+END 
+  
+DECLARE @TrainingEvalID_Table TABLE ( 
+ID uniqueidentifier); 
+ 
+INSERT INTO USMC.TrainingEvalua.on 
+       (TrainingFileID, EvalTypeID, LastUpdatedDate, LastUpdatedBy) 
+OUTPUT INSERTED.ID into @TrainingEvalID_Table 
+VALUES 
+  (@TrainingFileID, @TrainingEvalTypeId, getdate(), @UserID) 
+ 
+DECLARE @TrainingEvalID uniqueidentifier; 
+ 
+SET @TrainingEvalID = (SELECT ID FROM @TrainingEvalID_Table); 
+ 
+INSERT INTO USMC.TrainingEvalTask 
+ (TrainingEvalID, TaskGroupID, Name, Descrip.on, LastUpdatedDate, LastUpdatedBy) 
+SELECT  
+ @TrainingEvalID, TaskGroupID, Name, Descrip.on, getdate(), @UserID  
+FROM USMC.TrainingEvalTaskList 
+WHERE EvalTypeID = @TrainingEvalTypeId 
+ORDER BY TaskGroupID, Name 
+        
+--END 
+ 
+ 
+select ID from @TrainingFileID_Table 
+ 
+COMMIT TRANSACTION]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

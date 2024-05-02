@@ -1,0 +1,95 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUpdateP.]" directorySegmentName="seg_12" id="BDC5E603-90D5-4094-9951-7FE4A9022776">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[(@P.ID int 
+ ,@NwaID int 
+ ,@Date date.me 
+ ,@Height decimal(4,2) 
+ ,@Weight int 
+ ,@BodyFatPercent .oat 
+ ,@RunMinutes int 
+ ,@RunSeconds int 
+ ,@Pullups int 
+ ,@Hang int 
+ ,@Crunches int 
+ ,@Score int 
+ ,@LastEditBy varchar(15) 
+ ,@AmmoCanLi. int = null 
+ ,@Pushups int = null 
+ ,@ScoreRankID char(1) = null 
+ ,@PlankMinutes int = null 
+ ,@PlankSeconds int = null 
+ ) 
+ 
+AS 
+ 
+UPDATE  
+ [dbo].[PFT] 
+SET  
+  [NWA_ID] = @NwaID 
+ ,[PFT_DATE] = @Date 
+ ,[PFT_HEIGHT] = @Height 
+ ,[PFT_WEIGHT] = @Weight 
+ ,[PFT_BODY_FAT_PCT] = @BodyFatPercent 
+ ,[PFT_RUN_MINUTES] = @RunMinutes 
+ ,[PFT_RUN_SECONDS] = @RunSeconds 
+ ,[PFT_PULLUPS] = @Pullups 
+ ,[PFT_PUSHUPS] = @Pushups 
+ ,[PFT_HANG] = @Hang 
+ ,[PFT_CRUNCHES] = @Crunches 
+ ,[PFT_SCORE] = @Score 
+ ,[AmmoCanLi.] = @AmmoCanLi. 
+ ,[PFT_PLANK_MINUTES] = @PlankMinutes 
+ ,[PFT_PLANK_SECONDS] = @PlankSeconds 
+ ,[USER_LOGIN] = @LastEditBy 
+ ,[UPDATE_DATE] = GetDate() 
+ ,ScoreRankID = @ScoreRankID 
+WHERE  
+ PFT_ID = @P.ID 
+  
+IF @@ROWCOUNT = 0 
+ 
+INSERT INTO [dbo].[PFT] 
+ ([NWA_ID] 
+ ,[PFT_DATE] 
+ ,[PFT_HEIGHT] 
+ ,[PFT_WEIGHT] 
+ ,[PFT_BODY_FAT_PCT] 
+ ,[PFT_RUN_MINUTES] 
+ ,[PFT_RUN_SECONDS] 
+ ,[PFT_PULLUPS] 
+ ,[PFT_PUSHUPS] 
+ ,[PFT_HANG] 
+ ,[PFT_CRUNCHES] 
+ ,[PFT_SCORE] 
+ ,[AmmoCanLi.] 
+ ,[PFT_PLANK_MINUTES] 
+ ,[PFT_PLANK_SECONDS] 
+ ,[USER_LOGIN] 
+ ,[UPDATE_DATE] 
+ ,ScoreRankID) 
+VALUES 
+ (@NwaID 
+ ,@Date 
+ ,@Height 
+ ,@Weight 
+ ,@BodyFatPercent 
+ ,@RunMinutes 
+ ,@RunSeconds 
+ ,@Pullups 
+ ,@Pushups 
+ ,@Hang 
+ ,@Crunches 
+ ,@Score 
+ ,@AmmoCanLi. 
+ ,@PlankMinutes 
+ ,@PlankSeconds 
+ ,@LastEditBy 
+ ,GetDate() 
+ ,@ScoreRankID)]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

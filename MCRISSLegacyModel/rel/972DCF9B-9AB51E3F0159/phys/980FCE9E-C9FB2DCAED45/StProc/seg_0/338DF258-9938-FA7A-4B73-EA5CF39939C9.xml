@@ -1,0 +1,18 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUser]" directorySegmentName="seg_0" id="338DF258-9938-FA7A-4B73-EA5CF39939C9">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:44 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @Dis.nguishedName varchar(200) = NULL, 
+ @strUsername varchar(50), 
+ @strLastEditBy varchar(50) = "UNKNOWN" 
+) 
+AS 
+ 
+INSERT INTO [User] (UserName, Dis.nguishedName, UserTypeID, Sta.on_OrgUnitID, IsAc.ve, LastEditBy, LastEditDate)  
+VALUES (@strUsername, @Dis.nguishedName, 1, 2253, 1, @strLastEditBy, GetDate())]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>30378C7E-748C-F803-F9A3-93DBFA86C9A7</database>
+</StoredProcedureSqlServerv2k5>

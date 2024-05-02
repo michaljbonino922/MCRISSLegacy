@@ -1,0 +1,147 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateSchoolAssignmentData]" directorySegmentName="seg_28" id="B5BBCD40-3F8B-2736-C994-7BB50072ABE1">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@SchoolCode   int = 0, 
+ @SchoolType   varchar(2), 
+ @Deleted   varchar(1), 
+ @SchoolName   varchar(60), 
+ @StreetAddress   varchar(40), 
+ @StreetAddress2  varchar(40), 
+ @City        varchar(20), 
+ @State     varchar(2), 
+ @ZipCode    varchar(9), 
+ @Country   varchar(2), 
+ @AreaCode    varchar(3)  = NULL, 
+    @PhoneNumberPre.x  varchar(3)  = NULL, 
+ @PhoneNumberExchange varchar(4) = NULL, 
+ @DODCode    varchar(9)  = NULL, 
+ @Organiza.onID  integer, 
+ @E.ec.veDate   date.me, 
+ @UserLogin    varchar(15),  
+ @ID     int = @SchoolCode OUTPUT, 
+ @CityCode   varchar(4) = null, 
+ @CountyCode   varchar(3) = null, 
+ @StateCode   varchar(2) = null, 
+ @IsPublic   varchar(1) = 'Y' 
+AS 
+ 
+SET NOCOUNT ON 
+ 
+DECLARE @PhoneNumber varchar(10) 
+ 
+IF (@DODCode = '') OR (@DODCode = 'CCEP') 
+BEGIN 
+ SET @DODCode = NULL 
+END 
+ 
+--- DEFINE THE SCHOOL TELEPHONE NUMBER AND DOD CODE 
+--- IF THE DOD CODE IS NULL, CREATE A TEMPORARY "DUMMY" CODE 
+SET @PhoneNumber = COALESCE(@AreaCode, SPACE(0)) + COALESCE(@PhoneNumberPre.x, SPACE(0)) + COALESCE(@PhoneNumberExchange, SPACE(0)) 
+SET @DODCode   = COALESCE(@DODCode, dbo.CreateDummyDODCode(@SchoolType)) 
+ 
+ 
+IF NOT EXISTS (SELECT 1 FROM HIGH_SCHOOL WHERE SCHOOL_CODE = @SCHOOLCODE) 
+BEGIN 
+ --- INSERT NEW RECORD  
+ INSERT INTO HIGH_SCHOOL  
+  (SCHOOL_TYPE, HIGHSCHOOL_NAME, STREET, STREET2, CITY, STATE_CODE,  
+  ZIP_CODE, COUNTRY_CODE, TELEPHONE_NUMBER, DOD_CODE, ORGANIZATION_ID, EFFECTIVE_DATE,  
+  USER_LOGIN, UPDATE_DATE, DELETED, City_Code, COUNTY_CODE, STATE_GEO_CODE, ISPUBLIC) 
+ VALUES  
+  (@SchoolType, @SchoolName, @StreetAddress, @StreetAddress2, @City, @State,  
+  @ZipCode, @Country, @PhoneNumber, @DODCode, @Organiza.onID, @E.ec.veDate,  
+  @UserLogin, GETDATE(), @Deleted, @CityCode, @CountyCode, @StateCode, @IsPublic) 
+ 
+ --- RETURN THE ID OF THE NEW RECORD 
+ SET @ID = @@IDENTITY 
+ 
+ --- IF THE RSS IS NOT HQ OF ALBANY THEN PROCEED TO INSERT 
+ IF  @ORGANIZATIONID <> 1550 
+ BEGIN 
+  
+  
+ --NEED TO GET SCHOOL CODE OF HIGH SCHOOL THAT WAS JUST INSERTED AND ADD SCHOOL TO PROFILE TABLE 
+ DECLARE @SCHOOL_CODE INT 
+ DECLARE @SCHOOL_YEAR INT 
+  
+ SET @SCHOOL_CODE=(SELECT SCHOOL_CODE FROM HIGH_SCHOOL WHERE DOD_CODE=@DODCODE) 
+ SET @SCHOOL_YEAR=(SELECT dbo.GetSchoolYear(@E.ec.veDate)) 
+  
+ INSERT INTO [HIGH_SCHOOL_PROFILE] 
+ ( 
+ [SCHOOL_CODE], 
+ [SCHOOL_YEAR], 
+ [PRIORITY_CODE], 
+ [STATUS_CODE], 
+ [ACCESS_CODE], 
+ [RECRUITER_ID], 
+ [PERCENT_TO_COLLEGE], 
+ [MALE_SENIORS], 
+ [FEMALE_SENIORS], 
+ [ASVAB_RESP], 
+ [ASVAB_MONTH], 
+ [ASVAB_NUM], 
+ [SCHEDULED_GRAD_DATE], 
+ [USER_LOGIN], 
+ [UPDATE_DATE] 
+ ) 
+ VALUES 
+ ( 
+ @SCHOOL_CODE, 
+ @SCHOOL_YEAR, 
+ NULL, 
+ NULL, 
+ NULL, 
+ NULL, 
+ NULL, 
+ 0, 
+ 0, 
+ 'N', 
+ NULL, 
+ NULL, 
+ NULL, 
+ 'SA', 
+ GETDATE() 
+ ) 
+ END 
+  
+  
+END 
+ELSE 
+BEGIN 
+ --- UPDATE EXISTING RECORD 
+ UPDATE  
+  HIGH_SCHOOL  
+ SET      
+  HIGHSCHOOL_NAME  = @SchoolName,  
+  STREET    = @StreetAddress, 
+  STREET2   = @StreetAddress2,  
+  CITY    = @City,  
+  STATE_CODE   = @State,  
+  ZIP_CODE   = @ZipCode,  
+  COUNTRY_CODE = @Country, 
+  TELEPHONE_NUMBER = @PhoneNumber,  
+  DOD_CODE   = @DODCode,  
+  ORGANIZATION_ID = @Organiza.onID,  
+  EFFECTIVE_DATE  = @E.ec.veDate,  
+  DELETED   = @Deleted, 
+  USER_LOGIN   = @UserLogin,  
+  UPDATE_DATE  = GETDATE(), 
+  CITY_CODE       = @CityCode, 
+  COUNTY_CODE  = @CountyCode, 
+  STATE_GEO_CODE = @StateCode, 
+  ISPUBLIC  = @IsPublic    
+ WHERE  
+  SCHOOL_CODE  = @SchoolCode 
+ 
+ --- RETURN THE ID OF THE RECORD 
+ SET @ID = @SchoolCode 
+END 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,30 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetPFTHistory]" directorySegmentName="seg_19" id="22D20AB5-5C1C-2CDE-0C65-0D78FCDD02F2">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@NWAID int 
+AS 
+ 
+SELECT 
+ P.PFT_ID, P.NWA_ID, 
+ CONVERT(CHAR(11), P.PFT_DATE, 106) AS PFT_DATE, 
+ COALESCE(PFT_HEIGHT, 0) AS PFT_HEIGHT,  
+ COALESCE(PFT_WEIGHT, 0) AS PFT_WEIGHT,  
+ COALESCE(PFT_BODY_FAT_PCT, 0) AS PFT_BODY_FAT_PCT,  
+ COALESCE(PFT_RUN_MINUTES, 0) AS PFT_RUN_MINUTES,  
+ COALESCE(PFT_RUN_SECONDS, 0) AS PFT_RUN_SECONDS,  
+ COALESCE(PFT_PULLUPS, 0) AS PFT_PULLUPS,  
+ COALESCE(PFT_HANG, 0) AS PFT_HANG,  
+ COALESCE(PFT_CRUNCHES, 0) AS PFT_CRUNCHES, 
+ COALESCE(PFT_SCORE, 0) AS PFT_SCORE 
+FROM 
+ PFT P INNER JOIN NWA N ON  
+  (P.NWA_ID = N.NWA_ID AND 
+  N.NWA_ID = @NWAID)  
+ORDER BY 
+ P.PFT_DATE DESC, P.PFT_ID DESC]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

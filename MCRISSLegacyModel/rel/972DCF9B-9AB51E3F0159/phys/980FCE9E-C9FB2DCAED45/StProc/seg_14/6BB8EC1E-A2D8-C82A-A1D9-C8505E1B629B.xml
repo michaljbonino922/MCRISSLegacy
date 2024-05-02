@@ -1,0 +1,48 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetTakeOneCardLoca.onsBySector]" directorySegmentName="seg_14" id="6BB8EC1E-A2D8-C82A-A1D9-C8505E1B629B">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:56 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@SectorID uniqueiden..er, 
+ @FY int 
+ 
+AS 
+BEGIN 
+  
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+SELECT 
+ tol.ID,  
+ tol.TakeOneCardID, 
+ tol.Loca.onName,  
+ tol.LocStreet1, 
+ tol.CityCode, 
+ tol.CountyCode, 
+ tol.StateCode, 
+ tol.ZipCode,  
+ tol.ContactFirstName,  
+ tol.ContactLastName,  
+ tol.ContactMiddleIni.al,  
+ tol.ContactTitle, 
+ tol.Phone,  
+ tol.EmailAddress,  
+ tol.Stock, 
+    tolr.RestockDate, 
+    tolr.StockAdded, 
+    tol.IsAc.ve, 
+    toc.FY, 
+    toc.DatePrepared 
+FROM  RSSOSS.USMC.TakeOneLoca.on tol 
+INNER JOIN RSSOSS.USMC.TakeOneCard toc on TOL.TakeOneCardID = toc.ID  
+LEFT OUTER JOIN RSSOSS.USMC.TakeOneLoca.onRestock tolr on tolr.TakeOneLoca.onID = tol.ID and 
+   tolr.ID = (select MAX(tolr2.ID)  
+                from RSSOSS.USMC.TakeOneLoca.onRestock tolr2 
+               where tolr2.TakeOneLoca.onID = tol.ID) 
+WHERE toc.SectorID = @SectorID and tol.IsAc.ve = 1 and toc.FY = @FY 
+ 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

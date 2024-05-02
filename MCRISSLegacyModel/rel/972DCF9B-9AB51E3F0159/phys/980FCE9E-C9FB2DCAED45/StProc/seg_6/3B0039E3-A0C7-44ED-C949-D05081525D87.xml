@@ -1,0 +1,82 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetXmlRecruiter369MonthSummary]" directorySegmentName="seg_6" id="3B0039E3-A0C7-44ED-C949-D05081525D87">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@MonthSummaryID uniqueidentifier 
+ 
+AS 
+BEGIN 
+  
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+    
+ SELECT mms.ID 
+    ,Evalua.onTypeID 
+    ,et.Name AS EvalTypeName 
+    ,TrainingFileID 
+    --,ParDate 
+    ,CompleteDate 
+    ,mms.LastUpdatedDate 
+    ,mms.LastUpdatedBy 
+        
+    ,(SELECT ms.ID 
+    ,Mul.MonthSummaryID 
+    ,MonthIncrement 
+    ,SignatureID AS 'Signature/SignatureID'  
+    ,U1.FirstName AS 'Signature/SignatureFirstName'  
+    ,U1.MiddleName AS 'Signature/SignatureMiddleName'  
+    ,U1.LastName AS 'Signature/SignatureLastName'  
+    ,Comments 
+    ,Es.matedDate 
+    ,CommandGroupMemberSignatureDate 
+    ,CommandGroupMemberSignatureID AS 'CommandGroupMemberSignature/SignatureID'  
+    ,U2.FirstName AS 'CommandGroupMemberSignature/SignatureFirstName'  
+    ,U2.MiddleName AS 'CommandGroupMemberSignature/SignatureMiddleName'  
+    ,U2.LastName AS 'CommandGroupMemberSignature/SignatureLastName'  
+    ,COSignatureID AS 'COSignature/SignatureID'  
+    ,U3.FirstName AS 'COSignature/SignatureFirstName'  
+    ,U3.MiddleName AS 'COSignature/SignatureMiddleName'  
+    ,U3.LastName AS 'COSignature/SignatureLastName'  
+    ,SentToDistrictDate 
+    ,LastUpdatedDate 
+    ,LastUpdatedBy 
+    ,Name 
+    ,Rank 
+    ,( 
+      SELECT da.ID 
+     ,MonthSummaryID 
+     ,Name 
+     ,Mastery 
+     ,TrainingRequired 
+     ,LastUpdatedDate 
+     ,LastUpdatedBy 
+     FROM USMC.MonthDutyAreaList da 
+     WHERE 
+     da.MonthSummaryID = ms.ID 
+     ORDER BY RIGHT(da.Name, 4) 
+     FOR XML PATH('DutyAreaTask'), TYPE, ELEMENTS XSINIL 
+     ) AS DutyAreaTasks 
+    FROM USMC.MonthSummary ms 
+    LEFT OUTER JOIN USMC.vwMcrissUserMgmtUser AS U1 ON U1.UserID = ms.SignatureID 
+    LEFT OUTER JOIN USMC.vwMcrissUserMgmtUser AS U2 ON U2.UserID = ms.CommandGroupMemberSignatureID 
+    LEFT OUTER JOIN USMC.vwMcrissUserMgmtUser AS U3 ON U3.UserID = ms.COSignatureID 
+    WHERE  
+    ms.ID = @MonthSummaryID 
+    ORDER BY MonthIncrement 
+    FOR XML PATH('MonthlySummary'), TYPE, ELEMENTS XSINIL 
+    ) AS MonthlySummaries 
+        
+ FROM  
+ USMC.Mul.MonthSummary mms 
+ INNER JOIN USMC.MonthSummary ms1 ON ms1.Mul.MonthSummaryID = mms.ID 
+ INNER JOIN USMC.Evalua.onType et ON mms.Evalua.onTypeID=et.ID 
+ WHERE  
+ ms1.ID = @MonthSummaryID     
+ 
+ FOR XML PATH ('MonthSummary-369'), root('MonthSummary-369s'), ELEMENTS XSINIL 
+  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

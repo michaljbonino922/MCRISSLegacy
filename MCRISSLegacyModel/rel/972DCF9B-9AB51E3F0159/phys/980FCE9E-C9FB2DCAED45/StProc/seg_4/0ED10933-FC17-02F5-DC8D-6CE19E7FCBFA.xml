@@ -1,0 +1,40 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetCollegePro.leList]" directorySegmentName="seg_4" id="0ED10933-FC17-02F5-DC8D-6CE19E7FCBFA">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@ZipCodes xml =null, 
+@FiscalYear int 
+  
+AS 
+ 
+BEGIN 
+    
+   SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+    
+   IF @ZipCodes IS NOT null 
+   BEGIN 
+  DECLARE @ZipCodesTable TABLE (ID varchar(5)) 
+  INSERT INTO @ZipCodesTable (ID) 
+  SELECT ParamValues.ID.value('.','VARCHAR(5)') 
+  FROM @ZipCodes.nodes('ZipCodes/id') as ParamValues(ID)  
+ END 
+ 
+ 
+   SELECT hsp.ROWGUID, hs.SCHOOL_CODE, HIGHSCHOOL_NAME , school_type  
+      FROM HIGH_SCHOOL hs 
+      inner join  dbo.HIGH_SCHOOL_PROFILE hsp on  hsp.school_code = hs.school_code 
+      WHERE 
+   (  @ZipCodes is null OR 
+   LEFT(ZIP_CODE,5) IN (SELECT * FROM @ZipCodesTable)  
+   ) 
+   AND hsp.school_year = @FiscalYear 
+   AND hs.DELETED = 'N' 
+   ORDER BY HIGHSCHOOL_NAME  
+  
+ 
+END]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

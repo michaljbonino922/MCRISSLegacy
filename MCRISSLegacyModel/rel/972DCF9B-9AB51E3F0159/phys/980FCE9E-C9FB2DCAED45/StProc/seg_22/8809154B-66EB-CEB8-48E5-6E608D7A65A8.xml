@@ -1,0 +1,23 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_MSins_MCRC_RECEIVED_DATE]" directorySegmentName="seg_22" id="8809154B-66EB-CEB8-48E5-6E608D7A65A8">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@c1 int,@c2 int,@c3 date.me,@c4 varchar(15),@c5 date.me 
+ 
+AS 
+BEGIN 
+ 
+insert into [MCRC_RECEIVED_DATE](  
+[MCRC_RECEIVED_DATE_ID], [CONTRACT_ID], [MCRC_RECEIVED_DATE], [USER_LOGIN], [UPDATE_DATE] 
+ ) 
+ 
+values (  
+@c1, @c2, @c3, @c4, @c5 
+ ) 
+ 
+END]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

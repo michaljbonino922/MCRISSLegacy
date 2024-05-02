@@ -1,0 +1,43 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetSMCRReserveUnitByID]" directorySegmentName="seg_9" id="E3703F30-F656-61F6-1EF4-2E963AA380F2">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@SMCRReserveUnitID uniqueiden..er 
+   
+AS 
+SET NOCOUNT ON 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+  
+  SELECT  
+   
+   sr.[SMCRReserveUnitID], 
+   sr.Organiza.onID AS Organiza.onID, 
+   0 As SchoolCode, 
+   sr.FiscalYear AS FiscalYear, 
+   [ContractType], 
+   [SMCRReserveUnitName] As SMCRReserveUnitName, 
+   [E1ThruE5Popula.on], 
+   sr.[Street1] AS SMCRStreet1,  
+   sr.[Street2]  AS SMCRStreet2,  
+   sr.[City]  AS SMCRCity, 
+   sr.[State]  AS SMCRState,  
+   sr.[ZipCode]  AS SMCRZipCode, 
+   
+   sr.[Remarks], 
+   sr.NumVisitsPlanned, 
+   sr.ContractGoal as NumContractGoal, 
+     
+   sr.PointOfContactID 
+  FROM [MCRISS].[USMC].[SMCRReserveUnit] sr 
+  
+  WHERE sr.SMCRReserveUnitID = @SMCRReserveUnitID 
+           
+   
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

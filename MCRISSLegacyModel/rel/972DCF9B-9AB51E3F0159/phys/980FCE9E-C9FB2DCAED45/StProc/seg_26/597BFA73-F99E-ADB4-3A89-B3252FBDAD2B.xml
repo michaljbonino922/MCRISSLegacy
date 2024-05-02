@@ -1,0 +1,63 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateCandidateInfo]" directorySegmentName="seg_26" id="597BFA73-F99E-ADB4-3A89-B3252FBDAD2B">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[(@NWARowId uniqueiden..er 
+ ,@BootsIssuedDate date.me = null 
+ ,@TravelVoucherCompletedDate date.me = null 
+ ,@RFOSubmitedDate date.me = null 
+ ,@RFASubmitedDate date.me = null 
+ ,@Notes varchar(200) = null) 
+    
+AS 
+ 
+SET NOCOUNT ON 
+ 
+DECLARE @NwaId int 
+SELECT @NwaId = n.NWA_ID FROM [dbo].[NWA] n WHERE n.[rowguid] = @NWARowId 
+ 
+IF EXISTS (SELECT NULL FROM [USMC].[CandidatePoolCardInfo] cpf WHERE cpf.NWA_ID = @NwaId) 
+ BEGIN 
+  UPDATE  
+   [USMC].[CandidatePoolCardInfo]   
+  SET  
+    [BootsIssuedDate] = @BootsIssuedDate 
+   ,[TravelVoucherCompletedDate] = @TravelVoucherCompletedDate 
+   ,[RFOSubmitedDate] = @RFOSubmitedDate  
+   ,[RFAOSubmitedDate] = @RFASubmitedDate 
+   ,[LastUpdateUserId] = newid() 
+   ,[LastUpdateDate] = GetDate() 
+   ,[Notes] = @Notes 
+  WHERE   
+   [NWA_ID] = @NwaId 
+ 
+ END 
+ELSE   
+ BEGIN  
+  INSERT INTO [USMC].[CandidatePoolCardInfo] 
+   ([NWA_ID] 
+   ,[BootsIssuedDate] 
+   ,[TravelVoucherCompletedDate] 
+   ,[RFOSubmitedDate] 
+   ,[RFAOSubmitedDate] 
+   ,[LastUpdateUserId] 
+   ,[LastUpdateDate] 
+   ,[Notes]) 
+  VALUES 
+   (@NwaId 
+   ,@BootsIssuedDate 
+   ,@TravelVoucherCompletedDate 
+   ,@RFOSubmitedDate 
+   ,@RFASubmitedDate 
+   ,newid() 
+   ,GetDate() 
+   ,@Notes) 
+ END 
+ 
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

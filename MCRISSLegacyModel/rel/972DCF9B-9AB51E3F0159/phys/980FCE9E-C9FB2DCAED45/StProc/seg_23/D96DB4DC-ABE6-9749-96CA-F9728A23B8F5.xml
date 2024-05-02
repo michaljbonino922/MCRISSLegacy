@@ -1,0 +1,124 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_rptRecruiterProduc.onReport]" directorySegmentName="seg_23" id="D96DB4DC-ABE6-9749-96CA-F9728A23B8F5">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@SSN as varchar(9) 
+ 
+AS 
+set nocount on 
+ 
+SELECT  min(nwa_id) nwa_id  
+INTO   #tempRP  
+FROM  nwa 
+GROUP BY marine_candidate_id 
+ 
+ 
+SELECT  P.social_security_number, P..rst_name, P.last_name, P.legal_middle_name, P.Person_ID, 
+  NWA.comp_change_.ag, NWA.Marine_candidate_id mci, nwa.recruiter_of_record_id, nwa.organiza.on_of_record_id, 
+  C1.contract_begin_date, C1.discharge_date, C1.discharge_code, C1.nwa_id, C1.term_of_enlistment, C1.component_code, C1.contract_id 
+ 
+INTO   #TempRecruitees 
+ 
+FROM  Contract C1  inner join #tempRP on C1.nwa_id = #tempRP.nwa_id 
+        inner join NWA on C1.NWA_ID = NWA.NWA_ID  
+        inner join Person P on P.PERSON_ID = NWA.RECRUITER_OF_RECORD_ID 
+ 
+WHERE  P.Social_Security_Number = @SSN 
+ 
+ 
+ 
+ 
+ 
+SELECT  TRec.*, 
+ CE.educa.on_code, CE.educa.on_level, school_end_date, 
+ S.ship_date, 
+ TOrg.NAME AS SHIP_TO, 
+ RP.rank_code, RP.tour_begin_date, RP.tour_end_date, 
+ RT.Drop_Reason, RT.drop_date, 
+ CA.AFQT_Score, CA.Asvab_Date, 
+ P2.Social_Security_Number SSN, P2.last_name LN, P2..rst_name FN, P2.legal_middle_name MN, 
+ RO.MCC_Code, RO.Short_Name, 
+ MC.Gender_Code, MC.marine_candidate_id,  
+ QSN.QSN_ID, QSN.MOS, 
+ DRC.discharge_reason, 
+ DRRT.discharge_reason as mcrd_reason 
+ 
+ 
+ 
+INTO #TEMPj 
+ 
+FROM   
+ #TempRecruitees TRec 
+      le. outer join QSN on TRec.CONTRACT_ID = QSN.CONTRACT_ID 
+       le. outer join Discharge_Reason DRC on TRec.DISCHARGE_CODE = DRC.DISCHARGE_CODE 
+      le. outer join Shipper S on  TRec.CONTRACT_ID = S.CONTRACT_ID 
+      le. outer join Recruit_Training RT on S.SHIP_ID = RT.SHIP_ID 
+      le. outer join Discharge_Reason DRRT on RT.DROP_REASON = DRRT.DISCHARGE_CODE 
+      le. outer join Training_Organiza.on TOrg on S.TRAINING_ORGANIZATION_ID = TOrg.TRAINING_ORGANIZATION_ID 
+      le. outer join Person P2 on TRec.mci = P2.PERSON_ID 
+      le. outer join Recrui.ng_Person RP on TRec.RECRUITER_OF_RECORD_ID = RP.RECRUITING_PERSON_ID 
+      le. outer join Recrui.ng_Organiza.on RO on TRec.ORGANIZATION_OF_RECORD_ID = RO.ORGANIZATION_ID 
+      le. outer join Candidate_ASVAB CA on TRec.mci = CA.MARINE_CANDIDATE_ID 
+      le. outer join Marine_Candidate MC on TRec.mci = MC.MARINE_CANDIDATE_ID 
+      le. outer join Candidate_Educa.on CE on MC.MARINE_CANDIDATE_ID = CE.MARINE_CANDIDATE_ID 
+ 
+ 
+WHERE  (  
+ 
+ 
+ CE.rowguid = (select top 1 ce1.rowguid from candidate_educa.on ce1 
+    where ce1.marine_candidate_id = ce.marine_candidate_id order by ce1.educa.on_level desc) 
+ 
+ AND 
+  ((NOT EXISTS 
+          ( 
+   SELECT  1 
+                 FROM    contract C2 
+                 WHERE   C2.nwa_id = TRec.nwa_id AND discharge_code = 'ZKC' AND C2.CONTRACT_ID < TRec.CONTRACT_ID))  
+    AND ((TRec.DISCHARGE_CODE <> 'ZKC') OR (TRec.DISCHARGE_CODE IS NULL))) 
+ 
+  -- get asvab record with the latest date 
+ AND (CA.ROWGUID =( 
+   SELECT  top 1 rowguid  
+   FROM  candidate_asvab CA1 
+   WHERE  CA1.marine_candidate_id = CA.marine_candidate_id and CA1.asvab_date =  
+    ( 
+    SELECT  max(CA2.asvab_date)  
+    FROM candidate_asvab CA2  
+    WHERE CA2.marine_candidate_id = CA1.marine_candidate_id) 
+        ) 
+  ) 
+ 
+ )   -- end of  where statement 
+ 
+ 
+SELECT CONTRACT_ID,PROGRAM_ID INTO #TEMPjj FROM program_availability WHERE CONTRACT_ID IN(SELECT CONTRACT_ID FROM #TEMPJ) 
+ 
+set nocount o. 
+ 
+SELECT J.*, 
+( 
+SELECT TOP 1 P.PROGRAM_ID  
+FROM #TEMPjj PA LEFT OUTER JOIN PROGRAM P ON PA.PROGRAM_ID=P.PROGRAM_ID 
+WHERE  
+pa.CONTRACT_ID = J.CONTRACT_ID 
+)AS PROGid 
+, 
+( 
+SELECT TOP 1 P.Program_descrip.on  
+FROM #TEMPjj PA LEFT OUTER JOIN PROGRAM P ON PA.PROGRAM_ID=P.PROGRAM_ID 
+WHERE  
+pa.CONTRACT_ID = J.CONTRACT_ID 
+)AS PROG_DESC 
+FROM #TEMPj j 
+ 
+set nocount on 
+DROP TABLE #TEMPjj 
+DROP TABLE #TEMPJ 
+DROP TABLE #TempRecruitees 
+set nocount o.]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

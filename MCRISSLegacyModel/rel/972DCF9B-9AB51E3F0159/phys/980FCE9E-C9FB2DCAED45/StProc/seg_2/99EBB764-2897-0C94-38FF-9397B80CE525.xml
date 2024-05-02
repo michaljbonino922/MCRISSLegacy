@@ -1,0 +1,180 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetContactSummary]" directorySegmentName="seg_2" id="99EBB764-2897-0C94-38FF-9397B80CE525">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@OrgID int, 
+ @RecruiterID uniqueidentifier, 
+ @FiscalYear int, 
+ @Month int 
+ 
+AS 
+BEGIN 
+  
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+  
+ DECLARE @CalendarYear int 
+ 
+ IF @Month = 10 OR @Month = 11 OR @Month = 12 
+ BEGIN 
+  SET @CalendarYear = @FiscalYear - 1 
+ END 
+ ELSE 
+ BEGIN 
+  SET @CalendarYear = @FiscalYear 
+ END  
+ 
+ DECLARE @SchoolYear int 
+ 
+ IF @Month = 7 OR 
+    @Month = 8 OR 
+    @Month = 9 OR 
+    @Month = 10 OR 
+    @Month = 11 OR 
+    @Month = 12 
+ BEGIN  
+  SET @SchoolYear = @CalendarYear + 1 
+ END 
+ ELSE 
+ BEGIN 
+  SET @SchoolYear = @CalendarYear  
+ END  
+  
+ CREATE TABLE #ContactSummary 
+ ( 
+  Name varchar(100), 
+  NumberOnList int, 
+  NumberLe. int 
+ ) 
+     
+ DECLARE @CurrentYear int 
+ DECLARE @CurrentMonth int 
+ SET @CurrentYear = YEAR(GETDATE()) 
+ SET @CurrentMonth = MONTH(GETDATE()) 
+ 
+ DECLARE @CurrentSchoolYear int 
+ 
+ IF @CurrentMonth = 7 OR 
+    @CurrentMonth = 8 OR 
+    @CurrentMonth = 9 OR 
+    @CurrentMonth = 10 OR 
+    @CurrentMonth = 11 OR 
+    @CurrentMonth = 12 
+ BEGIN  
+  SET @CurrentSchoolYear = @CurrentYear + 1 
+ END 
+ ELSE 
+ BEGIN 
+  SET @CurrentSchoolYear = @CurrentYear  
+ END  
+  
+ DECLARE @SchoolName varchar(100) 
+ DECLARE @SchoolID uniqueidentifier 
+ DECLARE @Area varchar(3) 
+ DECLARE @RecordCount int 
+   
+ SELECT *  
+ INTO #HighSchool 
+ FROM  
+  MCRISS.dbo.HIGH_SCHOOL hs 
+ WHERE  
+  hs.ORGANIZATION_ID = @OrgID 
+  AND hs.School_Type = 'HS' 
+  AND hs.DELETED <> 'Y' 
+ 
+ DECLARE @Recrui.ngPersonID int 
+   
+    SELECT @Recrui.ngPersonID = RECRUITING_PERSON_ID FROM MCRISS.dbo.RECRUITING_PERSON 
+ WHERE rowguid = @RecruiterID 
+ 
+ 
+ SELECT 
+  hs.HighSchool_Name AS SchoolName  
+  ,hs.RowGuid AS SchoolID 
+  ,ms.SectorDesignator + ISNULL(CAST(hsp.Designator AS VARCHAR(2)), '') AS Area 
+ INTO #SectorHighSchool 
+ FROM 
+  #HighSchool hs 
+  INNER JOIN MCRISS.dbo.HIGH_SCHOOL_PROFILE hsp 
+   ON hsp.SCHOOL_CODE = hs.SCHOOL_CODE 
+  LEFT OUTER JOIN USMC.MapsSectorZip msz 
+   ON LEFT(hs.ZIP_CODE, 5) = msz.Zip  
+  LEFT OUTER JOIN USMC.MapsSector ms  
+   ON ms.SectorID = msz.SectorID  
+ WHERE 
+     hsp.RECRUITER_ID = @Recrui.ngPersonID 
+  AND hsp.SCHOOL_YEAR = @SchoolYear 
+  AND SectorType = 'E' 
+    ORDER BY ms.SectorDesignator, hsp.Designator, hs.HighSchool_Name 
+ 
+ 
+ SELECT @RecordCount = Count(*) FROM #SectorHighSchool 
+ 
+ WHILE @RecordCount <> 0 
+ BEGIN  
+  
+  SELECT Top 1 @SchoolName = SchoolName, @SchoolID = SchoolID, @Area = Area 
+  FROM  #SectorHighSchool 
+   
+  DECLARE @LoopCount int 
+  SET @LoopCount = 0 
+   
+  DECLARE @Gradua.onYear int 
+   
+  WHILE @LoopCount < 3 
+  BEGIN 
+    
+   SET @Gradua.onYear = @CurrentSchoolYear - @LoopCount 
+   
+   INSERT INTO #ContactSummary 
+   SELECT  
+    CAST(@Gradua.onYear AS char(4)) +' ' + @SchoolName + ' ' + @Area 
+    , ( SELECT Count(DISTINCT p.ProspectId) 
+     FROM  
+      PROSPECTING.USMC.ImportEvent ie  
+      INNER JOIN PROSPECTING.USMC.ProspectSchool ps  
+       ON ps.schoolid = ie.schoolid  
+      INNER JOIN PROSPECTING.USMC.Prospect p  
+       ON p.prospec.d= ps.prospec.d AND  
+        p.Gradua.onYear = ie.Gradua.onYear 
+     WHERE   
+      ie.SchoolId = @SchoolID 
+      AND ie.gradua.onyear = @Gradua.onYear 
+      AND ie.ImportEventStatusTypeId = 3 
+     ) 
+    , ( SELECT Count(DISTINCT p.ProspectId) 
+     FROM  
+      PROSPECTING.USMC.ImportEvent ie  
+      INNER JOIN PROSPECTING.USMC.ProspectSchool ps  
+       ON ps.schoolid = ie.schoolid  
+      INNER JOIN PROSPECTING.USMC.Prospect p  
+       ON p.prospec.d= ps.prospec.d AND  
+        p.Gradua.onYear = ie.Gradua.onYear 
+     WHERE   
+      ie.SchoolId = @SchoolID 
+      AND ie.gradua.onyear = @Gradua.onYear 
+      AND ProspectDisposi.onId = 1 
+      AND ie.ImportEventStatusTypeId = 3 
+     ) 
+ 
+   SET @LoopCount = @LoopCount + 1 
+  END 
+ 
+  SET @LoopCount = 0 
+ 
+  DELETE FROM #SectorHighSchool WHERE SchoolID = @SchoolID 
+    
+  SELECT @RecordCount = Count(*) FROM #SectorHighSchool 
+ END 
+  
+ SELECT * FROM #ContactSummary 
+ 
+ DROP Table #ContactSummary 
+ DROP Table #SectorHighSchool 
+ DROP TABLE #HighSchool 
+  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

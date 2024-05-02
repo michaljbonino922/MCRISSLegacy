@@ -1,0 +1,425 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetIMOAc.vityCounts_PJ_MS]" directorySegmentName="seg_13" id="BB1198FF-AB66-E18C-6A28-E3948B65599A">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@RecruiterID   uniqueiden..er = null, 
+    @OrgID   int = null, 
+    @DateFrom date.me = null, 
+    @DateTo date.me = null, 
+    @IsApproved bit = 0 
+ 
+AS 
+BEGIN 
+  
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+  
+ declare @EpCont int 
+ declare @HvCont int 
+ declare @TcCont int 
+ declare @AcCont int 
+     
+ declare @TcAppt int 
+ declare @AcAppt int 
+ declare @HvAppt int 
+ declare @EpAppt int 
+  
+ declare @TcMade int 
+ declare @AcMade int 
+ declare @HvMade int 
+ declare @EpMade int 
+  
+ declare @EpInt int 
+ declare @HvInt int 
+ declare @AcInt int 
+ declare @TcInt int 
+  
+ declare @OtScr int 
+ declare @OtInt int 
+  
+ --USMC.GetDailyOrMonthlyTcMade(@RecruiterID, @OrgID, @Year, @Month, @Day, 1, @IsApproved) AS TcMadeAm, 
+ --USMC.GetDailyOrMonthlyTcMade(@RecruiterID, @OrgID, @Year, @Month, @Day, 2, @IsApproved) AS TcMadePm, 
+ --USMC.GetDailyOrMonthlyTcMade(@RecruiterID, @OrgID, @Year, @Month, @Day, 3, @IsApproved) AS TcMadeEvening, 
+ SELECT @TCMade = Count(pc.ProspectId) 
+   FROM Prospec.ng.USMC.ProspectComment pc 
+INNER JOIN Prospec.ng.USMC.ProspectAc.vityComment pac ON pac.ProspectAc.vityCommentId = pc.ProspectAc.vityCommentId 
+INNER JOIN Prospec.ng.USMC.ProspectCommentType pct ON pct.ProspectCommentTypeId = pac.ProspectCommentTypeId 
+     WHERE pac.Ac.vity = 'TC' AND 
+     pct.ProspectCommentType IN ('CM', 'Col', 'Col-S', 'Col-R', 'NI', 'NA', 'NH', 'NHCB', 'NHLM') 
+     AND Convert(Date,Convert(Date,pc.ProspectDate)) >= Coalesce(@dateFrom, Convert(Date,pc.ProspectDate)) 
+ AND Convert(Date,pc.ProspectDate) <= Coalesce(@dateTo, Convert(Date,pc.ProspectDate))  
+    AND pc.IsApproved = @IsApproved    
+    AND pc.ProspectId IN (SELECT P.ProspectId  
+                           FROM Prospec.ng.USMC.Prospect P 
+                     INNER JOIN USMC.vwMcrissRecrui.ngOrganiza.on Org ON P.Recrui.ngOrganiza.onId=Org.rowguid 
+                          WHERE (pc.Recrui.ngPersonId=@RecruiterID OR @RecruiterID IS NULL) 
+                            AND (ORGANIZATION_ID=@OrgID OR @OrgID IS NULL)  
+                        ) 
+     
+    --------------------------------------------------------------------------------------------------------- 
+  
+ --USMC.GetDailyOrMonthlyTcContact(@RecruiterID, @OrgID, @Year, @Month, @Day, 1, @IsApproved) AS TcContAm, 
+ --USMC.GetDailyOrMonthlyTcContact(@RecruiterID, @OrgID, @Year, @Month, @Day, 2, @IsApproved) AS TcContPm, 
+ --USMC.GetDailyOrMonthlyTcContact(@RecruiterID, @OrgID, @Year, @Month, @Day, 3, @IsApproved) AS TcContEvening, 
+  
+  
+     
+ SELECT @TCCont = Count(*) 
+   FROM Prospec.ng.USMC.ProspectComment pc 
+INNER JOIN Prospec.ng.USMC.ProspectAc.vityComment pac ON pac.ProspectAc.vityCommentId = pc.ProspectAc.vityCommentId 
+INNER JOIN Prospec.ng.USMC.ProspectCommentType pct ON pct.ProspectCommentTypeId = pac.ProspectCommentTypeId 
+     WHERE pac.Ac.vity = 'TC' AND 
+     pct.ProspectCommentType IN ('CM', 'Col', 'Col-S', 'Col-R', 'NI') 
+    AND (pc.IsApproved = @IsApproved) 
+     AND Convert(Date,pc.ProspectDate) >= Coalesce(@dateFrom, Convert(Date,pc.ProspectDate)) 
+ AND Convert(Date,pc.ProspectDate) <= Coalesce(@dateTo, Convert(Date,pc.ProspectDate))  
+  
+    AND pc.ProspectId IN (SELECT P.ProspectId  
+                           FROM Prospec.ng.USMC.Prospect P 
+                     INNER JOIN USMC.vwMcrissRecrui.ngOrganiza.on Org ON P.Recrui.ngOrganiza.onId=Org.rowguid 
+                          WHERE (pc.Recrui.ngPersonId=@RecruiterID OR @RecruiterID IS NULL) 
+                            AND (ORGANIZATION_ID=@OrgID OR @OrgID IS NULL)  
+                        ) 
+                         
+ --------------------------------------------------------------------------------------------------------------- 
+  
+ --USMC.GetDailyOrMonthlyApptByType (@RecruiterID, @OrgID, 'TC', @Year, @Month, @Day, 1, @IsApproved) AS TcApptAm, 
+ --USMC.GetDailyOrMonthlyApptByType (@RecruiterID, @OrgID, 'TC', @Year, @Month, @Day, 2, @IsApproved) AS TcApptPm, 
+ --USMC.GetDailyOrMonthlyApptByType (@RecruiterID, @OrgID, 'TC', @Year, @Month, @Day, 3, @IsApproved) AS TcApptEvening, 
+  
+ SELECT  
+ @TCAppt = Count(*)  
+ FROM  
+ RSSOSS.USMC.Event e,   
+ RSSOSS.USMC.EventOwners eo,   
+ RSSOSS.USMC.EventSubject s,  
+ Prospec.ng.USMC.Prospect p 
+ WHERE  
+ e.ID=s.EventId 
+ AND e.ID = eo.EventId 
+ AND s.subjectId=p.ProspectId 
+ AND e.IsApproved = @IsApproved 
+ AND e.EventSourceId = 16  
+ AND e.EventTypeId = 85 
+ AND (@RecruiterID IS NULL OR @RecruiterID = eo.OwnerId) 
+ AND (@OrgID IS NULL OR e.Organiza.onId = @OrgID)  
+ AND (Ac.vity='TC') 
+ AND (Convert(date,(Convert(date,StartDate))) >= Coalesce(@dateFrom, (Convert(date,StartDate)))) 
+ AND ((Convert(date,StartDate)) <= Coalesce(@dateTo, (Convert(date,StartDate))))   
+  
+ 
+  
+ ------------------------------------------------------------------------------------------------------------------------------------ 
+ --USMC.GetDailyOrMonthlyInterviewByType (@RecruiterID, @OrgID, 'TC', @Year, @Month, @Day, @IsApproved) AS TcInterview, 
+  
+  SELECT @TCInt = Count(*)  
+   FROM RSSOSS.USMC.Event e 
+INNER JOIN RSSOSS.USMC.EventOwners eo ON e.ID = eo.EventId  
+INNER JOIN RSSOSS.USMC.EventSubject s ON e.ID = s.EventId  
+INNER JOIN RSSOSS.USMC.EventOutcome oc ON e.ID = oc.EventId 
+INNER JOIN RSSOSS.USMC.EventType et ON e.EventTypeId = et.ID 
+INNER JOIN Prospec.ng.USMC.Prospect p ON s.subjectId = p.ProspectId 
+  WHERE (InterviewOutcomeId=1 or InterviewOutcomeId=2) -- New Working Applicant or Follow-up 
+    AND et.Type != 'Follow Up' 
+    AND e.IsApproved = @IsApproved 
+    AND (@RecruiterID IS NULL OR @RecruiterID = eo.OwnerId) 
+    AND (@OrgID IS NULL OR e.Organiza.onId = @OrgID) 
+    AND (Ac.vity='TC' ) 
+ AND ((Convert(date,StartDate)) >= Coalesce(@dateFrom, (Convert(date,StartDate)))) 
+ AND ((Convert(date,StartDate)) <= Coalesce(@dateTo, (Convert(date,StartDate))))    
+        
+ ------------------------------------------------------------------------------------------------------------------------ 
+-- USMC.GetDailyOrMonthlyOtContact (@RecruiterID, @OrgID, @Year, @Month, @Day, @IsApproved) AS OtCont, 
+  SELECT @OTScr = Count(*) 
+   FROM Prospec.ng.USMC.ProspectComment pc 
+INNER JOIN Prospec.ng.USMC.ProspectAc.vityComment pac ON pac.ProspectAc.vityCommentId = pc.ProspectAc.vityCommentId 
+INNER JOIN Prospec.ng.USMC.ProspectCommentType pct ON pct.ProspectCommentTypeId = pac.ProspectCommentTypeId 
+     WHERE pac.Ac.vity = 'OT' AND 
+     pct.ProspectCommentType IN ('OT-S', 'Col', 'Col-S', 'Col-R', 'NI') 
+     AND (pc.IsApproved = @IsApproved) 
+    --AND (YEAR(Convert(Date,pc.ProspectDate)) = @Year) 
+    --AND (MONTH(Convert(Date,pc.ProspectDate)) = @Month) 
+    --AND (DAY(Convert(Date,pc.ProspectDate)) = @Day OR @Day IS NULL) 
+     AND Convert(Date,pc.ProspectDate) >= Coalesce(@dateFrom, Convert(Date,pc.ProspectDate)) 
+ AND Convert(Date,pc.ProspectDate) <= Coalesce(@dateTo, Convert(Date,pc.ProspectDate))  
+  
+    AND pc.ProspectId IN (SELECT P.ProspectId  
+                           FROM Prospec.ng.USMC.Prospect P 
+                     INNER JOIN USMC.vwMcrissRecrui.ngOrganiza.on Org ON P.Recrui.ngOrganiza.onId=Org.rowguid 
+                          WHERE (pc.Recrui.ngPersonId=@RecruiterID OR @RecruiterID IS NULL) 
+                            AND (ORGANIZATION_ID=@OrgID OR @OrgID IS NULL)  
+                        ) 
+  
+ -------------------------------------------------------------------------------------------------------------------------------- 
+-- USMC.GetDailyOrMonthlyInterviewByType (@RecruiterID, @OrgID, 'OT', @Year, @Month, @Day, @IsApproved) AS OtInterview, 
+  SELECT @OTInt = Count(*)  
+   FROM RSSOSS.USMC.Event e 
+INNER JOIN RSSOSS.USMC.EventOwners eo ON e.ID = eo.EventId  
+INNER JOIN RSSOSS.USMC.EventSubject s ON e.ID = s.EventId  
+INNER JOIN RSSOSS.USMC.EventOutcome oc ON e.ID = oc.EventId 
+INNER JOIN RSSOSS.USMC.EventType et ON e.EventTypeId = et.ID 
+INNER JOIN Prospec.ng.USMC.Prospect p ON s.subjectId = p.ProspectId 
+  WHERE (InterviewOutcomeId=1 or InterviewOutcomeId=2) -- New Working Applicant or Follow-up 
+    AND et.Type != 'Follow Up' 
+    AND e.IsApproved = @IsApproved 
+    AND (@RecruiterID IS NULL OR @RecruiterID = eo.OwnerId) 
+    AND (@OrgID IS NULL OR e.Organiza.onId = @OrgID) 
+    AND (Ac.vity='OT' ) 
+ AND ((Convert(date,StartDate)) >= Coalesce(@dateFrom, (Convert(date,StartDate)))) 
+ AND ((Convert(date,StartDate)) <= Coalesce(@dateTo, (Convert(date,StartDate))))    
+        
+   ------------------------------------------------------------------------------------------------------------------------------------------ 
+        
+-- USMC.GetDailyOrMonthlyAcContact (@RecruiterID, @OrgID, @Year, @Month, @Day, @IsApproved) AS AcCont, 
+  SELECT @ACCont = Count(*) 
+   FROM Prospec.ng.USMC.ProspectComment pc 
+INNER JOIN Prospec.ng.USMC.ProspectAc.vityComment pac ON pac.ProspectAc.vityCommentId = pc.ProspectAc.vityCommentId 
+INNER JOIN Prospec.ng.USMC.ProspectCommentType pct ON pct.ProspectCommentTypeId = pac.ProspectCommentTypeId 
+     WHERE pac.Ac.vity = 'AC' AND 
+     pct.ProspectCommentType IN ('CM', 'Col', 'Col-S', 'Col-R', 'NI') 
+     AND (pc.IsApproved = @IsApproved) 
+     AND Convert(Date,pc.ProspectDate) >= Coalesce(@dateFrom, Convert(Date,pc.ProspectDate)) 
+  AND Convert(Date,pc.ProspectDate) <= Coalesce(@dateTo, Convert(Date,pc.ProspectDate)) 
+  AND pc.ProspectId IN (SELECT P.ProspectId  
+                           FROM Prospec.ng.USMC.Prospect P 
+                     INNER JOIN USMC.vwMcrissRecrui.ngOrganiza.on Org ON P.Recrui.ngOrganiza.onId=Org.rowguid 
+                          WHERE (pc.Recrui.ngPersonId=@RecruiterID OR @RecruiterID IS NULL) 
+                            AND (ORGANIZATION_ID=@OrgID OR @OrgID IS NULL)  
+                        ) 
+----------------------------------------------------------------------------------------------------------------------------------                         
+-- USMC.GetDailyOrMonthlyApptByType (@RecruiterID, @OrgID, 'AC', @Year, @Month, @Day, NULL, @IsApproved) AS AcAppt, 
+  SELECT  
+ @ACAppt = Count(*)  
+ FROM  
+ RSSOSS.USMC.Event e,  
+ RSSOSS.USMC.EventOwners eo,  
+ RSSOSS.USMC.EventSubject s,  
+ Prospec.ng.USMC.Prospect p 
+ WHERE  
+ e.ID=s.EventId  
+ AND e.ID = eo.EventId  
+ AND s.subjectId=p.ProspectId 
+ AND e.IsApproved = @IsApproved 
+ AND e.EventSourceId = 16  
+ AND e.EventTypeId = 85 
+ AND (@RecruiterID IS NULL OR @RecruiterID = eo.OwnerId) 
+ AND (@OrgID IS NULL OR e.Organiza.onId = @OrgID)  
+ AND (Ac.vity='AC') 
+ AND ((Convert(date,StartDate)) >= Coalesce(@dateFrom, (Convert(date,StartDate)))) 
+ AND ((Convert(date,StartDate)) <= Coalesce(@dateTo, (Convert(date,StartDate))))  
+ ----------------------------------------------------------------------------------------------------------------------------    
+  
+-- USMC.GetDailyOrMonthlyInterviewByType (@RecruiterID, @OrgID, 'AC', @Year, @Month, @Day, @IsApproved) AS AcInterview, 
+  SELECT @ACInt = Count(*)  
+   FROM RSSOSS.USMC.Event e 
+INNER JOIN RSSOSS.USMC.EventOwners eo ON e.ID = eo.EventId    
+INNER JOIN RSSOSS.USMC.EventSubject s ON e.ID = s.EventId  
+INNER JOIN RSSOSS.USMC.EventOutcome oc ON e.ID = oc.EventId 
+INNER JOIN RSSOSS.USMC.EventType et ON e.EventTypeId = et.ID 
+INNER JOIN Prospec.ng.USMC.Prospect p ON s.subjectId = p.ProspectId 
+  WHERE (InterviewOutcomeId=1 or InterviewOutcomeId=2) -- New Working Applicant or Follow-up 
+    AND et.Type != 'Follow Up' 
+    AND e.IsApproved = @IsApproved 
+    AND (@RecruiterID IS NULL OR @RecruiterID = eo.OwnerId) 
+    AND (@OrgID IS NULL OR e.Organiza.onId = @OrgID) 
+    AND (Ac.vity='AC' ) 
+ AND ((Convert(date,StartDate)) >= Coalesce(@dateFrom, (Convert(date,StartDate)))) 
+ AND ((Convert(date,StartDate)) <= Coalesce(@dateTo, (Convert(date,StartDate))))  
+        
+  ---------------------------------------------------------------------------------------------------------------------------      
+-- USMC.GetDailyOrMonthlyHvMade (@RecruiterID, @OrgID, @Year, @Month, @Day, @IsApproved) AS HvMade, 
+  
+  SELECT @HVMade = Count(*) 
+   FROM Prospec.ng.USMC.ProspectComment pc 
+INNER JOIN Prospec.ng.USMC.ProspectAc.vityComment pac ON pac.ProspectAc.vityCommentId = pc.ProspectAc.vityCommentId 
+INNER JOIN Prospec.ng.USMC.ProspectCommentType pct ON pct.ProspectCommentTypeId = pac.ProspectCommentTypeId 
+     WHERE pac.Ac.vity = 'HV' AND 
+     pct.ProspectCommentType IN ('CM', 'Col', 'Col-S', 'Col-R', 'NI', 'HV-NA', 'HV-NH') 
+  AND (pc.IsApproved = @IsApproved) 
+     AND Convert(Date,pc.ProspectDate) >= Coalesce(@dateFrom, Convert(Date,pc.ProspectDate)) 
+  AND Convert(Date,pc.ProspectDate) <= Coalesce(@dateTo, Convert(Date,pc.ProspectDate)) 
+  AND pc.ProspectId IN (SELECT P.ProspectId  
+                           FROM Prospec.ng.USMC.Prospect P 
+                     INNER JOIN USMC.vwMcrissRecrui.ngOrganiza.on Org ON P.Recrui.ngOrganiza.onId=Org.rowguid 
+                          WHERE (pc.Recrui.ngPersonId=@RecruiterID OR @RecruiterID IS NULL) 
+                            AND (ORGANIZATION_ID=@OrgID OR @OrgID IS NULL)  
+                        ) 
+                         
+------------------------------------------------------------------------------------------------------------------------------- 
+-- USMC.GetDailyOrMonthlyHvContact (@RecruiterID, @OrgID, @Year, @Month, @Day, @IsApproved) AS HvCont, 
+  
+ SELECT @HVCont = Count(*) 
+   FROM Prospec.ng.USMC.ProspectComment pc 
+INNER JOIN Prospec.ng.USMC.ProspectAc.vityComment pac ON pac.ProspectAc.vityCommentId = pc.ProspectAc.vityCommentId 
+INNER JOIN Prospec.ng.USMC.ProspectCommentType pct ON pct.ProspectCommentTypeId = pac.ProspectCommentTypeId 
+     WHERE pac.Ac.vity = 'HV' AND 
+     pct.ProspectCommentType IN ('CM', 'Col', 'Col-S', 'Col-R', 'NI') 
+    AND (pc.IsApproved = @IsApproved) 
+     AND Convert(Date,pc.ProspectDate) >= Coalesce(@dateFrom, Convert(Date,pc.ProspectDate)) 
+  AND Convert(Date,pc.ProspectDate) <= Coalesce(@dateTo, Convert(Date,pc.ProspectDate)) 
+    AND pc.ProspectId IN (SELECT P.ProspectId  
+                           FROM Prospec.ng.USMC.Prospect P 
+                     INNER JOIN USMC.vwMcrissRecrui.ngOrganiza.on Org ON P.Recrui.ngOrganiza.onId=Org.rowguid 
+                          WHERE (pc.Recrui.ngPersonId=@RecruiterID OR @RecruiterID IS NULL) 
+                            AND (ORGANIZATION_ID=@OrgID OR @OrgID IS NULL)  
+                        ) 
+                         
+----------------------------------------------------------------------------------------------------------------------------- 
+-- USMC.GetDailyOrMonthlyApptByType(@RecruiterID, @OrgID, 'HV', @Year, @Month, @Day, NULL, @IsApproved) AS HvAppt, 
+  
+  SELECT  
+ @HVAppt = Count(*)  
+ FROM  
+ RSSOSS.USMC.Event e,   
+ RSSOSS.USMC.EventOwners eo, 
+ RSSOSS.USMC.EventSubject s,  
+ Prospec.ng.USMC.Prospect p 
+ WHERE  
+ e.ID=s.EventId 
+ AND e.ID = eo.EventId 
+ AND s.subjectId=p.ProspectId 
+ AND e.IsApproved = @IsApproved 
+ AND e.EventSourceId = 16  
+ AND e.EventTypeId = 85 
+ AND (@RecruiterID IS NULL OR @RecruiterID = eo.OwnerId) 
+ AND (@OrgID IS NULL OR e.Organiza.onId = @OrgID)  
+ AND (Ac.vity='HV') 
+ AND ((Convert(date,StartDate)) >= Coalesce(@dateFrom, (Convert(date,StartDate)))) 
+ AND ((Convert(date,StartDate)) <= Coalesce(@dateTo, (Convert(date,StartDate))))  
+     
+    ----------------------------------------------------------------------------------------------------------------------------- 
+  
+-- USMC.GetDailyOrMonthlyInterviewByType (@RecruiterID, @OrgID, 'HV', @Year, @Month, @Day, @IsApproved) AS HvInterview, 
+  
+  SELECT @HVInt = Count(*)  
+   FROM RSSOSS.USMC.Event e 
+INNER JOIN RSSOSS.USMC.EventOwners eo ON e.ID = eo.EventId  
+INNER JOIN RSSOSS.USMC.EventSubject s ON e.ID = s.EventId  
+INNER JOIN RSSOSS.USMC.EventOutcome oc ON e.ID = oc.EventId 
+INNER JOIN RSSOSS.USMC.EventType et ON e.EventTypeId = et.ID 
+INNER JOIN Prospec.ng.USMC.Prospect p ON s.subjectId = p.ProspectId 
+  WHERE (InterviewOutcomeId=1 or InterviewOutcomeId=2) -- New Working Applicant or Follow-up 
+    AND et.Type != 'Follow Up' 
+    AND e.IsApproved = @IsApproved 
+    AND (@RecruiterID IS NULL OR @RecruiterID = eo.OwnerId) 
+    AND (@OrgID IS NULL OR e.Organiza.onId = @OrgID) 
+    AND (Ac.vity='HV' ) 
+ AND ((Convert(date,StartDate)) >= Coalesce(@dateFrom, (Convert(date,StartDate)))) 
+ AND ((Convert(date,StartDate)) <= Coalesce(@dateTo, (Convert(date,StartDate))))  
+        
+  ---------------------------------------------------------------------------------------------------------------------------------      
+-- USMC.GetDailyOrMonthlyEpSent (@RecruiterID, @OrgID, @Year, @Month, @Day, @IsApproved) AS EpSent, 
+  
+  SELECT @EpMade = Count(*) 
+   FROM Prospec.ng.USMC.ProspectComment pc 
+INNER JOIN Prospec.ng.USMC.ProspectAc.vityComment pac ON pac.ProspectAc.vityCommentId = pc.ProspectAc.vityCommentId 
+INNER JOIN Prospec.ng.USMC.ProspectCommentType pct ON pct.ProspectCommentTypeId = pac.ProspectCommentTypeId 
+     WHERE pac.Ac.vity = 'DC' AND 
+     pct.ProspectCommentType IN ('CM', 'Col', 'Col-S', 'Col-R', 'NI', 'DC-U', 'DC-M', 'DC-R') 
+    AND (pc.IsApproved = @IsApproved) 
+     AND Convert(Date,pc.ProspectDate) >= Coalesce(@dateFrom, Convert(Date,pc.ProspectDate)) 
+  AND Convert(Date,pc.ProspectDate) <= Coalesce(@dateTo, Convert(Date,pc.ProspectDate))  
+    AND pc.ProspectId IN (SELECT P.ProspectId  
+                           FROM Prospec.ng.USMC.Prospect P 
+                     INNER JOIN USMC.vwMcrissRecrui.ngOrganiza.on Org ON P.Recrui.ngOrganiza.onId=Org.rowguid 
+                          WHERE (pc.Recrui.ngPersonId=@RecruiterID OR @RecruiterID IS NULL) 
+                            AND (ORGANIZATION_ID=@OrgID OR @OrgID IS NULL)  
+                        ) 
+----------------------------------------------------------------------------------------------------------------------------- 
+-- USMC.GetDailyOrMonthlyEpContact (@RecruiterID, @OrgID, @Year, @Month, @Day, @IsApproved) AS EpCont, 
+  
+  SELECT @EPCont = Count(*) 
+   FROM Prospec.ng.USMC.ProspectComment pc 
+INNER JOIN Prospec.ng.USMC.ProspectAc.vityComment pac ON pac.ProspectAc.vityCommentId = pc.ProspectAc.vityCommentId 
+INNER JOIN Prospec.ng.USMC.ProspectCommentType pct ON pct.ProspectCommentTypeId = pac.ProspectCommentTypeId 
+     WHERE pac.Ac.vity = 'DC' AND 
+     pct.ProspectCommentType IN ('CM', 'Col', 'Col-S', 'Col-R', 'NI') 
+    AND (pc.IsApproved = @IsApproved) 
+     AND Convert(Date,pc.ProspectDate) >= Coalesce(@dateFrom, Convert(Date,pc.ProspectDate)) 
+  AND Convert(Date,pc.ProspectDate) <= Coalesce(@dateTo, Convert(Date,pc.ProspectDate)) 
+    AND pc.ProspectId IN (SELECT P.ProspectId  
+                           FROM Prospec.ng.USMC.Prospect P 
+                     INNER JOIN USMC.vwMcrissRecrui.ngOrganiza.on Org ON P.Recrui.ngOrganiza.onId=Org.rowguid 
+                          WHERE (pc.Recrui.ngPersonId=@RecruiterID OR @RecruiterID IS NULL) 
+                            AND (ORGANIZATION_ID=@OrgID OR @OrgID IS NULL)  
+                        ) 
+                         
+-------------------------------------------------------------------------------------------------------------------------------                         
+  
+-- USMC.GetDailyOrMonthlyApptByType(@RecruiterID, @OrgID, 'EP', @Year, @Month, @Day, NULL, @IsApproved) AS EpAppt, 
+SELECT  
+ @EPAppt = Count(*)  
+ FROM  
+ RSSOSS.USMC.Event e,  
+ RSSOSS.USMC.EventOwners eo,  
+ RSSOSS.USMC.EventSubject s,  
+ Prospec.ng.USMC.Prospect p 
+ WHERE  
+ e.ID=s.EventId 
+ AND e.ID = eo.EventId 
+ AND s.subjectId=p.ProspectId 
+ AND e.IsApproved = @IsApproved 
+ AND e.EventSourceId = 16  
+ AND e.EventTypeId = 85 
+ AND (@RecruiterID IS NULL OR @RecruiterID = eo.OwnerId) 
+ AND (@OrgID IS NULL OR e.Organiza.onId = @OrgID)  
+ AND (Ac.vity='DC') 
+ AND ((Convert(date,StartDate)) >= Coalesce(@dateFrom, (Convert(date,StartDate)))) 
+ AND ((Convert(date,StartDate)) <= Coalesce(@dateTo, (Convert(date,StartDate))))  
+     
+---------------------------------------------------------------------------------------------------------------------------------- 
+-- USMC.GetDailyOrMonthlyInterviewByType (@RecruiterID, @OrgID, 'EP', @Year, @Month, @Day, @IsApproved) AS EpInterview 
+  SELECT @EPInt = Count(*)  
+   FROM RSSOSS.USMC.Event e 
+INNER JOIN RSSOSS.USMC.EventSubject s ON e.ID = s.EventId  
+INNER JOIN RSSOSS.USMC.EventOwners eo ON e.ID = eo.EventId   
+INNER JOIN RSSOSS.USMC.EventOutcome oc ON e.ID = oc.EventId 
+INNER JOIN RSSOSS.USMC.EventType et ON e.EventTypeId = et.ID 
+INNER JOIN Prospec.ng.USMC.Prospect p ON s.subjectId = p.ProspectId 
+  WHERE (InterviewOutcomeId=1 or InterviewOutcomeId=2) -- New Working Applicant or Follow-up 
+    AND et.Type != 'Follow Up' 
+    AND e.IsApproved = @IsApproved 
+    AND (@RecruiterID IS NULL OR @RecruiterID = eo.OwnerId) 
+    AND (@OrgID IS NULL OR e.Organiza.onId = @OrgID) 
+    AND (Ac.vity='DC' ) 
+ AND ((Convert(date,StartDate)) >= Coalesce(@dateFrom, (Convert(date,StartDate)))) 
+ AND ((Convert(date,StartDate)) <= Coalesce(@dateTo, (Convert(date,StartDate))))  
+  
+  
+ ; 
+  
+  
+ SELECT  
+  ISNULL(@TCmade,0) as TcMade 
+ ,ISNULL(@TCint,0) as TcInt 
+ ,ISNULL(@TCcont,0) as TcCont 
+ ,ISNULL(@TCappt,0) as TcAppt 
+  
+ ,ISNULL(@OTscr,0) as OtScr 
+ ,ISNULL(@OTint,0) as OtInt 
+  
+ ,ISNULL(@ACCont,0) as AcMade 
+ ,ISNULL(@ACint,0) as AcInt 
+ ,ISNULL(@ACappt,0) AS AcAppt 
+  
+ ,ISNULL(@HVmade,0) as HvMade 
+ ,ISNULL(@HVcont,0) AS HvCont 
+ ,ISNULL(@HVappt,0) AS HvAppt 
+ ,ISNULL(@HVint,0) AS HvInt 
+  
+ ,ISNULL(@EPmade,0) as EpMade  
+ ,ISNULL(@EPcont,0) AS EpCont 
+ ,ISNULL(@EPappt,0) AS EpAppt 
+ ,ISNULL(@Epint,0) AS EpInt 
+ 
+ ,'0' as OtMade 
+ ,'0' as Nwa 
+ ,'0' as Contract 
+ ,0 as AnalysisMonth 
+    
+  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

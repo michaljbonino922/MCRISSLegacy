@@ -1,0 +1,62 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetBilletEndDateArchive]" directorySegmentName="seg_1" id="528F9615-887C-7CA8-12E0-713685126935">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@RecruiterId uniqueidentifier 
+ ,@Recrui.ngRole VARCHAR(60) 
+ ,@OrgId int 
+AS 
+BEGIN 
+ 
+ DECLARE @BilletEndDate DATETIME 
+ DECLARE @month INT 
+ DECLARE @year INT 
+ DECLARE @MaxPSHDate DATETIME 
+ DECLARE @Recrui.ngPersonId uniqueidentifier 
+ 
+ SELECT @Recrui.ngPersonId = RP.ROWGUID 
+ FROM MCRISS.DBO.RECRUITING_PERSON RP 
+ INNER JOIN MCRISS.DBO.MARINE M ON M.MARINE_ID = RP.RECRUITING_PERSON_ID 
+ WHERE M.ROWGUID = @RecruiterId 
+ 
+ SELECT @BilletEndDate = BILLET_END_DATE 
+ FROM MCRISS.dbo.RECRUITING_PERSON RP 
+ INNER JOIN MCRISS.dbo.RECRUITING_ROLE RR ON RP.RECRUITING_ROLE_ID = RR.RECRUITING_ROLE_ID  
+         AND RR.SHORT_DESCRIPTION = @Recrui.ngRole 
+ WHERE RP.rowguid = @Recrui.ngPersonId 
+ 
+ 
+ 
+ IF (@BilletEndDate IS NULL) 
+ BEGIN 
+  SELECT TOP 1 @month = PSH.[MONTH_CODE], @year = PSH.[CALENDAR_YEAR] 
+  FROM MCRISS.dbo.RECRUITING_PERSON RP 
+  INNER JOIN MCRISS.dbo.RECRUITER_HISTORY RH ON RH.RECRUITING_PERSON_ID = RP.RECRUITING_PERSON_ID 
+  INNER JOIN MCRISS.dbo.PRODUCTION_STATUS_HISTORY PSH ON PSH.PERSON_ID = RH.RECRUITING_PERSON_ID AND PSH.ORGANIZATION_ID = @OrgId 
+  WHERE RP.rowguid = @Recrui.ngPersonId 
+   AND RH.BILLET_DESC = @Recrui.ngRole 
+  ORDER BY CALENDAR_YEAR DESC, [MONTH_CODE] DESC 
+ 
+  SET @MaxPSHDate = CAST(CAST(@year AS VARCHAR(4)) + '-' + CAST(@month AS VARCHAR(2)) + '-01' AS DATETIME) 
+   
+  SELECT @BilletEndDate = MAX(RH.BILLET_END_DATE) 
+  FROM MCRISS.dbo.RECRUITING_PERSON RP 
+  INNER JOIN MCRISS.dbo.RECRUITER_HISTORY RH ON RH.RECRUITING_PERSON_ID = RP.RECRUITING_PERSON_ID 
+  WHERE RP.rowguid = @Recrui.ngPersonId 
+   AND RH.BILLET_DESC = @Recrui.ngRole 
+   AND (RH.BILLET_BEGIN_DATE >= @MaxPSHDate OR RH.BILLET_END_DATE <= @MaxPSHDate) 
+ 
+  SELECT @BilletEndDate 
+     
+ END 
+ ELSE 
+ BEGIN 
+  SELECT @BilletEndDate 
+ END 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

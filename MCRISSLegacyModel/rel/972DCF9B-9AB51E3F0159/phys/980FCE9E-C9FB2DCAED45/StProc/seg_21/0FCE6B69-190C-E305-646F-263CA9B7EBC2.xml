@@ -1,0 +1,600 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SP_HPLAN_PROCESS176]" directorySegmentName="seg_21" id="0FCE6B69-190C-E305-646F-263CA9B7EBC2">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[AS  
+declare @school_code    int, 
+  @hs_code   varchar(9), 
+  @school_year       numeric(4), 
+  @school_year_txt     varchar(4), 
+  @plan_type   varchar(3), 
+  @planned_month  date.me, 
+  @actual_month   date.me, 
+  @comments   varchar(40), 
+  @.rst_mo_plan   varchar(2), 
+  @career_talk_p   varchar(2), 
+  @career_talk_g   varchar(2), 
+  @list_planned   varchar(2), 
+  @list_obtained   varchar(2), 
+  @nrotc_talk_p   varchar(2), 
+  @nrotc_talk_g   varchar(2), 
+  @visit_made   varchar(2), 
+  @visit_planned   varchar(2), 
+  @month   varchar(4), 
+  @whole_date   varchar(12), 
+  @user_login   varchar(15), 
+  @update_date   date.me 
+   
+ 
+declare arms_176 cursor for 
+select  HS_CODE, 
+  FIRST_MO_PLAN, 
+  CAREER_TALK_G, 
+  CAREER_TALK_P, 
+  LIST_OBTAINED, 
+  LIST_PLANNED, 
+  NROTC_TALK_G, 
+  NROTC_TALK_P, 
+  VISIT_MADE, 
+  VISIT_PLANNED 
+ 
+from  arms..arms_176  
+ 
+open arms_176 
+ 
+fetch arms_176 
+     into @hs_code, @.rst_mo_plan, @career_talk_g, @career_talk_p, 
+     @list_obtained, @list_planned, @nrotc_talk_g, @nrotc_talk_p, 
+    @visit_made, @visit_planned 
+ 
+ 
+while (@@FETCH_STATUS = 0) 
+begin 
+  print @hs_code 
+ 
+ 
+     set @school_code = (select SCHOOL_CODE 
+       from mcriss..HIGH_SCHOOL 
+       where DOD_CODE = @hs_code) 
+ set @school_year = '2001' 
+ 
+ set @user_login = 'migra.on' 
+ set @update_date = getdate() 
+ 
+  
+ if @school_code is not NULL  
+ begin 
+ 
+    select @plan_type = '1SR' 
+               
+     if @.rst_mo_plan = '01' 
+       select @month = 'Jan ' 
+     if @.rst_mo_plan = '02' 
+       select @month = 'Feb ' 
+     if @.rst_mo_plan = '03' 
+       select @month = 'Mar ' 
+     if @.rst_mo_plan = '04' 
+       select @month = 'Apr ' 
+     if @.rst_mo_plan = '05' 
+       select @month = 'May ' 
+     if @.rst_mo_plan = '06' 
+       select @month = 'Jun ' 
+     if @.rst_mo_plan = '07' 
+       select @month = 'Jul ' 
+     if @.rst_mo_plan = '08' 
+       select @month = 'Aug ' 
+     if @.rst_mo_plan = '09' 
+       select @month = 'Sep ' 
+     if @.rst_mo_plan = '10' 
+       select @month = 'Oct ' 
+     if @.rst_mo_plan = '11' 
+       select @month = 'Nov ' 
+     if @.rst_mo_plan = '12' 
+       select @month = 'Dec ' 
+ 
+   select @actual_month = NULL -- not supplied in ARMS 
+--Logic for year 
+ 
+  if @month in ('Jan','Feb','Mar','Apr','May','Jun')  
+  select @planned_month = '1' + '-'+ @month + '-'+ '2001' 
+  if @month in ('Jul','Aug','Sep','Oct','Nov','Dec') 
+  select @planned_month = '1' + '-'+ @month + '-'+ '2000' 
+ 
+ 
+  if not exists (select 1 from HIGH_SCHOOL_PLAN where SCHOOL_CODE = @school_code and SCHOOL_YEAR = @school_year and PLAN_TYPE = @plan_type) 
+  begin 
+ 
+    print 'inser.ng into mcriss..HIGH_SCHOOL_PLAN 1SR for' 
+   print @school_code 
+ 
+                insert mcriss..HIGH_SCHOOL_PLAN 
+   (PLAN_TYPE,SCHOOL_CODE,SCHOOL_YEAR,PLANNED_MONTH,ACTUAL_MONTH,COMMENTS,USER_LOGIN,UPDATE_DATE)   
+      values(@plan_type, @school_code, '2001', @planned_month, 
+              @actual_month, @comments,@user_login,@update_date)   
+             
+  end 
+ 
+  else begin 
+   print 'upda.ng HIGH_SCHOOL_PLAN 1SR for' 
+   print @school_code 
+ 
+   update HIGH_SCHOOL_PLAN 
+   set PLANNED_MONTH = @planned_month, 
+   ACTUAL_MONTH = @actual_month, 
+   COMMENTS = @comments, 
+   USER_LOGIN = @user_login, 
+   UPDATE_DATE = @update_date 
+   where SCHOOL_CODE = @school_code and 
+    SCHOOL_YEAR = @school_year and 
+    PLAN_TYPE = @plan_type 
+  end 
+ 
+ 
+  end 
+ 
+ 
+  if  @career_talk_p is not NULL  begin 
+        
+       select @plan_type = 'CAT' 
+     
+             select @school_year = '2001' 
+      
+        if @career_talk_p = '01' 
+       select @month = 'Jan ' 
+     if @career_talk_p = '02' 
+       select @month = 'Feb ' 
+     if @career_talk_p = '03' 
+       select @month = 'Mar ' 
+     if @career_talk_p = '04' 
+       select @month = 'Apr ' 
+     if @career_talk_p = '05' 
+       select @month = 'May ' 
+     if @career_talk_p = '06' 
+       select @month = 'Jun ' 
+     if @career_talk_p = '07' 
+       select @month = 'Jul ' 
+     if @career_talk_p = '08' 
+       select @month = 'Aug ' 
+     if @career_talk_p = '09' 
+       select @month = 'Sep ' 
+     if @career_talk_p = '10' 
+       select @month = 'Oct ' 
+     if @career_talk_p = '11' 
+       select @month = 'Nov ' 
+     if @career_talk_p = '12' 
+       select @month = 'Dec ' 
+      
+     
+  if @month in ('Jan','Feb','Mar','Apr','May','Jun')  
+  select @planned_month = '1' + '-'+ @month + '-'+ '2001' 
+  if @month in ('Jul','Aug','Sep','Oct','Nov','Dec') 
+  select @planned_month = '1' + '-'+ @month + '-'+ '2000' 
+   set @month = null 
+    
+     if @career_talk_g = '01' 
+     select @month = 'Jan ' 
+     if @career_talk_g = '02' 
+       select @month = 'Feb ' 
+     if @career_talk_g = '03' 
+       select @month = 'Mar ' 
+     if @career_talk_g = '04' 
+       select @month = 'Apr ' 
+ 
+     if @career_talk_g = '05' 
+       select @month = 'May ' 
+     if @career_talk_g = '06' 
+       select @month = 'Jun ' 
+     if @career_talk_g = '07' 
+       select @month = 'Jul ' 
+     if @career_talk_g = '08' 
+       select @month = 'Aug ' 
+     if @career_talk_g = '09' 
+       select @month = 'Sep ' 
+     if @career_talk_g = '10' 
+       select @month = 'Oct ' 
+     if @career_talk_g = '11' 
+       select @month = 'Nov ' 
+     if @career_talk_g = '12' 
+       select @month = 'Dec ' 
+ 
+  if @month in ('Jan','Feb','Mar','Apr','May','Jun')  
+  select @actual_month = '1' + '-'+ @month + '-'+ '2001' 
+  if @month in ('Jul','Aug','Sep','Oct','Nov','Dec') 
+  select @actual_month = '1' + '-'+ @month + '-'+ '2000' 
+ 
+ 
+  if @actual_month > getdate() 
+  select @actual_month = '2000-06-01'    
+ 
+ 
+  set @month = null 
+ 
+ 
+           if not exists (select 1 from HIGH_SCHOOL_PLAN where SCHOOL_CODE = @school_code and SCHOOL_YEAR = @school_year and PLAN_TYPE = @plan_type) 
+                  
+  begin 
+ 
+    print 'inser.ng into mcriss..HIGH_SCHOOL_PLAN CAT for' 
+   print @school_code 
+ 
+  insert mcriss..HIGH_SCHOOL_PLAN 
+  (PLAN_TYPE,SCHOOL_CODE,SCHOOL_YEAR,PLANNED_MONTH,ACTUAL_MONTH,COMMENTS,USER_LOGIN,UPDATE_DATE) 
+   
+     values(@plan_type, @school_code, '2001', @planned_month, 
+              @actual_month, @comments,@user_login,@update_date)   
+              
+  end 
+ 
+  else begin 
+ 
+   print 'upda.ng  HIGH_SCHOOL_PLAN CAT for' 
+   print @school_code 
+   
+   update HIGH_SCHOOL_PLAN 
+   set PLANNED_MONTH = @planned_month, 
+   ACTUAL_MONTH = @actual_month, 
+   COMMENTS = @comments, 
+   USER_LOGIN = @user_login, 
+   UPDATE_DATE = @update_date 
+   where SCHOOL_CODE = @school_code and 
+    SCHOOL_YEAR = @school_year and 
+    PLAN_TYPE = @plan_type 
+  end 
+                
+ end 
+           
+   
+                     select @plan_type = 'INV' 
+     
+ if @list_planned is not NULL  
+ begin 
+            select @school_year = '2001' 
+      
+              if @visit_planned = '01' 
+                select @month = 'Jan ' 
+              if @visit_planned = '02' 
+                select @month = 'Feb ' 
+              if @visit_planned = '03' 
+                select @month = 'Mar ' 
+              if @visit_planned = '04' 
+                select @month = 'Apr ' 
+              if @visit_planned = '05' 
+                select @month = 'May ' 
+              if @visit_planned = '06' 
+                select @month = 'Jun ' 
+        if @visit_planned = '07' 
+              select @month = 'Jul ' 
+              if @visit_planned = '08' 
+              select @month = 'Aug ' 
+              if @visit_planned = '09' 
+                                   select @month = 'Sep ' 
+              if @visit_planned = '10' 
+              select @month = 'Oct ' 
+              if @visit_planned = '11' 
+              select @month = 'Nov ' 
+              if @visit_planned = '12' 
+              select @month = 'Dec ' 
+   
+  if @month in ('Jan','Feb','Mar','Apr','May','Jun')  
+  select @planned_month = '1' + '-'+ @month + '-'+ '2001' 
+  if @month in ('Jul','Aug','Sep','Oct','Nov','Dec') 
+  select @planned_month = '1' + '-'+ @month + '-'+ '2000' 
+   set @month = null 
+    
+                    
+                 select @school_year = '2001' 
+         
+                 if @visit_made = '01' 
+                   select @month = 'Jan ' 
+                 if @visit_made = '02' 
+                   select @month = 'Feb ' 
+                 if @visit_made = '03' 
+                   select @month = 'Mar ' 
+                 if @visit_made = '04' 
+                   select @month = 'Apr ' 
+                 if @visit_made = '05' 
+                   select @month = 'May ' 
+                 if @visit_made = '06' 
+                   select @month = 'Jun ' 
+          if @visit_made = '07' 
+                   select @month = 'Jul ' 
+                 if @visit_made = '08' 
+                    select @month = 'Aug ' 
+                  if @visit_made = '09' 
+                    select @month = 'Sep ' 
+                  if @visit_made = '10' 
+                    select @month = 'Oct ' 
+                  if @visit_made = '11' 
+                    select @month = 'Nov ' 
+                  if @visit_made = '12' 
+                    select @month = 'Dec ' 
+      
+  if @month in ('Jan','Feb','Mar','Apr','May','Jun')  
+  select @actual_month = '1' + '-'+ @month + '-'+ '2001' 
+  if @month in ('Jul','Aug','Sep','Oct','Nov','Dec') 
+  select @actual_month = '1' + '-'+ @month + '-'+ '2000' 
+    set @month = null 
+ 
+  if @actual_month > getdate() 
+  select @actual_month = '2000-06-01' 
+-- Logic to esure an actual date cannot be greater than today 
+ 
+   
+           if not exists (select 1 from HIGH_SCHOOL_PLAN where SCHOOL_CODE = @school_code and SCHOOL_YEAR = @school_year and PLAN_TYPE = @plan_type)  
+   begin 
+ 
+  print 'inser.ng into mcriss..HIGH_SCHOOL_PLAN INV for' 
+  print @school_code 
+ 
+ 
+               insert mcriss..HIGH_SCHOOL_PLAN 
+  (PLAN_TYPE,SCHOOL_CODE,SCHOOL_YEAR,PLANNED_MONTH,ACTUAL_MONTH,COMMENTS,USER_LOGIN,UPDATE_DATE) 
+     values(@plan_type, @school_code, '2001', @planned_month, 
+            @actual_month, @comments,@user_login,@update_date) 
+  end 
+ 
+  else begin 
+ 
+  print 'upda.ng HIGH_SCHOOL_PLAN for INV for' 
+  print @school_code 
+ 
+   update HIGH_SCHOOL_PLAN 
+   set PLANNED_MONTH = @planned_month, 
+   ACTUAL_MONTH = @actual_month, 
+   COMMENTS = @comments, 
+   USER_LOGIN = @user_login, 
+   UPDATE_DATE = @update_date 
+   where SCHOOL_CODE = @school_code and 
+    SCHOOL_YEAR = @school_year and 
+    PLAN_TYPE = @plan_type 
+  end 
+                
+ 
+          end 
+  
+     
+ 
+ if @nrotc_talk_p  is not NULL      
+ begin 
+     select @plan_type = 'SNT' 
+     
+ 
+                   select @school_year = '2001' 
+         
+                    if @nrotc_talk_p = '01' 
+                      select @month = 'Jan ' 
+ 
+                    if @nrotc_talk_p = '02' 
+                      select @month = 'Feb ' 
+                    if @nrotc_talk_p = '03' 
+                      select @month = 'Mar ' 
+                    if @nrotc_talk_p = '04' 
+                      select @month = 'Apr ' 
+                    if @nrotc_talk_p = '05' 
+                      select @month = 'May ' 
+                    if @nrotc_talk_p = '06' 
+                      select @month = 'Jun ' 
+     if @nrotc_talk_p = '07' 
+                         select @month = 'Jul ' 
+                       if @nrotc_talk_p = '08' 
+                         select @month = 'Aug ' 
+                       if @nrotc_talk_p = '09' 
+                         select @month = 'Sep ' 
+                       if @nrotc_talk_p = '10' 
+                         select @month = 'Oct ' 
+                       if @nrotc_talk_p = '11' 
+                         select @month = 'Nov ' 
+                       if @nrotc_talk_p = '12' 
+                         select @month = 'Dec '      
+    
+  if @month in ('Jan','Feb','Mar','Apr','May','Jun')  
+  select @planned_month = '1' + '-'+ @month + '-'+ '2001' 
+  if @month in ('Jul','Aug','Sep','Oct','Nov','Dec') 
+  select @planned_month = '1' + '-'+ @month + '-'+ '2000' 
+   set @month = null 
+    
+     select @school_year = '2001' 
+         
+                       if @nrotc_talk_g = '01' 
+                         select @month = 'Jan ' 
+                       if @nrotc_talk_g = '02' 
+                         select @month = 'Feb ' 
+                       if @nrotc_talk_g = '03' 
+                         select @month = 'Mar ' 
+                       if @nrotc_talk_g = '04' 
+                         select @month = 'Apr ' 
+                       if @nrotc_talk_g = '05' 
+                         select @month = 'May ' 
+                       if @nrotc_talk_g = '06' 
+                         select @month = 'Jun ' 
+         if @nrotc_talk_g = '07' 
+                            select @month = 'Jul ' 
+                          if @nrotc_talk_g = '08' 
+                            select @month = 'Aug ' 
+                          if @nrotc_talk_g = '09' 
+                            select @month = 'Sep ' 
+                          if @nrotc_talk_g = '10' 
+                            select @month = 'Oct ' 
+                          if @nrotc_talk_g = '11' 
+                            select @month = 'Nov ' 
+                          if @nrotc_talk_g = '12' 
+                            select @month = 'Dec ' 
+     
+  if @month in ('Jan','Feb','Mar','Apr','May','Jun')  
+  select @actual_month = '1' + '-'+ @month + '-'+ '2001' 
+  if @month in ('Jul','Aug','Sep','Oct','Nov','Dec') 
+  select @actual_month = '1' + '-'+ @month + '-'+ '2000' 
+   set @month = null 
+ 
+ 
+  if @actual_month > getdate() 
+  select @actual_month = '2000-06-01' 
+-- Logic to esure an actual date cannot be greater than today  
+ 
+           if not exists (select 1 from HIGH_SCHOOL_PLAN where SCHOOL_CODE = @school_code and SCHOOL_YEAR = @school_year and PLAN_TYPE = @plan_type)    
+ begin 
+    
+  print 'inser.ng into mcriss..HIGH_SCHOOL_PLAN SNT for' 
+  print @school_code 
+ 
+               insert mcriss..HIGH_SCHOOL_PLAN 
+  (PLAN_TYPE,SCHOOL_CODE,SCHOOL_YEAR,PLANNED_MONTH,ACTUAL_MONTH,COMMENTS,USER_LOGIN,UPDATE_DATE) 
+  values(@plan_type, @school_code, '2001', @planned_month, 
+            @actual_month, @comments,@user_login,@update_date) 
+ end 
+ 
+ 
+ else begin 
+ 
+   print 'upda.ng HIGH_SCHOOL_PLAN SNT for' 
+   print @school_code 
+ 
+ 
+   update HIGH_SCHOOL_PLAN 
+   set PLANNED_MONTH = @planned_month, 
+   ACTUAL_MONTH = @actual_month, 
+   COMMENTS = @comments, 
+   USER_LOGIN = @user_login, 
+   UPDATE_DATE = @update_date 
+   where SCHOOL_CODE = @school_code and 
+    SCHOOL_YEAR = @school_year and 
+    PLAN_TYPE = @plan_type 
+  end 
+ 
+ 
+          end 
+ 
+  if @visit_planned is not NULL      
+ begin 
+        
+      select @plan_type = 'SRL' 
+     
+                                 select @school_year = '2001' 
+         
+                          if @list_planned = '01' 
+                            select @month = 'Jan ' 
+                          if @list_planned = '02' 
+                            select @month = 'Feb ' 
+                          if @list_planned = '03' 
+                            select @month = 'Mar ' 
+                          if @list_planned = '04' 
+                            select @month = 'Apr ' 
+                          if @list_planned = '05' 
+                            select @month = 'May ' 
+                          if @list_planned = '06' 
+                            select @month = 'Jun ' 
+                             if @list_planned = '07' 
+                               select @month = 'Jul ' 
+                             if @list_planned = '08' 
+                               select @month = 'Aug ' 
+                             if @list_planned = '09' 
+                               select @month = 'Sep ' 
+                             if @list_planned = '10' 
+                               select @month = 'Oct ' 
+                             if @list_planned = '11' 
+                               select @month = 'Nov ' 
+                             if @list_planned = '12' 
+                               select @month = 'Dec ' 
+ 
+  if @month in ('Jan','Feb','Mar','Apr','May','Jun')  
+  select @planned_month = '1' + '-'+ @month + '-'+ '2001' 
+  if @month in ('Jul','Aug','Sep','Oct','Nov','Dec') 
+  select @planned_month = '1' + '-'+ @month + '-'+ '2000' 
+ 
+    set @month = null 
+    
+ 
+                             select @school_year = '2001' 
+         
+                             if @list_obtained = '01' 
+                               select @month = 'Jan ' 
+                             if @list_obtained = '02' 
+                               select @month = 'Feb ' 
+                             if @list_obtained = '03' 
+                               select @month = 'Mar ' 
+                             if @list_obtained = '04' 
+                               select @month = 'Apr ' 
+                             if @list_obtained = '05' 
+                               select @month = 'May ' 
+                             if @list_obtained = '06' 
+                               select @month = 'Jun ' 
+                if @list_obtained = '07' 
+                                  select @month = 'Jul ' 
+                                if @list_obtained = '08' 
+                                  select @month = 'Aug ' 
+                                if @list_obtained = '09' 
+                                  select @month = 'Sep ' 
+                                if @list_obtained = '10' 
+                                  select @month = 'Oct ' 
+                                if @list_obtained = '11' 
+                                  select @month = 'Nov ' 
+                                if @list_obtained = '12' 
+                                  select @month = 'Dec ' 
+      
+  if @month in ('Jan','Feb','Mar','Apr','May','Jun')  
+  select @actual_month = '1' + '-'+ @month + '-'+ '2001' 
+  if @month in ('Jul','Aug','Sep','Oct','Nov','Dec') 
+  select @actual_month = '1' + '-'+ @month + '-'+ '2000' 
+    set @month = null 
+ 
+ 
+  if @actual_month > getdate() 
+  select @actual_month = '2000-06-01' 
+-- Logic to esure an actual date cannot be greater than today 
+    
+ 
+           if not exists (select 1 from HIGH_SCHOOL_PLAN where SCHOOL_CODE = @school_code and SCHOOL_YEAR = @school_year and PLAN_TYPE = @plan_type)  
+ begin     
+ 
+   print 'inser.ng into mcriss..HIGH_SCHOOL_PLAN SRL' 
+   print @school_code 
+ 
+ 
+               insert mcriss..HIGH_SCHOOL_PLAN 
+  (PLAN_TYPE,SCHOOL_CODE,SCHOOL_YEAR,PLANNED_MONTH,ACTUAL_MONTH,COMMENTS,USER_LOGIN,UPDATE_DATE) 
+     values(@plan_type, @school_code, '2001', @planned_month, 
+            @actual_month, @comments,@user_login,@update_date) 
+ 
+ end 
+ 
+ else begin 
+ 
+   print 'upda.ng HIGH_SCHOOL_PLAN SRL for' 
+   print @school_code 
+ 
+   update HIGH_SCHOOL_PLAN 
+   set PLANNED_MONTH = @planned_month, 
+   ACTUAL_MONTH = @actual_month, 
+   COMMENTS = @comments, 
+   USER_LOGIN = @user_login, 
+   UPDATE_DATE = @update_date 
+   where SCHOOL_CODE = @school_code and 
+    SCHOOL_YEAR = @school_year and 
+    PLAN_TYPE = @plan_type 
+  end 
+ 
+ 
+ 
+          end 
+ 
+ 
+ 
+        
+fetch arms_176 
+     into @hs_code, @.rst_mo_plan, @career_talk_g, @career_talk_p, 
+     @list_obtained, @list_planned, @nrotc_talk_g, @nrotc_talk_p, 
+    @visit_made, @visit_planned 
+ 
+end 
+ 
+ 
+ 
+ 
+close arms_176 
+ 
+deallocate arms_176]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,23 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetO.cerProgramHistory]" directorySegmentName="seg_19" id="0970938E-5528-155C-7494-69D2169F0EA2">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@NWAID   int 
+AS 
+ 
+SELECT 
+ H.OFFICER_PROGRAM_HISTORY_ID,  
+ C.COMPONENT_DESCRIPTION AS OFFICER_PROGRAM,  
+ CONVERT(CHAR(11), H.OFFICER_PROGRAM_CHANGED_DATE, 106) AS OFFICER_PROGRAM_CHANGED_DATE,  
+ H.OFFICER_PROGRAM_CHANGED_DATE 
+FROM 
+ OFFICER_PROGRAM_HISTORY H INNER JOIN COMPONENT_CODE C ON H.OFFICER_PROGRAM = C.COMPONENT_CODE 
+WHERE 
+ H.NWA_ID = @NWAID 
+ORDER BY 
+ H.OFFICER_PROGRAM_CHANGED_DATE DESC, H.OFFICER_PROGRAM_HISTORY_ID DESC]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

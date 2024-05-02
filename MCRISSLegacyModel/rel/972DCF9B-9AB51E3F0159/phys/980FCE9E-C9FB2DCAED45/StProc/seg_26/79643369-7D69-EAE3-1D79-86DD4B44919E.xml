@@ -1,0 +1,130 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[spCheckShipCriteria]" directorySegmentName="seg_26" id="79643369-7D69-EAE3-1D79-86DD4B44919E">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@MARINE_CANDIDATE_ID int 
+AS       
+           
+BEGIN               
+ 
+declare @criteriaMessage varchar(512) 
+declare @maxEdCode varchar(1) 
+declare @maxNwaId int 
+declare @maxContractId int 
+declare @genderCode varchar(1) 
+ 
+ 
+--- GET THE NWA ID 
+select @maxNwaId = max(nwa_id) from nwa where marine_candidate_id = @MARINE_CANDIDATE_ID 
+ 
+select @criteriaMessage = '' 
+--Check for Pending Educa.on Records 
+if (exists(select 1 from candidate_educa.on 
+        where (veri.ca.on is null or veri.ca.on = 'PENDING') and marine_candidate_id = @MARINE_CANDIDATE_ID)) begin 
+        select  @criteriaMessage = 'Pending Educa.on Record Exists' + char(10) 
+end 
+ 
+--Applicant cannot ship if they have no educa.on level/code combina.on that is .agged as eligible to ship. 
+ 
+/* 
+--- REMOVED HARD CODED VALUE FOR CE.MARINE_CANDIDATE_ID PLACED HERE BY GREG GONZALEZ 
+if ( not exists(select 1 from candidate_educa.on ce inner join educa.on_level_code elc on ce.educa.on_code = elc.educa.on_code and 
+                ce.educa.on_level = elc.educa.on_level_code and  
+                --- elc.eligible_to_ship = 'Y' and ce.marine_candidate_id = 262829)) begin 
+  elc.eligible_to_ship = 'Y' and ce.marine_candidate_id = @MARINE_CANDIDATE_ID)) begin  
+        select  @criteriaMessage = @criteriaMessage + 'Educa.on Level/Code not Eligible to Ship' + char(10) 
+end  
+*/ 
+ 
+IF (NOT EXISTS (SELECT 1 FROM CANDIDATE_EDUCATION CE INNER JOIN EDUCATION_LEVEL_CODE ELC ON  
+  (CE.EDUCATION_CODE = ELC.EDUCATION_CODE AND CE.EDUCATION_LEVEL = ELC.EDUCATION_LEVEL_CODE AND 
+  ELC.ELIGIBLE_TO_SHIP IN ('W', 'Y') AND CE.MARINE_CANDIDATE_ID = @MARINE_CANDIDATE_ID) 
+  WHERE CASE  
+   WHEN (ELC.ELIGIBLE_TO_SHIP = 'Y') OR 
+    --- IF A WAIVER IS NEEDED, CHECK FOR AN APPROVED KYB WAIVER 
+    (ELC.ELIGIBLE_TO_SHIP = 'W' AND  
+    EXISTS (SELECT 1 FROM CANDIDATE_WAIVER CW INNER JOIN WAIVER W ON CW.WAIVER_ID = W.WAIVER_ID 
+     INNER JOIN WAIVER_CATEGORY WC ON W.WAIVER_CATEGORY_ID = WC.WAIVER_CATEGORY_ID 
+     INNER JOIN WAIVER_TYPE WT ON W.WAIVER_TYPE_ID = WT.WAIVER_TYPE_ID 
+     INNER JOIN WAIVER_LEVEL WL ON W.WAIVER_LEVEL_ID = WL.WAIVER_LEVEL_ID 
+     WHERE CW.NWA_ID = @maxNwaId AND 
+     CW.WAIVER_STATUS_CODE = 'A' AND 
+     WC.WAIVER_CATEGORY_CODE = 'K' AND 
+     WT.WAIVER_TYPE_CODE = 'Y' AND  
+     WL.WAIVER_LEVEL_CODE = 'B'))  
+   THEN 1 
+   ELSE 0 
+   END = 1))  
+BEGIN 
+ SELECT @criteriaMessage = @criteriaMessage + 'Educa.on Level/Code not Eligible to Ship' + char(10) 
+END 
+ 
+ 
+ 
+--Check for Pending Dependent Records 
+if (exists(select 1 from candidate_dependent 
+        where (veri.ca.on is null or veri.ca.on = 'P') and marine_candidate_id = @MARINE_CANDIDATE_ID)) begin 
+        select  @criteriaMessage = @criteriaMessage +'Pending Dependent Record Exists' + char(10) 
+end 
+ 
+--Check for Pending  Waiver Records 
+if (exists(select 1 from candidate_waiver 
+        where waiver_status_code = 'P' and nwa_id = @maxNwaId)) begin 
+        select  @criteriaMessage = @criteriaMessage +'Pending Waiver Record Exists' + char(10) 
+end 
+ 
+select @genderCode = GENDER_CODE 
+from marine_candidate 
+where marine_candidate_id = @MARINE_CANDIDATE_ID 
+ 
+ 
+--Check for IST Block 
+if (@genderCode = 'M') begin 
+        select @maxContractId = max(contract_id) from contract where nwa_id = @maxNwaId 
+                if (exists(select 1 from contract 
+                                where contract_id = @maxContractId and (IST_DATE is null or 
+                                                IST_PULL_UPS is null or 
+                                                IST_CRUNCHES is null or 
+                                                IST_MINUTES is null or 
+                                          IST_RESULT in (null,'N') or 
+                                                IST_SECONDS is null))) begin 
+                select  @criteriaMessage = @criteriaMessage +'IST Block Must Be Checked' + char(10) 
+ 
+        end 
+end else begin 
+        select @maxContractId = max(contract_id) from contract where nwa_id = @maxNwaId 
+                if (exists(select 1 from contract 
+                                where contract_id = @maxContractId and (IST_DATE is null or 
+                                                IST_HANG is null or 
+                                                IST_CRUNCHES is null or 
+                                                IST_MINUTES is null or 
+                                                IST_RESULT in (null,'N') or 
+                                                IST_SECONDS is null))) begin 
+                select  @criteriaMessage = @criteriaMessage +'IST Block Must Be Checked' + char(10) 
+ 
+        end 
+ 
+ 
+end 
+ 
+ 
+ 
+ 
+--Check to see if Reservist has associsated QSN 
+if (exists(select 1 from contract 
+        where contract_id = @maxContractId and component_code not in ('K5','11'))) begin 
+        --We have a reservist and they should have a qsn 
+        if (not exists(select 1 from QSN where contract_id = @maxContractId)) begin 
+            select  @criteriaMessage = @criteriaMessage +'Reservist Must Have QSN' + char(10) 
+        end 
+end 
+ 
+ 
+ 
+select ltrim(rtrim(@criteriaMessage)) as CRITERIA_MESSAGE  
+end]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

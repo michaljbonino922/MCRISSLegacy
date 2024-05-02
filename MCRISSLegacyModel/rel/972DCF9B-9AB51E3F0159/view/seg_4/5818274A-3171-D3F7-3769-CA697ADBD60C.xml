@@ -1,0 +1,52 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_4" id="5818274A-3171-D3F7-3769-CA697ADBD60C" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="_dta_mv_337">
+<sourceDDLFile>create Prospecting script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>06396C95-81CF-D5DA-CC6D-6D0A1432DA15</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  [USMC].[ProspectEduca.on].[EduStatusCode] as _col_1,  [USMC].[ProspectEduca.on].[EduProjectedTierCode] as _col_2,  count_big(*) as _col_3 FROM  [USMC].[ProspectEduca.on]  GROUP BY  [USMC].[ProspectEduca.on].[EduStatusCode],  [USMC].[ProspectEduca.on].[EduProjectedTierCode]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="on].[EduStatusCode]" id="D22DB084-E5EE-B68E-D9AA-531C92FDE26A">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_1</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_1</headerAlias>
+<expression>on].[EduStatusCode]</expression>
+<reference>false</reference>
+<viewID>5818274A-3171-D3F7-3769-CA697ADBD60C</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="on].[EduProjectedTierCode]" id="0AC1A8B2-5FF9-D332-95D8-3FF77502A4E7">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_2</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_2</headerAlias>
+<expression>on].[EduProjectedTierCode]</expression>
+<reference>false</reference>
+<viewID>5818274A-3171-D3F7-3769-CA697ADBD60C</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="count_big(*)" id="B690B46F-DA62-DF79-5DC5-9C406237A391">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_3</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_3</headerAlias>
+<expression>count_big(*)</expression>
+<reference>false</reference>
+<viewID>5818274A-3171-D3F7-3769-CA697ADBD60C</viewID>
+</viewElement>
+</viewElements>
+</TableView>

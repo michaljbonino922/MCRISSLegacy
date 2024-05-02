@@ -1,0 +1,193 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetLastThreeYearsFromFYContracts]" directorySegmentName="seg_5" id="8CDA33B3-E7B4-C2FA-08DF-5DF20F62A8CE">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@Organiza.onID  as integer,  
+@FiscalYear   as integer 
+ 
+AS 
+ 
+SET NOCOUNT ON 
+DECLARE @Organiza.onType varchar(3) 
+DECLARE @ChildOrgType varchar(3) 
+ 
+ 
+SELECT  @Organiza.onType = Organiza.on_Type from recrui.ng_organiza.on RO 
+       where RO.Organiza.on_ID = @Organiza.onID 
+ 
+ 
+ 
+SET @ChildOrgType = CASE @Organiza.onType 
+  WHEN 'H' THEN 'R' 
+  WHEN 'R' THEN 'D' 
+  WHEN 'D' THEN 'RS' 
+  WHEN 'RS' THEN 'OSS' 
+  ELSE 'OSS' 
+  END 
+ 
+ 
+CREATE TABLE #ORG  
+( 
+ORG_ID INT,  
+SHORT_NAME varchar(15), 
+ORG_TYPE varchar(3) DEFAULT 'D' 
+) 
+ 
+/* 
+-- need to verify if the case for child organiza.on id is needed 
+ 
+IF @Organiza.onType IN ('H', 'R', 'D', 'RS') 
+BEGIN 
+--- GET CHILD ORGS 
+INSERT INTO #ORG 
+EXEC sp_GetChildOrgs @Organiza.onID, @ChildOrgType 
+ 
+END */ 
+ 
+-- .x this if condi.on based on the above scenerio for non-oss organiza.ons 
+--IF @Organiza.onType = 'OSS' 
+BEGIN 
+--- INSERT ONLY THE ORG ID 
+INSERT INTO #ORG (ORG_ID) VALUES (@Organiza.onID) 
+END 
+ 
+---------------------------------------------------------------------------------------------------------------------- 
+-- select the plccomb actuals 
+---------------------------------------------------------------------------------------------------------------------- 
+ select 
+  'PLC' AS O.cerSourceCode, MC.RACE_CODE, MC.ETHNIC_CODE, O_CLASS.FISCAL_YEAR AS FiscalYear   
+ INTO #OFFICER_CONTRACTS 
+ from NWA N      
+  inner join OFFICER_CONTRACT OFC ON OFC.NWA_ID = N.NWA_ID 
+  inner join OCS O ON O.NWA_ID = N.NWA_ID  
+  inner join OCS_CLASS O_CLASS ON O.OCS_CLASS_ID = O_CLASS.CLASS_ID   
+  INNER JOIN MARINE_CANDIDATE MC ON N.MARINE_CANDIDATE_ID = MC.MARINE_CANDIDATE_ID    
+ where  ORGANIZATION_OF_RECORD_ID =  @Organiza.onID 
+   AND (O_CLASS.FISCAL_YEAR = @FiscalYear OR 
+     O_CLASS.FISCAL_YEAR = @FiscalYear - 1 OR 
+     O_CLASS.FISCAL_YEAR = @FiscalYear - 2)    
+  AND N.OFFICER_COMPONENT_CODE IS NOT NULL AND N.OFFICER_COMPONENT_CODE IN ('0A', '0B', '0C', '0E')   
+  AND OFC.DISCHARGE_CODE IS NULL  AND  OFC.DISCHARGE_DATE IS NULL  
+  AND OFC.contract_begin_Date =  
+         (SELECT MIN(contract_begin_Date) 
+       FROM MCRISS.dbo.OFFICER_CONTRACT OC 
+       INNER JOIN NWA N ON N.NWA_ID =  OC.NWA_ID 
+       INNER JOIN OCS O ON O.NWA_ID = N.NWA_ID      
+       INNER JOIN OCS_CLASS O_CLASS on O.OCS_CLASS_ID = O_CLASS.CLASS_ID 
+       INNER JOIN MARINE_CANDIDATE M ON  M.MARINE_CANDIDATE_ID = N.MARINE_CANDIDATE_ID 
+       WHERE M.MARINE_CANDIDATE_ID = MC.MARINE_CANDIDATE_ID 
+       AND N.ORGANIZATION_OF_RECORD_ID = @Organiza.onID 
+       AND N.OFFICER_COMPONENT_CODE IS NOT NULL AND N.OFFICER_COMPONENT_CODE IN ('0A', '0B', '0C', '0E') 
+       AND (O_CLASS.FISCAL_YEAR = @FiscalYear OR 
+         O_CLASS.FISCAL_YEAR = @FiscalYear - 1 OR 
+         O_CLASS.FISCAL_YEAR = @FiscalYear - 2))   
+   
+      
+  
+ 
+--select reservist 
+INSERT INTO #OFFICER_CONTRACTS  
+select 
+  'OCC' AS O.cerSourceCode, MC.RACE_CODE, MC.ETHNIC_CODE, O_CLASS.FISCAL_YEAR AS FiscalYear   
+ from NWA N      
+ inner join OFFICER_CONTRACT OFC ON OFC.NWA_ID = N.NWA_ID 
+ INNER JOIN MARINE_CANDIDATE MC ON N.MARINE_CANDIDATE_ID = MC.MARINE_CANDIDATE_ID 
+ inner join OCS O ON O.NWA_ID = N.NWA_ID  
+ inner join OCS_CLASS O_CLASS ON O.OCS_CLASS_ID = O_CLASS.CLASS_ID       
+ where  ORGANIZATION_OF_RECORD_ID = @Organiza.onID 
+ AND (O_CLASS.FISCAL_YEAR = @FiscalYear OR 
+   O_CLASS.FISCAL_YEAR = @FiscalYear - 1 OR 
+   O_CLASS.FISCAL_YEAR = @FiscalYear - 2) 
+ AND N.OFFICER_COMPONENT_CODE IS NOT NULL AND N.OFFICER_COMPONENT_CODE IN ('1E')   
+ AND (datepart(mm, O_CLASS.CLASS_BEGIN_DATE) >=9 and datepart(mm, O_CLASS.CLASS_BEGIN_DATE) <=12  
+ OR      
+   datepart(mm, O_CLASS.CLASS_BEGIN_DATE) >=1 and datepart(mm, O_CLASS.CLASS_BEGIN_DATE) <=4  
+ OR      
+   datepart(mm, O_CLASS.CLASS_BEGIN_DATE) >=5 and datepart(mm, O_CLASS.CLASS_BEGIN_DATE) <=8)    
+ AND OFC.DISCHARGE_CODE IS NULL  AND  OFC.DISCHARGE_DATE IS NULL  
+ AND OFC.contract_begin_Date =  
+         (SELECT MIN(contract_begin_Date) 
+       FROM MCRISS.dbo.OFFICER_CONTRACT OC 
+       INNER JOIN NWA N ON N.NWA_ID =  OC.NWA_ID      
+       INNER JOIN MARINE_CANDIDATE M ON  M.MARINE_CANDIDATE_ID = N.MARINE_CANDIDATE_ID  
+       INNER JOIN OCS O ON O.NWA_ID = N.NWA_ID  
+       INNER JOIN OCS_CLASS O_CLASS ON O.OCS_CLASS_ID = O_CLASS.CLASS_ID         
+       WHERE M.MARINE_CANDIDATE_ID = MC.MARINE_CANDIDATE_ID 
+       AND N.ORGANIZATION_OF_RECORD_ID = @Organiza.onID 
+       AND N.OFFICER_COMPONENT_CODE IS NOT NULL AND N.OFFICER_COMPONENT_CODE IN ('1E') 
+       AND (O_CLASS.FISCAL_YEAR = @FiscalYear OR 
+         O_CLASS.FISCAL_YEAR = @FiscalYear - 1 OR 
+         O_CLASS.FISCAL_YEAR = @FiscalYear - 2))  
+  
+--------------------------------------------------------------------------------------------------------------------- 
+-- select the occ fall actuals for the .scal year 
+---------------------------------------------------------------------------------------------------------------------- 
+INSERT INTO #OFFICER_CONTRACTS  
+ select 
+  'OCC' AS O.cerSourceCode, MC.RACE_CODE, MC.ETHNIC_CODE, O_CLASS.FISCAL_YEAR AS FiscalYear     
+ from NWA N      
+ inner join OFFICER_CONTRACT OFC ON OFC.NWA_ID = N.NWA_ID 
+ INNER JOIN MARINE_CANDIDATE MC ON N.MARINE_CANDIDATE_ID = MC.MARINE_CANDIDATE_ID 
+ inner join OCS O ON O.NWA_ID = N.NWA_ID  
+ inner join OCS_CLASS O_CLASS ON O.OCS_CLASS_ID = O_CLASS.CLASS_ID        
+ where  ORGANIZATION_OF_RECORD_ID = @Organiza.onID 
+ AND (O_CLASS.FISCAL_YEAR = @FiscalYear OR 
+   O_CLASS.FISCAL_YEAR = @FiscalYear - 1 OR 
+   O_CLASS.FISCAL_YEAR = @FiscalYear - 2) 
+ AND N.OFFICER_COMPONENT_CODE IS NOT NULL AND N.OFFICER_COMPONENT_CODE IN ('1A', '1B', '1C', '1H')   
+ AND (datepart(mm, O_CLASS.CLASS_BEGIN_DATE) >=9 and datepart(mm, O_CLASS.CLASS_BEGIN_DATE) <=12  
+ OR      
+   datepart(mm, O_CLASS.CLASS_BEGIN_DATE) >=1 and datepart(mm, O_CLASS.CLASS_BEGIN_DATE) <=4  
+ OR      
+   datepart(mm, O_CLASS.CLASS_BEGIN_DATE) >=5 and datepart(mm, O_CLASS.CLASS_BEGIN_DATE) <=8)    
+ AND OFC.DISCHARGE_CODE IS NULL  AND  OFC.DISCHARGE_DATE IS NULL  
+ AND OFC.contract_begin_Date =  
+         (SELECT MIN(contract_begin_Date) 
+       FROM MCRISS.dbo.OFFICER_CONTRACT OC 
+       INNER JOIN NWA N ON N.NWA_ID =  OC.NWA_ID      
+       INNER JOIN MARINE_CANDIDATE M ON  M.MARINE_CANDIDATE_ID = N.MARINE_CANDIDATE_ID 
+       inner join OCS O ON O.NWA_ID = N.NWA_ID  
+       inner join OCS_CLASS O_CLASS ON O.OCS_CLASS_ID = O_CLASS.CLASS_ID 
+       WHERE M.MARINE_CANDIDATE_ID = MC.MARINE_CANDIDATE_ID 
+       AND N.ORGANIZATION_OF_RECORD_ID = @Organiza.onID 
+       AND N.OFFICER_COMPONENT_CODE IS NOT NULL AND N.OFFICER_COMPONENT_CODE IN ('1A', '1B', '1C', '1H') 
+       AND (O_CLASS.FISCAL_YEAR = @FiscalYear OR 
+         O_CLASS.FISCAL_YEAR = @FiscalYear - 1 OR 
+         O_CLASS.FISCAL_YEAR = @FiscalYear - 2))  
+  
+ --------------------------------------------------------------------------------------------------------------------- 
+ 
+select O.cerSourceCode, FiscalYear, COUNT(*) AS NumContracts 
+from #OFFICER_CONTRACTS    
+group by O.cerSourceCode, FiscalYear 
+ 
+--- Return a  second cursor for diversity informa.on 
+ 
+select O.cerSourceCode, FiscalYear,  
+CASE  
+   WHEN RACE_CODE IN ('A','B','D','F','C')  
+          OR  (RACE_CODE = 'E' AND  ETHNIC_CODE IN ('1','4','6','9') ) 
+          OR  (RACE_CODE = 'E' AND  ETHNIC_CODE NOT IN ('1','4','6','9', 'P') ) 
+   THEN 'D' 
+  ELSE NULL -- these records should be discarded 
+  END AS DiversityCode, 
+  COUNT(*) AS NumContracts 
+from #OFFICER_CONTRACTS    
+GROUP BY  O.cerSourceCode, FiscalYear, 
+   CASE  
+     WHEN RACE_CODE IN ('A','B','D','F','C')  
+          OR  (RACE_CODE = 'E' AND  ETHNIC_CODE IN ('1','4','6','9') ) 
+          OR  (RACE_CODE = 'E' AND  ETHNIC_CODE NOT IN ('1','4','6','9', 'P') ) 
+     -- 'D' is for diversity 
+     THEN 'D' 
+   END 
+ 
+--- CLEAN UP 
+DROP TABLE #ORG 
+DROP TABLE #OFFICER_CONTRACTS 
+SET NOCOUNT OFF]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

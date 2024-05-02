@@ -1,0 +1,76 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetPTADMarineViewBySector]" directorySegmentName="seg_5" id="81561D48-8E04-EDFF-A4D2-A5A19D1FE207">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @OrgID int = 0, 
+ @SectorID uniqueidentifier = null 
+) 
+ 
+AS 
+BEGIN 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED  
+ 
+SELECT  
+ n.Organiza.on_of_Record_id as 'OrgId',  
+ mc.marine_candidate_id, 
+ RTRIM(pg.Rank_Code) as 'Rank', 
+ RTRIM(p.Last_Name) as 'LastName', 
+ RTRIM(p.First_Name) as 'FirstName', m.Primary_MOS as 'MOS',  
+ (SELECT  
+  COUNT(*) 
+ FROM  
+  [MCRISS].[dbo].[REFERRAL] r  
+ WHERE 
+  r.[DEP_CONTRACT_ID] = c.[CONTRACT_ID] OR  
+  r.[MARINE_ID] = n.[MARINE_CANDIDATE_ID]) AS EnlistmentCredit,  
+ hs.HighSchool_Name as 'HighSchool',  
+ n.EMAIL_ADDRESS as email,  
+ ct.Area_Code + ' ' + ct.Telephone_Number as Telephone, 
+ m.Expira.on_Of_Ac.ve_Service as 'EASDate',  
+ n.rowguid as 'NWAId', 
+ n.NWA_ID as 'NWAId_int' 
+FROM [MCRISS].[dbo].person p 
+INNER JOIN [MCRISS].[dbo].Marine_Candidate mc 
+ ON p.Person_ID = mc.Marine_Candidate_id 
+INNER JOIN [MCRISS].[dbo].nwa n 
+ ON mc.Marine_Candidate_ID = n.Marine_Candidate_ID 
+INNER JOIN [MCRISS].[dbo].Contract c 
+ ON n.NWA_ID = c.NWA_ID 
+INNER JOIN MCRISS.dbo.Shipper s 
+ ON s.Contract_ID = c.Contract_ID 
+INNER JOIN MCRISS.dbo.Candidate_Status cs 
+ ON cs.NWA_ID = n.NWA_ID 
+INNER JOIN  
+  ( SELECT MAX(Educa.on_Level) Educa.onLevel, Marine_Candidate_ID 
+    FROM [MCRISS].[dbo].Candidate_Educa.on 
+    GROUP BY Marine_Candidate_ID ) ce 
+ ON ce.Marine_Candidate_ID = mc.Marine_Candidate_ID  
+INNER JOIN [MCRISS].[dbo].candidate_Educa.on ceII 
+ ON ceII.Marine_Candidate_ID = ce.Marine_Candidate_ID and ceII.Educa.on_Level = ce.Educa.onLevel 
+INNER JOIN [MCRISS].[dbo].High_School hs 
+ ON hs.School_Code = ceII.School_Code 
+INNER JOIN [MCRISS].[dbo].Marine m 
+ ON m.Marine_ID = mc.Marine_Candidate_ID 
+INNER JOIN usmc.MapsSectorZip msz 
+ ON LEFT(hs.zip_code,5) = msz.zip 
+INNER JOIN usmc.MapsSector as ms 
+ ON msz.SectorID = ms.SectorID 
+INNER JOIN MCRISS.dbo.PAY_GRADE pg 
+ ON m.Present_Grade_Code = pg.Pay_Grade_Code 
+LEFT OUTER JOIN [MCRISS].[dbo].Candidate_Telephone ct 
+ ON mc.Marine_Candidate_ID = ct.Marine_Candidate_ID AND ct.telephone_type = 'C' 
+WHERE (n.Organiza.on_of_Record_id = @OrgID) 
+AND (cs.Status_Type = 'E' AND cs.Status_Code = 'C' AND cs.Disposi.on_Code = 'P') 
+AND ( ms.SectorID = @SectorID or @SectorID is null) 
+AND (DatePart(MONTH, GetDate()) <  DatePart(MONTH, m.Expira.on_Of_Ac.ve_Service)) 
+AND ( provenPerformer = 1) 
+ORDER BY LastName 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

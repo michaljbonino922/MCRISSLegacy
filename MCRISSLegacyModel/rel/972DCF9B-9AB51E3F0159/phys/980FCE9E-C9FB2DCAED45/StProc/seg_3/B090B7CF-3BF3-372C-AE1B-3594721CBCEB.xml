@@ -1,0 +1,40 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetCandidateCriteriaWaiver]" directorySegmentName="seg_3" id="B090B7CF-3BF3-372C-AE1B-3594721CBCEB">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[(@CandidateCriteriaWaiverID int) 
+ 
+AS 
+ 
+SELECT 
+  [CANDIDATE_WAIVER_ID] 
+ ,[PROGRAM_ID] 
+ ,[MOS] 
+ ,[AFQT] 
+ ,[GT] 
+ ,[EL] 
+ ,[MM] 
+ ,[CL] 
+ ,[HEIGHT] 
+ ,[AGE] 
+ ,[COLOR_PERCEPTION] 
+ ,[VISION] 
+ ,[WPMT] 
+ ,[APT] 
+ ,[EDPT] 
+ ,[DLAB] 
+ ,[PAOI] 
+ ,[MEOP] 
+ ,[HIGHEST_WAIVER_LEVEL] 
+ ,[SERIOUS_MORAL_OFFENSES] 
+ ,[MARIJUANA_USE] 
+ ,[ALGEBRA_GRADE] 
+FROM 
+ [dbo].[CANDIDATE_CRITERIA_WAIVER] WITH (NOLOCK) 
+WHERE 
+ [CANDIDATE_WAIVER_ID] = @CandidateCriteriaWaiverID]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,26 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetShipperTrainingOrgByContractID]" directorySegmentName="seg_9" id="6C922A2C-3B26-81D2-A971-5AE0BBE9A5C2">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @ContractID int 
+) 
+AS 
+SELECT  
+ ad.MARINE_CANDIDATE_ID AS PersonID 
+ ,3 AS ADDRESS_TYPE 
+    ,ad.[STREET_ADDRESS] 
+    ,ad.[STREET_ADDRESS_2] 
+    ,ad.[CITY_CODE] 
+    ,ad.[COUNTY_CODE] 
+    ,ad.[STATE_CODE] 
+    ,ad.[ZIPCODE] 
+FROM [dbo].[CONTRACT] con  
+  INNER JOIN [dbo].[NWA] nwa ON nwa.NWA_ID = con.NWA_ID 
+  INNER JOIN [dbo].[CANDIDATE_ADDRESS] ad ON ad.MARINE_CANDIDATE_ID = nwa.MARINE_CANDIDATE_ID 
+WHERE [CONTRACT_ID] = @ContractID AND ad.ADDRESS_TYPE = 'T']]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

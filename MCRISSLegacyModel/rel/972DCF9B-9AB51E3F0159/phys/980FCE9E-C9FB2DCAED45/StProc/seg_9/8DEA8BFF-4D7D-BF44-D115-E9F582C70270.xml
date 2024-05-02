@@ -1,0 +1,18 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetProduc.onStatusByID]" directorySegmentName="seg_9" id="8DEA8BFF-4D7D-BF44-D115-E9F582C70270">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@PersonID int, 
+ @MonthCode int, 
+ @CalendarYear int 
+AS 
+ 
+SELECT PSH.PERSON_ID, PSH.MONTH_CODE, PSH.CALENDAR_YEAR, PSH.ORGANIZATION_ID, PSH.ON_PRODUCTION, NPR.SHORT_DESC, PSH.USER_LOGIN, PSH.UPDATE_DATE, PSH.rowguid, PSH.OTHER_REASON_DETAIL 
+FROM dbo.PRODUCTION_STATUS_HISTORY PSH LEFT JOIN dbo.NON_PRODUCTION_REASON  NPR ON 
+  PSH.NON_PROD_REASON_CODE = NPR.REASON_CODE 
+WHERE PSH.PERSON_ID = @PersonID AND PSH.MONTH_CODE=@MonthCode AND PSH.CALENDAR_YEAR=@CalendarYear]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

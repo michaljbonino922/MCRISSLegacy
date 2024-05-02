@@ -1,0 +1,166 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetWeeklyAchievedObjec.ve]" directorySegmentName="seg_11" id="3E459CC6-54AC-EE4D-789F-810DB48B0A61">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:37 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@Year           INT, 
+   @Month          INT, 
+   @Week           INT, 
+   @OrgId          INT, 
+   @RecruiterID    UNIQUEIDENTIFIER 
+AS 
+   BEGIN 
+      SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+      DECLARE @StartDate   DATETIME 
+      DECLARE @EndDate   DATETIME 
+      SET @StartDate = 
+             CAST ( 
+                (STR (@Year) + '-' + STR (@Month) + '-' + STR (1)) AS DATETIME) 
+      SET @EndDate = DATEADD (month, 1, @StartDate) 
+ 
+      IF (@Week = 0) 
+         BEGIN 
+            IF (   @RecruiterID IS NULL 
+                OR NOT EXISTS 
+                      (SELECT ID 
+                         FROM PSR.dbo.MonthlyObjec.ve 
+                        WHERE     [Year] = @Year 
+                              AND [Month] = @Month 
+                              AND Organiza.onId = @OrgId 
+                              AND RecruiterID = @RecruiterID)) 
+               BEGIN -- no recruiter .lter or recruiter has no monthly objec.ve 
+                  SELECT TOP 1 
+                         0 ID, 
+                         @StartDate StartDate, 
+                         dateadd (day, -1, @EndDate) EndDate, 
+                         ISNULL (TelephoneCall, 0) AS TCCallsObj, 
+                         ISNULL (O.ceTra.c, 0) AS OTScreenedObj, 
+                         ISNULL (AreaCanvassing, 0) AS ACContactsObj, 
+                         ISNULL (ElectronicProspec.ng, 0) AS EMMadeObj, 
+                         ISNULL (HomeVisit, 0) AS MOMadeObj, 
+                         ISNULL (Interview, 0) AS IntvwObj, 
+                         ISNULL (Nwa, 0) AS NWAObj, 
+                         ISNULL (ContractCount, 0) AS JoinsObj, 
+                         LastUpdateUserId UpdatedByUser, 
+                         LastUpdateDate DateUpdated, 
+                         Organiza.onId ORGANIZATION_ID, 
+                         RecruiterID 
+                    FROM PSR.dbo.MonthlyObjec.ve 
+                   WHERE     Year = @Year 
+                         AND Month = @Month 
+                         AND Organiza.onId = @OrgId 
+                         AND RecruiterID = 
+                                '00000000-0000-0000-0000-000000000000' 
+               END 
+            ELSE -- .lter by recruiter, Recruiter has his\her own Monthly Objec.ve 
+               BEGIN 
+                  SELECT TOP 1 
+                         0 ID, 
+                         @StartDate StartDate, 
+                         dateadd (day, -1, @EndDate) EndDate, 
+                         ISNULL (TelephoneCall, 0) AS TCCallsObj, 
+                         ISNULL (O.ceTra.c, 0) AS OTScreenedObj, 
+                         ISNULL (AreaCanvassing, 0) AS ACContactsObj, 
+                         ISNULL (ElectronicProspec.ng, 0) AS EMMadeObj, 
+                         ISNULL (HomeVisit, 0) AS MOMadeObj, 
+                         ISNULL (Interview, 0) AS IntvwObj, 
+                         ISNULL (Nwa, 0) AS NWAObj, 
+                         ISNULL (ContractCount, 0) AS JoinsObj, 
+                         LastUpdateUserId UpdatedByUser, 
+                         LastUpdateDate DateUpdated, 
+                         Organiza.onId ORGANIZATION_ID, 
+                         RecruiterID 
+                    FROM PSR.dbo.MonthlyObjec.ve 
+                   WHERE     Year = @Year 
+                         AND Month = @Month 
+                         AND Organiza.onId = @OrgId 
+                         AND RecruiterID = @RecruiterID 
+               END 
+         END                                                      -- @Week = 0 
+      ELSE                                                 -- .lter by weekly 
+         BEGIN 
+            CREATE TABLE #WAO 
+            ( 
+               RowNum            INT NOT NULL, 
+               ID                INT NOT NULL, 
+               StartDate         DATETIME NOT NULL, 
+               EndDate           DATETIME NOT NULL, 
+               TCCallsObj        INT NULL, 
+               OTScreenedObj     INT NULL, 
+               ACContactsObj     INT NULL, 
+               MOMadeObj         INT NULL, 
+               EMMadeObj         INT NULL, 
+               IntvwObj          INT NULL, 
+               NWAObj            INT NULL, 
+               JoinsObj          INT NULL, 
+               UpdatedByUser     UNIQUEIDENTIFIER NULL, 
+               DateUpdated       DATETIME NULL, 
+               ORGANIZATION_ID   INT NULL, 
+               RecruiterID       UNIQUEIDENTIFIER NULL 
+            ) 
+ 
+            IF (   @RecruiterID IS NULL 
+                OR NOT EXISTS 
+                      (SELECT ID 
+                         FROM PSR.dbo.WeeklyAchievedObjec.ve 
+                        WHERE     StartDate >= @StartDate 
+                              AND EndDate < @EndDate 
+                              AND ORGANIZATION_ID = @OrgId 
+                              AND RecruiterID = @RecruiterID)) 
+               BEGIN -- no recruiter .lter or recruiter has no weekly objec.ve 
+                  INSERT INTO #WAO 
+                     SELECT * 
+                       FROM (SELECT ROW_NUMBER () 
+                                       OVER (ORDER BY StartDate ASC) 
+                                       AS RowNum, 
+                                    * 
+                               FROM PSR.dbo.WeeklyAchievedObjec.ve 
+                              WHERE     StartDate >= @StartDate 
+                                    AND EndDate < @EndDate 
+                                    AND ORGANIZATION_ID = @OrgId 
+                                    AND RecruiterID = 
+                                           '00000000-0000-0000-0000-000000000000') 
+                            sorted 
+                      WHERE RowNum = @Week 
+               END 
+            ELSE                                        -- .lter by recruiter 
+               BEGIN 
+                  INSERT INTO #WAO 
+                     SELECT * 
+                       FROM (SELECT ROW_NUMBER () 
+                                       OVER (ORDER BY StartDate ASC) 
+                                       AS RowNum, 
+                                    * 
+                               FROM PSR.dbo.WeeklyAchievedObjec.ve 
+                              WHERE     StartDate >= @StartDate 
+                                    AND EndDate < @EndDate 
+                                    AND ORGANIZATION_ID = @OrgId 
+                                    AND RecruiterID = @RecruiterID) sorted 
+                      WHERE RowNum = @Week 
+               END 
+ 
+            SELECT ID, 
+                   StartDate, 
+                   EndDate, 
+                   ISNULL (TCCallsObj, 0) AS TCCallsObj, 
+                   ISNULL (OTScreenedObj, 0) AS OTScreenedObj, 
+                   ISNULL (ACContactsObj, 0) AS ACContactsObj, 
+                   ISNULL (EMMadeObj, 0) AS EMMadeObj, 
+                   ISNULL (MOMadeObj, 0) AS MOMadeObj, 
+                   ISNULL (IntvwObj, 0) AS IntvwObj, 
+                   ISNULL (NWAObj, 0) AS NWAObj, 
+                   ISNULL (JoinsObj, 0) AS JoinsObj, 
+                   UpdatedByUser, 
+                   DateUpdated, 
+                   ORGANIZATION_ID, 
+                   RecruiterID 
+              FROM #WAO 
+ 
+            DROP TABLE #WAO 
+         END 
+   END]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+</StoredProcedureSqlServerv2k5>

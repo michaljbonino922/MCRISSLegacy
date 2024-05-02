@@ -1,0 +1,70 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertCandidateEduca.on]" directorySegmentName="seg_10" id="88D1E30D-478E-2DEB-22BE-B930D051B41C">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[(@MarineCandidateID int 
+ ,@SchoolCode int 
+ ,@Educa.onLevel varchar(2) 
+ ,@SchoolEndDate date.me 
+ ,@Educa.onTier varchar(2) 
+ ,@Educa.onCode char(1) 
+ ,@CivilianEduca.onMajorCode varchar(2) 
+ ,@ProjectedComple.onDate date.me 
+ --,@FirstSenior char(1) 
+ ,@Veri.ca.on varchar(10) 
+ --,@Cumula.veGPA .oat 
+ --,@HighMathLevel varchar(2) 
+ --,@CurrentGPA .oat 
+ --,@CreditHours int 
+ --,@FullTimeStudent char(1) 
+ ,@ProjectedTier int 
+ ,@UserLogin varchar(15)) 
+AS 
+ 
+IF ((SELECT MARINE_CANDIDATE_ID FROM CANDIDATE_EDUCATION WHERE SCHOOL_CODE = @SchoolCode AND MARINE_CANDIDATE_ID = @MarineCandidateID) IS NULL) 
+BEGIN 
+ 
+ INSERT INTO [dbo].[CANDIDATE_EDUCATION]  
+  ([MARINE_CANDIDATE_ID] 
+  ,[SCHOOL_CODE] 
+  ,[EDUCATION_LEVEL] 
+  ,[SCHOOL_END_DATE] 
+  ,[EDUCATION_TIER] 
+  ,[EDUCATION_CODE] 
+  ,[CIVILIAN_EDUCATION_MAJOR_CODE] 
+  ,[PROJECTED_COMPL_DATE] 
+  --,[FIRST_SENIOR] 
+  ,[VERIFICATION] 
+  --,[CUMULATIVE_GPA] 
+  --,[HIGH_MATH_LEVEL] 
+  --,[CURRENT_GPA] 
+  --,[CREDIT_HOURS] 
+  --,[FULL_TIME_STUDENT] 
+  ,[PROJECTED_TIER] 
+  ,[USER_LOGIN] 
+  ,[UPDATE_DATE]) 
+ VALUES 
+  (@MarineCandidateID 
+  ,@SchoolCode 
+  ,@Educa.onLevel 
+  ,@SchoolEndDate 
+  ,@Educa.onTier 
+  ,@Educa.onCode 
+  ,@CivilianEduca.onMajorCode 
+  ,@ProjectedComple.onDate 
+  --,@FirstSenior 
+  ,@Veri.ca.on 
+  --,@Cumula.veGPA 
+  --,@HighMathLevel 
+  --,@CurrentGPA 
+  --,@CreditHours 
+  --,@FullTimeStudent 
+  ,@ProjectedTier 
+  ,@UserLogin 
+  ,GetDate()) 
+END]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

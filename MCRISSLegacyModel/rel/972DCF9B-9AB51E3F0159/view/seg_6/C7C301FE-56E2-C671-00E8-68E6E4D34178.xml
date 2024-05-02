@@ -1,0 +1,60 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_6" id="C7C301FE-56E2-C671-00E8-68E6E4D34178" schemaObject="2A6D9360-3BB2-5CEA-6E99-790D76996FDF" name="vwFiscalYearJoins2011">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:25 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>F0D92540-2249-149C-9CC9-73FE682D4A8E</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[WITH Nbrs ( n ) AS ( 
+ SELECT 1 UNION ALL 
+ SELECT 1 + n FROM Nbrs WHERE n < 100 UNION ALL -- gets to 100 
+ SELECT 100 + n FROM Nbrs WHERE n < 101 UNION ALL -- gets to 200 
+ SELECT 200 + n FROM Nbrs WHERE n < 101) -- gets to 300 
+--select n from nbrs 
+ -- add lines to get largest value of join total 
+ -- note: maxrecursion op.on not setable in UDF, view 
+select  newid() as LeadID,  --not a PSR LeadID 
+  PSROrgUnitID,  
+  ApplicantPackageTypeID, 
+  convert(date.me, cast(Month as varchar) + '/15/' + 
+   case when Month > 9 then '2010' 
+     when Month < 5 then '2011' 
+   end, 101) DateOfJoin, 
+  PayGradeType, 
+  IsOpen, 
+  6 StatusID 
+from 
+ JoinsFromALMRSFY2011 jfy1 cross join  
+ Nbrs where n <= (select Joins from JoinsFromALMRSFY2011 jfy2  
+     where jfy1.PSROrgUnitID = jfy2.PSROrgUnitID 
+     and jfy1.Month = jfy2.Month 
+     and jfy1.ApplicantPackageTypeID = jfy2.ApplicantPackageTypeID 
+     and (jfy1.PayGradeType = jfy2.PayGradeType or (jfy1.PayGradeType is null and jfy2.PayGradeType is null)) 
+     and (jfy1.IsOpen = jfy2.IsOpen or (jfy1.IsOpen is null and jfy2.IsOpen is null)) 
+     ) 
+union 
+select  newid() as LeadID,  --not a PSR LeadID 
+  PSROrgUnitID,  
+  ApplicantPackageTypeID, 
+  convert(date.me, cast(Month as varchar) + '/15/' + 
+   case when Month > 9 then '2010' 
+     when Month < 5 then '2011' 
+   end, 101) DateOfJoin, 
+  PayGradeType, 
+  IsOpen, 
+  7 StatusID 
+from 
+ JoinsFromALMRSFY2011 jfy1 cross join  
+ Nbrs where n <= (select Atri.ons from JoinsFromALMRSFY2011 jfy2  
+     where jfy1.PSROrgUnitID = jfy2.PSROrgUnitID 
+     and jfy1.Month = jfy2.Month 
+     and jfy1.ApplicantPackageTypeID = jfy2.ApplicantPackageTypeID 
+     and (jfy1.PayGradeType = jfy2.PayGradeType or (jfy1.PayGradeType is null and jfy2.PayGradeType is null)) 
+     and (jfy1.IsOpen = jfy2.IsOpen or (jfy1.IsOpen is null and jfy2.IsOpen is null)) 
+     ) 
+ 
+ 
+--select * from [vwFiscalYearJoins2011]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+</TableView>

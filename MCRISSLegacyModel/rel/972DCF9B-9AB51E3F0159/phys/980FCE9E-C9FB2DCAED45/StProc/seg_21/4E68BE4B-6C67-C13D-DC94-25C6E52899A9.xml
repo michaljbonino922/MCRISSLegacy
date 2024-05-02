@@ -1,0 +1,16 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetSchoolAssignmentData]" directorySegmentName="seg_21" id="4E68BE4B-6C67-C13D-DC94-25C6E52899A9">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@SchoolCode int 
+AS 
+ 
+SELECT ORGANIZATION_ID, RTRIM(HIGHSCHOOL_NAME) AS HIGH_SCHOOL_NAME, STREET, STREET2, CITY, STATE_CODE, ZIP_CODE,  
+TELEPHONE_NUMBER, DOD_CODE, CONVERT(VARCHAR(11), EFFECTIVE_DATE, 106) as EFFECTIVE_DATE, SCHOOL_TYPE 
+FROM HIGH_SCHOOL 
+WHERE SCHOOL_CODE = @SchoolCode AND DELETED = 'N']]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

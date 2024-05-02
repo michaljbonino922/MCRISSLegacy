@@ -1,0 +1,104 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SP_P_PROCESS179]" directorySegmentName="seg_23" id="744E128E-6FF4-D3D4-B230-5FB2B2DCA4D8">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[AS  
+SET ARITHABORT OFF 
+set arithignore on 
+set ansi_warnings o. 
+ 
+declare @person_id  int, 
+ @su.cd          varchar(5), 
+        @ssn             varchar(9), 
+        @l.rst          varchar(20), 
+        @lmiddle         varchar(20), 
+        @llast            varchar(20), 
+ @user_login  varchar(15), 
+ @update_date  date.me, 
+ @numrows_upd  int, 
+ @numrows_add  int, 
+ @arms_update  int, 
+ @arms_total  int, 
+ @numrows_upd_c  char(9), 
+ @numrows_add_c  char(9), 
+ @arms_update_c  char(9), 
+ @arms_added_c  char(9) 
+ 
+declare arms_179 cursor for 
+select  substring(SSN,1,9), 
+        FIRST_NAME, 
+        LAST_NAME, 
+ MID_INITIAL 
+from  arms..ARMS179 
+  
+open arms_179 
+ 
+fetch arms_179 
+     into @ssn, @l.rst, @llast, @lmiddle 
+ 
+ 
+select @su.cd =     NULL 
+select @arms_update = 0 
+select @arms_total  = 0 
+select @numrows_upd = 0 
+select @numrows_add = 0 
+select @user_login = 'migra.on' 
+select @update_date = getdate() 
+ 
+set @arms_update = (select count(*) from arms..ARMS179 where @ssn in 
+       (select SOCIAL_SECURITY_NUMBER from mcriss..PERSON)) 
+set @arms_total = (select count(*) from arms..ARMS179) 
+ 
+while (@@FETCH_STATUS = 0) 
+begin 
+ 
+  if (not exists(select 1 from mcriss..PERSON  
+   where SOCIAL_SECURITY_NUMBER = @ssn)) 
+     begin 
+      exec SPADDPERSONTBL @su.cd,@ssn,@l.rst,@lmiddle,@llast,@user_login,@update_date 
+   print "SSN ADDED "   
+   print @ssn 
+   select @numrows_add = @numrows_add + 1 
+     end 
+  else 
+     begin 
+     select @person_id = (select PERSON_ID from mcriss..PERSON 
+       where SOCIAL_SECURITY_NUMBER = @ssn) 
+        exec SPUPDPERSONTBL @person_id,@su.cd,@ssn,@l.rst,@lmiddle,@llast,@user_login,@update_date 
+     print "SSN UPDATED "   
+  print @ssn 
+  select @numrows_upd = @numrows_upd + 1 
+     end    
+   
+  fetch arms_179 
+      into @ssn, @l.rst, @llast, @lmiddle 
+ 
+end 
+ 
+print " " 
+print " " 
+print "===============================================================" 
+print "SUMMARY OF DAILY CHANGES" 
+print "===============================================================" 
+print "number of new rows from ARMS" 
+select @arms_added_c =  @arms_total - @arms_update 
+print  @arms_added_c 
+print "number of rows updated from ARMS" 
+select @arms_update_c =  @arms_update 
+print  @arms_update_c 
+print "number of new rows added to MCRISS" 
+select @numrows_add_c =  @numrows_add 
+print  @numrows_add_c 
+print "number of rows updated to MCRISS" 
+select @numrows_upd_c =  @numrows_upd 
+print  @numrows_upd_c 
+ 
+ 
+close arms_179 
+ 
+deallocate arms_179]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

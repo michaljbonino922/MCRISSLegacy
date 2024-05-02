@@ -1,0 +1,132 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SP_MC_PROCESS179]" directorySegmentName="seg_22" id="5E3622A6-CAEA-7E27-F5DE-4E6294304376">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[AS  
+SET ARITHABORT OFF 
+set arithignore on 
+set ansi_warnings o. 
+ 
+declare @person_id   int, 
+ @ssn    varchar(9), 
+ @ci.zenship_code  varchar(2), 
+ @marine_candidate_id  int, 
+ @marital_status_code  char(1), 
+ @race    char(1), 
+ @ethnic_code   varchar(2), 
+ @gender_code   char(1), 
+ @religion_code   varchar(2), 
+ @pop_group_code   varchar(2), 
+ @dob    date.me, 
+ @country_of_origin  varchar(10), 
+ @birth_city   varchar(10), 
+ @birth_county   varchar(10), 
+ @birth_state   varchar(10), 
+ @drivers_license_state  varchar(2), 
+ @drivers_license_num  varchar(20), 
+ @drivers_license_exp  date.me, 
+ @interview_date   date.me, 
+ @updated   int, 
+ @added    int, 
+ @user_login   varchar(15), 
+ @update_date   date.me 
+ 
+declare arms_179 cursor for 
+select  SSN, 
+  CITIZENSHIP_CODE, 
+  convert(date.me,DOB,112), 
+  ETHNIC, 
+  SEX, 
+  MARITAL_STAT, 
+  RACE, 
+  REL_PREF 
+from  arms..ARMS179 
+ 
+open arms_179 
+ 
+fetch arms_179 
+ into @ssn, @ci.zenship_code, @dob, @ethnic_code, @gender_code, 
+      @marital_status_code, @race, @religion_code 
+  
+select @birth_city = NULL 
+select @birth_county = NULL 
+select @birth_state = NULL 
+select @country_of_origin = NULL 
+select @drivers_license_state = NULL 
+select @drivers_license_num = NULL 
+select @drivers_license_exp = NULL 
+select @interview_date = NULL 
+select @updated = 0 
+select @added = 0 
+select @user_login = 'migra.on' 
+select @update_date = getdate() 
+ 
+while (@@FETCH_STATUS = 0) 
+begin 
+ 
+  select @person_id = (select PERSON_ID  
+         from mcriss..PERSON 
+         where PERSON.SOCIAL_SECURITY_NUMBER = @ssn) 
+ 
+  select @pop_group_code = (select POPULATION_GROUP_CODE from mcriss..POPULATION_GROUP where ETHNIC_CODE = @ethnic_code 
+    and RACE_CODE = @race) 
+  if @person_id is not NULL 
+   begin 
+ 
+  print @ssn 
+ 
+     if (not exists(select 1 from mcriss..MARINE_CANDIDATE 
+                 where MARINE_CANDIDATE_ID = @person_id)) 
+        begin 
+        exec SPADDMARINE_CANDIDATE @person_id, @ci.zenship_code,                        
+                                          @marital_status_code, @race, 
+                                   @ethnic_code, @gender_code, @religion_code, 
+           @pop_group_code, @dob, @country_of_origin,  
+                                          @birth_city, @birth_county, 
+           @birth_state, @drivers_license_state, 
+           @drivers_license_num, @drivers_license_exp, 
+           @interview_date,@user_login,@update_date 
+                                
+ 
+        select @added = @added + 1 
+        end 
+   
+      else 
+        begin 
+        exec SPUPDMARINE_CANDIDATE @person_id, @ci.zenship_code,                        
+                                          @marital_status_code, @race, 
+                                   @ethnic_code, @gender_code, @religion_code, 
+           @pop_group_code, @dob, @country_of_origin,  
+                                          @birth_city, @birth_county, 
+           @birth_state, @drivers_license_state, 
+           @drivers_license_num, @drivers_license_exp, 
+           @interview_date,@user_login,@update_date 
+ 
+        select @updated = @updated + 1 
+        end 
+   end 
+   else 
+      select @ssn+' Not in PERSON' 
+ 
+ 
+ 
+   fetch arms_179 
+    into @ssn, @ci.zenship_code, @dob, @ethnic_code, @gender_code, 
+         @marital_status_code, @race, @religion_code 
+ 
+end 
+ 
+print 'Number of Marine Candidates Added' 
+select @added 
+print 'Number of Marine Candidates Updated' 
+select @updated 
+ 
+ 
+close arms_179 
+ 
+deallocate  arms_179]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

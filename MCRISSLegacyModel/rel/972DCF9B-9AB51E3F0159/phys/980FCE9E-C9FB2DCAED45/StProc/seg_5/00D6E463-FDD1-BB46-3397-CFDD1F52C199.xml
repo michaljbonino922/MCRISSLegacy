@@ -1,0 +1,214 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetReservistByDate]" directorySegmentName="seg_5" id="00D6E463-FDD1-BB46-3397-CFDD1F52C199">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @OrgID int, 
+ @Month varchar(2) = 0, 
+ @Year varchar(4) 
+) 
+ 
+AS 
+BEGIN 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+  
+ DECLARE @CurrentDate DATETIME  
+ SET @CurrentDate = GETDATE()  
+ 
+ DECLARE @BeginDate date.me 
+ DECLARE @EndDate date.me 
+ 
+ --SEARCH BY MONTH 
+ IF @Month > 0 
+ BEGIN 
+  SET @BeginDate = @Month + '/1/' + @Year 
+  SET @EndDate = DATEADD(s,-1,DATEADD(mm, DATEDIFF(m,0,@BeginDate)+1,0)) 
+ END 
+ 
+ -- SEARCH BY CURRENT YEAR 
+ ELSE IF @Year = DATEPART(Year, @CurrentDate) 
+ BEGIN 
+  DECLARE @CurrentDay  int 
+  DECLARE @CurrentMonth int 
+  DECLARE @CurrentYear int 
+ 
+  SET @CurrentDay = DATEPART(Day, @CurrentDate) 
+  SET @CurrentMonth = DATEPART(Month, @CurrentDate) 
+  SET @CurrentYear = DATEPART(Year, @CurrentDate) 
+  SET @BeginDate = DateADD(dd, @currentDay -1, DateAdd(mm, @CurrentMonth -1, DateAdd(yy, @CurrentYear - 2000, '20000101'))) 
+  SET @EndDate = '12/31/' + @Year 
+ END 
+ 
+ -- SEARCH FUTURE YEAR 
+ ELSE   
+ BEGIN 
+  SET @BeginDate = '1/1/' + @Year 
+  SET @EndDate = '12/31/' + @Year  
+ END 
+ 
+ SELECT DISTINCT  N.ORGANIZATION_OF_RECORD_ID AS [OrgID] 
+     ,N.MARINE_CANDIDATE_ID AS [MARINE_CANDIDATE_ID] 
+     ,N.rowguid AS [NWAId] 
+     ,N.NWA_ID AS [NWAId_Int] 
+     ,N.EMAIL_ADDRESS AS [EmailAddress] 
+     ,REPLICATE(' ',10) AS [Rank] 
+     ,RTRIM(P.LAST_NAME) AS [LastName] 
+     ,RTRIM(P.FIRST_NAME) AS [FirstName] 
+     ,REPLICATE(' ',4) AS [MOS] 
+     ,C.CONTRACT_ID AS [CONTRACT_ID] 
+     ,C.CONTRACT_BEGIN_DATE AS [EnlistmentDate] 
+     ,CAST(NULL AS date.me) AS [EAS] 
+     ,NULL AS [EnlistmentCredit] 
+     ,REPLICATE(' ',20) AS [TELEPHONE] 
+     ,N.ProvenPerformer AS [ProvenPerformer] 
+     ,C.COMPONENT_CODE 
+     ,S.AFADBD 
+     ,C.TERM_OF_ENLISTMENT 
+     ,'OA' AS [Sector] 
+     ,CAST('00000000-0000-0000-0000-000000000000' AS UNIQUEIDENTIFIER) AS [SECTOR_ID] 
+     ,REPLICATE(' ',60) AS [HIGHSCHOOL] 
+     ,CAST('00000000-0000-0000-0000-000000000000' AS UNIQUEIDENTIFIER) AS [HS_ID] 
+     ,REPLICATE(' ',5) AS [HS_ZIP] 
+     ,MO.PRESENT_RUC AS RUC 
+ INTO #TempMarine 
+ FROM MCRISS.dbo.PERSON P 
+ INNER JOIN MCRISS.dbo.NWA N ON P.PERSON_ID = N.MARINE_CANDIDATE_ID 
+         AND N.NWA_ID IN ( SELECT MAX(N2.NWA_ID) 
+               FROM MCRISS.dbo.NWA N2 
+               WHERE N.MARINE_CANDIDATE_ID = N2.MARINE_CANDIDATE_ID) 
+ INNER JOIN MCRISS.dbo.CANDIDATE_STATUS CS ON N.NWA_ID = CS.NWA_ID 
+            AND CS.CANDIDATE_STATUS_ID IN ( SELECT MAX(CS2.CANDIDATE_STATUS_ID) 
+                    FROM MCRISS.dbo.CANDIDATE_STATUS CS2 
+                    WHERE CS.NWA_ID = CS2.NWA_ID) 
+ INNER JOIN MCRISS.dbo.CONTRACT C ON N.NWA_ID = C.NWA_ID 
+ INNER JOIN MCRISS.dbo.SHIPPER S ON C.CONTRACT_ID = S.CONTRACT_ID 
+ INNER JOIN MCRISS.dbo.QSN q ON q.Contract_ID = s.Contract_ID 
+ INNER JOIN MCRISS.dbo.MARINE_ORGANIZATION MO ON MO.PRESENT_RUC = Q.Ruc 
+ WHERE N.ORGANIZATION_OF_RECORD_ID = @OrgID 
+  AND (CS.STATUS_TYPE + CS.STATUS_CODE + CS.DISPOSITION_CODE = 'ECP') 
+  AND C.COMPONENT_CODE IN ('K4','K8','K9','B5') 
+   
+  
+ UPDATE tm 
+ SET tm.Rank = pg.RANK_CODE 
+ ,tm.MOS = m.PRIMARY_MOS 
+ FROM #TempMarine tm 
+ INNER JOIN MCRISS.dbo.MARINE m ON m.MARINE_ID = tm.MARINE_CANDIDATE_ID 
+ INNER JOIN MCRISS.dbo.PAY_GRADE PG ON M.PRESENT_GRADE_CODE = PG.PAY_GRADE_CODE 
+  
+ UPDATE tm 
+ SET tm.HIGHSCHOOL = hs.HIGHSCHOOL_NAME 
+ ,tm.HS_ID = hs.rowguid  
+ ,tm.HS_ZIP = LEFT(HS.ZIP_CODE,5) 
+ FROM #TempMarine tm 
+ INNER JOIN MCRISS.dbo.CANDIDATE_EDUCATION CE ON tm.MARINE_CANDIDATE_ID = CE.MARINE_CANDIDATE_ID 
+                   AND CE.EDUCATION_LEVEL IN ( SELECT MAX(CE2.EDUCATION_LEVEL) 
+                          FROM MCRISS.dbo.CANDIDATE_EDUCATION CE2 
+                          WHERE CE.MARINE_CANDIDATE_ID = CE2.MARINE_CANDIDATE_ID 
+                          ) 
+                   AND CE.SCHOOL_END_DATE IN (SELECT MAX(CE3.SCHOOL_END_DATE) 
+                            FROM MCRISS.dbo.CANDIDATE_EDUCATION CE3 
+                            WHERE CE.MARINE_CANDIDATE_ID = CE3.MARINE_CANDIDATE_ID 
+                            AND CE.EDUCATION_LEVEL = CE3.EDUCATION_LEVEL 
+                            ) 
+                   AND CE.UPDATE_DATE IN ( SELECT MAX(CE4.UPDATE_DATE) 
+                         FROM MCRISS.dbo.CANDIDATE_EDUCATION CE4 
+                         WHERE CE.MARINE_CANDIDATE_ID = CE4.MARINE_CANDIDATE_ID 
+                         AND CE.EDUCATION_LEVEL = CE4.EDUCATION_LEVEL 
+                         ) 
+ LEFT OUTER JOIN MCRISS.dbo.HIGH_SCHOOL HS ON HS.SCHOOL_CODE = CE.SCHOOL_CODE 
+  
+ UPDATE tm 
+ SET EAS =  
+  (CASE WHEN tm.COMPONENT_CODE = 'K4' 
+   THEN DATEADD(day,2189,tm.AFADBD)   
+   WHEN tm.COMPONENT_CODE = 'K8' 
+   THEN DATEADD(day,1094,tm.AFADBD)   
+   WHEN tm.COMPONENT_CODE = 'K9' 
+   THEN DATEADD(day,1459,tm.AFADBD)   
+   WHEN tm.COMPONENT_CODE = 'B5' 
+   THEN DATEADD(day,1824,tm.AFADBD) 
+   END)  
+ FROM #TempMarine tm 
+  
+ SELECT * 
+ INTO #Marine 
+ FROM #TempMarine 
+ WHERE ( 
+    @CurrentDate < EAS 
+    AND EAS > @BeginDate 
+    AND EAS <= @EndDate + 1 
+   ) 
+  
+ UPDATE m 
+ SET m.TELEPHONE = (CT.AREA_CODE + '-' + CT.TELEPHONE_NUMBER) 
+ FROM #Marine m 
+ INNER JOIN MCRISS.dbo.CANDIDATE_TELEPHONE CT ON m.MARINE_CANDIDATE_ID = CT.MARINE_CANDIDATE_ID 
+ WHERE TELEPHONE_TYPE = 'C' 
+ 
+ SELECT m.MARINE_CANDIDATE_ID, R.REFERRAL_ID 
+ INTO #TEMP_REFERRAL_COUNTS 
+ FROM #Marine m 
+ INNER JOIN MCRISS.dbo.REFERRAL R ON m.MARINE_CANDIDATE_ID = R.MARINE_ID 
+ WHERE R.MARINE_ID IS NOT NULL 
+ 
+ INSERT INTO #TEMP_REFERRAL_COUNTS 
+ SELECT m.MARINE_CANDIDATE_ID, R.REFERRAL_ID 
+ FROM #Marine m 
+ INNER JOIN MCRISS.dbo.REFERRAL R ON m.CONTRACT_ID = R.DEP_CONTRACT_ID 
+ WHERE DEP_CONTRACT_ID IS NOT NULL 
+ 
+ SELECT MARINE_CANDIDATE_ID, COUNT(REFERRAL_ID) AS REF_COUNT 
+ INTO #REFERRAL_COUNTS 
+ FROM #TEMP_REFERRAL_COUNTS 
+ GROUP BY MARINE_CANDIDATE_ID 
+ 
+ UPDATE m 
+ SET m.[EnlistmentCredit] = RC.REF_COUNT 
+ FROM #Marine m 
+ INNER JOIN #REFERRAL_COUNTS RC ON m.MARINE_CANDIDATE_ID = RC.MARINE_CANDIDATE_ID 
+ 
+ UPDATE m 
+ SET  m.[Sector] = MS.SectorDesignator 
+  ,m.[SECTOR_ID] = MS.SectorID 
+ FROM #Marine m 
+ INNER JOIN USMC.MapsSectorZip MSZ ON m.HS_ZIP = MSZ.ZIP 
+ INNER JOIN USMC.MapsSector MS ON MSZ.SectorID = MS.SectorID 
+ WHERE MSZ.E.ec.veDate IN (  SELECT MAX(MSZ2.E.ec.veDate) 
+          FROM USMC.MapsSectorZip MSZ2 
+          where MSZ2.Zip = MSZ.Zip ) 
+ 
+ 
+ SELECT  ISNULL(m.[Rank], '') AS Rank 
+   ,ISNULL(m.[LastName], '') AS LastName 
+   ,ISNULL(m.[FirstName], '') AS FirstName 
+   ,ISNULL(m.[MOS], '') AS MOS 
+   ,m.[COMPONENT_CODE] AS CompCode 
+   ,ISNULL(m.[RUC], '') AS RUC 
+   ,ISNULL(m.[EnlistmentCredit], '') AS EnlistmentCredit 
+   ,ISNULL(m.[Sector], '') AS Sector 
+   ,ISNULL(m.Telephone, '') AS Telephone 
+   ,ISNULL(m.[HighSchool], '') AS School 
+   ,ISNULL(m.[EmailAddress], '') as Email 
+   ,m.[EAS] 
+   ,m.[NWAId] 
+ FROM #Marine m 
+ WHERE m.SECTOR IN ( SELECT TOP 1 m2.SECTOR 
+       FROM #Marine m2 
+       WHERE m2.NWAId_int = m.NWAId_int 
+       ORDER BY m2.SECTOR ASC) 
+ 
+ ORDER BY COMPONENT_CODE, LastName, FirstName 
+ 
+ DROP TABLE #TempMarine 
+ DROP TABLE #Marine 
+ DROP TABLE #REFERRAL_COUNTS 
+ DROP TABLE #TEMP_REFERRAL_COUNTS 
+  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

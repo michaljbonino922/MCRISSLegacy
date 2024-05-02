@@ -1,0 +1,47 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUpdateRecruitTraining]" directorySegmentName="seg_12" id="9C227131-16DF-53BB-2661-CD23F44B7B89">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @ShipID int, 
+ @DetectabilityCodeID int, 
+ @DischargeDate date.me, 
+ @DischargeReasonID varchar(4), 
+ @Gradua.onDate date.me, 
+ @LastEditBy varchar(50) 
+) 
+AS 
+ 
+IF EXISTS (SELECT 1 FROM RECRUIT_TRAINING WHERE SHIP_ID = @ShipID) 
+BEGIN 
+ Update dbo.RECRUIT_TRAINING SET 
+  GRADUATION_DATE = @Gradua.onDate, 
+  DROP_DATE = @DischargeDate, 
+  DROP_REASON = @DischargeReasonID, 
+  DETECTABILITY_CODE = @DetectabilityCodeID, 
+  USER_LOGIN = @LastEditBy, 
+  UPDATE_DATE = GetDate() 
+ WHERE SHIP_ID = @ShipID 
+END  
+ELSE 
+BEGIN 
+ DECLARE @ShipDate date.me 
+ SET @ShipDate = (SELECT SHIP_DATE FROM SHIPPER WHERE SHIP_ID = @ShipID) 
+ 
+ INSERT INTO RECRUIT_TRAINING (SHIP_ID, SHIP_DATE, GRADUATION_DATE, DROP_DATE, DROP_REASON, DETECTABILITY_CODE, USER_LOGIN, UPDATE_DATE, rowguid) 
+ VALUES ( 
+  @ShipID, 
+  @ShipDate, 
+  @Gradua.onDate,  
+  @DischargeDate,  
+  @DischargeReasonID,  
+  @DetectabilityCodeID, 
+  @LastEditBy, 
+  GetDate(), 
+  newid()) 
+END]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

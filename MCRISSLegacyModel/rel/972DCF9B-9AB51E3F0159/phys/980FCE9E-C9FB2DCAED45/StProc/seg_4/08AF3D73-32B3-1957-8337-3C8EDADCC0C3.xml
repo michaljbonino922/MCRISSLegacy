@@ -1,0 +1,33 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetObjec.veSheet]" directorySegmentName="seg_4" id="08AF3D73-32B3-1957-8337-3C8EDADCC0C3">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@OrgID    uniqueidentifier, 
+    @RecruiterID     uniqueidentifier, 
+    @Year     int, 
+    @Month     int 
+ 
+AS 
+BEGIN 
+  
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+ SELECT * FROM 
+ USMC.MonthlyObjec.ve mo 
+ INNER JOIN 
+ USMC.WeeklyObjec.ve wo 
+ ON 
+ mo.ID=wo.MonthlyObjec.veID 
+ WHERE  
+ Organiza.onId=@OrgID 
+ AND RecruiterID=@RecruiterID 
+ AND Year=@Year  
+ AND Month=@Month 
+ ORDER BY wo.StartDate 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

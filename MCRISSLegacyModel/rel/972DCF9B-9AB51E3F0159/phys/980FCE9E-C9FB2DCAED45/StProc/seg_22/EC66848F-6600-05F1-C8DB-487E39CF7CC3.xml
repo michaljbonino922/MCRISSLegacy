@@ -1,0 +1,131 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_mg_PFT]" directorySegmentName="seg_22" id="EC66848F-6600-05F1-C8DB-487E39CF7CC3">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[as 
+declare  
+  @user_login varchar(15), 
+  @update_date date.me, 
+  @contract_height varchar(4), 
+  @contract_weight varchar(4), 
+  @contract_dte varchar(6), 
+  @ocs_height varchar(4), 
+  @ocs_weight varchar(4), 
+  @dte_to_ocs varchar(6), 
+  @p. varchar(3), 
+  @contract_height_int int, 
+  @contract_weight_int int, 
+  @contract_dte_d date.me, 
+  @ocs_height_int int, 
+  @ocs_weight_int int, 
+  @dte_to_ocs_d date.me, 
+  @p._int int, 
+  @height int, 
+  @weight int, 
+  @p._date date.me, 
+  @ssn char(9), 
+  @nwa_id int 
+ 
+declare cur_arms cursor for 
+  select ssn, 
+    contract_height, 
+    contract_weight, 
+    contract_dte, 
+    ocs_height, 
+    ocs_weight, 
+    dte_to_ocs, 
+    p. 
+    from AO2 
+ 
+  set @user_login = 'o_migra.on' 
+  set @update_date = getdate() 
+ 
+  open cur_arms 
+  fetch cur_arms into 
+    @ssn, 
+    @contract_height, 
+    @contract_weight, 
+    @contract_dte, 
+    @ocs_height, 
+    @ocs_weight, 
+    @dte_to_ocs, 
+    @p. 
+ 
+while (@@FETCH_STATUS = 0) 
+begin 
+ 
+  /* Convert char to date.me and integer data types */ 
+  set @contract_dte_d = mcriss.dbo.sp_mg_GetDate(@contract_dte)     
+  set @dte_to_ocs_d = mcriss.dbo.sp_mg_GetDate(@dte_to_ocs)  
+ 
+  set @contract_height_int = mcriss.dbo.sp_mg_ConvertToNum (@contract_height) 
+  set @contract_weight_int = mcriss.dbo.sp_mg_ConvertToNum (@contract_weight) 
+  set @ocs_height_int = mcriss.dbo.sp_mg_ConvertToNum (@ocs_height) 
+  set @ocs_weight_int = mcriss.dbo.sp_mg_ConvertToNum (@ocs_weight) 
+  set @p._int = mcriss.dbo.sp_mg_ConvertToNum (@p.) 
+ 
+  set @nwa_id = (select top 1 nwa_id from nwa n inner join person p 
+    on n.marine_candidate_id = p.person_id 
+    where p.social_security_number = @ssn 
+    order by nwa_id desc) 
+ 
+  /* Error Handling */ 
+     
+  /* Do Insert Here */ 
+ 
+  /* If both OCS and Contract info are there, use OCS. */ 
+  if (@dte_to_ocs_d is not null and @ocs_height_int <> 0 and @ocs_weight_int <> 0) 
+    begin 
+    set @height = @ocs_height_int 
+    set @weight = @ocs_weight_int 
+    set @p._date = @dte_to_ocs_d 
+    end 
+  else if (@contract_dte_d is not null and @contract_height_int <> 0 and @contract_weight_int <> 0) 
+    begin 
+    set @height = @contract_height_int 
+    set @weight = @contract_weight_int 
+    set @p._date = @contract_dte_d 
+    end 
+  else 
+    begin 
+    set @height = null 
+    set @weight = null 
+    set @p._date = null 
+    end 
+ 
+  if @p._date is not null 
+    insert into p.( 
+      nwa_id, 
+      p._date, 
+      p._score, 
+      p._height, 
+      p._weight, 
+      user_login, 
+      update_date) 
+    values ( 
+      @nwa_id, 
+      @p._date, 
+      @p._int, 
+      @height, 
+      @weight, 
+      @user_login, 
+      @update_date) 
+ 
+  fetch cur_arms into 
+    @ssn, 
+    @contract_height, 
+    @contract_weight, 
+    @contract_dte, 
+    @ocs_height, 
+    @ocs_weight, 
+    @dte_to_ocs, 
+    @p. 
+end     
+ 
+close cur_arms 
+deallocate cur_arms]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,35 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetRecrui.ngOrgByCode]" directorySegmentName="seg_9" id="3B47494C-2B55-E793-EDB2-485706AED973">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+  @Code varchar(5) 
+ ) 
+AS 
+ 
+SELECT [ORGANIZATION_ID] 
+      ,[STATE_CODE] 
+      ,[ORGANIZATION_TYPE] 
+      ,[MEPS_ORGANIZATION_ID] 
+      ,[NAME] 
+      ,[SHORT_NAME] 
+      ,[MCC_CODE] 
+      ,[TO_PROD_RECRUITERS] 
+      ,[STREET] 
+      ,[STREET2] 
+      ,[CITY] 
+      ,[ZIP_CODE] 
+      ,[ISOPEN] 
+      ,[DELETED] 
+      ,[IS_ASSIGNED] 
+      ,[EFFECTIVE_DATE] 
+      ,[poc_email] 
+      ,[OrgUnitId] 
+      ,[rowguid] 
+FROM [mcriss].[dbo].[RECRUITING_ORGANIZATION] WITH (NOLOCK) 
+WHERE [MCC_CODE] = @Code]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

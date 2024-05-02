@@ -1,0 +1,99 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[AutoRollbackNWA]" directorySegmentName="seg_9" id="41EFAB3C-7072-46D3-A438-5D14C3FA1034">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:37 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[AS 
+BEGIN 
+ 
+ --Value from the PSR.dbo.Status table 
+ Declare @NWAStatusID as int = 5; 
+ 
+ --Values from the PSR.dbo.Disposi.on table 
+ Declare @O.cerReappointID as int = 11; 
+ Declare @DQMoralID as int = 5; 
+ Declare @DQMedicalID as int = 6; 
+ Declare @DQProfessionalID as int = 7; 
+ Declare @DQOtherID as int = 8; 
+ Declare @DeceasedID as int = 9; 
+ Declare @PendingO.cerReappointID as int = 18; 
+ 
+ Select L.LeadID 
+ into #RollbackNWA 
+ From Lead L inner join 
+ LeadStatusDisposi.on LSD on L.LeadID = LSD.LeadID inner join 
+ StatusDisposi.on SD on LSD.StatusDisposi.onID = SD.StatusDisposi.onID 
+ Where L.NWAApproved_Date < DATEADD(DAY, -91, GETDATE()) AND SD.StatusID = @NWAStatusID And SD.Disposi.onID NOT IN (@O.cerReappointID, @DQMoralID, @DQMedicalID, @DQProfessionalID, @DQOtherID, @DeceasedID, @PendingO.cerReappointID); 
+ 
+ BEGIN TRANSACTION 
+  
+  UPDATE LSD 
+  SET StatusDisposi.onID = 9, 
+   DateUpdated = GETDATE() 
+  FROM LeadStatusDisposi.on LSD INNER JOIN 
+  #RollbackNWA on LSD.LeadID = #RollbackNWA.LeadID 
+ 
+  -- Rollback the transac.on if there were any errors 
+  IF @@ERROR <> 0 
+  BEGIN 
+   -- Rollback the transac.on 
+   ROLLBACK TRANSACTION 
+  
+   -- Raise an error and return 
+   RAISERROR ('Error occurred while performing the change.', 16, 1) 
+   RETURN 
+  END 
+  
+ COMMIT TRANSACTION 
+ 
+ BEGIN TRANSACTION 
+  
+  UPDATE L 
+  SET L.NWARequested_Date = null, 
+   L.NWARequested_UserID = null, 
+   L.NWARequestTypeID = null, 
+   L.NWAApproved_Date = null, 
+   L.NWAApproved_UserID = null 
+  FROM Lead L INNER JOIN 
+  #RollbackNWA on L.LeadID = #RollbackNWA.LeadID 
+ 
+  -- Rollback the transac.on if there were any errors 
+  IF @@ERROR <> 0 
+  BEGIN 
+   -- Rollback the transac.on 
+   ROLLBACK TRANSACTION 
+  
+   -- Raise an error and return 
+   RAISERROR ('Error occurred while performing the change.', 16, 1) 
+   RETURN 
+  END 
+ 
+ COMMIT TRANSACTION 
+ 
+ BEGIN TRANSACTION 
+  
+  UPDATE AP 
+   Set AP.DateSubmited = null 
+  FROM ApplicantPackage AP INNER JOIN 
+  #RollbackNWA on AP.LeadID = #RollbackNWA.LeadID 
+ 
+  -- Rollback the transac.on if there were any errors 
+  IF @@ERROR <> 0 
+  BEGIN 
+   -- Rollback the transac.on 
+   ROLLBACK TRANSACTION 
+  
+   -- Raise an error and return 
+   RAISERROR ('Error occurred while performing the change.', 16, 1) 
+   RETURN 
+  END 
+ 
+ COMMIT TRANSACTION 
+ 
+ DROP TABLE #RollbackNWA; 
+ 
+END]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+</StoredProcedureSqlServerv2k5>

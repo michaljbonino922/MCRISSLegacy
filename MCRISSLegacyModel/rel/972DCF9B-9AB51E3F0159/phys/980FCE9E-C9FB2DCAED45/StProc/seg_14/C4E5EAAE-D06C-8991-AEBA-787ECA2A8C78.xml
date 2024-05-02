@@ -1,0 +1,293 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_DBAShowAllForSSN2]" directorySegmentName="seg_14" id="C4E5EAAE-D06C-8991-AEBA-787ECA2A8C78">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@ssn  varchar(10) 
+as 
+set NOCOUNT on 
+ 
+declare @person_id  int 
+  
+  
+set @person_id = (select person_id from person where social_security_number = @ssn) 
+ 
+ 
+print '======================================================================' 
+print ' ***PERSON_INFORMATION***PERSON_INFORMATION***PERSON_INFORMATION***' 
+print '======================================================================' 
+print '' 
+print '' 
+ 
+select 'PERSON' AS TABLE_NAME,* from PERSON where PERSON_ID = @person_id 
+ 
+print '======================================================================' 
+print ' ***MARINE_INFORMATION***MARINE_CANDIDATE_INFORMATION***' 
+print '======================================================================' 
+print '' 
+print '' 
+ 
+select 'MARINE' AS TABLE_NAME,* from MARINE where MARINE_ID = @person_id 
+ 
+print '======================================================================' 
+print ' ***MARINE_CANDIDATE_INFORMATION***MARINE_CANDIDATE_INFORMATION***' 
+print '======================================================================' 
+print '' 
+print '' 
+ 
+select 'MARINE_CANDIDATE' AS TABLE_NAME,* from MARINE_CANDIDATE where MARINE_CANDIDATE_ID = @person_id 
+ 
+print '======================================================================' 
+print ' ***PFT***PFT***PFT***' 
+print '======================================================================' 
+print '' 
+print '' 
+ 
+select 'PFT' AS TABLE_NAME,* from PFT where NWA_ID in (select nwa_id from nwa where marine_candidate_id = @person_id) 
+ 
+print '======================================================================' 
+print ' ***CANDIDATE_EDUCATION***CANDIDATE_EDUCATION***CANDIDATE_EDUCATION***' 
+print '======================================================================' 
+print '' 
+print '' 
+ 
+select 'CANDIDATE_EDUCATION' AS TABLE_NAME,* from CANDIDATE_EDUCATION where MARINE_CANDIDATE_ID = @person_id 
+ 
+print '======================================================================' 
+print ' ***ALIEN_REGISTRATION***ALIEN_REGISTRATION***ALIEN_REGISTRATION***' 
+print '======================================================================' 
+print '' 
+print '' 
+   
+  Declare @cnt int Set @cnt=(Select  Count(MARINE_CANDIDATE_ID) From  ALIEN_REGISTRATION where MARINE_CANDIDATE_ID = @person_id) 
+  IF @Cnt>=1 
+select  'ALIEN_REGISTRATION' AS TABLE_NAME,* from ALIEN_REGISTRATION where MARINE_CANDIDATE_ID = @person_id 
+IF @Cnt <1 Select 'ALIEN_REGISTRATION' AS TABLE_NAME, 'No Informa.on in table' As Data_Condi.on 
+ 
+ 
+print '======================================================================' 
+print ' ***CANDIDATE_ADDRESS***CANDIDATE_ADDRESS***CANDIDATE_ADDRESS***' 
+print '======================================================================' 
+print '' 
+print '' 
+ 
+select 'CANDIDATE_ADDRESS' AS TABLE_NAME, * FROM CANDIDATE_ADDRESS WHERE marine_candidate_id = @person_id 
+ 
+print '======================================================================' 
+print ' ***CANDIDATE_TELEPHONE***CANDIDATE_TELEPHONE***CANDIDATE_TELEPHONE***' 
+print '======================================================================' 
+print '' 
+print '' 
+ 
+select 'CANDIDATE_TELEPHONE' AS TABLE_NAME, * FROM CANDIDATE_TELEPHONE WHERE marine_candidate_id = @person_id 
+ 
+print '======================================================================' 
+print ' ***NWA_INFORMATION***NWA_INFORMATION***NWA_INFORMATION***' 
+print '======================================================================' 
+print '' 
+print '' 
+ 
+select 'NWA' AS TABLE_NAME,* from NWA where MARINE_CANDIDATE_ID = @person_id order by NWA_ID 
+ 
+print '======================================================================' 
+print ' ***CONTRACT_MIRS***CONTRACT_MIRS***CONTRACT_MIRS***' 
+print '======================================================================' 
+print '' 
+print '' 
+ 
+select 'MICONTRACT' AS TABLE_NAME,* from [MICONTRACT] where NWA_ID in (select nwa_id from nwa where marine_candidate_id = @person_id) 
+ 
+print '======================================================================' 
+print ' ***CONTRACT_INFORMATION***CONTRACT_INFORMATION***CONTRACT_INFORMATION***' 
+print '======================================================================' 
+print '' 
+print '' 
+ 
+select 'CONTRACT' AS TABLE_NAME,* from [CONTRACT] where NWA_ID in (select nwa_id from nwa where marine_candidate_id = @person_id) 
+order by CONTRACT_ID 
+ 
+print '===================================================================================================' 
+print ' ***OFFICER_CONTRACT_INFORMATION***OFFICER_CONTRACT_INFORMATION***OFFICER_CONTRACT_INFORMATION***' 
+print '===================================================================================================' 
+print '' 
+print '' 
+ 
+select 'OFFICER_CONTRACT' AS TABLE_NAME,* from OFFICER_CONTRACT where NWA_ID in (select nwa_id from nwa where marine_candidate_id = @person_id) 
+order by CONTRACT_ID 
+ 
+print '===================================================================================================' 
+print ' ***COMMISSIONEE***COMMISSIONEE***COMMISSIONEE***' 
+print '===================================================================================================' 
+print '' 
+print '' 
+ 
+select 'COMMISSIONEE' AS TABLE_NAME, * from COMMISSIONEE where CONTRACT_ID in (select CONTRACT_ID from OFFICER_CONTRACT where NWA_ID IN (select nwa_id from nwa where marine_candidate_id = @person_id)) 
+order by COMMISSIONEE_ID 
+ 
+print '============================================================================' 
+print '***QSN_INFORMATION***QSN_INFORMATION***QSN_INFORMATION***QSN_INFORMATION***' 
+print '============================================================================' 
+print '' 
+print '' 
+ 
+select 'QSN' AS TABLE_NAME,* from QSN where CONTRACT_ID in (select contract_id from contract where nwa_id in  
+ (select nwa_id from nwa where marine_candidate_id = @person_id)) 
+order by CONTRACT_ID 
+ 
+print '======================================================================' 
+print '***PROGRAM_INFORMATION***PROGRAM_INFORMATION***PROGRAM_INFORMATION***' 
+print '======================================================================' 
+print '' 
+print '' 
+ 
+select 'PROGRAM_AVAILABILITY' AS TABLE_NAME,* from PROGRAM_AVAILABILITY where CONTRACT_ID in (select contract_id from contract where nwa_id in  
+ (select nwa_id from nwa where marine_candidate_id = @person_id)) 
+order by CONTRACT_ID 
+ 
+print '======================================================================' 
+print ' ***SHIP_INFORMATION***SHIP_INFORMATION***SHIP_INFORMATION***' 
+print '======================================================================' 
+print '' 
+print '' 
+ 
+select 'SHIPPER' AS TABLE_NAME,* from SHIPPER where CONTRACT_ID in (select contract_id from contract where nwa_id in  
+ (select nwa_id from nwa where marine_candidate_id = @person_id)) 
+order by SHIP_ID 
+ 
+print '======================================================================' 
+print ' ***SHIP_INFORMATION***SHIP_INFORMATION***SHIP_INFORMATION***' 
+print '======================================================================' 
+print '' 
+print '' 
+ 
+select 'RECRUIT_TRAINING' AS TABLE_NAME,* from RECRUIT_TRAINING  
+where Ship_ID in ( select Ship_ID  
+     from SHIPPER  
+     where CONTRACT_ID in ( select contract_id  
+           from contract where nwa_id in  
+           (select nwa_id  
+            from nwa  
+            where marine_candidate_id = @person_id))) 
+ 
+print '======================================================================' 
+print ' ***OCS***OCS***OCS***' 
+print '======================================================================' 
+print '' 
+print '' 
+ 
+select 'OCS' AS TABLE_NAME,* from OCS where NWA_ID in (select nwa_id from nwa where marine_candidate_id = @person_id)  
+ 
+print '======================================================================' 
+print ' ***PRECOMMISSION_DATA***PRECOMMISSION_DATA***PRECOMMISSION_DATA***' 
+print '======================================================================' 
+print '' 
+print '' 
+ 
+select 'PRECOMMISSION_DATA' AS TABLE_NAME,* from PRECOMMISSION_DATA where NWA_ID in (select nwa_id from nwa where marine_candidate_id = @person_id)  
+ 
+print '======================================================================' 
+print ' ***OFFICER_ACCESSION***OFFICER_ACCESSION***OFFICER_ACCESSION***' 
+print '======================================================================' 
+print '' 
+print '' 
+ 
+select 'OFFICER_ACCESSION' AS TABLE_NAME,* from OFFICER_ACCESSION where NWA_ID in (select nwa_id from nwa where marine_candidate_id = @person_id)  
+ 
+print '======================================================================' 
+print ' ***CANDIDATE_OCCR***CANDIDATE_OCCR***CANDIDATE_OCCR***' 
+print '======================================================================' 
+print '' 
+print '' 
+ 
+select 'CANDIDATE_OCCR' AS TABLE_NAME,* from CANDIDATE_OCCR where marine_candidate_id = @person_id 
+ 
+ 
+print '======================================================================' 
+print ' ***REFERRAL_INFORMATION***REFERRAL_INFORMATION***' 
+print '======================================================================' 
+print '' 
+print '' 
+ 
+select 'REFERRAL' AS TABLE_NAME,* from REFERRAL  where CONTRACT_ID in (select contract_id from contract where nwa_id IN  
+ (select nwa_id from nwa where marine_candidate_id = @person_id)) 
+ 
+print '======================================================================' 
+print ' ***RESERVE_REFERRAL_INFORMATION***RESERVE_REFERRAL_INFORMATION***' 
+print '======================================================================' 
+print '' 
+print '' 
+ 
+select 'RESERVE_REFERRAL' AS TABLE_NAME, * from RESERVE_REFERRAL where REFERRAL_ID IN (SELECT REFERRAL_ID from REFERRAL  where CONTRACT_ID in (select contract_id from contract where nwa_id in  
+ (select nwa_id from nwa where marine_candidate_id = @person_id))) 
+ 
+print '======================================================================' 
+print ' ***MEPS_SCHEDULE_INFORMATION***MEPS_SCHEDULE_INFORMATION***' 
+print '======================================================================' 
+print '' 
+print '' 
+ 
+select 'MEPS_SCHEDULE' AS TABLE_NAME,* from MEPS_SCHEDULE  where NWA_ID in (select nwa_id from nwa where marine_candidate_id = @person_id) 
+ 
+print '======================================================================' 
+print ' ***CANDIDATE_MEDICAL_EXAM***CANDIDATE_MEDICAL_EXAM***' 
+print '======================================================================' 
+print '' 
+print '' 
+ 
+select 'CANDIDATE_MEDICAL_EXAM' AS TABLE_NAME,* from CANDIDATE_MEDICAL_EXAM  where MARINE_CANDIDATE_ID = @person_id 
+ 
+print '======================================================================' 
+print ' ***CANDIDATE_ASVAB***CANDIDATE_ASVAB***' 
+print '======================================================================' 
+print '' 
+print '' 
+ 
+SELECT 'CANDIDATE_ASVAB' AS TABLE_NAME,* FROM CANDIDATE_ASVAB WHERE MARINE_CANDIDATE_ID = @person_id 
+ 
+print '======================================================================' 
+print ' ***CANDIDATE_PROFESSED_EXAM***CANDIDATE_PROFESSED_EXAM***' 
+print '======================================================================' 
+print '' 
+print '' 
+ 
+select 'CANDIDATE_PROFESSED_EXAM' AS TABLE_NAME,* FROM CANDIDATE_PROFESSED_EXAM  where MARINE_CANDIDATE_ID = @person_id 
+ 
+print '======================================================================' 
+print ' ***CANDIDATE_SPECIAL_EXAM***CANDIDATE_SPECIAL_EXAM***' 
+print '======================================================================' 
+print '' 
+print '' 
+ 
+select 'CANDIDATE_SPECIAL_EXAM' AS TABLE_NAME,* FROM CANDIDATE_SPECIAL_EXAM  where MARINE_CANDIDATE_ID = @person_id 
+ 
+print '======================================================================' 
+print ' ***CANDIDATE_STATUS_INFORMATION***CANDIDATE_STATUS_INFORMATION***' 
+print '======================================================================' 
+print '' 
+print '' 
+ 
+select 'CANDIDATE_STATUS' AS TABLE_NAME,* from CANDIDATE_STATUS where NWA_ID in (select nwa_id from nwa where 
+ marine_candidate_id = @person_id) 
+order by NWA_ID, STATUS_EFFECTIVE_DATE 
+ 
+print '======================================================================' 
+print ' ***CANDIDATE_WAIVERS***CANDIDATE_WAIVERS***' 
+print '======================================================================' 
+print '' 
+print '' 
+ 
+SELECT 'CANDIDATE_WAIVER' AS TABLE_NAME,* FROM CANDIDATE_WAIVER where NWA_ID in (select nwa_id from nwa where 
+ marine_candidate_id = @person_id) 
+ 
+print '======================================================================' 
+print ' ***OFFICER_CANDIDATE_WAIVERS***OFFICER_CANDIDATE_WAIVERS***' 
+print '======================================================================' 
+print '' 
+print '' 
+ 
+SELECT 'OFFICER_WAIVER' AS TABLE_NAME,* FROM OFFICER_WAIVER where NWA_ID in (select nwa_id from nwa where 
+ marine_candidate_id = @person_id)]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

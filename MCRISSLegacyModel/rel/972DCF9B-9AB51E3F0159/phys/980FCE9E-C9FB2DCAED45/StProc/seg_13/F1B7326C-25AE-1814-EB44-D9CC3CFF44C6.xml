@@ -1,0 +1,16 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[RCTAPI_SetHighSchoolPlanFromScheduledEvent]" directorySegmentName="seg_13" id="F1B7326C-25AE-1814-EB44-D9CC3CFF44C6">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@SchoolPro.leID uniqueiden..er, 
+ @PlanType int, 
+ @ActualDate date.me, 
+ @LastUpdatedBy uniqueiden..er 
+AS 
+ 
+EXEC [MCRISS].[USMC].[InsertUpdateHighSchoolPlanFromScheduledEvent] @SchoolPro.leID, @PlanType, @ActualDate, @LastUpdatedBy]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

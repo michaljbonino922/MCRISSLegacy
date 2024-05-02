@@ -1,0 +1,182 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetTotalContractsNWAs]" directorySegmentName="seg_10" id="5BAB0304-4550-A283-3BF5-EEB4F55338C4">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@Organiza.onID as integer,  
+ @Ac.vityDate as date.me,  
+ @Ac.vityEndDate as date.me 
+AS 
+ 
+ SET NOCOUNT ON 
+ SET ArithAbort ON 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+IF (@Organiza.onID = 0 AND @Ac.vityDate IS NULL AND @Ac.vityEndDate IS NULL) 
+BEGIN 
+ SELECT 
+  NULL AS ORGANIZATION_ID,  
+  NULL AS Recrui.ngOrgName, 
+  NULL AS ACTIVITY_TYPE,  
+  NULL AS ACTIVITY_COUNT 
+ WHERE 1 = 2 
+END 
+ELSE 
+BEGIN 
+ 
+ DECLARE @Organiza.onType as Varchar(3) 
+ 
+ SET @Organiza.onID = COALESCE(@Organiza.onID, 900) 
+ SET @Organiza.onType = (SELECT ORGANIZATION_TYPE FROM RECRUITING_ORGANIZATION WITH (NOLOCK) WHERE ORGANIZATION_ID = @Organiza.onID) 
+ 
+ DECLARE @OrgCount int  
+ SELECT @OrgCount = COUNT(*) FROM [MCRISS].[USMC].[vwDecendentRecrui.ngOrgs] where parent = @Organiza.onID 
+ 
+ CREATE TABLE #TempOrgList 
+ ( 
+  ORGANIZATION_ID int NOT NULL PRIMARY KEY 
+ ) 
+ 
+ IF @OrgCount = 0 
+ BEGIN 
+  INSERT INTO #TempOrgList 
+  SELECT @Organiza.onID AS ORGANIZATION_ID  
+ END 
+ ELSE 
+ BEGIN 
+  INSERT INTO #TempOrgList 
+  SELECT Decendent AS ORGANIZATION_ID FROM [MCRISS].[USMC].[vwDecendentRecrui.ngOrgs] where parent = @Organiza.onID 
+ END 
+  
+ select   
+  so.ORGANIZATION_ID AS Org_ID 
+        ,ORGANIZATION_TYPE AS ORG_TYPE 
+        ,NAME AS LONG_NAME 
+  ,ISOPEN 
+        ,EFFECTIVE_DATE 
+        ,DateClosed 
+ INTO #SUBORGS  
+ FROM  
+  MCRISS.[dbo].[RECRUITING_ORGANIZATION] so 
+  INNER JOIN #TempOrgList t ON t.ORGANIZATION_ID = so.ORGANIZATION_ID 
+ where 
+  SO.ORGANIZATION_TYPE = 'RSS'  
+  AND 
+  DATEDIFF(MONTH, SO.EFFECTIVE_DATE, @Ac.vityDate) >= 0 
+  AND 
+  (SO.ISOPEN = 'Y' OR (SO.ISOPEN != 'Y' AND SO.DateClosed IS NOT NULL AND SO.DateClosed > @Ac.vityDate)) 
+ 
+ IF (SELECT CONVERT(CHAR(8), @Ac.vityEndDate, 108)) = '00:00:00' 
+ BEGIN 
+  SELECT @Ac.vityEndDate = DATEADD(MILLISECOND, -10, DATEADD(DAY, 1, @Ac.vityEndDate)) 
+ END 
+ 
+ select n.NWA_ID, N.NWA_DECLARED_DATE, N.ORGANIZATION_OF_RECORD_ID, MARINE_CANDIDATE_ID 
+ INTO #Nwa 
+ from  
+  MCRISS.dbo.NWA n 
+  INNER JOIN #SUBORGS org ON org.ORG_ID = N.ORGANIZATION_OF_RECORD_ID 
+ WHERE 
+  DATEDIFF(DAY, @Ac.vityDate, N.NWA_DECLARED_DATE) >= 0 AND DATEDIFF(DAY, N.NWA_DECLARED_DATE, @Ac.vityEndDate) >= 0 
+ 
+ --alter table #Nwa 
+ --Add primary key (Nwa_Id) 
+ 
+ --CREATE Index cai_nwa_index ON #Nwa (ORGANIZATION_OF_RECORD_ID) 
+ 
+ SELECT DISTINCT n.NWA_ID 
+ INTO #NwaZkc 
+ FROM  
+  #Nwa N  
+  INNER JOIN MCRISS.dbo.NWA N_OLD  
+   ON N_OLD.MARINE_CANDIDATE_ID = N.MARINE_CANDIDATE_ID  
+      AND N_OLD.NWA_ID = (SELECT MAX(N2.NWA_ID)  
+          FROM NWA N2  
+          WHERE N2.NWA_ID < N.Nwa_ID  
+          AND N.MARINE_CANDIDATE_ID = N2.MARINE_CANDIDATE_ID) 
+  INNER JOIN MCRISS.dbo.CONTRACT C_OLD  
+   ON C_OLD.NWA_ID = N_OLD.NWA_ID 
+ WHERE  
+  C_OLD.DISCHARGE_CODE = 'ZKC' 
+  AND N_OLD.NWA_ID < N.Nwa_ID 
+  
+ -- Component Code is no longer excluded 
+ --DELETE FROM #Nwa WHERE NWA_ID IN (SELECT NWA_ID FROM #NwaZkc) 
+ 
+ SELECT C.CONTRACT_BEGIN_DATE, N.ORGANIZATION_OF_RECORD_ID, C.NWA_ID, N.MARINE_CANDIDATE_ID 
+ INTO #Contract 
+ FROM  
+  MCRISS.dbo.NWA n 
+  INNER JOIN #SUBORGS org ON org.ORG_ID = N.ORGANIZATION_OF_RECORD_ID 
+  INNER JOIN MCRISS.dbo.MICONTRACT C ON N.NWA_ID = C.NWA_ID 
+ WHERE 
+  (DATEDIFF(DAY, @Ac.vityDate, C.CONTRACT_BEGIN_DATE) >= 0 AND DATEDIFF(DAY, C.CONTRACT_BEGIN_DATE, @Ac.vityEndDate) >= 0) 
+  
+ SELECT DISTINCT n.NWA_ID 
+ INTO #ContractZkc 
+ FROM  
+  #Contract N  
+  INNER JOIN MCRISS.dbo.NWA N_OLD  
+   ON N_OLD.MARINE_CANDIDATE_ID = N.MARINE_CANDIDATE_ID  
+      AND N_OLD.NWA_ID = (SELECT MAX(N2.NWA_ID)  
+          FROM NWA N2  
+          WHERE N2.NWA_ID < N.Nwa_ID  
+          AND N.MARINE_CANDIDATE_ID = N2.MARINE_CANDIDATE_ID) 
+  INNER JOIN MCRISS.dbo.CONTRACT C_OLD  
+   ON C_OLD.NWA_ID = N_OLD.NWA_ID 
+ WHERE  
+  C_OLD.DISCHARGE_CODE = 'ZKC' 
+  AND N_OLD.NWA_ID < N.Nwa_ID 
+ 
+ --alter table #Contract 
+ --Add primary key (Nwa_Id) 
+ 
+ --CREATE Index cai_contract_index ON #Contract (ORGANIZATION_OF_RECORD_ID) 
+ 
+ -- Component Code is no longer excluded 
+ --DELETE FROM #Contract WHERE NWA_ID IN (SELECT NWA_ID FROM #ContractZkc) 
+ 
+ --- GET CONTRACTS 
+ SELECT  
+  SO.ORG_ID AS ORGANIZATION_ID,  
+  SO.LONG_NAME AS Recrui.ngOrgName, 
+  1 AS ACTIVITY_TYPE, 
+  COUNT(C.NWA_ID) AS ACTIVITY_COUNT 
+ FROM 
+  #SUBORGS SO 
+  --LEFT OUTER JOIN NWA N ON SO.ORG_ID = N.ORGANIZATION_OF_RECORD_ID 
+  LEFT OUTER JOIN #CONTRACT C ON SO.ORG_ID = c.ORGANIZATION_OF_RECORD_ID 
+ GROUP BY 
+  SO.ORG_ID, SO.LONG_NAME 
+ 
+ UNION 
+ 
+ --- GET NWAs 
+ SELECT 
+  SO.ORG_ID AS ORGANIZATION_ID,  
+  SO.LONG_NAME AS Recrui.ngOrgName, 
+  2 AS ACTIVITY_TYPE,  
+  COUNT(N.NWA_ID) AS ACTIVITY_COUNT 
+ FROM 
+  #SUBORGS SO 
+  LEFT OUTER JOIN #NWA N ON  SO.ORG_ID = N.ORGANIZATION_OF_RECORD_ID 
+ GROUP BY 
+  SO.ORG_ID, SO.LONG_NAME 
+ ORDER BY SO.LONG_NAME, ACTIVITY_TYPE 
+ 
+ 
+ --- CLEAN UP 
+ DROP TABLE #SUBORGS 
+ DROP TABLE #Nwa 
+ DROP TABLE #Contract 
+ DROP TABLE #TempOrgList 
+ DROP TABLe #NwaZkc 
+ DROP TABLe #ContractZkc 
+ 
+END 
+SET NOCOUNT OFF]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,105 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[spSetShowNoShow]" directorySegmentName="seg_26" id="8AA23DDF-19D0-DB75-82C7-5ECB6EAA199D">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[as 
+begin 
+/*==================================================================== 
+purpose: This procedure will be scheduled to execute once a day to update 
+  the Meps_Schedule.Processing_Status to Show or Now Show. 
+  This is a temporay solu.on. MEPCOM will provide a Processing status 
+  of show/no show with their next schedule relase of MIRS to take place  
+  Dec 2000. Once the MIRS Import interface is adjusted to take into  
+  account the changes this procedure will be deac.vated. 
+ 
+ 
+Author:  Gregory Gonzalez,  BAH 
+ 
+Oct 27, 2000     GG     Ini.al Crea.on 
+Jun 12, 2001 RM Added the update to User_Login and Update_Date columns 
+=====================================================================*/ 
+ update meps_schedule 
+ set processing_status = 'S', 
+ update_date = getdate(), 
+ user_login = 'ShowJob' 
+ from nwa n le. outer join candidate_asvab ca 
+ on n.marine_candidate_id = ca.marine_candidate_id and 
+    asvab_date = (select max(asvab_date) from candidate_asvab 
+    where marine_candidate_id = n.marine_candidate_id and asvab_date < getDate()), 
+ nwa n2 le. outer join candidate_special_exam cse 
+ on n2.marine_candidate_id = cse.marine_candidate_id and 
+    special_exam_date = (select max(special_exam_date) from candidate_special_exam 
+    where marine_candidate_id = n2.marine_candidate_id and special_exam_date < getDate()), 
+ nwa n3 le. outer join candidate_medical_exam cme 
+ on n3.marine_candidate_id = cme.marine_candidate_id and medical_exam_type = 'FULL' and 
+    medical_exam_date = (select max(medical_exam_date) from candidate_medical_exam 
+    where marine_candidate_id = n3.marine_candidate_id and 
+    medical_exam_type = 'FULL' and medical_exam_date < getDate()), 
+ nwa n4 le. outer join candidate_medical_exam cme2 
+ on n4.marine_candidate_id = cme2.marine_candidate_id and medical_exam_type = 'INSP' and 
+    medical_exam_date = (select max(medical_exam_date) from candidate_medical_exam 
+    where marine_candidate_id = n4.marine_candidate_id and 
+    medical_exam_type = 'INSP' and medical_exam_date < getDate()), 
+ nwa n5 le. outer join candidate_medical_exam cme3 
+ on n5.marine_candidate_id = cme3.marine_candidate_id and medical_exam_type = 'CONS' and 
+    medical_exam_date = (select max(medical_exam_date) from candidate_medical_exam 
+    where marine_candidate_id = n5.marine_candidate_id and 
+    medical_exam_type = 'CONS' and medical_exam_date < getDate()) 
+ 
+ where meps_schedule.processing_status = 'M' and meps_schedule.processing_date < getDate() and 
+ meps_schedule.nwa_id = n.nwa_id and 
+ n.nwa_id = n2.nwa_id and 
+ n2.nwa_id = n3.nwa_id and 
+ n3.nwa_id = n4.nwa_id and 
+ n4.nwa_id = n5.nwa_id and 
+ ((ca.asvab_date = meps_schedule.processing_date and asvab = 'Y')or 
+ (cse.special_exam_date = meps_schedule.processing_date and special_exam = 'Y')or 
+ (cme.medical_exam_date = meps_schedule.processing_date and complete_physical =  'Y')or 
+ (cme2.medical_exam_date = meps_schedule.processing_date and inspec.on_physical =  'Y')or 
+ (cme3.medical_exam_date = meps_schedule.processing_date and consulta.on_physical = 'Y')) 
+ 
+ update meps_schedule 
+ set processing_status = 'N', 
+ update_date = getdate(), 
+ user_login = 'ShowJob' 
+ from nwa n le. outer join candidate_asvab ca 
+ on n.marine_candidate_id = ca.marine_candidate_id and 
+     asvab_date = (select max(asvab_date) from candidate_asvab 
+     where marine_candidate_id = n.marine_candidate_id and asvab_date < getDate()), 
+ nwa n2 le. outer join candidate_special_exam cse 
+ on n2.marine_candidate_id = cse.marine_candidate_id and 
+     special_exam_date = (select max(special_exam_date) from candidate_special_exam 
+     where marine_candidate_id = n2.marine_candidate_id and special_exam_date < getDate()), 
+ nwa n3 le. outer join candidate_medical_exam cme 
+ on n3.marine_candidate_id = cme.marine_candidate_id and medical_exam_type = 'FULL' and 
+     medical_exam_date = (select max(medical_exam_date) from candidate_medical_exam 
+     where marine_candidate_id = n3.marine_candidate_id and 
+     medical_exam_type = 'FULL' and medical_exam_date < getDate()), 
+ nwa n4 le. outer join candidate_medical_exam cme2 
+ on n4.marine_candidate_id = cme2.marine_candidate_id and medical_exam_type = 'INSP' and 
+     medical_exam_date = (select max(medical_exam_date) from candidate_medical_exam 
+     where marine_candidate_id = n4.marine_candidate_id and 
+     medical_exam_type = 'INSP' and medical_exam_date < getDate()), 
+ nwa n5 le. outer join candidate_medical_exam cme3 
+ on n5.marine_candidate_id = cme3.marine_candidate_id and medical_exam_type = 'CONS' and 
+     medical_exam_date = (select max(medical_exam_date) from candidate_medical_exam 
+     where marine_candidate_id = n5.marine_candidate_id and 
+     medical_exam_type = 'CONS' and medical_exam_date < getDate()) 
+ where processing_status = 'M' and processing_date < getDate() and 
+ meps_schedule.nwa_id = n.nwa_id and 
+ n.nwa_id = n2.nwa_id and 
+ n2.nwa_id = n3.nwa_id and 
+ n3.nwa_id = n4.nwa_id and 
+ n4.nwa_id = n5.nwa_id and 
+ (not(ca.asvab_date = processing_date and asvab = 'Y') or ca.asvab_date is null) and 
+ (not(cse.special_exam_date = processing_date and special_exam = 'Y') or cse.special_exam_date is null) and 
+ (not(cme.medical_exam_date = processing_date and complete_physical =  'Y') or cme.medical_exam_date is null) and 
+ (not(cme2.medical_exam_date = processing_date and inspec.on_physical =  'Y') or cme2.medical_exam_date is null) and 
+ (not(cme3.medical_exam_date = processing_date and consulta.on_physical = 'Y') or cme3.medical_exam_date is null) 
+ 
+end]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,33 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_TestAddRecruitTraining]" directorySegmentName="seg_23" id="6911FFB1-B359-16D7-2EE0-298672DE3B15">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@ShipID  int, 
+ @ShipDate date.me, 
+ @UserLogin varchar(15) = 'SA' 
+AS 
+ 
+ 
+--- MAKE SURE THE SSN BELONGS TO A SHIPPER WHO DOES NOT HAVE A RECRUIT TRAINING RECORD 
+IF NOT EXISTS (SELECT 1 FROM RECRUIT_TRAINING RT WHERE RT.SHIP_ID = @ShipID) 
+BEGIN 
+ --- INSERT THE RECRUIT TRAINING DATA 
+ INSERT INTO RECRUIT_TRAINING (SHIP_ID, SHIP_DATE, USER_LOGIN, UPDATE_DATE) 
+ VALUES (@ShipID, @ShipDate, @UserLogin, GETDATE()) 
+END 
+ELSE 
+BEGIN 
+ UPDATE 
+  RECRUIT_TRAINING 
+ SET 
+  SHIP_DATE = @ShipDate, 
+  USER_LOGIN = @UserLogin, 
+  UPDATE_DATE = GETDATE() 
+ WHERE 
+  SHIP_ID = @ShipID 
+END]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

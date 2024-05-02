@@ -1,0 +1,65 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[RCTAPI_GetStateData]" directorySegmentName="seg_8" id="DF629E62-774B-B37A-400A-508287DBED7C">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[AS 
+ 
+SET NOCOUNT ON 
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+----RssOss.[dbo].[RCTAPI_GetStateData]  
+ 
+DECLARE @result   varchar(max) 
+ 
+SET @result = ( 
+    SELECT  
+      countryId 
+     ,stateId 
+     ,stateName 
+    FROM  
+     ( 
+      SELECT 
+        1       AS rankOrder 
+       ,COUNTRY_DESCRIPTION  AS countryId 
+       ,COUNTRY_DESCRIPTION + 
+        '-' + 
+        STATE_CODE    AS stateId 
+       ,STATE_TEXT    AS stateName 
+       
+       
+      FROM MCRISS.[dbo].[GEO_LOCATION] WITH (NOLOCK) 
+      WHERE  
+       (ISNUMERIC(STATE_CODE) = 1) AND (STATE_CODE <> '00') AND (COUNTY_CODE IN ('000', '0')) AND (CITY_CODE IN ('0', '0000'))  
+             AND COUNTRY_DESCRIPTION = 'UNITED STATES' 
+        
+      UNION  
+ 
+      SELECT 
+        2       AS rankOrder      
+       ,COUNTRY_DESCRIPTION  AS countryId 
+       ,COUNTRY_DESCRIPTION + 
+        '-' + 
+        STATE_CODE    AS stateId 
+       ,STATE_TEXT    AS stateName 
+ 
+      FROM MCRISS.[dbo].[GEO_LOCATION]  
+      WHERE   
+       (ISNUMERIC(STATE_CODE) = 0) AND (COUNTRY_DESCRIPTION IS NOT NULL) AND (LTRIM(COUNTRY_DESCRIPTION) <> '') AND (CITY_CODE = '0001') AND (CAST(COUNTY_CODE AS int) = 0) 
+       AND STATE_CODE NOT IN (  'CR' --'CORAL SEA ISLANDS' 
+             ,'IO' --'BR INDIAN OCEAN TERR' 
+             ) 
+       AND COUNTRY_DESCRIPTION <> 'UNITED STATES' 
+ 
+        ) T 
+ 
+    ORDER BY rankOrder,countryId 
+ 
+    FOR JSON AUTO, INCLUDE_NULL_VALUES 
+) 
+ 
+SELECT @result]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

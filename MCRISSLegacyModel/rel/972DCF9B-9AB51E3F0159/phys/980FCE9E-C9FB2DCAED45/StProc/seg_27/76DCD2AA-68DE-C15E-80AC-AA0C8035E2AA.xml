@@ -1,0 +1,32 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateMedicalStatusDoDMERB]" directorySegmentName="seg_27" id="76DCD2AA-68DE-C15E-80AC-AA0C8035E2AA">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@NWAID int, 
+ @MCRCDisposi.onID int = NULL, 
+ @UserLogin varchar(30) 
+AS 
+ 
+IF EXISTS (SELECT 1 FROM [MEDICAL_STATUS_DODMERB] WHERE [NWA_ID] = @NWAID) 
+BEGIN 
+ UPDATE 
+  [MEDICAL_STATUS_DODMERB] 
+ SET 
+  [MCRC_DISPOSITION_ID] = @MCRCDisposi.onID, 
+  [USER_LOGIN] = @UserLogin, 
+  [UPDATE_DATE] = getdate() 
+ WHERE 
+  [NWA_ID] = @NWAID   
+END 
+ELSE 
+BEGIN 
+ INSERT INTO 
+  [MEDICAL_STATUS_DODMERB] ([NWA_ID], [MCRC_DISPOSITION_ID], [USER_LOGIN], [UPDATE_DATE]) 
+ VALUES 
+  (@NWAID, @MCRCDisposi.onID, @UserLogin, getdate()) 
+END]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

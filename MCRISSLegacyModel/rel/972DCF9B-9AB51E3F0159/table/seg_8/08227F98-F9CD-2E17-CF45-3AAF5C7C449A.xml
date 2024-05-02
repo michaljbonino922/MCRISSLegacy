@@ -1,0 +1,187 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_8" id="08227F98-F9CD-2E17-CF45-3AAF5C7C449A" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="EventSubject">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:54 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>CDC37DE1-3E4A-3172-4521-DFB0D0E778C1</importedID>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="Id" id="90EECA8B-34D3-C00D-DAFA-8FFAC291A8AA">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>F6D93BFA-7507-F133-7FE7-5B0C58C45B05</importedID>
+<use>0</use>
+<domain>5B1C7CF5-EF3B-C5B8-1E76-224B54D9B1CB</domain>
+<usesDefaultValue>true</usesDefaultValue>
+<defaultValue>(newid())</defaultValue>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="EventId" id="A3843BF4-A82A-DCAF-D355-71E7FC97B11C">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>A27CBC28-C670-FA6A-1CBA-FF83973A0E38</importedID>
+<use>0</use>
+<domain>5B1C7CF5-EF3B-C5B8-1E76-224B54D9B1CB</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="EA5A3044-2475-573C-C63F-DDF6894D4F4C" referredColumn="B1D1C2ED-58BA-EF71-1682-D40B2FCA4FF7"/>
+</associations>
+</Column>
+<Column name="SubjectId" id="21BFE25C-C35A-70C1-990F-375A9A69BC30">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>22694E7C-6D35-44CA-5533-1F7FDADC050F</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>5B1C7CF5-EF3B-C5B8-1E76-224B54D9B1CB</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="SubjectName" id="11C72EFA-88E7-08ED-1141-9F915E87A692">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>0B59CDC8-354D-03C0-CEC8-BC74A8865121</importedID>
+<use>0</use>
+<domain>94FCE242-2CEE-26E6-6E5D-DF2AD63EE0AD</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="84C6D1D8-C809-7196-FA77-6D50BEF7806E" name="PK_EventSubject">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>92D23682-4846-E351-959C-EA2A67842701</importedID>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="90EECA8B-34D3-C00D-DAFA-8FFAC291A8AA"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="E7041F76-4E11-67EB-B96D-F67960D01075" name="EventID_Subject_ID_PJ">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>CCCC97B4-322F-74C1-9E56-70CBA802EC11</importedID>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="A3843BF4-A82A-DCAF-D355-71E7FC97B11C"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="CEAD9AC3-1636-4A60-6245-2B9B5489C5F2" name="IDX_EventSubject_RCTAPI_EventId">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>A61AC450-CC58-4600-D820-92D9BF0F6E4D</importedID>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="A3843BF4-A82A-DCAF-D355-71E7FC97B11C"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="4B181C70-6801-D211-795D-82B4D26BE3CF" name="IX_8066_PJ">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>02F95294-4C65-459B-4802-2DAD28D81D21</importedID>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="21BFE25C-C35A-70C1-990F-375A9A69BC30"/>
+<colUsage columnID="A3843BF4-A82A-DCAF-D355-71E7FC97B11C"/>
+<colUsage columnID="90EECA8B-34D3-C00D-DAFA-8FFAC291A8AA"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="D3306745-5B0E-F699-6A80-42736C7B998E" name="IX_EventIDv1">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>50073747-130D-32CE-3313-79E498168282</importedID>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="A3843BF4-A82A-DCAF-D355-71E7FC97B11C"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="5BD525DD-9CA5-FFC6-56EB-7CA4E8BAF852" name="IX_EventSubject_4683_PJ">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>964976E7-FF6B-65D3-A17B-070CA195757F</importedID>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="21BFE25C-C35A-70C1-990F-375A9A69BC30"/>
+<colUsage columnID="90EECA8B-34D3-C00D-DAFA-8FFAC291A8AA"/>
+<colUsage columnID="A3843BF4-A82A-DCAF-D355-71E7FC97B11C"/>
+<colUsage columnID="11C72EFA-88E7-08ED-1141-9F915E87A692"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="BCF814AD-0AEF-88EB-3188-1B88554AB5E0" name="IX_SubjectID">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>1D21C111-FF9D-0657-5E92-715DA2DAA652</importedID>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="21BFE25C-C35A-70C1-990F-375A9A69BC30"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="1B5C700C-1138-304D-2FAD-E2333157143C" name="Subject_ID_IDX">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>D59D0E7F-C141-6AFC-1B58-B2A896FC7519</importedID>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="21BFE25C-C35A-70C1-990F-375A9A69BC30"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="2A394871-4FCF-2503-322C-863E5295A510" name="FK_EventSubject_Event">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="A3843BF4-A82A-DCAF-D355-71E7FC97B11C"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+<tableCheckConstraints itemClass="oracle.dbtools.crest.model.design.constraint.TableLevelConstraint">
+<tableCheckConstraint name="[USMC].[EventSubject]" directorySegmentName="seg_3" id="46871910-7FEA-3E5F-F078-C8E1FC35E25C">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:00 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>CD1C294D-D769-F39A-2545-9B8D8B109FC2</importedID>
+<rule><![CDATA[CONSTRAINT [FK_EventSubject_Event]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITH" directorySegmentName="seg_3" id="60EC5CD4-E2B5-4896-8400-B145D312A9F0">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:00 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>DBCA2680-15FC-B9AF-1269-4C91EEA99A67</importedID>
+</tableCheckConstraint>
+</tableCheckConstraints>
+</Table>

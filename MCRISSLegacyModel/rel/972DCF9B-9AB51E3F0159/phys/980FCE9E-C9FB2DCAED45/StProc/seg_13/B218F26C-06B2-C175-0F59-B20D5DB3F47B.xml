@@ -1,0 +1,108 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetDcMadesByRecruiter]" directorySegmentName="seg_13" id="B218F26C-06B2-C175-0F59-B20D5DB3F47B">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@Recrui.ngPersonId   uniqueiden..er = null, 
+ @RssOrgId                   int = null 
+AS 
+BEGIN 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+ 
+DECLARE @dcMade INT 
+SET @dcMade = 20 
+ 
+CREATE TABLE #Recrui.ngPerson 
+ ( 
+   rowguid UNIQUEIDENTIFIER    
+  ,RANK_CODE VARCHAR(10) 
+  ,RecruiterLastName VARCHAR(20) 
+  ,RecruiterFirstName VARCHAR(20) 
+  ,RecruiterMiddleName VARCHAR(20) 
+ )  
+ 
+ 
+ 
+IF @RssOrgId IS NOT NULL  
+BEGIN 
+ INSERT INTO #Recrui.ngPerson 
+ SELECT   
+ rp.rowguid, 
+ rp.RANK_CODE,  
+ p.LAST_NAME as RecruiterLastName, 
+ p.FIRST_NAME as RecruiterFirstName, 
+ p.LEGAL_MIDDLE_NAME as RecruiterMiddleName  
+ FROM MCRISS.dbo.RECRUITING_PERSON rp 
+ INNER JOIN MCRISS.dbo.Person p ON rp.RECRUITING_PERSON_ID = p.PERSON_ID 
+ WHERE RP.ORGANIZATION_ID = @RssOrgId  
+END 
+ELSE 
+BEGIN 
+ INSERT INTO #Recrui.ngPerson 
+ SELECT   
+ rp.rowguid, 
+ rp.RANK_CODE,  
+ p.LAST_NAME as RecruiterLastName, 
+ p.FIRST_NAME as RecruiterFirstName, 
+ p.LEGAL_MIDDLE_NAME as RecruiterMiddleName 
+ FROM MCRISS.dbo.RECRUITING_PERSON rp 
+ INNER JOIN MCRISS.dbo.Person p ON rp.RECRUITING_PERSON_ID = p.PERSON_ID 
+ WHERE rp.rowguid = @Recrui.ngPersonId 
+END  
+ 
+ 
+ SELECT  p.ProspectId 
+   ,per.LastName 
+   ,per.FirstName 
+   ,per.Gender 
+   ,pp.PhoneNumber    
+   ,CASE WHEN p.NwaId IS NULL THEN 'Prospect' 
+       ELSE ( SELECT [STATUS_DESCRIPTION]  
+           FROM 
+      MCRISS.dbo.NWA n 
+      INNER JOIN MCRISS.[dbo].[CANDIDATE_STATUS] cs ON n.NWA_ID = cs.NWA_ID 
+      INNER JOIN MCRISS.[dbo].[STATUS_DISPOSITION] sd ON  
+       cs.[STATUS_TYPE] = sd.[STATUS_TYPE]  AND  
+       cs.[STATUS_CODE] = sd.[STATUS_CODE] AND 
+       cs.[DISPOSITION_CODE] = sd.[DISPOSITION_CODE] 
+     WHERE 
+      n.rowguid = p.NwaId 
+      AND cs.[CANDIDATE_STATUS_ID] = (SELECT MAX([CANDIDATE_STATUS_ID]) FROM MCRISS.[dbo].[CANDIDATE_STATUS] WHERE NWA_ID = n.NWA_ID) 
+     ) 
+   END AS Status  
+   ,pd.ProspectDisposi.onType 
+   ,p.Source 
+   ,pac.Ac.vity 
+   ,pe.EmailAddress 
+   ,rp.RANK_CODE 
+   ,rp.RecruiterLastName 
+   ,rp.RecruiterFirstName 
+   ,rp.RecruiterMiddleName 
+   ,pc.ProspectDate  
+   ,pc.ProspectCommentId       
+  FROM  
+   USMC.ProspectComment pc 
+   INNER JOIN Prospect p ON p.ProspectId = pc.ProspectId 
+   INNER JOIN Person per ON per.PersonId = p.PersonId 
+   LEFT OUTER JOIN USMC.PersonPhone pp ON pp.PersonId = per.PersonId 
+   LEFT OUTER JOIN USMC.PersonEmail pe ON pe.PersonId = per.PersonId  
+   INNER JOIN #Recrui.ngPerson rp on pc.Recrui.ngPersonId  = rp.rowguid 
+   LEFT OUTER JOIN USMC.ProspectDisposi.on pd on pd.ProspectDisposi.onId = p.ProspectDisposi.onId   
+   INNER JOIN USMC.ProspectAc.vityComment pac on pac.ProspectAc.vityCommentId = pc.ProspectAc.vityCommentId      
+  WHERE    
+   pac.ProspectAc.vityCommentId = @dcMade 
+  AND (pp.PersonPhoneTypeId = 1 OR pp.PersonPhoneTypeId is null) 
+  AND (pe.PersonEmailTypeId = 1 OR pe.PersonEmailTypeId  is null)   
+  Order BY PC.ProspectDate DESC 
+ 
+ 
+DROP TABLE #Recrui.ngPerson 
+ 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

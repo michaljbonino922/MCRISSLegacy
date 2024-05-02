@@ -1,0 +1,32 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetCity]" directorySegmentName="seg_4" id="B3384CEB-1C58-6550-1DBD-2095C8B22343">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+  @StateCode varchar(3), 
+  @CountyCode varchar(4), 
+  @CityCode varchar(5) 
+ ) 
+AS 
+ 
+SELECT  
+ ID, 
+ Code, 
+ [Name], 
+ CountyCode, 
+ CountyName, 
+ StateCode, 
+ StateName 
+FROM 
+ [USMC].[vwCi.es] 
+WHERE StateCode = @StateCode AND  
+ CountyCode = @CountyCode AND 
+ Code = @CityCode AND 
+ [Name] IS NOT NULL  
+ORDER BY  
+ [Name]]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

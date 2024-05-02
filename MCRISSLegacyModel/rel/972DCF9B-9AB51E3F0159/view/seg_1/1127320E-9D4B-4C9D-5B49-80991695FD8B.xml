@@ -1,0 +1,78 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_1" id="1127320E-9D4B-4C9D-5B49-80991695FD8B" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="_dta_mv_160">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>F9EA0B63-97C8-667A-5E56-F52D83C012F5</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  [USMC].[MapsSectorZip].[Zip] as _col_1,  [USMC].[MapsSector].[SectorID] as _col_2,  [USMC].[MapsSector].[Recrui.ngOrganiza.onId] as _col_3,  [USMC].[MapsSector].[SectorDesignator] as _col_4,  [USMC].[MapsSectorZip].[SectorZipId] as _col_5 FROM  [USMC].[MapsSector],  [USMC].[MapsSectorZip]   WHERE  [USMC].[MapsSector].[SectorID] = [USMC].[MapsSectorZip].[SectorID]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[Zip]" id="32A986B7-011E-990C-E522-40794EEDE5EA">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_1</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_1</headerAlias>
+<expression>[Zip]</expression>
+<reference>false</reference>
+<viewID>1127320E-9D4B-4C9D-5B49-80991695FD8B</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[SectorID]" id="B5FA9438-B05B-0D77-5348-CF088128D07A">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_2</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_2</headerAlias>
+<expression>[SectorID]</expression>
+<reference>false</reference>
+<viewID>1127320E-9D4B-4C9D-5B49-80991695FD8B</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[Recrui.ngOrganiza.onId]" id="58EE328C-CDFF-6F68-2684-12F7AE5454D4">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_3</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_3</headerAlias>
+<expression>[Recrui.ngOrganiza.onId]</expression>
+<reference>false</reference>
+<viewID>1127320E-9D4B-4C9D-5B49-80991695FD8B</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[SectorDesignator]" id="AD6DB82B-94D8-9520-C933-BEA35103781F">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_4</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_4</headerAlias>
+<expression>[SectorDesignator]</expression>
+<reference>false</reference>
+<viewID>1127320E-9D4B-4C9D-5B49-80991695FD8B</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[SectorZipId]" id="7D418946-62F4-1A8A-6C87-0DB7EC1ADEC0">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_5</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_5</headerAlias>
+<expression>[SectorZipId]</expression>
+<reference>false</reference>
+<viewID>1127320E-9D4B-4C9D-5B49-80991695FD8B</viewID>
+</viewElement>
+</viewElements>
+</TableView>

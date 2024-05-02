@@ -1,0 +1,25 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetASVABHistory]" directorySegmentName="seg_16" id="EBE7FF66-3F63-75AE-12DB-32857E03ADA1">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@PersonId int 
+ 
+ 
+AS 
+ 
+Select  
+ 'EXAM_DATE' = CONVERT(VARCHAR, ASVAB_DATE, 106), 
+ 'EXAM_TYPE' = 'ASVAB', 
+ VERSION, 
+ AFQT_SCORE, 
+ GT_SCORE, 
+ EL_SCORE, 
+ CL_SCORE, 
+ MM_SCORE 
+FROM CANDIDATE_ASVAB 
+Where MARINE_CANDIDATE_ID = @PersonId]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

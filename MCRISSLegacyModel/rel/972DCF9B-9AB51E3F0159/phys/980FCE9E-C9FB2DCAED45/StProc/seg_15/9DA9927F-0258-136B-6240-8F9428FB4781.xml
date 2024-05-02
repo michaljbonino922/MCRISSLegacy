@@ -1,0 +1,41 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateEventOwner]" directorySegmentName="seg_15" id="9DA9927F-0258-136B-6240-8F9428FB4781">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:56 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@NwaID   uniqueiden..er, 
+ @RecruiterID      uniqueiden..er 
+ 
+AS 
+BEGIN 
+ 
+declare @EventId uniqueiden..er 
+ 
+DECLARE eve_cursor CURSOR FOR  
+SELECT  eo.EventID 
+from RSSOSS.USMC.EventOwners eo, RSSOSS.USMC.Event e, RSSOSS.USMC.EventSubject es 
+where eo.EventID = e.ID and es.EventID = eo.EventID and e.StartDate>=getdate() 
+and es.SubjectId = @NwaID 
+OPEN eve_cursor; 
+ 
+FETCH NEXT FROM eve_cursor  
+INTO  @EventId 
+ 
+WHILE @@FETCH_STATUS = 0  
+ 
+BEGIN  
+ 
+  UPDATE 
+   RSSOSS.USMC.EventOwners set OwnerID = @RecruiterID 
+   where EventID = @EventId     
+    
+      FETCH NEXT FROM eve_cursor INTO  @EventId 
+   
+END 
+CLOSE eve_cursor; 
+DEALLOCATE eve_cursor; 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

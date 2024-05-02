@@ -1,0 +1,22 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetProgramDescrip.ons]" directorySegmentName="seg_19" id="EB3A7898-F360-45FE-97AA-32DFD4FD5A45">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@ProgramType varchar(4) 
+AS 
+ 
+SELECT  
+ PROGRAM_ID,  
+ PROGRAM_CODE + ' - ' + PROGRAM_DESCRIPTION AS PROGRAM_DESCRIPTION 
+FROM  
+ PROGRAM 
+WHERE  
+ PROGRAM_TYPE = @ProgramType AND  
+ STATUS = 'A' 
+ORDER BY  
+ PROGRAM_DESCRIPTION]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

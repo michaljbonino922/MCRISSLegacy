@@ -1,0 +1,212 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUpdateTimeSheetDaily]" directorySegmentName="seg_8" id="8995F7B2-9AF0-54F0-8935-86C780A43403">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@OrgID int, 
+ @RecruiterID uniqueidentifier, 
+ @FiscalYear int, 
+ @Month int, 
+ @Week int, 
+ @DayOfWeek int, 
+ @TelephoneCall decimal(9,1), 
+ @AreaCanvassing decimal(9,1), 
+ @HomeVisit decimal(9,1), 
+ @O.ceTra.c decimal(9,1), 
+ @ElectronicProspec.ng decimal(9,1), 
+ @Screening decimal(9,1), 
+ @Interviewing decimal(9,1), 
+ @OtherProduc.veTime decimal(9,1), 
+ @CollegeHighSchoolVisit decimal(9,1), 
+ @MediaVisit decimal(9,1), 
+ @ContactVisit decimal(9,1), 
+ @ListResearch decimal(9,1), 
+ @EnlistmentPapers decimal(9,1), 
+ @PooleeMee.ng decimal(9,1), 
+ @Planning decimal(9,1), 
+ @OtherSupportTime decimal(9,1), 
+ @DriveWalk decimal(9,1), 
+ @Rou.neAdmin decimal(9,1), 
+ @MetsMeps decimal(9,1), 
+ @LunchBreak decimal(9,1), 
+ @Miscellaneous decimal(9,1), 
+ @OtherUnproduc.veTime1 decimal(9,1), 
+ @OtherUnproduc.veTime2 decimal(9,1), 
+ @OtherUnproduc.veTime3 decimal(9,1), 
+ @LastUpdatedBy uniqueidentifier   
+ 
+AS 
+BEGIN 
+ 
+ -- STEP 1: Start the transac.on 
+ BEGIN TRANSACTION 
+ 
+ DECLARE @CalendarYear int 
+ 
+ IF @Month = 10 OR @Month = 11 OR @Month = 12 
+ BEGIN 
+  SET @CalendarYear = @FiscalYear - 1 
+ END 
+ ELSE 
+ BEGIN 
+  SET @CalendarYear = @FiscalYear 
+ END 
+ 
+ DECLARE @Objec.veWeekID uniqueidentifier 
+ 
+ SELECT @Objec.veWeekID = ID FROM  
+ ( SELECT 
+   ROW_NUMBER() OVER (ORDER BY startdate) AS WeekNumber, 
+  * FROM USMC.Objec.veWeek 
+  WHERE  
+   OrgID = @OrgID and year = @CalendarYear 
+   and month = @Month 
+ ) AS ObjWeek 
+ WHERE WeekNumber = @Week 
+ 
+ DECLARE @TimeSheetWeekID uniqueidentifier 
+ 
+ SELECT @TimeSheetWeekID = [ID] FROM [USMC].[TimeSheetWeekly] 
+     WHERE  
+     RecruiterID = @RecruiterID 
+     AND Objec.veWeekID = @Objec.veWeekID 
+ 
+ IF @TimeSheetWeekID IS NOT NULL 
+ BEGIN 
+  IF EXISTS( SELECT [ID] FROM USMC.TimeSheetDaily 
+     WHERE  
+     DayOfWeek = @DayOfWeek 
+     AND TimeSheetWeekID = @TimeSheetWeekID ) 
+  BEGIN 
+   UPDATE [USMC].[TimeSheetDaily] 
+   SET 
+    TelephoneCall =  @TelephoneCall, 
+    AreaCanvassing =  @AreaCanvassing, 
+    HomeVisit =  @HomeVisit, 
+    O.ceTra.c =  @O.ceTra.c, 
+    ElectronicProspec.ng =  @ElectronicProspec.ng, 
+    Screening =  @Screening, 
+    Interviewing =  @Interviewing, 
+    OtherProduc.veTime =  @OtherProduc.veTime, 
+    CollegeHighSchoolVisit =  @CollegeHighSchoolVisit, 
+    MediaVisit =  @MediaVisit, 
+    ContactVisit =  @ContactVisit, 
+    ListResearch =  @ListResearch, 
+    EnlistmentPapers =  @EnlistmentPapers, 
+    PooleeMee.ng =  @PooleeMee.ng, 
+    Planning =  @Planning, 
+    OtherSupportTime =  @OtherSupportTime, 
+    DriveWalk =  @DriveWalk, 
+    Rou.neAdmin =  @Rou.neAdmin, 
+    MetsMeps =  @MetsMeps, 
+    LunchBreak =  @LunchBreak, 
+    Miscellaneous =  @Miscellaneous, 
+    OtherUnproduc.veTime1 =  @OtherUnproduc.veTime1, 
+    OtherUnproduc.veTime2 =  @OtherUnproduc.veTime2, 
+    OtherUnproduc.veTime3 =  @OtherUnproduc.veTime3, 
+    LastUpdateDate =  GETDATE(), 
+    LastUpdatedBy =  @LastUpdatedBy 
+   WHERE  
+    DayOfWeek = @DayOfWeek 
+    AND TimeSheetWeekID = @TimeSheetWeekID 
+  END 
+  ELSE 
+  BEGIN 
+   INSERT INTO [USMC].[TimeSheetDaily] 
+      ([ID] 
+      ,[TimeSheetWeekID] 
+      ,[DayOfWeek] 
+      ,[TelephoneCall] 
+      ,[AreaCanvassing] 
+      ,[HomeVisit] 
+      ,[O.ceTra.c] 
+      ,[ElectronicProspec.ng] 
+      ,[Screening] 
+      ,[Interviewing] 
+      ,[OtherProduc.veTime] 
+      ,[CollegeHighSchoolVisit] 
+      ,[MediaVisit] 
+      ,[ContactVisit] 
+      ,[ListResearch] 
+      ,[EnlistmentPapers] 
+      ,[PooleeMee.ng] 
+      ,[Planning] 
+      ,[OtherSupportTime] 
+      ,[DriveWalk] 
+      ,[Rou.neAdmin] 
+      ,[MetsMeps] 
+      ,[LunchBreak] 
+      ,[Miscellaneous] 
+      ,[OtherUnproduc.veTime1] 
+      ,[OtherUnproduc.veTime2] 
+      ,[OtherUnproduc.veTime3] 
+      ,[LastUpdateDate] 
+      ,[LastUpdatedBy]) 
+   VALUES 
+      ( 
+    NEWID(), 
+    @TimeSheetWeekID, 
+    @DayOfWeek, 
+    @TelephoneCall, 
+    @AreaCanvassing, 
+    @HomeVisit, 
+    @O.ceTra.c, 
+    @ElectronicProspec.ng, 
+    @Screening, 
+    @Interviewing, 
+    @OtherProduc.veTime, 
+    @CollegeHighSchoolVisit, 
+    @MediaVisit, 
+    @ContactVisit, 
+    @ListResearch, 
+    @EnlistmentPapers, 
+    @PooleeMee.ng, 
+    @Planning, 
+    @OtherSupportTime, 
+    @DriveWalk, 
+    @Rou.neAdmin, 
+    @MetsMeps, 
+    @LunchBreak, 
+    @Miscellaneous, 
+    @OtherUnproduc.veTime1, 
+    @OtherUnproduc.veTime2, 
+    @OtherUnproduc.veTime3, 
+    GETDATE(), 
+    @LastUpdatedBy 
+    )    
+ 
+  END 
+ 
+ END 
+ 
+ -- Rollback the transac.on if there were any errors 
+ IF @@ERROR <> 0 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+ 
+  -- Raise an error and return 
+  RAISERROR ('Error occurred while performing the change.', 16, 1) 
+  RETURN 
+ END 
+ 
+ -- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+ IF @@ROWCOUNT > 1 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+ 
+  -- Raise an error and return 
+  RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+  RETURN 
+ END 
+  
+ -- STEP 4: If we reach this point, the commands completed successfully 
+ --         Commit the transac.on.... 
+ COMMIT TRANSACTION 
+  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

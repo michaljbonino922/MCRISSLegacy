@@ -1,0 +1,70 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetContractsByFYSector]" directorySegmentName="seg_2" id="DB46A5C7-BF7D-AE48-10B5-EF29915FD326">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+@fy int,  
+@sector varchar(2),  
+@orgUnitId int 
+) 
+ 
+AS 
+begin 
+declare @start date.me 
+declare @end   date.me 
+ 
+SET @start =  CAST( CONVERT(varchar(4), @fy-1) + '-10-1' as Date.me) 
+SET @end =    CAST( CONVERT(varchar(4), @fy)   + '-9-30' as Date.me) 
+ 
+SELECT CONVERT(VARCHAR(11), mc.CONTRACT_BEGIN_DATE, 106) [DOE], p.Last_name + ', ' +  
+             p.First_Name + ' ' + isnull(le.(p.Legal_Middle_Name,1),'') [Name] 
+             , ns.DISPOSITION_DESCRIPTION [DISPOSITION], mn.rowguid [NWAID], pro.ProspectId, 
+             CONVERT(VARCHAR(11), mc.PROJECTED_SHIP_DATE, 106) [PADD] 
+FROM            RSSOSS.USMC.vwMcrissContract AS mc Inner join MCRISS.USMC.vwCurrentNwaStatus ns on 
+               ns.nwa_Id = mc.NWA_ID  INNER JOIN 
+               USMC.vwMcrissNwa AS mn on mc.NWA_ID = mn.NWA_ID INNER JOIN  Mcriss.dbo.Candidate_Educa.on ce on 
+                ce.Marine_Candidate_id = mn.Marine_Candidate_id 
+                        
+                        INNER JOIN MCRISS.DBO.Person p on person_Id = mn.Marine_Candidate_id  
+                        and mc.CONTRACT_BEGIN_DATE>=@start 
+                         and mc.CONTRACT_BEGIN_DATE<=@end inner join Mcriss.dbo.High_School hs on hs.School_code = ce.School_code 
+                         inner join USMC.MapsSectorZip mz on mz.Zip = le.(hs.Zip_Code,5) and mz.E.ec.veDate<@end  
+                        inner join  USMC.MapsSector ms on ms.SectorId = mz.SectorId 
+                                INNER JOIN 
+                         USMC.vwMcrissRecrui.ngOrganiza.on AS ro ON ms.Recrui.ngOrganiza.onId = ro.rowguid 
+                         and ro.ORGANIZATION_ID = hs.ORGANIZATION_ID AND ro.ORGANIZATION_ID = @orgUnitId 
+                         and SectorDesignator=@sector 
+                         le. outer join MCRISS.DBO.SHIPPER  AS s on  mc.CONTRACT_ID = s.CONTRACT_ID 
+                         le. outer join Prospec.ng.USMC.Prospect as pro on mn.rowguid = pro.NWAID 
+                          
+ union  
+  
+SELECT CONVERT(VARCHAR(11), mc.CONTRACT_BEGIN_DATE, 106) [DOE], p.Last_name + ', ' +  
+             p.First_Name + ' ' + isnull(le.(p.Legal_Middle_Name,1),'') [Name] 
+             , ns.DISPOSITION_DESCRIPTION [DISPOSITION],  mn.rowguid [NWAID], pro.ProspectId, 
+             CONVERT(VARCHAR(11),mc.PROJECTED_SHIP_DATE, 106) [PADD] 
+FROM            RSSOSS.USMC.vwMcrissContract AS mc Inner join MCRISS.USMC.vwCurrentNwaStatus ns on 
+               ns.nwa_Id = mc.NWA_ID  INNER JOIN 
+               USMC.vwMcrissNwa AS mn on mc.NWA_ID = mn.NWA_ID INNER JOIN  Mcriss.dbo.Candidate_Educa.on ce on 
+                ce.Marine_Candidate_id = mn.Marine_Candidate_id 
+                        
+                        INNER JOIN MCRISS.DBO.Person p on person_Id = mn.Marine_Candidate_id  
+                        and mc.CONTRACT_BEGIN_DATE>=@start 
+                         and mc.CONTRACT_BEGIN_DATE<=@end inner join Mcriss.dbo.High_School hs on hs.School_code = ce.School_code 
+                         inner join USMC.MapsSectorZipHist mzh on mzh.Zip = le.(hs.Zip_Code,5) and mzh.E.ec.veDate<@end  
+                           and mzh.EndDate > @end 
+                        inner join  USMC.MapsSector ms on ms.SectorId = mzh.SectorId 
+                                INNER JOIN 
+                         USMC.vwMcrissRecrui.ngOrganiza.on AS ro ON ms.Recrui.ngOrganiza.onId = ro.rowguid 
+                         and ro.ORGANIZATION_ID = hs.ORGANIZATION_ID AND ro.ORGANIZATION_ID = @orgUnitId 
+                         and SectorDesignator=@sector 
+                         le. outer join MCRISS.DBO.SHIPPER  AS s on  mc.CONTRACT_ID = s.CONTRACT_ID  
+                         le. outer join Prospec.ng.USMC.Prospect as pro on mn.rowguid = pro.NWAID                
+ 
+   
+end]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,46 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetConstraintData]" directorySegmentName="seg_16" id="55AC1290-CAA8-0C7B-AEF2-F82234454C3D">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@TableName  sysname 
+AS 
+ 
+SELECT 
+ CONVERT(VARCHAR(40), CONST.name) AS [CONSTRAINT],  
+ CASE CONST.xtype 
+  WHEN  'C' THEN 'CHECK' 
+  WHEN  'D' THEN 'DEFAULT' 
+  WHEN  'F' THEN 'FOREIGN KEY' 
+  WHEN 'PK' THEN 'PRIMARY KEY' 
+  WHEN 'UQ' THEN 'UNIQUE' 
+ END + ' CONSTRAINT' AS CONSTRAINT_TYPE, 
+ CONVERT(VARCHAR(50), COALESCE(@TableName + '.' + COL.name, SPACE(0))) AS [COLUMN], 
+ CASE CONST.xtype 
+  WHEN 'C' THEN (SELECT COALESCE(COM.TEXT, SPACE(0)) FROM SYSCOMMENTS COM  
+    WHERE COM.ID = CONST.ID) 
+  WHEN 'F' THEN 'REFERENCES ' + (SELECT CONVERT(VARCHAR(50), LTRIM(RTRIM(R.NAME)) + '.' +  
+      LTRIM(RTRIM(RCOL.NAME))) FROM SYSFOREIGNKEYS FK  
+      INNER JOIN SYSOBJECTS R ON R.ID = FK.RKEYID 
+      INNER JOIN SYSCOLUMNS RCOL ON  
+       (R.ID = RCOL.ID AND 
+       FK.RKEY = RCOL.COLID) 
+      WHERE FK.CONSTID = CONST.ID) 
+  ELSE SPACE(0) 
+ END AS CONSTRAINT_DATA, 
+ O.* 
+FROM 
+ SYSOBJECTS O INNER JOIN SYSCONSTRAINTS C ON  
+  (O.NAME = @TableName AND 
+  O.ID = C.ID) 
+ INNER JOIN SYSOBJECTS CONST ON C.CONSTID = CONST.ID 
+ LEFT OUTER JOIN SYSCOLUMNS COL ON  
+  (C.ID = COL.ID AND 
+  C.COLID = COL.COLID AND 
+  COL.name != 'rowguid')  
+ORDER BY  
+ [CONSTRAINT]]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

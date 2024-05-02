@@ -1,0 +1,313 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_12" id="8B6BFA65-592B-D6BC-CD5D-ADA101ED53D2" schemaObject="2A6D9360-3BB2-5CEA-6E99-790D76996FDF" name="ERROR_LOG">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>3F6DA6C5-DD62-A9D6-2A8B-6E3017D5963F</importedID>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="ERROR_LOG_ID" id="0B2FC49C-E19F-A150-E3AE-118FFD0AD819">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>59E183B5-FD8E-8D95-9B94-94E0233970CD</importedID>
+<use>0</use>
+<domain>8C77819C-1B2F-24A0-C36D-F924235A9668</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementColumn>true</autoIncrementColumn>
+<identityColumn>true</identityColumn>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="ERROR_CD" id="0A85C9A4-1D00-5AC7-4E63-236598317FF4">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>AFAF409E-C3C3-8DB2-DA6F-E153F82C43DC</importedID>
+<use>0</use>
+<domain>8C77819C-1B2F-24A0-C36D-F924235A9668</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="4E5B7B31-15DA-60A7-BD4A-F29C1EFFF2F7" referredColumn="AD2DBBF3-281B-2D69-925A-2BB2CDB4386D"/>
+</associations>
+</Column>
+<Column name="SEVERITY_CD" id="01B294E9-9351-6275-9C36-5AF36BA35D56">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>B4897F0C-EFBB-F16F-520C-8AEA2267523B</importedID>
+<use>0</use>
+<domain>8C77819C-1B2F-24A0-C36D-F924235A9668</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="71F293E0-ECBF-329F-5ADD-691768E6AB93" referredColumn="427E59C4-70ED-C8C4-3CE9-6217A02B9AA3"/>
+</associations>
+</Column>
+<Column name="EXCEPTION_MSG" id="191390AC-2077-3B97-52E2-38513C106693">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>6D23EDDC-44F2-C2FD-8643-6643FDDF0F5D</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>5D0BA1FE-4FC4-F210-E2F9-FBA674EB945E</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="TECH_NOTES" id="058E5A3F-6762-1BF1-9FE2-0552489EB8D7">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>7B1044FA-A3AB-B233-9206-56BBC497AD3F</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>5D0BA1FE-4FC4-F210-E2F9-FBA674EB945E</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="UPDATE_DATE" id="FE695519-BD0E-1039-282E-F8B5B5F1046D">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>139A2D3B-0D97-92CA-C614-9441558F7E40</importedID>
+<use>0</use>
+<domain>2E97BDFC-0C14-5942-50A0-B5BCBB88B35D</domain>
+<usesDefaultValue>true</usesDefaultValue>
+<defaultValue>(getdate())</defaultValue>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="REPROCESS" id="DD6DE5A2-C5E8-32F2-00A2-AB40342B0500">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>3DD8D482-41DE-5B28-D3F3-7E2D14A95582</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>D667A44A-427C-8171-AC91-1F760EF11F37</domain>
+<usesDefaultValue>true</usesDefaultValue>
+<defaultValue>(&apos;N&apos;)</defaultValue>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="STATUS" id="7FE5EEC1-811C-C512-1C00-49AE40BF17EC">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>53CCAEC0-E878-9145-1623-08E4EEE2D52F</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>FE83DFFA-9B1F-A4B4-9720-4461C50F7960</domain>
+<usesDefaultValue>true</usesDefaultValue>
+<defaultValue>(&apos;UNRESOLVED&apos;)</defaultValue>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="ERROR_SOURCE" id="1BE3822D-395E-82F9-1992-4A8F1301B1B3">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>8C94B5B3-44C3-EBD6-A3D6-9273AFBA77B2</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>8C77819C-1B2F-24A0-C36D-F924235A9668</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="BB20BB1F-EF9D-C14D-75ED-E3FAAD8B6B96" referredColumn="2B051E33-1BA5-85D4-3B52-A37FD8D1D96B"/>
+</associations>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="51923972-3579-1FA7-9568-0CF67F01B5D8" name="PK_ERRORLOG">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>F506D089-7048-87BC-E90E-9AFCE19695D7</importedID>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="0B2FC49C-E19F-A150-E3AE-118FFD0AD819"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="9343523F-2936-B379-F33A-21C8FA651011" name="IDX_ERROR_CODE">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>50996BBF-7F8D-A042-9449-F6C008431D40</importedID>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="0A85C9A4-1D00-5AC7-4E63-236598317FF4"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="79693110-448D-E443-6362-C5C5858618DB" name="idx_errorsource">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>A6B55DC8-C87D-F2CA-0074-BB819ECFDDAF</importedID>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="1BE3822D-395E-82F9-1992-4A8F1301B1B3"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="F2D67CAF-ED38-29C0-D2C8-0412E07C06D8" name="idx_reprocess">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>77AD38DD-EF54-B75D-904D-435889538388</importedID>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="DD6DE5A2-C5E8-32F2-00A2-AB40342B0500"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="8BA55A4A-6C7C-E4B5-0349-029F3EE1C4E5" name="idx_status">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>BA15697F-24E5-89EF-368B-FA2C768A2136</importedID>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="7FE5EEC1-811C-C512-1C00-49AE40BF17EC"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="6690B3F8-DA22-307C-4AF0-A377EAB4B229" name="idx_UPDATE_DATE">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>CBD8BA29-5A12-FD01-1594-779E7F9BE3F4</importedID>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="FE695519-BD0E-1039-282E-F8B5B5F1046D"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="3A4624F1-D189-EE11-C050-EADE162F04F6" name="FK_ERRLOG_ERRMSG">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="0A85C9A4-1D00-5AC7-4E63-236598317FF4"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="F0CCA4C4-565D-26C9-87CC-BB2AF5B90F6D" name="FK_ERRLOG_ERRORSOURCE">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="1BE3822D-395E-82F9-1992-4A8F1301B1B3"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="A89A55A3-43A0-61D5-1CAC-FE84E2FAA514" name="FK_ERRLOG_ERRSEVERITY">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="01B294E9-9351-6275-9C36-5AF36BA35D56"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+<tableCheckConstraints itemClass="oracle.dbtools.crest.model.design.constraint.TableLevelConstraint">
+<tableCheckConstraint name="[dbo].[ERROR_LOG]" directorySegmentName="seg_10" id="88967510-5973-C45A-DF41-70D523B2656A">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>17697283-A3B7-4113-26B0-D8E67E58CC36</importedID>
+<rule><![CDATA[CONSTRAINT [FK_ERRLOG_ERRMSG]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="[dbo].[ERROR_LOG]v1" directorySegmentName="seg_10" id="5756922D-907A-F30A-D25C-2BE2CFF6792B">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>79BE7E9B-64C8-6DC2-9226-4182752A48E3</importedID>
+<rule><![CDATA[CONSTRAINT [FK_ERRLOG_ERRORSOURCE]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="[dbo].[ERROR_LOG]v2" directorySegmentName="seg_10" id="126C03F3-757B-A7A2-5448-47F58BC2ACD9">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>03578E9E-5787-5783-D933-DEFF4FEBC31A</importedID>
+<rule><![CDATA[CONSTRAINT [FK_ERRLOG_ERRSEVERITY]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="[CK_REPROCESS]" directorySegmentName="seg_10" id="09E00697-F61D-3BCD-36CE-EED7F348B262">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>53039CA4-6594-121F-DBF0-0820BA0016E1</importedID>
+<rule><![CDATA[([REPROCESS] = 'N' or [REPROCESS] = 'Y')]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="[dbo].[ERROR_LOG]v3" directorySegmentName="seg_10" id="A8A6C065-5506-EBB0-8615-0732D2CAA8D9">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>41D4C2AC-833E-B16A-A999-B09D7574B6D4</importedID>
+<rule><![CDATA[CONSTRAINT [CK_REPROCESS]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="[CK_STATUS]" directorySegmentName="seg_10" id="C92D18AE-774D-2D9A-5D47-BC0D2FDC1279">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>C92A7FB1-B53D-5E79-7A29-30778CA2C835</importedID>
+<rule><![CDATA[([STATUS] = 'RESOLVED' or [STATUS] = 'UNRESOLVED' or [STATUS] = 'OBE')]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="[dbo].[ERROR_LOG]v4" directorySegmentName="seg_10" id="D565A330-7966-F1EC-0213-3BBE94CA8C91">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>8250A150-3F19-E2F4-C51F-F30D006AD812</importedID>
+<rule><![CDATA[CONSTRAINT [CK_STATUS]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITH" directorySegmentName="seg_10" id="9053AB68-4DB3-CF65-24E7-4C919D15436B">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>5F0E202F-8807-86BD-1FC8-F14819045697</importedID>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITHv1" directorySegmentName="seg_10" id="2F90ABE4-4BFB-6909-BB4C-F93C47DDB1A9">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>C085657C-C5E1-2DEB-F095-8B7AE5355802</importedID>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITHv2" directorySegmentName="seg_10" id="DF307261-877E-6D2F-11FB-C23E17CB8740">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>5CAC671A-04FD-2A3C-E06B-ECD8AC747E3B</importedID>
+</tableCheckConstraint>
+</tableCheckConstraints>
+</Table>

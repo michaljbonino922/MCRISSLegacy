@@ -1,0 +1,24 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetChangeRequestLetersForChangeRequest]" directorySegmentName="seg_4" id="A3441EBD-096A-8CA2-8C63-AD9FD99C9E81">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@ChangeRequestID as uniqueiden..er 
+ 
+AS 
+ 
+SELECT  
+ CHANGE_REQUEST_LETTER_ID, 
+ CHANGE_REQUEST_ID, 
+ UPLOAD_DATE, 
+ UPLOADED_BY 
+FROM  
+ [USMC].[CHANGE_REQUEST_LETTER] 
+WHERE  
+ CHANGE_REQUEST_ID = @ChangeRequestID 
+ORDER BY  
+ UPLOAD_DATE]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

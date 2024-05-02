@@ -1,0 +1,69 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="TripReport" directorySegmentName="seg_1" id="6B96BE73-1A37-7D56-86FA-360A3F33F2AD">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:56 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<schemaObject>454547C7-2829-9C8F-6E0C-35E4CFDC8E47</schemaObject>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="UploadDate" id="1E8BDDFA-49AF-01B5-7D68-B5B2B85F9B48">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:10 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="UploadBy" id="C89287C5-0F51-A22F-D843-4EEE0E0E8363">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:10 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="LastUpdatedDate" id="C9EAC284-B56A-2F71-8429-ED3A291CE5CC">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:10 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="Title" id="DC9B2B39-14DC-A5B7-4E56-19EA0F62579A">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:10 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="LastUpdatedBy" id="DF8C96DB-57B6-3EAF-EF78-42AC5EF6BD27">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:10 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="MonthSummaryID" id="EE31B46C-4A35-F553-33FF-4C9EB3BB5F21">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:10 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="Report" id="F0E06930-5914-BD8C-4B4E-A7AB71FF7EF9">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:10 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="ID" id="F6DB9ECD-544B-9F90-54C2-E12E8F55BEB7">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:10 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<defaultValue>(newid())</defaultValue>
+</ColumnProxy>
+</columnProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="FK_TripReport_MonthSummary" id="554FD1EE-E665-A170-FE90-19D4733C36E8">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="PK_TripReport" id="741F0EAF-9DCD-0A69-BEEF-3596CB86D7F5">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:10 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<clustered>true</clustered>
+<fillFactor>90</fillFactor>
+<partitioningColumn>EFC1C3A0-E2D3-374A-ACA3-B322F3BEB012</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+</TableProxySqlServerv2k5>

@@ -1,0 +1,62 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_dbaSHIPPSEP]" directorySegmentName="seg_14" id="8E838F4F-E81F-5001-0884-34861547BEE1">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@contrac.d int, 
+@nwaid int, 
+@date date.me 
+ 
+ 
+AS 
+declare 
+@user_login varchar(15) 
+/* 
+print @contrac.d  
+print @nwaid 
+print @date 
+print @user_login 
+*/ 
+ 
+--Gets current user 
+set @user_login = (select current_user) 
+ 
+ 
+if exists (select 1 from Shipper where contract_id = @contrac.d) 
+ 
+ update Shipper 
+ set CONTRACT_ID=@CONTRACTID, 
+ SHIP_TYPE='ENL', 
+ TRAINING_ORGANIZATION_ID='3', 
+ SHIP_DATE=@DATE, 
+ PAY_ENTRY_BASE_DATE=@DATE, 
+ PAY_GRADE_CODE='E2', 
+ PAY_GRADE_ED_DATE=@DATE, 
+ AFADBD=@DATE, 
+ COMPONENT_CODE='11' 
+ where contract_id = @contrac.d 
+ 
+else 
+ 
+ insert SHIPPER 
+ (CONTRACT_ID,SHIP_TYPE,TRAINING_ORGANIZATION_ID,SHIP_DATE,PAY_ENTRY_BASE_DATE,PAY_GRADE_CODE,PAY_GRADE_ED_DATE,AFADBD,COMPONENT_CODE,USER_LOGIN,UPDATE_DATE) 
+ values 
+ (@CONTRACTID,'ENL','3',@DATE,@DATE,'E2',@DATE,@DATE,'11',@USER_LOGIN, getdate()) 
+ 
+ 
+print 'The SHIPPER Was added. Please Check the applica.on to con.rm' 
+ 
+ 
+if not exists(select 1 from CANDIDATE_STATUS  
+  where NWA_ID = @NWAID and STATUS_CODE='C' AND DISPOSITION_CODE= 'N' ) 
+ 
+insert CANDIDATE_STATUS 
+(nwa_id, STATUS_EFFECTIVE_DATE, STATUS_TYPE, STATUS_CODE, DISPOSITION_CODE, USER_LOGIN, UPDATE_DATE) 
+values 
+(@NWAID,@DATE,'E', 'C', 'N', @USER_LOGIN, getdate()) 
+ 
+print 'The SHIP STATUS Was added. Please Check the applica.on to con.rm']]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

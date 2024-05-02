@@ -1,0 +1,67 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdatePriorService]" directorySegmentName="seg_25" id="FDA86409-92C6-91F3-5EC6-42EC69274310">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@PersonId   int, 
+ @BeginDate   date.me,  
+ @EndDate   date.me,  
+ @Separa.onCode   varchar(4),  
+ @ReenlistmentCode  varchar(2),  
+ @ServiceCharacter  char(1),  
+ @RecordStatus   varchar(10),  
+ @ServiceID   int, 
+ @EndOfObligatedServiceDate date.me, 
+ @ComponentCode   varchar(2) = NULL,  
+ @PMOSCode   varchar(4) = NULL,  
+ @CurrentlyInReserves  char(1)  = NULL,   
+ @UserLogin   varchar(15) 
+AS 
+ 
+SET @ComponentCode = COALESCE(@ComponentCode, (SELECT TOP 1 N.OFFICER_COMPONENT_CODE FROM NWA N  
+      WHERE N.MARINE_CANDIDATE_ID = @PersonId 
+      ORDER BY N.NWA_ID DESC), SPACE(0)) 
+ 
+ 
+--- PRINT 'COMPONENT CODE = ' + @ComponentCode  
+ 
+ 
+IF EXISTS (SELECT 1 FROM CANDIDATE_PRIOR_SERVICE WHERE MARINE_CANDIDATE_ID = @PersonID AND 
+  COMPONENT_CODE = @ComponentCode AND END_DATE = @EndDate) 
+BEGIN 
+ --- UPDATE PRIOR SERVICE 
+ UPDATE 
+  CANDIDATE_PRIOR_SERVICE 
+ SET 
+  BEGIN_DATE   = @BeginDate,                   
+  SEPARATION_CODE   = @Separa.onCode, 
+  REENLISTMENT_CODE   = @ReenlistmentCode, 
+  SERVICE_CHARACTER   = @ServiceCharacter, 
+  VERIFICATION    = @RecordStatus, 
+  PMOS_CODE    = @PMOSCode,  
+  SERVICE_ID     = @ServiceID, 
+  CURRENTLY_IN_RESERVES   = @CurrentlyInReserves, 
+  END_OF_OBLIGATED_SERVICE_DATE  = @EndOfObligatedServiceDate, 
+  USER_LOGIN        = @UserLogin, 
+  UPDATE_DATE                  = GETDATE() 
+ WHERE  
+  MARINE_CANDIDATE_ID  = @PersonID AND 
+  COMPONENT_CODE    = @ComponentCode AND  
+  END_DATE    = @EndDate 
+END 
+ELSE 
+BEGIN 
+ --- INSERT PRIOR SERVICE 
+ INSERT CANDIDATE_PRIOR_SERVICE  
+  (MARINE_CANDIDATE_ID, BEGIN_DATE, END_DATE, COMPONENT_CODE, SEPARATION_CODE, 
+  REENLISTMENT_CODE, SERVICE_CHARACTER, VERIFICATION, PMOS_CODE, SERVICE_ID, 
+  CURRENTLY_IN_RESERVES, END_OF_OBLIGATED_SERVICE_DATE, USER_LOGIN, UPDATE_DATE) 
+ VALUES  
+  (@PersonID, @BeginDate, @EndDate, @ComponentCode, @Separa.onCode,  
+  @ReenlistmentCode, @ServiceCharacter, @RecordStatus, @PMOSCode, @ServiceID, 
+  @CurrentlyInReserves, @EndOfObligatedServiceDate, @UserLogin, GETDATE()) 
+END]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

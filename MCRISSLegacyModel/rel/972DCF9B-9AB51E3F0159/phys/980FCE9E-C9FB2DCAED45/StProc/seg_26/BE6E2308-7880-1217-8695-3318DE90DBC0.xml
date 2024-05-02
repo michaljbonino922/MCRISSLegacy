@@ -1,0 +1,41 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateShipQuotaRqmt]" directorySegmentName="seg_26" id="BE6E2308-7880-1217-8695-3318DE90DBC0">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@ORGANIZATION_ID  int, 
+@FISCAL_YEAR  int, 
+@MONTH_CODE  int, 
+@CATEGORY_CODE  varchar(2), 
+@QUOTA_VALUE  int = 0, 
+@REQMT_VALUE  int = 0, 
+@USER_LOGIN  varchar(15) 
+ 
+AS 
+BEGIN 
+ 
+ IF EXISTS (SELECT 1 FROM SHIPPING_QUOTA_PLAN WHERE ORGANIZATION_ID = @ORGANIZATION_ID 
+  AND FISCAL_YEAR = @FISCAL_YEAR AND CATEGORY_CODE = @CATEGORY_CODE AND MONTH_CODE = @MONTH_CODE) 
+  
+  BEGIN 
+   UPDATE SHIPPING_QUOTA_PLAN SET QUOTA_VALUE = @QUOTA_VALUE, 
+   REQMT_VALUE = @REQMT_VALUE, USER_LOGIN = @USER_LOGIN, UPDATE_DATE = GETDATE() 
+   WHERE ORGANIZATION_ID = @ORGANIZATION_ID 
+   AND FISCAL_YEAR = @FISCAL_YEAR 
+   AND CATEGORY_CODE = @CATEGORY_CODE 
+   AND MONTH_CODE = @MONTH_CODE    
+  END 
+  
+ ELSE 
+  
+  BEGIN 
+   INSERT INTO SHIPPING_QUOTA_PLAN (ORGANIZATION_ID, FISCAL_YEAR,  
+   CATEGORY_CODE, MONTH_CODE, QUOTA_VALUE, REQMT_VALUE, USER_LOGIN, UPDATE_DATE) VALUES  
+   (@ORGANIZATION_ID, @FISCAL_YEAR, @CATEGORY_CODE, @MONTH_CODE, @QUOTA_VALUE, @REQMT_VALUE, @USER_LOGIN, GETDATE()) 
+  END 
+ 
+END]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

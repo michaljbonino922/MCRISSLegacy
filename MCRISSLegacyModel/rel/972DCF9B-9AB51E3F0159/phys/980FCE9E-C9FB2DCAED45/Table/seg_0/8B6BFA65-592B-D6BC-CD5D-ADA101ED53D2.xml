@@ -1,0 +1,124 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="ERROR_LOG" directorySegmentName="seg_0" id="8B6BFA65-592B-D6BC-CD5D-ADA101ED53D2">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<schemaObject>2A6D9360-3BB2-5CEA-6E99-790D76996FDF</schemaObject>
+<database>24B9F7BA-5DD4-EAB5-4EB1-35B911743E85</database>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="SEVERITY_CD" id="01B294E9-9351-6275-9C36-5AF36BA35D56">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="TECH_NOTES" id="058E5A3F-6762-1BF1-9FE2-0552489EB8D7">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="ERROR_CD" id="0A85C9A4-1D00-5AC7-4E63-236598317FF4">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="ERROR_LOG_ID" id="0B2FC49C-E19F-A150-E3AE-118FFD0AD819">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<asIdentity>true</asIdentity>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="EXCEPTION_MSG" id="191390AC-2077-3B97-52E2-38513C106693">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="ERROR_SOURCE" id="1BE3822D-395E-82F9-1992-4A8F1301B1B3">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="STATUS" id="7FE5EEC1-811C-C512-1C00-49AE40BF17EC">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<defaultValue>(&apos;UNRESOLVED&apos;)</defaultValue>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="REPROCESS" id="DD6DE5A2-C5E8-32F2-00A2-AB40342B0500">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<defaultValue>(&apos;N&apos;)</defaultValue>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="UPDATE_DATE" id="FE695519-BD0E-1039-282E-F8B5B5F1046D">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<defaultValue>(getdate())</defaultValue>
+</ColumnProxy>
+</columnProxies>
+<indexProxies>
+<IndexProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.IndexProxySqlServerv2k12" name="idx_UPDATE_DATE" id="6690B3F8-DA22-307C-4AF0-A377EAB4B229">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<fillFactor>90</fillFactor>
+<recomputeStatistics>ON</recomputeStatistics>
+</IndexProxy>
+<IndexProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.IndexProxySqlServerv2k12" name="idx_errorsource" id="79693110-448D-E443-6362-C5C5858618DB">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<fillFactor>90</fillFactor>
+<recomputeStatistics>ON</recomputeStatistics>
+</IndexProxy>
+<IndexProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.IndexProxySqlServerv2k12" name="idx_status" id="8BA55A4A-6C7C-E4B5-0349-029F3EE1C4E5">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<fillFactor>90</fillFactor>
+<recomputeStatistics>ON</recomputeStatistics>
+</IndexProxy>
+<IndexProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.IndexProxySqlServerv2k12" name="IDX_ERROR_CODE" id="9343523F-2936-B379-F33A-21C8FA651011">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<fillFactor>90</fillFactor>
+<recomputeStatistics>ON</recomputeStatistics>
+</IndexProxy>
+<IndexProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.IndexProxySqlServerv2k12" name="idx_reprocess" id="F2D67CAF-ED38-29C0-D2C8-0412E07C06D8">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<fillFactor>90</fillFactor>
+<recomputeStatistics>ON</recomputeStatistics>
+</IndexProxy>
+</indexProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="FK_ERRLOG_ERRMSG" id="3A4624F1-D189-EE11-C050-EADE162F04F6">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:16 UTC</createdTime>
+<ownerDesignName>create MCRISS_ERROR script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="FK_ERRLOG_ERRSEVERITY" id="A89A55A3-43A0-61D5-1CAC-FE84E2FAA514">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:16 UTC</createdTime>
+<ownerDesignName>create MCRISS_ERROR script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="FK_ERRLOG_ERRORSOURCE" id="F0CCA4C4-565D-26C9-87CC-BB2AF5B90F6D">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:16 UTC</createdTime>
+<ownerDesignName>create MCRISS_ERROR script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="PK_ERRORLOG" id="51923972-3579-1FA7-9568-0CF67F01B5D8">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<clustered>true</clustered>
+<fillFactor>90</fillFactor>
+<partitioningColumn>0B2FC49C-E19F-A150-E3AE-118FFD0AD819</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+</TableProxySqlServerv2k5>

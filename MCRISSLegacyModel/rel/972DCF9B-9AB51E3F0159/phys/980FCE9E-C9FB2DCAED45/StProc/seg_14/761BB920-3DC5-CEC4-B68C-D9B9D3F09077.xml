@@ -1,0 +1,77 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetTempDQProspects]" directorySegmentName="seg_14" id="761BB920-3DC5-CEC4-B68C-D9B9D3F09077">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:56 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@OrgId uniqueiden..er, 
+ @RecruiterId uniqueiden..er = null 
+ 
+AS 
+BEGIN 
+ 
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+Create Table #Temp_DQ 
+( 
+ PersonId uniqueiden..er, 
+ ProspectId uniqueiden..er, 
+ LastName varchar(75), 
+ FirstName varchar(75), 
+ Reason varchar(50), 
+ Recruiter varchar(85), 
+ TempDqDate date.me, 
+ Ac.onDate date.me, 
+ SubjectId uniqueiden..er, 
+ SubjectName varchar(100), 
+ EventId uniqueiden..er 
+) 
+ 
+INSERT INTO #Temp_DQ 
+(  
+ PersonId,  
+ ProspectId, 
+ LastName,  
+ FirstName, 
+ Reason, 
+ Recruiter, 
+ TempDqDate 
+) 
+SELECT pr.PersonId,  
+  pr.ProspectId, 
+  p.LastName,  
+  p.FirstName,  
+  pr.TDQRemark, 
+  rp.Rank_Code + ' ' + mp.Last_Name,  
+  pr.LastUpdateDate  
+FROM usmc.Prospect pr 
+INNER JOIN usmc.Person p 
+ ON p.PersonId = pr.PersonId and pr.ProspectDisposi.onId = 3 
+INNER JOIN usmc.vwMcrissRecrui.ngOrganiza.on ro 
+ ON ro.rowguid = pr.Recrui.ngOrganiza.onId 
+INNER JOIN usmc.vwMcrissRecrui.ngPerson rp 
+ ON rp.rowguid = pr.Recrui.ngPersonId 
+INNER JOIN  USMC.vwMcrissPerson mp 
+ ON mp.Person_ID = rp.Recrui.ng_Person_Id 
+where ro.Rowguid = @OrgId  
+AND pr.Recrui.ngPersonId = coalesce(@RecruiterId, pr.Recrui.ngPersonId) 
+ 
+Update #Temp_DQ 
+SET Ac.onDate = a.Ac.onDate, SubjectId = a.SubjectId, SubjectName = a.SubjectName, EventId = a.EventId 
+FROM (SELECT min(e.StartDate) as 'Ac.onDate', es.SubjectID, es.SubjectName, es.EventId FROM RSSOSS.USMC.Event e 
+  INNER JOIN RSSOSS.USMC.EventSubject es 
+  ON e.ID = es.EventId 
+  WHERE e.eventTypeId = 179 and e.IsComplete = 0 
+  GROUP BY es.SubjectID, es.SubjectName, es.EventId)a 
+INNER JOIN #Temp_DQ t 
+ON t.ProspectId = a.SubjectID 
+ 
+SELECT * FROM #temp_DQ 
+ORDER BY Ac.onDate, LastName 
+ 
+DROP TABLE #temp_DQ 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

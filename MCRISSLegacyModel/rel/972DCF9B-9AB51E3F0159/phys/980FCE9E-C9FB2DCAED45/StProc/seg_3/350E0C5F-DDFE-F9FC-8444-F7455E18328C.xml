@@ -1,0 +1,212 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetAssetsPersonnelView]" directorySegmentName="seg_3" id="350E0C5F-DDFE-F9FC-8444-F7455E18328C">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @Organiza.onID int, 
+ @DisplayCode int, 
+ @Month varchar(2), 
+ @CalendarYear varchar(4), 
+ @IsMOI int 
+) 
+AS 
+ 
+DECLARE 
+ @OrgType char(3) 
+SET  @OrgType = (SELECT TOP 1 ORGANIZATION_TYPE FROM RECRUITING_ORGANIZATION WITH (NOLOCK) WHERE ORGANIZATION_ID = @Organiza.onID) 
+ 
+ 
+CREATE TABLE #BILLET_DATA  
+ (SHORT_DESCRIPTION VARCHAR(62),  
+  BILLET_BEGIN_DATE VARCHAR(30),  
+     BILLET_END_DATE VARCHAR(30),  
+  UNIT_ABBREVIATION varchar(50),  
+  RECRUITING_PERSON_ID int, 
+  ORGANIZATION_ID int) 
+ 
+CREATE TABLE #VIEW_DATA  
+   (RECRUITING_PERSON_ID INT,  
+    ORGANIZATION_ID INT,  
+    RECRUITER_NAME VARCHAR(60),  
+    RANK VARCHAR(20),  
+    SHORT_DESCRIPTION varchar(60), --BILLET 
+    ON_PRODUCTION BIT,  
+    MONTH_CODE INT, 
+       CALENDAR_YEAR INT, 
+    NON_PROD_REASON_CODE VARCHAR(5), 
+    NON_PROD_REASON_DESC VARCHAR(50), 
+    OTHER_REASON_DETAIL VARCHAR(50),    
+    BILLET_BEGIN_DATE DATETIME,  
+    BILLET_END_DATE DATETIME,  
+    TOUR_BEGIN_DATE DATETIME, 
+    TOUR_END_DATE DATETIME, 
+    EST_TOUR_END_DATE DATETIME, 
+    UNIT_DISPLAY VARCHAR(50) 
+   ) 
+IF @IsMOI = 1 
+ BEGIN 
+  INSERT INTO #BILLET_DATA("SHORT_DESCRIPTION", 
+         "BILLET_BEGIN_DATE", 
+         "BILLET_END_DATE",           
+         "UNIT_ABBREVIATION", 
+         "RECRUITING_PERSON_ID",         
+         ORGANIZATION_ID)  
+ 
+  EXEC [USMC].[GetRecruiterBilletDataByMonthCalendarYear] 
+   @Organiza.onID=@Organiza.onID, 
+   @DisplayCode=@DisplayCode, 
+   @Month=@Month, 
+   @CalendarYear=@CalendarYear 
+ END 
+ 
+IF @IsMOI=2 
+ BEGIN 
+  INSERT INTO #BILLET_DATA("SHORT_DESCRIPTION", 
+         "BILLET_BEGIN_DATE", 
+         "BILLET_END_DATE",           
+         "UNIT_ABBREVIATION", 
+         "RECRUITING_PERSON_ID",         
+         ORGANIZATION_ID)  
+ 
+  EXEC [USMC].[GetRecruiterBilletDataByMonthCalendarYear_MOI] 
+   @Organiza.onID=@Organiza.onID, 
+   @DisplayCode=@DisplayCode, 
+   @Month=@Month, 
+   @CalendarYear=@CalendarYear 
+ END 
+ 
+DECLARE billet_cursor CURSOR FOR 
+SELECT *  
+FROM #BILLET_DATA  B1 
+WHERE  
+ BILLET_BEGIN_DATE =  
+ ( 
+  SELECT TOP 1 BILLET_BEGIN_DATE 
+  FROM #BILLET_DATA 
+  WHERE RECRUITING_PERSON_ID = B1.RECRUITING_PERSON_ID 
+   AND DATEDIFF(MONTH, BILLET_BEGIN_DATE, CONVERT(date.me, CONVERT(varchar,  CAST(@Month as varchar) + '/1/' + CAST(@CalendarYear as varchar)))) >=0 
+   ORDER BY DATEDIFF(MONTH, BILLET_BEGIN_DATE, CONVERT(date.me, CONVERT(varchar,  CAST(@Month as varchar) + '/1/' + CAST(@CalendarYear as varchar)))) 
+ ) 
+ AND 
+ RECRUITING_PERSON_ID =  
+ ( 
+  SELECT TOP 1 RECRUITING_PERSON_ID 
+  FROM #BILLET_DATA 
+  WHERE RECRUITING_PERSON_ID = B1.RECRUITING_PERSON_ID 
+   AND DATEDIFF(MONTH, BILLET_BEGIN_DATE, CONVERT(date.me, CONVERT(varchar,  CAST(@Month as varchar) + '/1/' + CAST(@CalendarYear as varchar)))) >=0 
+   ORDER BY DATEDIFF(MONTH, BILLET_BEGIN_DATE, CONVERT(date.me, CONVERT(varchar,  CAST(@Month as varchar) + '/1/' + CAST(@CalendarYear as varchar)))) 
+ ) 
+ 
+DECLARE 
+@billet VARCHAR(62),  
+@billet_begin_date VARCHAR(30),  
+@billet_end_date VARCHAR(30),  
+@unit_display varchar(50),  
+@recrui.ng_person_id int, 
+@organiza.on_id int, 
+@on_produc.on bit, 
+@month_code int, 
+@year int, 
+@non_prod_reason_code varchar(5), 
+@non_prod_reason_desc varchar(50), 
+@other_reason_detail varchar(50), 
+@tour_begin_date date.me, 
+@tour_end_date date.me, 
+@est_tour_end_date date.me, 
+@name varchar(60), 
+@rank varchar(20) 
+  
+OPEN billet_cursor 
+ 
+FETCH next from billet_cursor INTO  
+@billet, @billet_begin_date, @billet_end_date, @unit_display,@recrui.ng_person_id, @organiza.on_id 
+WHILE (@@fetch_status = 0) 
+ BEGIN  
+  SET @on_produc.on = 0 
+  SET @non_prod_reason_code ='' 
+  SET @non_prod_reason_desc='' 
+  SET @other_reason_detail='' 
+   
+  select TOP 1 @on_produc.on = ON_PRODUCTION,  
+      @month_code=MONTH_CODE,  
+      @year=CALENDAR_YEAR, 
+      @non_prod_reason_code=NON_PROD_REASON_CODE, 
+      @non_prod_reason_desc= SHORT_DESC, 
+      @other_reason_detail=OTHER_REASON_DETAIL          
+  from dbo.PRODUCTION_STATUS_HISTORY PH LEFT JOIN dbo.NON_PRODUCTION_REASON NPR ON PH.NON_PROD_REASON_CODE=NPR.REASON_CODE 
+  where PERSON_ID=@recrui.ng_person_id AND DATEDIFF(MONTH, CONVERT(date.me, CONVERT(varchar,  CAST(MONTH_CODE as varchar) + '/1/' + CAST(CALENDAR_YEAR as varchar))), CONVERT(date.me, CONVERT(varchar,  CAST(@Month as varchar) + '/1/' + CAST(@CalendarYear as varchar))))>=0 
+  ORDER BY PH.CALENDAR_YEAR DESC, PH.MONTH_CODE DESC 
+ 
+  SELECT 
+   --RP.RECRUITING_PERSON_ID, 
+   @organiza.on_id = RP.ORGANIZATION_ID, 
+   @tour_begin_date = RP.TOUR_BEGIN_DATE, 
+   @tour_end_date = RP.TOUR_END_DATE, 
+   @est_tour_end_date = RP.EST_TOUR_END_DATE, 
+   --RR.RECRUITING_ROLE_ID, 
+   --RR.SHORT_DESCRIPTION, 
+   --RO.SHORT_NAME, 
+   @name = P.LAST_NAME + ', ' + P.FIRST_NAME + COALESCE(SPACE(1) + P.LEGAL_MIDDLE_NAME, SPACE(0)), 
+   @rank = LTRIM(RTRIM(RP.RANK_CODE)), 
+   --RO.ORGANIZATION_TYPE, 
+   @billet_begin_date=COALESCE(CONVERT(VARCHAR(11), RP.BILLET_BEGIN_DATE, 101), SPACE(0)),  
+   @billet_end_date=COALESCE(CONVERT(VARCHAR(11), RP.BILLET_END_DATE, 101), SPACE(0)) 
+  FROM RECRUITING_PERSON RP WITH (NOLOCK) 
+   INNER JOIN RECRUITING_ORGANIZATION RO ON RP.ORGANIZATION_ID = RO.ORGANIZATION_ID 
+   INNER JOIN PERSON P ON RP.RECRUITING_PERSON_ID = P.PERSON_ID 
+   INNER JOIN RECRUITING_ROLE RR ON RP.RECRUITING_ROLE_ID = RR.RECRUITING_ROLE_ID 
+  WHERE RP.RECRUITING_PERSON_ID=@recrui.ng_person_id 
+  --((@OrgType = 'RS' AND RR.SHORT_DESCRIPTION != 'OSO') OR (@OrgType != 'RS'))  
+   
+  INSERT INTO #VIEW_DATA VALUES(@recrui.ng_person_id,  
+           @organiza.on_id,  
+           @name, 
+           @rank,          
+           @billet, 
+           @on_produc.on, 
+           @month_code, 
+           @year, 
+           @non_prod_reason_code, 
+           @non_prod_reason_desc, 
+           @other_reason_detail,        
+           @billet_begin_date, 
+           @billet_end_date, 
+           @tour_begin_date, 
+           @tour_end_date, 
+           @est_tour_end_date, 
+           @unit_display) 
+  FETCH next from billet_cursor INTO  
+   @billet, @billet_begin_date, @billet_end_date, @unit_display, @recrui.ng_person_id, @organiza.on_id 
+ END 
+ 
+CLOSE billet_cursor 
+DEALLOCATE billet_cursor 
+DROP TABLE #BILLET_DATA  
+ 
+SELECT  
+ RECRUITING_PERSON_ID,  
+ ORGANIZATION_ID,  
+ RECRUITER_NAME AS [NAME], 
+ RANK, 
+ SHORT_DESCRIPTION, 
+ ON_PRODUCTION, 
+ MONTH_CODE, 
+ CALENDAR_YEAR, 
+ NON_PROD_REASON_CODE, 
+ NON_PROD_REASON_DESC, 
+ OTHER_REASON_DETAIL, 
+ BILLET_BEGIN_DATE, 
+ BILLET_END_DATE, 
+ TOUR_BEGIN_DATE, 
+ TOUR_END_DATE, 
+ EST_TOUR_END_DATE, 
+ UNIT_DISPLAY 
+FROM #VIEW_DATA 
+ORDER BY RECRUITER_NAME 
+ 
+DROP TABLE #VIEW_DATA]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

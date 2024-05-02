@@ -1,0 +1,70 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SignMonthSummary]" directorySegmentName="seg_8" id="957A0D00-682F-03DC-A708-7C53FA510EA4">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@Id uniqueidentifier, 
+    @Name varchar(100), 
+    @Rank varchar(25), 
+ @SignatureId uniqueidentifier, 
+    @UpdateUserId uniqueidentifier 
+     
+AS 
+ 
+BEGIN 
+    
+   SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+   -- STEP 1: Start the transac.on 
+ BEGIN TRANSACTION 
+ 
+ -- STEP 2 & 3: Issue the data change statement(s), checking @@ERROR a.er each statement 
+ IF EXISTS(SELECT ID FROM USMC.MonthSummary WHERE ID = @Id) 
+ BEGIN 
+  -- if @intCount > 0, then the Record already exists.  UPDATE. 
+  UPDATE USMC.MonthSummary 
+  SET  
+  Name = @Name, 
+  Rank = @Rank, 
+  CommandGroupMemberSignatureID = @SignatureId, 
+  CommandGroupMemberSignatureDate = GETDATE(),  
+  LastUpdatedBy = @UpdateUserId, 
+  LastUpdatedDate = GETDATE() 
+  WHERE ID= @Id 
+ 
+ END 
+ 
+ 
+ -- Rollback the transac.on if there were any errors 
+ IF @@ERROR <> 0 
+  BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+ 
+  -- Raise an error and return 
+  RAISERROR ('Error occurred while performing the change.', 16, 1) 
+  RETURN 
+  END 
+ 
+ -- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+ IF @@ROWCOUNT > 1 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+ 
+  -- Raise an error and return 
+  RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+  RETURN 
+ END 
+   
+ -- STEP 4: If we reach this point, the commands completed successfully 
+ --         Commit the transac.on.... 
+ COMMIT TRANSACTION 
+   
+ 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

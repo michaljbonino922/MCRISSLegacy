@@ -1,0 +1,28 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetMOSs]" directorySegmentName="seg_18" id="30B8EE7F-B870-BC73-C48C-DEC31B8E6BFF">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@Occupa.onCode char(2) = NULL 
+AS 
+ 
+SET @Occupa.onCode = COALESCE(@Occupa.onCode, SPACE(0)) 
+ 
+SELECT  
+ MOS_CODE,  
+ CASE 
+  WHEN @Occupa.onCode IS NULL OR LEN(@Occupa.onCode) = 0 THEN MOS_CODE + ' - ' 
+  ELSE SPACE(0) 
+ END + SHORT_DESCRIPTION AS SHORT_DESCRIPTION, 
+ OCCUPATION_CODE 
+FROM 
+ MOS 
+WHERE 
+ MOS_CODE Not In(5942) and (LEN(@Occupa.onCode) > 0 AND RIGHT(MOS_CODE, 2) != '00' AND OCCUPATION_CODE = @Occupa.onCode) OR 
+ (LEN(@Occupa.onCode) = 0)  
+ORDER BY  
+ MOS_CODE]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

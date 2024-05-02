@@ -1,0 +1,71 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="MapsSectorRecruiterHist" directorySegmentName="seg_2" id="0855B40C-F5BA-0DB1-FE83-8B4043D167AC">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<schemaObject>454547C7-2829-9C8F-6E0C-35E4CFDC8E47</schemaObject>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="Recrui.ngPersonId" id="2B960640-1465-21C4-7474-32710CA481CB">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="LastUpdateDate" id="43EFF9FE-E707-E144-03FB-E53D0412118D">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="EndDate" id="4EC8F360-434D-2C64-F65A-C0FBA96F662C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="SectorID" id="5D8C2A0F-1EFE-D6F0-3D73-3B4717935F9F">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="SectorRecruiterHistId" id="6BAFEF55-8FF6-3092-6671-0AD36757D9B9">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="E.ec.veDate" id="B85621BC-F649-D21A-2F4E-FA26C57C8911">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="LastUpdateUserId" id="CE0DAFD0-CBBF-2BCF-868C-C93FCEA6BCF2">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+</columnProxies>
+<indexProxies>
+<IndexProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.IndexProxySqlServerv2k12" name="IDX_REC_PER_ID_EFF_DTE_EndDate_41515_PJ" id="E14E5D99-4872-DB64-6C7C-FF7684A88DDF">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<recomputeStatistics>ON</recomputeStatistics>
+</IndexProxy>
+</indexProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="MapsSectorRecruiterHist_FK0" id="FB1E0407-C8C3-BD5F-4D4B-9AA332639C9E">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="MapsSectorRecruiterHist_PK" id="509913E1-4E6F-57E3-E857-F234B480FFB3">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<clustered>true</clustered>
+<fillFactor>100</fillFactor>
+<partitioningColumn>6BAFEF55-8FF6-3092-6671-0AD36757D9B9</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+</TableProxySqlServerv2k5>

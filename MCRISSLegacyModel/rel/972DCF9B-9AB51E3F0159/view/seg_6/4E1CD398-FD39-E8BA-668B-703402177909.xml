@@ -1,0 +1,145 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_6" id="4E1CD398-FD39-E8BA-668B-703402177909" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="vwBudgetEvents">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>9866125A-381D-1FCC-82C3-CEF0AC6DF267</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT e.ID, 
+       e.Organiza.onId, 
+       e.EventSourceId, 
+       e.EventTypeId, 
+       e.IsComplete, 
+       e.StartDate, 
+       e.EndDate, 
+    e.Comments, 
+    eb.Budgeted, 
+    eb.Spent 
+  FROM USMC.Event e 
+       LEFT OUTER JOIN [USMC].[EventBudget] eb on e.ID = eb.EventID  
+ WHERE e.EventSourceId in (3,5,6,7,8,9,10,11,12)]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ID" id="5E4C01D7-BE68-DA51-79DA-46C8749B1B68">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>ID</alias>
+<dataType>UNKNOWN</dataType>
+<expression>ID</expression>
+<reference>false</reference>
+<viewID>4E1CD398-FD39-E8BA-668B-703402177909</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="onId" id="2E26F798-6366-20F4-2FFA-9309CCC0B1F1">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>onId</alias>
+<dataType>UNKNOWN</dataType>
+<expression>onId</expression>
+<reference>false</reference>
+<viewID>4E1CD398-FD39-E8BA-668B-703402177909</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="EventSourceId" id="298078A0-3400-9D80-6D85-899CE2F1D53C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>EventSourceId</alias>
+<dataType>UNKNOWN</dataType>
+<expression>EventSourceId</expression>
+<reference>false</reference>
+<viewID>4E1CD398-FD39-E8BA-668B-703402177909</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="EventTypeId" id="EFAE37FB-6766-2E90-E848-EFFC85C83C00">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>EventTypeId</alias>
+<dataType>UNKNOWN</dataType>
+<expression>EventTypeId</expression>
+<reference>false</reference>
+<viewID>4E1CD398-FD39-E8BA-668B-703402177909</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="IsComplete" id="FD803D14-1280-EF72-1AF7-2F0DB790B853">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>IsComplete</alias>
+<dataType>UNKNOWN</dataType>
+<expression>IsComplete</expression>
+<reference>false</reference>
+<viewID>4E1CD398-FD39-E8BA-668B-703402177909</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="StartDate" id="163B13BD-A0B5-B1E6-CAC4-8237572A63D2">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>StartDate</alias>
+<dataType>UNKNOWN</dataType>
+<expression>StartDate</expression>
+<reference>false</reference>
+<viewID>4E1CD398-FD39-E8BA-668B-703402177909</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="EndDate" id="D68A42C3-F4EF-97D6-883B-60B197929045">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>EndDate</alias>
+<dataType>UNKNOWN</dataType>
+<expression>EndDate</expression>
+<reference>false</reference>
+<viewID>4E1CD398-FD39-E8BA-668B-703402177909</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="Comments" id="57352776-5FDA-EC11-4535-1AED18D9D38D">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Comments</alias>
+<dataType>UNKNOWN</dataType>
+<expression>Comments</expression>
+<reference>false</reference>
+<viewID>4E1CD398-FD39-E8BA-668B-703402177909</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="Budgeted" id="A716C52D-BF63-9FC4-1FBC-43A55A26F19E">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Budgeted</alias>
+<dataType>UNKNOWN</dataType>
+<expression>Budgeted</expression>
+<reference>false</reference>
+<viewID>4E1CD398-FD39-E8BA-668B-703402177909</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="Spent" id="9F0A1719-6599-1552-B354-2BDAB55C19CB">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Spent</alias>
+<dataType>UNKNOWN</dataType>
+<expression>Spent</expression>
+<reference>false</reference>
+<viewID>4E1CD398-FD39-E8BA-668B-703402177909</viewID>
+</viewElement>
+</viewElements>
+</TableView>

@@ -1,0 +1,21 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetSpecialExamHistory]" directorySegmentName="seg_20" id="E918D396-FA87-9663-8F54-27ADB7CC6C49">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@PersonId int 
+ 
+ 
+AS 
+ 
+Select  
+ 'EXAM_DATE' = CONVERT(VARCHAR, SPECIAL_EXAM_DATE, 106), 
+ SPECIAL_EXAM_TYPE, 
+ SPECIAL_EXAM_SCORE, 
+ 'EXAM_ENTERED_DATE' = CONVERT(VARCHAR,UPDATE_DATE,106) 
+FROM CANDIDATE_SPECIAL_EXAM 
+Where MARINE_CANDIDATE_ID = @PersonId]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

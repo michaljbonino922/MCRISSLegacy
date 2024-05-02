@@ -1,0 +1,24 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetO.cerWaiverLetersForO.cerWaiver]" directorySegmentName="seg_7" id="8B1738DB-B4D8-8635-58F1-2E24FC1271D7">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@O.cerWaiverID as integer 
+ 
+AS 
+ 
+SELECT  
+ OFFICER_WAIVER_LETTER_ID, 
+ OFFICER_WAIVER_ID, 
+ UPLOAD_DATE, 
+ UPLOADED_BY 
+FROM  
+ [dbo].[OFFICER_WAIVER_LETTER] 
+WHERE  
+ OFFICER_WAIVER_ID = @O.cerWaiverID 
+ORDER BY  
+ UPLOAD_DATE]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

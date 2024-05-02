@@ -1,0 +1,70 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_OpsUpdateMedHeightWeight]" directorySegmentName="seg_23" id="CE5650BE-5510-7AF1-7E51-B68E8C5489F2">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@SSN  varchar(10), 
+@EXAM_TYPE varchar(4), 
+@EXAM_DATE date.me, 
+@HEIGHT  int, 
+@WEIGHT  int    
+as 
+ 
+declare @MARINE_CANDIDATE_ID int 
+--Set's the MARINE_CANDIDATE_ID 
+set @MARINE_CANDIDATE_ID = (select PERSON_ID from PERSON  
+    where SOCIAL_SECURITY_NUMBER = @SSN) 
+ 
+--Validate the SSN 
+if @MARINE_CANDIDATE_ID is NULL 
+BEGIN 
+ Print 'The SSN you provided is not contained in MCRISS' 
+ RETURN 
+END 
+ 
+--Validate the EXAM TYPE 
+if not exists (select 1 from MEDICAL_EXAM where MEDICAL_EXAM_TYPE = @EXAM_TYPE) 
+BEGIN 
+ Print 'The EXAM TYPE you have entered is not valid' 
+ RETURN 
+END 
+ 
+--Validate the HEIGHT 
+if not exists(select 1 from HEIGHT_LOOKUP where HEIGHT = @HEIGHT) 
+BEGIN 
+ Print 'The HEIGHT you have entered is not valid' 
+ RETURN  
+END 
+ 
+--Validate the WEIGHT 
+if not exists(select 1 from WEIGHT_LOOKUP where WEIGHT = @WEIGHT) 
+BEGIN 
+ Print 'The WEIGHT you have entered is not valid' 
+ RETURN 
+END 
+ 
+--Validate the Medical Exam Record 
+if not exists (select 1 from CANDIDATE_MEDICAL_EXAM  
+  where MARINE_CANDIDATE_ID = @MARINE_CANDIDATE_ID 
+  and MEDICAL_EXAM_DATE = @EXAM_DATE  
+  and MEDICAL_EXAM_TYPE = @EXAM_TYPE) 
+BEGIN 
+ Print 'There is no medical exam record for SSN ' + @SSN + ' with the supplied values' 
+ RETURN 
+END 
+ 
+UPDATE CANDIDATE_MEDICAL_EXAM 
+set  HEIGHT = @HEIGHT, 
+ WEIGHT = @WEIGHT, 
+ USER_LOGIN = 'OPS', 
+ UPDATE_DATE = getdate() 
+  
+where  MARINE_CANDIDATE_ID = @MARINE_CANDIDATE_ID 
+ and MEDICAL_EXAM_DATE = @EXAM_DATE  
+ and MEDICAL_EXAM_TYPE = @EXAM_TYPE 
+  
+Print 'The CANDIDATE MEDICAL EXAM Record has been updated for ' + @SSN]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

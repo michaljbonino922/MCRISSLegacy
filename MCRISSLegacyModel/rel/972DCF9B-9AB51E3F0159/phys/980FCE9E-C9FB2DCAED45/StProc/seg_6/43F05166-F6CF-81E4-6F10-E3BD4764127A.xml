@@ -1,0 +1,19 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetMEPSPProjec.onForT]" directorySegmentName="seg_6" id="43F05166-F6CF-81E4-6F10-E3BD4764127A">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+      @NwaID INT, 
+      @MepsOrganiza.onID INT, 
+      @ProcessingDate DATETIME, 
+      @ArrivalDate DATETIME 
+     ) 
+AS 
+   Select ISNULL(Schedule_ID, 0) 
+   FROM [dbo].[MEPS_SCHEDULE] 
+   WHERE [NWA_ID] = @NwaID AND  [MEPS_ORGANIZATION_ID] =  @MepsOrganiza.onID AND [PROCESSING_DATE] = @ProcessingDate AND [ARRIVAL_DATE] = @ArrivalDate AND [PROJECTION_TYPE_ID] = 5 -- 5 is P projec.on]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,77 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_0" id="B9B35CC1-F66A-677A-A334-4B034F53C39F" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="vwCountries2">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>24284F1B-D648-7AC7-1C97-19F7BADA1AE8</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT '1' as weighted,  '-1' AS ID, STATE_CODE AS Code, COUNTRY_DESCRIPTION AS Name 
+FROM  dbo.GEO_LOCATION WITH (NOLOCK) 
+WHERE ((ISNUMERIC(STATE_CODE) = 1) AND (STATE_CODE > 56) AND (COUNTRY_DESCRIPTION IS NOT NULL) AND (LTRIM(COUNTRY_DESCRIPTION) <> '') AND  
+               (CITY_CODE = '0') AND (COUNTY_CODE = '0') OR 
+               (ISNUMERIC(STATE_CODE) = 0) AND (COUNTRY_DESCRIPTION IS NOT NULL) AND (LTRIM(COUNTRY_DESCRIPTION) <> '') AND (CAST(CITY_CODE AS int) = 0)  
+               AND (CAST(COUNTY_CODE AS int) = 0)) and STATE_Code = 'US' 
+Union                
+SELECT '2' as weighted,  '-1' AS ID, STATE_CODE AS Code, COUNTRY_DESCRIPTION AS Name 
+FROM  dbo.GEO_LOCATION WITH (NOLOCK) 
+WHERE ((ISNUMERIC(STATE_CODE) = 1) AND (STATE_CODE > 56) AND (COUNTRY_DESCRIPTION IS NOT NULL) AND (LTRIM(COUNTRY_DESCRIPTION) <> '') AND  
+               (CITY_CODE = '0') AND (COUNTY_CODE = '0') OR 
+               (ISNUMERIC(STATE_CODE) = 0) AND (COUNTRY_DESCRIPTION IS NOT NULL) AND (LTRIM(COUNTRY_DESCRIPTION) <> '') AND (CAST(CITY_CODE AS int) = 0)  
+               AND (CAST(COUNTY_CODE AS int) = 0)) and STATE_Code <> 'US']]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="&apos;1&apos;" id="332FDA77-C8B2-6BBA-B82F-2BF65BC52C22">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>weighted</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>weighted</headerAlias>
+<expression>&apos;1&apos;</expression>
+<reference>false</reference>
+<viewID>B9B35CC1-F66A-677A-A334-4B034F53C39F</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="&apos;-1&apos;" id="3508762B-3FBE-D45B-82AA-36E92B979A40">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>ID</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>ID</headerAlias>
+<expression>&apos;-1&apos;</expression>
+<reference>false</reference>
+<viewID>B9B35CC1-F66A-677A-A334-4B034F53C39F</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="STATE_CODE" id="EA5CA090-7D90-E073-741F-669C4CCD3709">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Code</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>Code</headerAlias>
+<expression>STATE_CODE</expression>
+<reference>false</reference>
+<viewID>B9B35CC1-F66A-677A-A334-4B034F53C39F</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COUNTRY_DESCRIPTION" id="08597544-E8A1-D421-5F15-B6852EE7C2C8">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Name</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>Name</headerAlias>
+<expression>COUNTRY_DESCRIPTION</expression>
+<reference>false</reference>
+<viewID>B9B35CC1-F66A-677A-A334-4B034F53C39F</viewID>
+</viewElement>
+</viewElements>
+</TableView>

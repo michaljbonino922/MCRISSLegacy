@@ -1,0 +1,40 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertCandidateSpecialExam]" directorySegmentName="seg_10" id="DCFD49BB-6E39-C174-BA57-E34FCFF0EA86">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[(@MarineCandidateID int 
+ ,@SpecialExamType varchar(5) 
+ ,@ExamDate date.me 
+ ,@ExamScore int 
+ ,@ExamScore2 int 
+ ,@ExamScore3 int 
+ ,@UserLogin varchar(50) 
+ ,@ExamVersion varchar(10)) 
+ 
+AS 
+ 
+INSERT INTO [dbo].[CANDIDATE_SPECIAL_EXAM]  
+ ([MARINE_CANDIDATE_ID] 
+ ,[SPECIAL_EXAM_TYPE] 
+ ,[SPECIAL_EXAM_DATE] 
+ ,[SPECIAL_EXAM_SCORE] 
+ ,[SPECIAL_EXAM_SCORE2] 
+ ,[SPECIAL_EXAM_SCORE3] 
+ ,[USER_LOGIN] 
+ ,[UPDATE_DATE] 
+ ,[SPECIAL_EXAM_VERSION]) 
+VALUES 
+ (@MarineCandidateID 
+ ,@SpecialExamType 
+ ,@ExamDate 
+ ,@ExamScore 
+ ,@ExamScore2 
+ ,@ExamScore3 
+ ,@UserLogin 
+ ,GetDate() 
+ ,@ExamVersion)]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

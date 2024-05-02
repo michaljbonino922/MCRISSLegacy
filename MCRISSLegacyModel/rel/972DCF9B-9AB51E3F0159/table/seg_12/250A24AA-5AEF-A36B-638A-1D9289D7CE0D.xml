@@ -1,0 +1,117 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_12" id="250A24AA-5AEF-A36B-638A-1D9289D7CE0D" schemaObject="2A6D9360-3BB2-5CEA-6E99-790D76996FDF" name="MIRS_TRANSACTION_LOOKUP">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>3BBCD793-2082-77D8-8591-8E90961CE795</importedID>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="MIRS_TRANSACTION" id="D66C2110-105E-37AE-5B14-638D045B2573">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:15 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>4FCECF8D-431A-0BF0-D422-7D9A615561BB</importedID>
+<use>0</use>
+<domain>887F9BB6-613E-46F2-A5D1-7E71EAB553DB</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="TRANSACTION_TYPE" id="9928153D-2EC4-AB97-FFE9-069C264DD6B4">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:15 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>6C30AD61-E3ED-1EDA-5C20-1D815B5CB5D5</importedID>
+<use>0</use>
+<domain>2C84BCCD-0F56-F2EF-4059-C4CE2BC7329A</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="684180FE-FF0D-1BFD-E5AB-026DD3E4F2ED" referredColumn="DB727E95-8B50-5E37-F34A-813D946B5EDC"/>
+</associations>
+</Column>
+<Column name="IMPORT_TRANSACTION" id="FA29287D-C194-173F-D8E8-300DC71FDEB6">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:15 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>D3238528-60AB-9A8E-7957-CF8F823E5653</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>D667A44A-427C-8171-AC91-1F760EF11F37</domain>
+<usesDefaultValue>true</usesDefaultValue>
+<defaultValue>(&apos;N&apos;)</defaultValue>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="4E51C777-65EC-9373-B7AB-20F2BB7ADE98" name="PK_MIRS_TRANSACTION_LOOKUP">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:15 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>F2F471F7-F134-988F-3979-2092E8EFDF45</importedID>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="D66C2110-105E-37AE-5B14-638D045B2573"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="F60F4530-A468-8E94-D316-04F7A3D06430" name="FK_MIRSTRANSLOOKUP_TRANTYPE">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:17 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="9928153D-2EC4-AB97-FFE9-069C264DD6B4"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+<tableCheckConstraints itemClass="oracle.dbtools.crest.model.design.constraint.TableLevelConstraint">
+<tableCheckConstraint name="[dbo].[MIRS_TRANSACTION_LOOKUP]" directorySegmentName="seg_11" id="15E439C0-BDF6-60A3-BE87-D93FE22155EA">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:15 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>C4A78AC9-8460-299A-563F-C6ED089C4977</importedID>
+<rule><![CDATA[CONSTRAINT [FK_MIRSTRANSLOOKUP_TRANTYPE]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITH" directorySegmentName="seg_11" id="41452AA6-A4C6-D9B7-0D6E-3037F77B88AD">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:15 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>1667E5C2-9115-9122-5B1E-2697FBBAE559</importedID>
+</tableCheckConstraint>
+<tableCheckConstraint name="[CKC_IMPORT_TRANSACTIO_MIRS_TRA]" directorySegmentName="seg_11" id="75DFEE1C-5982-81D6-3C3E-F72B6F5A8EC0">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:15 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>30A4BA42-8DC0-8236-3EAE-CAC3745DA00F</importedID>
+<rule><![CDATA[([IMPORT_TRANSACTION] = 'Y' or [IMPORT_TRANSACTION] = 'N')]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="[dbo].[MIRS_TRANSACTION_LOOKUP]v1" directorySegmentName="seg_11" id="CA7AAEF6-E4A7-2618-6480-F82789D17119">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:15 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>2AEA8D4E-9281-CE6F-E2BB-DBF460D6F1DC</importedID>
+<rule><![CDATA[CONSTRAINT [CKC_IMPORT_TRANSACTIO_MIRS_TRA]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITHv1" directorySegmentName="seg_11" id="002CD4D2-62ED-781E-1674-B5F8BC032AE9">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:15 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>3E27D11E-8DE3-0BAA-9320-2B8C92483C84</importedID>
+</tableCheckConstraint>
+</tableCheckConstraints>
+</Table>

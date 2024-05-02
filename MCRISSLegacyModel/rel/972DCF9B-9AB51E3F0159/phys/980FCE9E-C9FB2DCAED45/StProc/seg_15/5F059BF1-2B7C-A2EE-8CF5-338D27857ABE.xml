@@ -1,0 +1,248 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[ReplicateProspectData]" directorySegmentName="seg_15" id="5F059BF1-2B7C-A2EE-8CF5-338D27857ABE">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:56 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@ProspectId    uniqueiden..er, 
+ @NewProspectId   uniqueiden..er output 
+ 
+AS 
+BEGIN 
+ 
+-- STEP 1: Start the transac.on 
+BEGIN TRANSACTION 
+ 
+-- STEP 2: replicate person record .rst 
+declare @OldPersonId uniqueiden..er 
+declare @NewPersonId uniqueiden..er 
+ 
+select  @OldPersonId = PersonId from PROSPECTING.USMC.Prospect 
+where ProspectId = @ProspectId  
+ 
+select  @NewPersonId = newid() 
+insert into PROSPECTING.USMC.Person([PersonId] 
+           ,[LastName] 
+           ,[FirstName] 
+           ,[MiddleName] 
+           ,[Su.x] 
+           ,[SocialSecurityNumber] 
+          -- ,[AlienRegistra.onNumber] 
+           ,[Gender] 
+--           ,[DateOfBirth] 
+--           ,[PlaceOfBirth] 
+           ,[LastUpdateDate] 
+            ,[LastUpdateUserId] 
+--           ,[ParentConsentReceived] 
+--           ,[Ci.zenshipStatus] 
+--           ,[OtherCountryCi.zen] 
+--           ,[Religion] 
+--           ,[Race] 
+--           ,[Ethnicity] 
+--           ,[MepcomRace] 
+--           ,[MepcomEthnicity] 
+--           ,[BirthCountry] 
+--           ,[BirthState] 
+--           ,[BirthCounty] 
+--           ,[BirthCity] 
+--           ,[SsnCard] 
+--           ,[COUNTRY_OF_ORIGIN] 
+) 
+select @NewPersonId, [LastName] 
+           ,[FirstName] 
+           ,[MiddleName] 
+           ,[Su.x] 
+           ,[SocialSecurityNumber] 
+--           ,[AlienRegistra.onNumber] 
+           ,[Gender] 
+--           ,[DateOfBirth] 
+--           ,[PlaceOfBirth] 
+           ,[LastUpdateDate] 
+           ,[LastUpdateUserId] 
+--           ,[ParentConsentReceived] 
+--           ,[Ci.zenshipStatus] 
+--           ,[OtherCountryCi.zen] 
+--           ,[Religion] 
+--           ,[Race] 
+--           ,[Ethnicity] 
+--           ,[MepcomRace] 
+--           ,[MepcomEthnicity] 
+--           ,[BirthCountry] 
+--           ,[BirthState] 
+--           ,[BirthCounty] 
+--           ,[BirthCity] 
+--           ,[SsnCard] 
+--           ,[COUNTRY_OF_ORIGIN]  
+   from PROSPECTING.USMC.Person 
+          where [PersonId] = @OldPersonId 
+ 
+-- STEP 3: next replicate person address, email, phone records  
+ 
+INSERT INTO [PROSPECTING].[USMC].[PersonAddress] 
+           ([PersonAddressId] 
+           ,[PersonId] 
+           ,[PersonAddressTypeId] 
+           ,[Street1] 
+           ,[Street2] 
+           ,[City] 
+           ,[County] 
+           ,[State] 
+           ,[ZipCode] 
+           ,[La.tude] 
+           ,[Longitude] 
+           ,[GeoCodeDate] 
+           ,[LastUpdateDate] 
+           ,[LastUpdateUserId] 
+           ,[CITY_CODE] 
+           ,[COUNTY_CODE] 
+           ,[STATE_CODE]) 
+select newid(), @NewPersonId, [PersonAddressTypeId] 
+           ,[Street1] 
+           ,[Street2] 
+           ,[City] 
+           ,[County] 
+           ,[State] 
+           ,[ZipCode] 
+           ,[La.tude] 
+           ,[Longitude] 
+           ,[GeoCodeDate] 
+           ,getdate() 
+           ,[LastUpdateUserId] 
+           ,[CITY_CODE] 
+           ,[COUNTY_CODE] 
+           ,[STATE_CODE] from [PROSPECTING].[USMC].[PersonAddress] where [PersonId]=@OldPersonId 
+        and [PersonAddressTypeId] = 1 
+ 
+INSERT INTO [PROSPECTING].[USMC].[PersonEmail] 
+           ([PersonEmailId] 
+           ,[PersonId] 
+           ,[PersonEmailTypeId] 
+           ,[EmailAddress] 
+           ,[LastUpdateDate] 
+           ,[LastUpdateUserId]) 
+select newid(), @NewPersonId, 
+ [PersonEmailTypeId] 
+           ,[EmailAddress] 
+           ,getdate() 
+           ,[LastUpdateUserId] from [PROSPECTING].[USMC].[PersonEmail] where [PersonId]=@OldPersonId 
+   and [PersonEmailTypeId] = 1 
+ 
+ 
+INSERT INTO [PROSPECTING].[USMC].[PersonPhone] 
+           ([PersonPhoneId] 
+           ,[PersonId] 
+           ,[PersonPhoneTypeId] 
+           ,[PhoneNumber] 
+           ,[LastUpdateDate] 
+           ,[LastUpdateUserId]) 
+select newid(), @NewPersonId,[PersonPhoneTypeId] 
+           ,[PhoneNumber] 
+           ,getdate() 
+           ,[LastUpdateUserId] from [PROSPECTING].[USMC].[PersonPhone] where [PersonId]=@OldPersonId 
+          and [PersonPhoneTypeId] IN (1, 3) 
+ 
+ --STEP 4: .nally replicate prospect record 
+ 
+select @NewProspectId = newid() 
+ 
+INSERT INTO [PROSPECTING].[USMC].[Prospect] 
+           ([ProspectId] 
+           ,[PersonId] 
+           ,[Recrui.ngPersonId] 
+           ,[SubSta.onType] 
+           ,[Recrui.ngOrganiza.onId] 
+           ,[LastUpdateDate] 
+           ,[LastUpdateUserId] 
+           ,[CreatedDate]            
+           ,[ParentId]) 
+select @NewProspectId, @NewPersonId, [Recrui.ngPersonId],[SubSta.onType], [Recrui.ngOrganiza.onId], 
+       getdate(), [LastUpdateUserId],  getdate(), [ProspectId] 
+       from [PROSPECTING].[USMC].[Prospect] where [ProspectId] = @ProspectId 
+ 
+--STEP 5: set the previous record inac.ve  
+update [PROSPECTING].[USMC].[Prospect] set [Ac.ve]=0 where [ProspectId] = @ProspectId 
+   
+--STEP 6: insert the new record in ImportEvent tbl so that it is searchable 
+ 
+declare @ImportEventId uniqueiden..er 
+select @ImportEventId = newid() 
+ 
+declare @ImportPersonId uniqueiden..er 
+select  @ImportPersonId = newid() 
+ 
+INSERT INTO [PROSPECTING].[USMC].[ImportEvent] 
+           ([ImportEventId] 
+           ,[ImportTypeId] 
+           ,[ImportEventStatusTypeId] 
+           ,[ImportFileName] 
+           ,[PersonId] 
+           ,[SchoolId] 
+           ,[Gradua.onYear] 
+           ,[DateObtained] 
+           ,[DateStarted] 
+           ,[DateCompleted] 
+           ,[Notes] 
+           ,[LastUpdateDate] 
+           ,[LastUpdateUserId] 
+           ,[SubSta.onType] 
+           ,[Recrui.ngOrganiza.onId] 
+           ,[Source] 
+           ,[ListCode] 
+           ,[DateAc.ve] 
+           ,[RecordCount]) 
+select      @ImportEventId   
+           ,[ImportTypeId] 
+           ,[ImportEventStatusTypeId] 
+           ,[ImportFileName] 
+       ,@ImportPersonId 
+            ,[SchoolId] 
+           ,[Gradua.onYear] 
+           ,[DateObtained] 
+           ,[DateStarted] 
+           ,[DateCompleted] 
+           ,[Notes] 
+           ,[LastUpdateDate] 
+           ,[LastUpdateUserId] 
+           ,[SubSta.onType] 
+           ,[Recrui.ngOrganiza.onId] 
+           ,[Source] 
+           ,[ListCode] 
+           ,getdate() 
+           ,1  
+           from [PROSPECTING].[USMC].[ImportEvent] ie inner join  
+           [PROSPECTING].[USMC].[ImportPerson] ip on ie.ImportEventId 
+           = ip.ImportEventId where ip.[PersonId]=@OldPersonId  
+ 
+ 
+INSERT INTO [PROSPECTING].[USMC].[ImportPerson] 
+           ([ImportPersonId] 
+           ,[ImportEventId] 
+           ,[PersonId] 
+           ,[ImportPersonStatusTypeId] 
+           ,[ImportFileRecordNumber] 
+           ,[ChildImportEventID]) 
+select @ImportPersonId, @ImportEventId  
+       ,@NewPersonId, [ImportPersonStatusTypeId] 
+           ,[ImportFileRecordNumber] 
+           ,[ChildImportEventID] from [PROSPECTING].[USMC].[ImportPerson] 
+       where [PersonId] = @OldPersonId  
+     
+-- Rollback the transac.on if there were any errors 
+IF @@ERROR <> 0 
+ BEGIN 
+    -- Rollback the transac.on 
+    ROLLBACK TRANSACTION 
+ 
+    -- Raise an error and return 
+    RAISERROR ('Error occurred while performing the change.', 16, 1) 
+    RETURN 
+ END 
+ 
+--         Commit the transac.on.... 
+COMMIT TRANSACTION 
+ 
+  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

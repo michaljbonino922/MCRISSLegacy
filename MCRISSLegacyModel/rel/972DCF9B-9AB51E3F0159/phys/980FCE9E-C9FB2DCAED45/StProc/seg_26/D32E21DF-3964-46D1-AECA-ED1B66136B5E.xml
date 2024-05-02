@@ -1,0 +1,42 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateSchoolInforma.on]" directorySegmentName="seg_26" id="D32E21DF-3964-46D1-AECA-ED1B66136B5E">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@SchoolCode int, 
+ @SchoolYear int, 
+ @StatusCode varchar(4), 
+ @PriorityCode char(1),  
+ @AccessCode char(1), 
+ @AsvabResp char(1), 
+ @MaleSeniors int, 
+ @FemaleSeniors int, 
+ @PercentToCollege numeric (6, 0), 
+ @ScheduledGradDate date.me, 
+ @RecruiterID int, 
+ @UserLogin varchar(15) 
+ 
+AS 
+ 
+BEGIN   
+ 
+ 
+ IF EXISTS (SELECT 1 FROM HIGH_SCHOOL_PROFILE WHERE SCHOOL_CODE = @SchoolCode AND SCHOOL_YEAR = @SchoolYear) 
+   
+  UPDATE HIGH_SCHOOL_PROFILE SET PRIORITY_CODE = @PriorityCode, STATUS_CODE = @StatusCode, ACCESS_CODE = @AccessCode, 
+  RECRUITER_ID = @RecruiterID, PERCENT_TO_COLLEGE = @PercentToCollege, MALE_SENIORS = @MaleSeniors, FEMALE_SENIORS = @FemaleSeniors, 
+  ASVAB_RESP = @AsvabResp, SCHEDULED_GRAD_DATE = @ScheduledGradDate, USER_LOGIN = @UserLogin, UPDATE_DATE = GETDATE() 
+  WHERE SCHOOL_CODE = @SchoolCode AND SCHOOL_YEAR = @SchoolYear 
+ 
+ ELSE 
+ 
+  INSERT INTO HIGH_SCHOOL_PROFILE (SCHOOL_CODE, SCHOOL_YEAR, PRIORITY_CODE, STATUS_CODE, ACCESS_CODE, RECRUITER_ID,  
+  PERCENT_TO_COLLEGE, MALE_SENIORS, FEMALE_SENIORS, ASVAB_RESP, SCHEDULED_GRAD_DATE, USER_LOGIN, UPDATE_DATE) 
+  VALUES (@SchoolCode, @SchoolYear, @PriorityCode, @StatusCode, @AccessCode, @RecruiterID, @PercentToCollege, @MaleSeniors,  
+  @FemaleSeniors, @AsvabResp, @ScheduledGradDate, @UserLogin, GETDATE()) 
+ 
+END]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

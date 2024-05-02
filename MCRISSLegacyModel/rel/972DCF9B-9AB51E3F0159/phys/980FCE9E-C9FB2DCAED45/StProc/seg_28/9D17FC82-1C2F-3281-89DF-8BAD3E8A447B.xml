@@ -1,0 +1,17 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetPackageData]" directorySegmentName="seg_28" id="9D17FC82-1C2F-3281-89DF-8BAD3E8A447B">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:58:46 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @PackageId uniqueiden..er 
+) 
+AS 
+ 
+SELECT [Data]  
+FROM [USMC].[Package] 
+WHERE [PersonId] = @PackageId]]></body>
+<schema>8CB34853-EF8F-3E84-597A-4D88EAE11731</schema>
+<database>DC23F770-7DD9-7021-9572-6AE599ACA3AE</database>
+</StoredProcedureSqlServerv2k5>

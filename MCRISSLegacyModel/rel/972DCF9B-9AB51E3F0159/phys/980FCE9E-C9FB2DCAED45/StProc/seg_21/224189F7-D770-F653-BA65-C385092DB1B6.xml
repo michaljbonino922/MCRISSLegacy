@@ -1,0 +1,247 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_mg_Status]" directorySegmentName="seg_21" id="224189F7-D770-F653-BA65-C385092DB1B6">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[as 
+declare  
+  @user_login varchar(15), 
+  @update_date date.me, 
+  @contract_dte as char(6), 
+  @contract_dte_d as date.me, 
+  @dte_to_dist as char(6), 
+  @dte_to_dist_d as date.me, 
+  @dte_to_ocs as char(6), 
+  @dte_to_ocs_d as date.me, 
+  @dist as char(2), 
+  @dist_stat as char(1), 
+  @dist_act_dte as char(6), 
+  @dist_act_dte_d as date.me, 
+  @hqmc_stat as char(1), 
+  @hqmc_act_dte as char(6), 
+  @hqmc_act_dte_d as date.me, 
+  @nt_drop_cd as char(3), 
+  @ocs_drop_cd as char(3), 
+  @oso_mcrd as char(1), 
+  @plc_incr as char(4), 
+  @occ_dte as char(6), 
+  @occ_dte_d as date.me, 
+  @plc_dte as char(6), 
+  @plc_dte_d as date.me, 
+  @occ_cls as char(4), 
+  @ssn as char(9), 
+  @nwa_id as int 
+ 
+declare cur_arms cursor for 
+  select  
+    ssn, 
+    contract_dte, 
+    dte_to_dist, 
+    dte_to_ocs, 
+    dist, 
+    dist_stat, 
+    dist_act_dte, 
+    hqmc_stat, 
+    hqmc_act_dte, 
+    nt_drop_cd, 
+    ocs_drop_cd, 
+    oso_mcrd, 
+    plc_incr, 
+    occ_dte, 
+    plc_dte, 
+    occ_cls 
+    from AO2 
+ 
+  set @user_login = 'o_migra.on' 
+  set @update_date = getdate() 
+   
+  open cur_arms 
+  fetch cur_arms into 
+    @ssn, 
+    @contract_dte, 
+    @dte_to_dist, 
+    @dte_to_ocs, 
+    @dist, 
+    @dist_stat, 
+    @dist_act_dte, 
+    @hqmc_stat, 
+    @hqmc_act_dte, 
+    @nt_drop_cd, 
+    @ocs_drop_cd, 
+    @oso_mcrd, 
+    @plc_incr, 
+    @occ_dte, 
+    @occ_cls, 
+    @plc_dte 
+ 
+while (@@FETCH_STATUS = 0) 
+begin 
+ 
+    set @nwa_id = (select top 1 nwa_id from nwa n inner join person p 
+      on n.marine_candidate_id = p.person_id 
+      where p.social_security_number = @ssn 
+      order by nwa_id desc) 
+ 
+    set @contract_dte_d = mcriss.dbo.sp_mg_GetDate(@contract_dte)    
+    set @dte_to_dist_d = mcriss.dbo.sp_mg_GetDate(@dte_to_dist)    
+    set @dte_to_ocs_d = mcriss.dbo.sp_mg_GetDate(@dte_to_ocs)    
+    set @dist_act_dte_d = mcriss.dbo.sp_mg_GetDate(@dist_act_dte)    
+    set @hqmc_act_dte_d = mcriss.dbo.sp_mg_GetDate(@hqmc_act_dte)    
+    set @occ_dte_d = mcriss.dbo.sp_mg_GetDate(@occ_dte)    
+    set @plc_dte_d = mcriss.dbo.sp_mg_GetDate(@plc_dte)    
+ 
+    /* Error Handling */ 
+ 
+    /* Do Insert Here */ 
+ 
+  /* O-B-Q */ 
+  if (rtrim(@contract_dte) is not null) and 
+    (rtrim(@dte_to_dist) is null or rtrim(@dist) is null or rtrim(@hqmc_stat) is null  
+    or rtrim(@nt_drop_cd) is null or rtrim(@ocs_drop_cd) is null or rtrim(@dte_to_ocs) is null) 
+    begin 
+    insert into candidate_status 
+    (nwa_id, status_e.ec.ve_date, status_type, status_code, disposi.on_code,  
+    user_login, update_date) 
+    values 
+    (@nwa_id, @contract_dte_d, 'O', 'B', 'Q', @user_login, @update_date) 
+    end 
+ 
+  /* O-B-R */ 
+  if (rtrim(@dte_to_dist) is not null) and 
+    (rtrim(@dist) is null or rtrim(@hqmc_stat) is null or rtrim(@nt_drop_cd) is null  
+    or rtrim(@ocs_drop_cd) is null or rtrim(@dte_to_ocs) is null) 
+    begin 
+    insert into candidate_status 
+    (nwa_id, status_e.ec.ve_date, status_type, status_code, disposi.on_code,  
+    user_login, update_date) 
+    values 
+    (@nwa_id, @dte_to_dist_d, 'O', 'B', 'R', @user_login, @update_date) 
+    end 
+ 
+  /* O-B-T */ 
+  if (rtrim(@dist_stat) = 'D') 
+    begin 
+    insert into candidate_status 
+    (nwa_id, status_e.ec.ve_date, status_type, status_code, disposi.on_code,  
+    user_login, update_date) 
+    values 
+    (@nwa_id, @dist_act_dte_d, 'O', 'B', 'R', @user_login, @update_date) 
+    end 
+ 
+  /* O-B-V */ 
+  if (rtrim(@dist_stat) = 'R') 
+    begin 
+    insert into candidate_status 
+    (nwa_id, status_e.ec.ve_date, status_type, status_code, disposi.on_code,  
+    user_login, update_date) 
+    values 
+    (@nwa_id, @dist_act_dte_d, 'O', 'B', 'V', @user_login, @update_date) 
+    end 
+ 
+  /* O-B-U */ 
+  if (rtrim(@dist_stat) = 'A') and ((rtrim(@oso_mcrd) = '1') 
+    or (rtrim(@oso_mcrd) = '2' and rtrim(@occ_cls) is not null)) 
+    begin 
+    insert into candidate_status 
+    (nwa_id, status_e.ec.ve_date, status_type, status_code, disposi.on_code,  
+    user_login, update_date) 
+    values 
+    (@nwa_id, @dist_act_dte_d, 'O', 'B', 'U', @user_login, @update_date) 
+    end 
+ 
+  /* O-B-AA */ 
+  if (rtrim(@hqmc_stat) = 'R') 
+    begin 
+    insert into candidate_status 
+    (nwa_id, status_e.ec.ve_date, status_type, status_code, disposi.on_code,  
+    user_login, update_date) 
+    values 
+    (@nwa_id, @hqmc_act_dte_d, 'O', 'B', 'AA', @user_login, @update_date) 
+    end 
+ 
+  /* O-B-AA New disposi.on code.  AA for now */ 
+  if (rtrim(@hqmc_stat) = 'S') 
+    begin 
+    insert into candidate_status 
+    (nwa_id, status_e.ec.ve_date, status_type, status_code, disposi.on_code,  
+    user_login, update_date) 
+    values 
+    (@nwa_id, @hqmc_act_dte_d, 'O', 'B', 'AA', @user_login, @update_date) 
+    end 
+ 
+  /* O-B-AA New disposi.on code.  AA for now */ 
+  if (rtrim(@hqmc_stat) = 'B') 
+    begin 
+    insert into candidate_status 
+    (nwa_id, status_e.ec.ve_date, status_type, status_code, disposi.on_code,  
+    user_login, update_date) 
+    values 
+    (@nwa_id, @hqmc_act_dte_d, 'O', 'B', 'AA', @user_login, @update_date) 
+    end 
+ 
+  /* O-B-Z */ 
+  if (rtrim(@hqmc_stat) = 'D') 
+    begin 
+    insert into candidate_status 
+    (nwa_id, status_e.ec.ve_date, status_type, status_code, disposi.on_code,  
+    user_login, update_date) 
+    values 
+    (@nwa_id, @hqmc_act_dte_d, 'O', 'B', 'Z', @user_login, @update_date) 
+    end 
+ 
+  /* O-B-W */ 
+  if (rtrim(@dist_stat) = 'A' and rtrim(@oso_mcrd) = '2' and rtrim(@plc_incr) is not null) 
+    begin 
+    insert into candidate_status 
+    (nwa_id, status_e.ec.ve_date, status_type, status_code, disposi.on_code,  
+    user_login, update_date) 
+    values 
+    (@nwa_id, @dist_act_dte_d, 'O', 'B', 'W', @user_login, @update_date) 
+    end 
+ 
+  /* O-B-W */ 
+  if (rtrim(@hqmc_stat) = 'A') 
+    begin 
+    insert into candidate_status 
+    (nwa_id, status_e.ec.ve_date, status_type, status_code, disposi.on_code,  
+    user_login, update_date) 
+    values 
+    (@nwa_id, @hqmc_act_dte_d, 'O', 'B', 'W', @user_login, @update_date) 
+    end 
+ 
+  /* O-B-Y */ 
+  if (substring(@occ_cls,1,1)) = 'O' or (substring(@plc_incr,1,1) = 'B') or (substring(@plc_incr,1,1) = 'C') or 
+    (substring(@occ_cls,1,1) = 'J' and substring(@plc_incr,1,1) = 'S') 
+    begin 
+    insert into candidate_status 
+    (nwa_id, status_e.ec.ve_date, status_type, status_code, disposi.on_code,  
+    user_login, update_date) 
+    values 
+    (@nwa_id, @hqmc_act_dte_d, 'O', 'B', 'W', @user_login, @update_date) 
+    end 
+ 
+  fetch cur_arms into 
+    @ssn, 
+    @contract_dte, 
+    @dte_to_dist, 
+    @dte_to_ocs, 
+    @dist, 
+    @dist_stat, 
+    @dist_act_dte, 
+    @hqmc_stat, 
+    @hqmc_act_dte, 
+    @nt_drop_cd, 
+    @ocs_drop_cd, 
+    @oso_mcrd, 
+    @plc_incr, 
+    @occ_dte, 
+    @occ_cls, 
+    @plc_dte 
+end     
+ 
+close cur_arms 
+deallocate cur_arms]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,98 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetMissionBoardDetailDiversityPlanByOrgFY]" directorySegmentName="seg_6" id="DBC23CDB-EB08-8830-2E33-4BE5443CF2D1">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@Organiza.onID as integer,  
+ @FiscalYear   int 
+  
+AS 
+SET NOCOUNT ON 
+ 
+DECLARE @Organiza.onType varchar(3) 
+DECLARE @ChildOrgType varchar(3) 
+ 
+-- At present this defaults to OSS as the requirement do not state it to passed as an input parameter 
+SELECT  @Organiza.onType= 'OSS'  
+SET @ChildOrgType = CASE @Organiza.onType 
+   WHEN 'H' THEN 'R' 
+   WHEN 'R' THEN 'D' 
+   WHEN 'D' THEN 'RS' 
+   WHEN 'RS' THEN 'OSS' 
+   ELSE 'OSS' 
+   END 
+ 
+ 
+CREATE TABLE #ORG  
+( 
+ORG_ID INT,  
+SHORT_NAME varchar(15), 
+NAME varchar(45),  
+ORG_TYPE varchar(3) DEFAULT 'D' 
+) 
+ 
+ 
+IF @Organiza.onType IN ('H', 'R', 'D', 'RS') 
+BEGIN 
+ --- GET CHILD ORGS 
+ INSERT INTO #ORG 
+ EXEC sp_GetChildOrgs @Organiza.onID, @ChildOrgType 
+END  
+ 
+IF @Organiza.onType = 'OSS' 
+BEGIN 
+ --- INSERT ONLY THE ORG ID 
+ INSERT INTO #ORG (ORG_ID) VALUES (@Organiza.onID) 
+END 
+ 
+--- SHIP MISSION 
+SELECT  
+ -- the .rst two columns will be removed a.er tes.ng 
+ RO.ORGANIZATION_ID, OMP.OCC_CLASS_NUMBER, 
+ COALESCE(OMP.FEMALE_MISSION, 0) AS WOMEN,  
+ COALESCE(OMP.LAW1_MISSION, 0) AS LAW1,  
+ COALESCE(OMP.LAW2_MISSION, 0) AS LAW2,   
+ COALESCE(OMP.LAW3_MISSION, 0) AS LAW3,  
+ COALESCE(OMP.BLACK_MISSION, 0) AS BLACK,  
+ COALESCE(OMP.HISPANIC_MISSION, 0) AS HISPANIC,  
+ COALESCE(OMP.OTHER_MISSION, 0) AS OTHER 
+ 
+FROM  
+ RECRUITING_ORGANIZATION RO INNER JOIN #ORG O ON RO.ORGANIZATION_ID = O.ORG_ID 
+ LEFT OUTER JOIN OFFICER_SHIP_MISSION_PLAN OMP ON 
+  (RO.ORGANIZATION_ID = OMP.ORGANIZATION_ID AND 
+  OMP.OFFICER_SOURCE_CODE = 'OCC') 
+ INNER JOIN OCS_CLASS OC ON OC.CLASS_NUMBER = OMP.OCC_CLASS_NUMBER AND OC.FISCAL_YEAR = @FiscalYear  
+ 
+ORDER BY 
+ OMP.OCC_CLASS_NUMBER 
+  
+ 
+--- RETRIEVE THE MISSION PLAN DATA 
+SELECT  
+ -- -- the .rst column will be removed a.er tes.ng 
+ RO.ORGANIZATION_ID,  
+ COALESCE(OMP.FEMALE_MISSION, 0) AS WOMEN,  
+ COALESCE(OMP.LAW1_MISSION, 0) AS LAW1,  
+ COALESCE(OMP.LAW2_MISSION, 0) AS LAW2,  
+ COALESCE(OMP.LAW3_MISSION, 0) AS LAW3,  
+ COALESCE(OMP.BLACK_MISSION, 0) AS BLACK,  
+ COALESCE(OMP.HISPANIC_MISSION, 0) AS HISPANIC,  
+ COALESCE(OMP.OTHER_MISSION, 0) AS OTHER 
+  
+FROM  
+ RECRUITING_ORGANIZATION RO INNER JOIN #ORG O ON RO.ORGANIZATION_ID = O.ORG_ID 
+ LEFT OUTER JOIN OFFICER_SHIP_MISSION_PLAN OMP ON 
+  (RO.ORGANIZATION_ID = OMP.ORGANIZATION_ID AND 
+  OMP.FISCAL_YEAR = @FiscalYear AND 
+  OMP.OFFICER_SOURCE_CODE = 'PLC') 
+ORDER BY 
+ OMP.GRAD_YEAR 
+ 
+--- CLEAN UP 
+DROP TABLE #ORG 
+SET NOCOUNT OFF]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

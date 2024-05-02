@@ -1,0 +1,284 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_6" id="19645C96-D6C2-A68D-82C8-62D3CAA55DCD" schemaObject="B106B664-0C0B-E788-08ED-5CF8E449BE22" name="vwRequests">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>2B1AD7B3-B461-8541-5DA4-41E59AAA345A</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[-- [ProgramChangeRequest] 
+SELECT 
+ [ID], 
+ [NWA_GUID], 
+ 1 AS [RequestTypeID], 
+ [FormID], 
+ [RequestDate], 
+ [RequestStatusID], 
+ COALESCE((SELECT MIN(DecisionLevelID)-1 FROM ACP.RequestDecision WHERE RequestID = r.ID), 5) as [RequestLevelID], 
+ (SELECT ID FROM ACP.RequestDecision WHERE RequestID = r.ID AND DecisionLevelID = 5) as [OSS_RequestDecisionID], 
+ (SELECT ID FROM ACP.RequestDecision WHERE RequestID = r.ID AND DecisionLevelID = 4) as [RS_RequestDecisionID], 
+ (SELECT ID FROM ACP.RequestDecision WHERE RequestID = r.ID AND DecisionLevelID = 3) as [District_RequestDecisionID], 
+ (SELECT ID FROM ACP.RequestDecision WHERE RequestID = r.ID AND DecisionLevelID = 2) as [Region_RequestDecisionID], 
+ (SELECT ID FROM ACP.RequestDecision WHERE RequestID = r.ID AND DecisionLevelID = 1) as [MCRC_RequestDecisionID], 
+ [LastEditDate], 
+ [LastEditBy], 
+ [ProgramID], 
+ null as [GradDate], 
+ null as [CommissionDate], 
+ [ReferenceText] 
+FROM [ACP].[Request] r 
+ INNER JOIN [ACP].[ProgramChangeRequest] pcr on pcr.[RequestID] = r.[ID] 
+ 
+UNION 
+ 
+--[GradCommDateChangeRequest] 
+SELECT 
+ [ID], 
+ [NWA_GUID], 
+ 2 AS [RequestTypeID], 
+ [FormID], 
+ [RequestDate], 
+ [RequestStatusID], 
+ COALESCE((SELECT MIN(DecisionLevelID)-1 FROM ACP.RequestDecision WHERE RequestID = r.ID), 5) as [RequestLevelID], 
+ (SELECT ID FROM ACP.RequestDecision WHERE RequestID = r.ID AND DecisionLevelID = 5) as [OSS_RequestDecisionID], 
+ (SELECT ID FROM ACP.RequestDecision WHERE RequestID = r.ID AND DecisionLevelID = 4) as [RS_RequestDecisionID], 
+ (SELECT ID FROM ACP.RequestDecision WHERE RequestID = r.ID AND DecisionLevelID = 3) as [District_RequestDecisionID], 
+ (SELECT ID FROM ACP.RequestDecision WHERE RequestID = r.ID AND DecisionLevelID = 2) as [Region_RequestDecisionID], 
+ (SELECT ID FROM ACP.RequestDecision WHERE RequestID = r.ID AND DecisionLevelID = 1) as [MCRC_RequestDecisionID], 
+ [LastEditDate], 
+ [LastEditBy], 
+ null as [ProgramID], 
+ [GradDate], 
+ [CommissionDate], 
+ [ReferenceText] 
+FROM [ACP].[Request] r 
+ INNER JOIN [ACP].[GradCommDateChangeRequest] gcdcr on gcdcr.[RequestID] = r.[ID]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[ID]" id="5C021539-5980-294E-1874-590D359D72DF">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>[ID]</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[ID]</expression>
+<reference>false</reference>
+<viewID>19645C96-D6C2-A68D-82C8-62D3CAA55DCD</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[NWA_GUID]" id="186200A0-FD7C-EA66-7212-726A670A2F9F">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>[NWA_GUID]</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[NWA_GUID]</expression>
+<reference>false</reference>
+<viewID>19645C96-D6C2-A68D-82C8-62D3CAA55DCD</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="1" id="7075A5A3-8E7E-28E3-4723-D2C010257166">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>RequestTypeID</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>RequestTypeID</headerAlias>
+<expression>1</expression>
+<reference>false</reference>
+<viewID>19645C96-D6C2-A68D-82C8-62D3CAA55DCD</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[FormID]" id="872898D7-C81D-2F2B-9E62-D35DBA4D12A4">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>[FormID]</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[FormID]</expression>
+<reference>false</reference>
+<viewID>19645C96-D6C2-A68D-82C8-62D3CAA55DCD</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[RequestDate]" id="DD60F82F-67CA-00C8-A94F-504C5DBB1445">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>[RequestDate]</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[RequestDate]</expression>
+<reference>false</reference>
+<viewID>19645C96-D6C2-A68D-82C8-62D3CAA55DCD</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[RequestStatusID]" id="8768BF98-9DE9-FFD1-CAB6-96039EE664E2">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>[RequestStatusID]</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[RequestStatusID]</expression>
+<reference>false</reference>
+<viewID>19645C96-D6C2-A68D-82C8-62D3CAA55DCD</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COALESCE((SELECT MIN(DecisionLevelID)-1 FROM ACP.RequestDecision WHERE RequestID = r.ID),5)" id="E213794D-D189-5AA4-9C77-A5872FA513E4">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>RequestLevelID</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>RequestLevelID</headerAlias>
+<expression>COALESCE((SELECT MIN(DecisionLevelID)-1 FROM ACP.RequestDecision WHERE RequestID = r.ID),5)</expression>
+<reference>false</reference>
+<viewID>19645C96-D6C2-A68D-82C8-62D3CAA55DCD</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="(SELECT ID FROM ACP.RequestDecision WHERE RequestID = r.ID AND DecisionLevelID = 5)" id="E4994445-3E59-2860-7010-A96B08714921">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>OSS_RequestDecisionID</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>OSS_RequestDecisionID</headerAlias>
+<expression>(SELECT ID FROM ACP.RequestDecision WHERE RequestID = r.ID AND DecisionLevelID = 5)</expression>
+<reference>false</reference>
+<viewID>19645C96-D6C2-A68D-82C8-62D3CAA55DCD</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="(SELECT ID FROM ACP.RequestDecision WHERE RequestID = r.ID AND DecisionLevelID = 4)" id="BD8C7B9E-FE9A-B1CE-0023-04AA635A0BF0">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>RS_RequestDecisionID</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>RS_RequestDecisionID</headerAlias>
+<expression>(SELECT ID FROM ACP.RequestDecision WHERE RequestID = r.ID AND DecisionLevelID = 4)</expression>
+<reference>false</reference>
+<viewID>19645C96-D6C2-A68D-82C8-62D3CAA55DCD</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="(SELECT ID FROM ACP.RequestDecision WHERE RequestID = r.ID AND DecisionLevelID = 3)" id="5288790D-EABF-88C3-622E-B6E5B4E26A32">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>District_RequestDecisionID</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>District_RequestDecisionID</headerAlias>
+<expression>(SELECT ID FROM ACP.RequestDecision WHERE RequestID = r.ID AND DecisionLevelID = 3)</expression>
+<reference>false</reference>
+<viewID>19645C96-D6C2-A68D-82C8-62D3CAA55DCD</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="(SELECT ID FROM ACP.RequestDecision WHERE RequestID = r.ID AND DecisionLevelID = 2)" id="71D606FE-F962-9BF9-0F35-1D617228DBBD">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Region_RequestDecisionID</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>Region_RequestDecisionID</headerAlias>
+<expression>(SELECT ID FROM ACP.RequestDecision WHERE RequestID = r.ID AND DecisionLevelID = 2)</expression>
+<reference>false</reference>
+<viewID>19645C96-D6C2-A68D-82C8-62D3CAA55DCD</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="(SELECT ID FROM ACP.RequestDecision WHERE RequestID = r.ID AND DecisionLevelID = 1)" id="94C07FF6-5F03-E50D-99B9-EBF276F94CAB">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>MCRC_RequestDecisionID</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>MCRC_RequestDecisionID</headerAlias>
+<expression>(SELECT ID FROM ACP.RequestDecision WHERE RequestID = r.ID AND DecisionLevelID = 1)</expression>
+<reference>false</reference>
+<viewID>19645C96-D6C2-A68D-82C8-62D3CAA55DCD</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[LastEditDate]" id="93ED99A1-5FB8-6AFC-223A-6E94F5B260CE">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>[LastEditDate]</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[LastEditDate]</expression>
+<reference>false</reference>
+<viewID>19645C96-D6C2-A68D-82C8-62D3CAA55DCD</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[LastEditBy]" id="F9EF4BAA-1E93-6FA4-5B8A-859FE183266F">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>[LastEditBy]</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[LastEditBy]</expression>
+<reference>false</reference>
+<viewID>19645C96-D6C2-A68D-82C8-62D3CAA55DCD</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[ProgramID]" id="9F6C5A4E-81A9-4EBA-597E-DE80C2D2E660">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>[ProgramID]</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[ProgramID]</expression>
+<reference>false</reference>
+<viewID>19645C96-D6C2-A68D-82C8-62D3CAA55DCD</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="null" id="BEC56E8B-2709-1CA4-4955-1FCF107054A4">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>GradDate</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>GradDate</headerAlias>
+<expression>null</expression>
+<reference>false</reference>
+<viewID>19645C96-D6C2-A68D-82C8-62D3CAA55DCD</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_2800" id="35FA069F-BF8B-A9D4-ED3A-0D1F9C5CAE7E">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>CommissionDate</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>CommissionDate</headerAlias>
+<expression>null</expression>
+<reference>false</reference>
+<viewID>19645C96-D6C2-A68D-82C8-62D3CAA55DCD</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[ReferenceText]" id="38B96DE4-6C78-91F2-7D8D-409A7E90BDAA">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>[ReferenceText]</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[ReferenceText]</expression>
+<reference>false</reference>
+<viewID>19645C96-D6C2-A68D-82C8-62D3CAA55DCD</viewID>
+</viewElement>
+</viewElements>
+</TableView>

@@ -1,0 +1,34 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetChangeRequestDateChange]" directorySegmentName="seg_3" id="45B9ACCA-9206-FD7A-588A-A5AFAD46307B">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[(@ID uniqueiden..er) 
+ 
+AS 
+ 
+SELECT  
+ cr.[ID], 
+ cr.[NWA_ID], 
+ cr.[CREATED_ON], 
+ cr.[SUBMITTED_ON], 
+ cr.[CHANGE_REQUEST_STATUS_ID], 
+ crs.[DESCRIPTION] as STATUS_DESCRIPTION, 
+ cr.[CHANGE_REQUEST_TYPE_ID], 
+ cr.[CHANGE_REQUEST_LEVEL_ID_CURRENT], 
+ cr.[CHANGE_REQUEST_LEVEL_ID_FINAL], 
+ cr.[DETAILS], 
+ cr.[APPR_DISAPPR_ON], 
+ cr.[MODIFIED_ON], 
+ cr.[MODIFIED_BY], 
+ cr.[SIGNED_BY], 
+ cr.[BY_DIRECTION], 
+ crdc.[TO_DATE] 
+FROM [USMC].[CHANGE_REQUEST] cr 
+LEFT JOIN [USMC].[CHANGE_REQUEST_DATE_CHANGE] crdc on crdc.[CHANGE_REQUEST_ID] = cr.[ID] 
+LEFT JOIN [USMC].[CHANGE_REQUEST_STATUS] crs on crs.[ID] = cr.[CHANGE_REQUEST_STATUS_ID] 
+WHERE cr.[ID] = @ID]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

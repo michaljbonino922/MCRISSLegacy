@@ -1,0 +1,75 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetLeadByQSN]" directorySegmentName="seg_9" id="5C9AA5B3-8C97-B97C-A471-C8734BC4DBD7">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:37 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @QSN_ID uniqueiden..er 
+) 
+AS 
+ 
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+SELECT 
+ L.[LeadID], 
+ L.[RecruitID], 
+ L.[DateStartedWorking], 
+ L.[PayGradeID], 
+ L.[DOR], 
+ L.[PrimaryMOSID], 
+ L.[AddtlMOSID1], 
+ L.[AddtlMOSID2], 
+ L.[PresentRUCID], 
+ L.[DateRECC], 
+ L.[DateEndAc.veService], 
+ L.[MCC], 
+ L.[ReserveRUCID], 
+ L.[MaritalStatusID], 
+ L.[NumberDependents], 
+ L.[CompositeScore], 
+ L.[DrawCaseCode], 
+ L.[ConductAvgService], 
+ L.[Pro.ciencyAvgService], 
+ L.[ReEnlistmentCode], 
+ L.[DateCRCRCer..ca.on], 
+ L.[SatYears], 
+ L.[DateEnteredArmedForces], 
+ L.[DatePayEntryBase], 
+ L.[DateArmedForcesAc.veDutyBase], 
+ L.[DateHIVScreen], 
+ L.[DateMostCurrentPHA], 
+ L.[DateMostCurrentPhysical], 
+ L.[Separa.onCode], 
+ L.[DateProjectedJoin], 
+ L.[NWARequestTypeID], 
+ L.[MarkedUnworkable_UserID], 
+ L.[MarkedUnworkable_Date], 
+ L.[Veri.edUnworkable_UserID], 
+ L.[Veri.edUnworkable_Date], 
+ L.[NWARequested_UserID], 
+ L.[NWARequested_Date], 
+ L.[NWAApproved_UserID], 
+ L.[NWAApproved_Date], 
+ L.[AssignedRecruiterID], 
+ L.[DateAssigned], 
+ L.[Gender], 
+ LP.[PrimaryPhone], 
+ LP.[SecondaryPhone], 
+ LP.[Ter.aryPhone], 
+ LP.[NOK1], 
+ LP.[NOK2], 
+ L.[AtachedPSRSSID], 
+ L.[ComponentCode], 
+ L.[ReserveComponentCode], 
+ L.[ErroneousJoin], 
+ L.[TotalRe.rementPoints] 
+FROM  
+ [dbo].[Lead] L 
+LEFT JOIN [dbo].[LeadPhones] LP ON L.LeadID = LP.LeadID 
+LEFT JOIN [dbo].[ApplicantPackage] AP ON L.LeadID = AP.LeadID 
+WHERE  
+ AP.[QSNID] = @QSN_ID]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+</StoredProcedureSqlServerv2k5>

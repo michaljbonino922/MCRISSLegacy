@@ -1,0 +1,18 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetActualAc.vityData]" directorySegmentName="seg_1" id="7F02D1F6-3FBB-24D6-C183-597B60FE6265">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@SchoolCode as integer, @SchoolYear as integer 
+AS 
+ 
+SELECT HIGH_SCHOOL_PLAN.PLAN_TYPE AS PLAN_TYPE, IsNULL(Substring(DATENAME(MM, ACTUAL_MONTH),0,4) + ' ' + CAST(YEAR(ACTUAL_MONTH) AS VARCHAR(4)),'')  AS ACTUAL_MONTH,  
+'' AS PLANNED_MONTH, SHORT_DESCRIPTION 
+FROM HIGH_SCHOOL_PLAN, HIGH_SCHOOL_PLAN_TYPE WITH (NOLOCK) 
+WHERE HIGH_SCHOOL_PLAN.PLAN_TYPE=HIGH_SCHOOL_PLAN_TYPE.PLAN_TYPE 
+AND SCHOOL_CODE = @SchoolCode AND 
+SCHOOL_YEAR = @SchoolYear]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

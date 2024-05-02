@@ -1,0 +1,161 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SPGEN_CANDSPECIAL_EXAM]" directorySegmentName="seg_26" id="6C6085A1-588C-4DC2-374A-B39EF42D3BE2">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[as  
+ 
+SET ARITHABORT OFF 
+set arithignore on 
+set ansi_warnings o. 
+ 
+declare @ssn    varchar(9), 
+ @marine_candidate_id  int, 
+ @person_id   int, 
+ @dlab_score  numeric(4,0), 
+ @edpt_score  numeric(4,0), 
+ @arc_score  numeric(4,0), 
+ @dlab   varchar(3), 
+ @edpt   varchar(3), 
+ @arc   varchar(3), 
+ @exam_date  date.me, 
+ @contract_date  date.me, 
+ @exam_score  int, 
+ @user_login  varchar(15), 
+ @update_date  date.me 
+ 
+declare special_exam cursor for 
+ 
+select  SSN,  
+  substring(MEPS_COMPOSITE,1,3),  
+  substring(MEPS_COMPOSITE,4,3),  
+  substring(MEPS_COMPOSITE,34,3), 
+  convert(date.me,ASVAB_DTE,112), 
+  convert(date.me,DEP_DATEIN,112) 
+from arms..ARMS179 
+ 
+ 
+open special_exam 
+ 
+fetch special_exam  
+    into @ssn, @dlab, @edpt, @arc, @exam_date, @contract_date 
+ 
+while (@@FETCH_STATUS = 0) 
+begin 
+ 
+select @user_login = 'migra.on' 
+select @update_date = getdate() 
+ 
+     select @person_id = PERSON_ID from PERSON  
+     where SOCIAL_SECURITY_NUMBER = @ssn  
+ 
+     if @person_id is not NULL 
+       begin  
+ 
+    print @ssn 
+ 
+       if (not exists(select 1 from mcriss..CANDIDATE_SPECIAL_EXAM 
+                 where MARINE_CANDIDATE_ID = @person_id)) 
+      begin 
+ 
+           if @exam_date is NULL 
+       select @exam_date = @contract_date 
+ 
+     if @dlab  like '[0-9][0-9][0-9]' and @dlab not like '000' 
+      begin 
+    select @dlab_score = convert(numeric,@dlab)  
+    insert into mcriss..CANDIDATE_SPECIAL_EXAM 
+ 
+   (MARINE_CANDIDATE_ID,SPECIAL_EXAM_TYPE,SPECIAL_EXAM_DATE, 
+   SPECIAL_EXAM_SCORE,USER_LOGIN,UPDATE_DATE) 
+ 
+    values(@person_id, 'DLAB', @exam_date,@dlab_score, 
+    @user_login,@update_date) 
+   print @ssn+'Inserted DLAB' 
+   end 
+     if @edpt like '[0-9][0-9][0-9]' and @dlab not like '000' 
+      begin 
+    select @edpt_score = convert(numeric,@edpt)  
+    insert into mcriss..CANDIDATE_SPECIAL_EXAM 
+    
+   (MARINE_CANDIDATE_ID,SPECIAL_EXAM_TYPE,SPECIAL_EXAM_DATE, 
+   SPECIAL_EXAM_SCORE,USER_LOGIN,UPDATE_DATE) 
+ 
+    values(@person_id, 'EDPT', @exam_date, @edpt_score, 
+    @user_login,@update_date) 
+   print @ssn+' Inserted EDPT' 
+   end 
+     if @arc like '[0-9][0-9][0-9]' and @dlab not like '000' 
+      begin 
+    select @arc_score = convert(numeric,@arc)  
+    insert into mcriss..CANDIDATE_SPECIAL_EXAM 
+ 
+   (MARINE_CANDIDATE_ID,SPECIAL_EXAM_TYPE,SPECIAL_EXAM_DATE, 
+   SPECIAL_EXAM_SCORE,USER_LOGIN,UPDATE_DATE) 
+ 
+    values(@person_id, 'ARC', @exam_date, @arc_score, 
+    @user_login,@update_date) 
+   print @ssn +' Inserted ARC' 
+   end 
+         end 
+       else 
+         begin 
+ 
+           if @exam_date is NULL 
+       select @exam_date = @contract_date 
+ 
+     if @dlab like '[0-9][0-9][0-9]' and @dlab not like '000' 
+      begin 
+    select @dlab_score = convert(numeric,@dlab)  
+    update mcriss..CANDIDATE_SPECIAL_EXAM 
+     set SPECIAL_EXAM_TYPE = 'DLAB', 
+         SPECIAL_EXAM_DATE = @exam_date, 
+      SPECIAL_EXAM_SCORE = @dlab_score, 
+      USER_LOGIN = @user_login, 
+      UPDATE_DATE = @update_date 
+     where MARINE_CANDIDATE_ID = @person_id 
+   print @ssn+' Updated DLAB' 
+   end 
+     if @edpt like '[0-9][0-9][0-9]' and @dlab not like '000' 
+      begin 
+    select @edpt_score = convert(numeric,@edpt)  
+    update mcriss..CANDIDATE_SPECIAL_EXAM 
+     set SPECIAL_EXAM_TYPE = 'EDPT', 
+         SPECIAL_EXAM_DATE = @exam_date, 
+      SPECIAL_EXAM_SCORE = @edpt_score, 
+      USER_LOGIN = @user_login, 
+      UPDATE_DATE = @update_date 
+ 
+    where MARINE_CANDIDATE_ID = @person_id 
+   print @ssn+' Updated EDPT' 
+   end 
+     if @dlab like '[0-9][0-9][0-9]' and @dlab not like '000' 
+      begin 
+    select @arc_score = convert(numeric,@dlab)  
+    update mcriss..CANDIDATE_SPECIAL_EXAM 
+     set SPECIAL_EXAM_TYPE = 'ARC', 
+         SPECIAL_EXAM_DATE = @exam_date, 
+      SPECIAL_EXAM_SCORE = @arc_score, 
+      USER_LOGIN = @user_login, 
+      UPDATE_DATE = @update_date 
+ 
+    where MARINE_CANDIDATE_ID = @person_id 
+   print @ssn+' Updated ARC' 
+   end 
+           end 
+       end 
+      else 
+        print @ssn+' Not in person' 
+ 
+   fetch special_exam  
+            into @ssn, @dlab, @edpt, @arc, @exam_date, @contract_date 
+ 
+end 
+ 
+close special_exam 
+ 
+deallocate special_exam]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,134 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SearchUnatachedLeads_FilterAndPage]" directorySegmentName="seg_12" id="56F516F7-E4E3-C746-8C74-3383D5AF37FA">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:37 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @LastName varchar(15) = null, 
+ @FirstName varchar(15) = null, 
+ @SSN varchar(9) = null, 
+ @MOS int = 0, 
+ @RUC int = 0, 
+ @SortColumnNumber int, 
+ @ColumnSortOrder bit = 1, 
+ @startRowIndex int, 
+ @maximumRows int, 
+ @maxTotalRowsToSort int 
+) 
+AS 
+ 
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+declare @totalrows int 
+declare @specialMOSID int 
+ 
+set @specialMOSID = 931 --('8999') 
+ 
+--Get the count.  Split out speedy Recruiter search. 
+SELECT @totalrows = COUNT(*) FROM 
+ [dbo].[UnatachedLeads] u 
+ LEFT OUTER JOIN [dbo].[MOS] mos on MOSID = u.PrimaryMOSID 
+ LEFT OUTER JOIN [dbo].[RUC] on [RUC].RUCID = u.PresentRUCID 
+WHERE 
+ (LastName like @LastName + '%' OR @LastName IS NULL)  
+ and (FirstName Like @FirstName + '%' or (@FirstName IS NULL)) 
+ and (SSN = @SSN or @SSN IS NULL) 
+ and (mos.MOSID = @MOS or (@MOS IS NULL) or (@MOS = 0)) 
+ and ([RUC].RUCID = @RUC or @RUC IS NULL or @RUC = 0) 
+ 
+ SELECT RowNum, @totalrows AS TotalRows, 
+ UnatachedLeadID, 
+ FirstName, 
+ LastName, 
+ RANK, 
+ PMOS, 
+ Reserve_ECC, 
+ EAS, 
+ RUC, 
+ Telephone, 
+ Email, 
+ City, 
+ State,  
+ Zip, 
+ SSN 
+FROM 
+(SELECT  
+ ROW_NUMBER() OVER ( ORDER BY  
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 1 THEN u.LastName END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 1 THEN u.LastName END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 2 THEN u.FirstName END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 2 THEN u.FirstName END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 3 THEN rank.abbr END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 3 THEN rank.abbr END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 4 THEN mos.descrip.on END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 4 THEN mos.descrip.on END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 5 THEN u.DateRECC END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 5 THEN u.DateRECC END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 6 THEN u.DateEAS END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 6 THEN u.DateEAS END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 7 THEN [RUC].descrip.on END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 7 THEN [RUC].descrip.on END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 8 THEN u.Telephone END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 8 THEN u.Telephone END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 9 THEN u.Email END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 9 THEN u.Email END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 10 THEN ci.es.Name END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 10 THEN ci.es.Name END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 11 THEN states.Name END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 11 THEN states.Name END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 12 THEN u.ZipCode END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 12 THEN u.ZipCode END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 13 THEN u.SSN END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 13 THEN u.SSN END END DESC, 
+ 
+       CASE WHEN @ColumnSortOrder <> 0 and @ColumnSortOrder <> 1 and (@SortColumnNumber < 1 or @SortColumnNumber > 13) 
+    THEN LastName END ASC 
+ ) as RowNum, 
+ u.UnatachedLeadID as UnatachedLeadID, 
+ u.LastName as LastName, 
+ u.FirstName as FirstName, 
+ rank.abbr as rank, 
+ mos.descrip.on as PMOS, 
+ u.DateEAS as EAS, 
+ u.DateRECC as Reserve_ECC, 
+ [RUC].descrip.on as RUC, 
+ u.Telephone as Telephone, 
+ u.Email as Email, 
+ ci.es.Name as City, 
+ states.Name as State, 
+ u.ZipCode as Zip, 
+ u.SSN as SSN 
+FROM  
+ [dbo].[UnatachedLeads] u 
+ LEFT OUTER JOIN [dbo].[PayGrade] pg on pg.PayGradeID = u.PayGradeID 
+ LEFT OUTER JOIN [dbo].[Rank] rank on rank.GradeID = pg.PayGradeID and  
+   ((u.PrimaryMOSID = @specialMOSID and rank.SpecialMOSID = @specialMOSID) or 
+    (u.PrimaryMOSID <> @specialMOSID and rank.SpecialMOSID is null)) 
+ LEFT OUTER JOIN [dbo].[MOS] mos on MOSID = u.PrimaryMOSID 
+ LEFT OUTER JOIN [dbo].[RUC] on [RUC].RUCID = u.PresentRUCID 
+ LEFT OUTER JOIN [USMC].[vwCi.es] ci.es on ci.es.Code = u.CityID and ci.es.CountyCode = u.CountyID and ci.es.StateCode = u.StateID 
+ LEFT OUTER JOIN [USMC].[vwStatesWithTerritories] states on states.Code = u.StateID 
+WHERE 
+ (LastName like @LastName + '%' OR @LastName IS NULL)  
+ and (FirstName Like @FirstName + '%' or (@FirstName IS NULL)) 
+ and (SSN = @SSN or @SSN IS NULL) 
+ and (mos.MOSID = @MOS or (@MOS IS NULL) or (@MOS = 0)) 
+ and ([RUC].RUCID = @RUC or @RUC IS NULL or @RUC = 0) 
+) UnatachedLead 
+ WHERE @startRowIndex is null OR (RowNum BETWEEN @startRowIndex AND (@startRowIndex + @maximumRows) - 1) 
+ Order By RowNum]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+</StoredProcedureSqlServerv2k5>

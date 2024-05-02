@@ -1,0 +1,90 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetEnlistedContractByNwaId]" directorySegmentName="seg_5" id="799DAA3A-D474-BE38-76B5-00D5C0E103C1">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@NwaId int 
+AS 
+ 
+SELECT  
+ C.CONTRACT_ID, 
+ C.NWA_ID, 
+ C.CONTRACT_BEGIN_DATE, 
+ C.TERM_OF_ENLISTMENT, 
+ C.ENTNAC_SUBMIT_DATE, 
+ C.ENTNAC_COMPLETE_DATE, 
+ C.PROJECTED_SHIP_DATE, 
+ C.DEP_EXTENSION,  
+ C.PROJECTED_TRAINING_ORG_ID, 
+ COALESCE(C.YOUTH_PROGRAM_CODE, SPACE(0)) YOUTH_PROGRAM_CODE, 
+ C.CATEGORY_P,  
+ C.SPECIAL_INTEREST,  
+ C.DISCHARGE_CODE, 
+ C.DISCHARGE_DATE, 
+ C.IST_DATE,  
+ C.IST_MINUTES,  
+ C.IST_SECONDS,  
+ C.IST_PULL_UPS, 
+ C.IST_PUSH_UPS,  
+ C.IST_HANG,  
+ C.IST_CRUNCHES, 
+ C.IST_PLANK_MINUTES,  
+ C.IST_PLANK_SECONDS, 
+ C.IST_RESULT, 
+ C.IST_HEIGHT, 
+ C.IST_WEIGHT,  
+ C.COMPONENT_CODE, 
+ c.MISSING_DOCS, 
+ COALESCE(CONVERT(VARCHAR(3), C.DAYS_ALLOWED_IN_DEP), SPACE(0)) AS DAYS_ALLOWED_IN_DEP,  
+ CASE DAYS_ALLOWED_IN_DEP 
+  WHEN 410 THEN 'Y' 
+  ELSE 'N' 
+ END AS ENLIST_410_PROGRAM_INDICATOR,  
+ [USMC].[GetEduca.onLevelCodeAtContract] (N.MARINE_CANDIDATE_ID, C.CONTRACT_BEGIN_DATE) AS EDUCATION_LEVEL_CODE, 
+ c.StsChgDepcy, 
+ c.StsChgEdu, 
+ c.StsChgPhys, 
+ c.StsChgDrug, 
+ c.StsChgMoral, 
+ c.StsChgAtrRisk, 
+ c.StsChgOther, 
+ c.StsChgOtherDesc, 
+ c.StsChgRemark, 
+ M.EXPIRATION_OF_ACTIVE_SERVICE, 
+ C.MEPS_CONTRACT_DATE, 
+ C.AmmoCanLi., 
+ C.AmmoCanLi.Date, 
+ C.PreShipRecievedDate 
+ 
+INTO #Contract 
+FROM  
+ CONTRACT C WITH (NOLOCK) INNER JOIN NWA N ON C.NWA_ID = N.NWA_ID 
+ LEFT OUTER JOIN MARINE M ON M.MARINE_ID = N.MARINE_CANDIDATE_ID 
+WHERE  
+ C.NWA_ID = @NwaId 
+ 
+UPDATE c 
+SET EXPIRATION_OF_ACTIVE_SERVICE =  
+ (CASE WHEN c.COMPONENT_CODE = 'K4' 
+  THEN DATEADD(day,2189,s.AFADBD)   
+  WHEN c.COMPONENT_CODE = 'K8' 
+  THEN DATEADD(day,1094,s.AFADBD)   
+  WHEN c.COMPONENT_CODE = 'K9' 
+  THEN DATEADD(day,1459,s.AFADBD)   
+  WHEN c.COMPONENT_CODE = 'B5' 
+  THEN DATEADD(day,1824,s.AFADBD) 
+  END) 
+FROM #Contract c  
+INNER JOIN SHIPPER s ON c.CONTRACT_ID = s.CONTRACT_ID 
+WHERE c.COMPONENT_CODE IN ('K4','K8','K9','B5') 
+ 
+ 
+SELECT  
+ * 
+FROM #Contract 
+ 
+DROP TABLE #Contract]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

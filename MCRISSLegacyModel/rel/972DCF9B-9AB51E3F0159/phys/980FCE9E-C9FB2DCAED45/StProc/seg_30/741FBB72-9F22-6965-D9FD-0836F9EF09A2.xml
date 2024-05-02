@@ -1,0 +1,68 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SaveTestScore]" directorySegmentName="seg_30" id="741FBB72-9F22-6965-D9FD-0836F9EF09A2">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:39 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @ID uniqueiden..er, 
+ @MentalAp.tudeTestID uniqueiden..er, 
+ @Name varchar(50), 
+ @Score decimal(18,4) 
+) 
+AS 
+ 
+BEGIN TRANSACTION 
+ 
+IF EXISTS(SELECT 1 FROM [ACP].[TestScore] WHERE [ID] = @ID) 
+BEGIN 
+ 
+UPDATE [ACP].[ACP].[TestScore] 
+   SET [ID] = @ID 
+      ,[MentalAp.tudeTestID] = @MentalAp.tudeTestID 
+      ,[Name] = @Name 
+      ,[Score] = @Score 
+ WHERE [ID] = @ID 
+ 
+END 
+ELSE 
+BEGIN 
+ 
+INSERT INTO [ACP].[ACP].[TestScore] 
+           ([ID] 
+           ,[MentalAp.tudeTestID] 
+           ,[Name] 
+           ,[Score]) 
+     VALUES 
+           (@ID 
+           ,@MentalAp.tudeTestID 
+           ,@Name 
+           ,@Score) 
+  
+END 
+ 
+-- Rollback the transac.on if there were any errors 
+IF @@ERROR <> 0 
+BEGIN 
+ -- Rollback the transac.on 
+ ROLLBACK TRANSACTION 
+ -- Raise an error and return 
+ RAISERROR ('Error occurred while performing the change.', 16, 1) 
+ RETURN 
+END 
+ 
+-- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+IF @@ROWCOUNT > 1 
+BEGIN 
+ -- Rollback the transac.on 
+ ROLLBACK TRANSACTION 
+ -- Raise an error and return 
+ RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+ RETURN 
+END 
+ 
+-- If we reach this point, the commands completed successfully, commit the transac.on 
+COMMIT TRANSACTION]]></body>
+<schema>569A41D8-8F40-0619-141C-F4C9436AAF46</schema>
+<database>2D7ED536-DF8E-3523-7DC3-4228EBAF5F66</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,65 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[CheckIsSF86SeparateSigned]" directorySegmentName="seg_0" id="ED1990BA-ED26-1DEC-9399-79AEE55A26D1">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@FormID uniqueiden..er 
+AS 
+BEGIN 
+ 
+DECLARE @cerExists bit = 0 
+DECLARE @fcrExists bit = 0 
+DECLARE @melExists bit = 0 
+DECLARE @relExists bit = 0 
+ 
+DECLARE @allPagesSigned bit = 0 
+ 
+ 
+-- CER 
+BEGIN 
+ IF EXISTS (SELECT * FROM [USMC].[SF86SignatureSeparatePage] WHERE FormID = @FormID and PageType = 'CER' and IsCurrent = 1) 
+  SET @cerExists = 1 
+ ELSE 
+  SET @cerExists = 0 
+END 
+ 
+ 
+-- FCR 
+BEGIN 
+ IF EXISTS (SELECT * FROM [USMC].[SF86SignatureSeparatePage] WHERE FormID = @FormID and PageType = 'FCR' and IsCurrent = 1) 
+  SET @fcrExists = 1 
+ ELSE 
+  SET @fcrExists = 0 
+END 
+ 
+-- MEL 
+BEGIN 
+ IF EXISTS (SELECT * FROM [USMC].[SF86SignatureSeparatePage] WHERE FormID = @FormID and PageType = 'MEL' and IsCurrent = 1) 
+  SET @melExists = 1 
+ ELSE 
+  SET @melExists = 0 
+END 
+ 
+-- REL 
+BEGIN 
+ IF EXISTS (SELECT * FROM [USMC].[SF86SignatureSeparatePage] WHERE FormID = @FormID and PageType = 'REL' and IsCurrent = 1) 
+  SET @relExists = 1 
+ ELSE 
+  SET @relExists = 0 
+END 
+ 
+-- check if all signature pages exist 
+BEGIN 
+ IF @cerExists = 1 AND @fcrExists = 1 AND @melExists = 1 AND @relExists = 1 
+  SET @allPagesSigned = 1 
+ ELSE 
+  SET @allPagesSigned = 0 
+END 
+ 
+SELECT @allPagesSigned 
+ 
+END]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

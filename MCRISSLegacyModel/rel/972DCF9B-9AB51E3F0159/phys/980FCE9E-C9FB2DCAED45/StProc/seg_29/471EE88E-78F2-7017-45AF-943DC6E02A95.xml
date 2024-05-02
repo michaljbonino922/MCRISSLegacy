@@ -1,0 +1,113 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUpdatePackage]" directorySegmentName="seg_29" id="471EE88E-78F2-7017-45AF-943DC6E02A95">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:39 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @PackageId uniqueiden..er, 
+ @UserName varchar(100), 
+ @Lock bit = 0, 
+ @Archive bit = 0 
+) 
+AS 
+ 
+DECLARE @Result int 
+ 
+BEGIN TRANSACTION 
+ 
+IF EXISTS(SELECT 1 FROM [ACP].[Package] WHERE [PackageId] = @PackageId) 
+BEGIN 
+ IF EXISTS(SELECT 1 FROM [ACP].[Package] WHERE [PackageId] = @PackageId AND [Locked] = 1 AND [LockedBy] = @UserName) 
+ BEGIN 
+  UPDATE  
+   [ACP].[Package]  
+  SET  
+   [Locked] = @Lock, 
+   [LockedBy] = CASE @Lock WHEN 1 THEN @UserName ELSE NULL END, 
+   [DateLocked] = CASE @Lock WHEN 1 THEN GetDate() ELSE NULL END, 
+   [UploadedBy] = @UserName, 
+   [DateUploaded] = GetDate(), 
+   [Archived] = @Archive 
+  WHERE  
+   [PackageId] = @PackageId 
+    
+   -- Record the update in the PackageAc.on table. 
+  INSERT INTO [ACP].[PackageAc.on] 
+   ([PackageAc.onId],[PackageId], [Ac.onType], [Ac.onDate], [UserName]) 
+  VALUES  
+   (NewId(), @PackageId, 'UPLOADED', GetDate(), @UserName) 
+    
+   --Package was Updated. 
+   SET @Result = 4 
+ 
+ END 
+ ELSE  
+ BEGIN  
+  IF EXISTS(SELECT 1 FROM [ACP].[Package] WHERE [PackageId] = @PackageId AND [Locked] = 0 AND [LockedBy] IS NULL) 
+   SET @Result = 0 --Package was not locked. 
+  ELSE 
+   SET @Result = 1 --Package was locked by someone else. 
+ END 
+END 
+ELSE 
+BEGIN 
+ INSERT INTO [ACP].[Package] 
+ ( 
+  [PackageId], 
+  [Locked], 
+  [LockedBy], 
+  [DateLocked], 
+  [Archived], 
+  [UploadedBy], 
+  [DateUploaded] 
+ ) 
+ VALUES 
+ ( 
+  @PackageId, 
+  @Lock, 
+  CASE @Lock WHEN 1 THEN @UserName ELSE NULL END, 
+  Case @Lock WHEN 1 THEN GetDate() ELSE NULL END, 
+  0, 
+  @UserName, 
+  GetDate() 
+ ) 
+  
+  -- Record the crea.on in the PackageAc.on table. 
+ INSERT INTO [ACP].[PackageAc.on] 
+  ([PackageAc.onId],[PackageId], [Ac.onType], [Ac.onDate], [UserName]) 
+ VALUES  
+  (NewId(), @PackageId, 'CREATED', GetDate(), @UserName) 
+  
+ --Package was Created. 
+ SET @Result = 2 
+END 
+ 
+ 
+-- Rollback the transac.on if there were any errors 
+IF @@ERROR <> 0 
+BEGIN 
+ -- Rollback the transac.on 
+ ROLLBACK TRANSACTION 
+ -- Raise an error and return 
+ RAISERROR ('Error occurred while performing the change.', 16, 1) 
+ RETURN 
+END 
+ 
+-- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+IF @@ROWCOUNT > 1 
+BEGIN 
+ -- Rollback the transac.on 
+ ROLLBACK TRANSACTION 
+ -- Raise an error and return 
+ RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+ RETURN 
+END 
+ 
+-- If we reach this point, the commands completed successfully, commit the transac.on 
+COMMIT TRANSACTION 
+ 
+SELECT @Result]]></body>
+<schema>569A41D8-8F40-0619-141C-F4C9436AAF46</schema>
+<database>2D7ED536-DF8E-3523-7DC3-4228EBAF5F66</database>
+</StoredProcedureSqlServerv2k5>

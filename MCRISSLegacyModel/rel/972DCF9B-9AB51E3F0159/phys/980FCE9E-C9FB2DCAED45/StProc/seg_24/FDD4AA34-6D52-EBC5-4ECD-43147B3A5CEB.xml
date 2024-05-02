@@ -1,0 +1,40 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UndoCheckoutMaster8412Data]" directorySegmentName="seg_24" id="FDD4AA34-6D52-EBC5-4ECD-43147B3A5CEB">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@FileName varchar(250),  
+ @UserLogin varchar(15) 
+AS 
+ 
+DECLARE @CheckedOutStatusID  int 
+DECLARE @CurrentStatus   int 
+DECLARE @LogID   int 
+DECLARE @UserAssociatedWithFile varchar(15) 
+ 
+--- GET THE STATUS ID FOR CHECKED OUT AND CHECKED IN FILES 
+SELECT @CheckedOutStatusID = MCD_MASTER_DATA_FILE_STATUS_ID FROM MASTER_8412_DATA_FILE_STATUS WHERE FILE_STATUS = 'CHECKED OUT' 
+ 
+--- GET THE CURRENT LOG ID FOR THE SPECIFIED FILE 
+SELECT @LogID = MAX(MASTER_8412_DATA_LOG_ID) FROM MASTER_8412_DATA_LOG WHERE [FILE_NAME] = @FileName 
+ 
+--- GET THE STATUS AND USER LOGIN OF THE SPECIFIED FILE 
+SELECT 
+ @CurrentStatus   = L.FILE_STATUS_ID,  
+ @UserAssociatedWithFile = L.USER_LOGIN 
+FROM 
+ MASTER_8412_DATA_LOG L 
+WHERE  
+ L.MASTER_8412_DATA_LOG_ID = @LogID 
+ 
+ 
+--- IF THE FILE IS CURRENTLY CHECKED OUT BY THE CURRENT USER 
+--- DELETE THE CHECKED OUT ENTRY IN THE LOG TO UNDO THE CHECK OUT  
+IF @CurrentStatus = @CheckedOutStatusID AND @UserAssociatedWithFile = @UserLogin 
+BEGIN 
+ DELETE MASTER_8412_DATA_LOG WHERE MASTER_8412_DATA_LOG_ID = @LogID 
+END]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

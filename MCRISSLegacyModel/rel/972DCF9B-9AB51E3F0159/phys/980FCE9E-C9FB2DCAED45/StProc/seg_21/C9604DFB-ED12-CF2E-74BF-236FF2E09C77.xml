@@ -1,0 +1,94 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_mg_Recrui.ng_Person_OSO]" directorySegmentName="seg_21" id="C9604DFB-ED12-CF2E-74BF-236FF2E09C77">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[as 
+ 
+SET NOCOUNT ON 
+ 
+declare 
+  @user_login varchar(15), 
+  @update_date date.me, 
+  @social_security_number char(9), 
+  @recrui.ng_person_id int, 
+  @organiza.on_id int, 
+  @recrui.ng_role_id varchar(2), 
+  @rank_code char(10), 
+  @pay_grade_code char(3), 
+  @deleted char(1) 
+ 
+ 
+declare cur_arms cursor for 
+select dis.nct a.oso_ssn, 
+       pe.person_id, 
+       a.org_id, 
+       a.oso_rank 
+    from arms_o.cer_update a, person pe 
+where a.oso_ssn not in  
+(select p.social_security_number from person p 
+    inner join recrui.ng_person r  
+    on p.person_id = r.recrui.ng_person_id 
+ ) and a.oso_ssn = pe.social_security_number 
+ 
+  set @user_login = 'arms_migra.on' 
+  set @update_date = getdate() 
+  set @deleted = 'N' 
+  set @recrui.ng_role_id = 'O' 
+ 
+   
+  open cur_arms 
+  fetch cur_arms into 
+    @social_security_number, 
+    @recrui.ng_person_id, 
+    @organiza.on_id, 
+    @rank_code 
+ 
+  if @rank_code = '1stLt' 
+    set @pay_grade_code = 'O2' 
+  else if @rank_code = 'Capt' 
+    set @pay_grade_code = 'O3' 
+  else if @rank_code = 'Maj' 
+    set @pay_grade_code = 'O4' 
+  else 
+    set @pay_grade_code = 'O1' 
+ 
+while (@@FETCH_STATUS = 0) 
+begin 
+   /* 
+   * Insert into table 
+   */ 
+  insert into recrui.ng_person ( 
+    recrui.ng_person_id, 
+    organiza.on_id, 
+    recrui.ng_role_id, 
+    rank_code, 
+    pay_grade_code, 
+    deleted, 
+    user_login, 
+    update_date) 
+  values ( 
+    @recrui.ng_person_id, 
+    @organiza.on_id, 
+    @recrui.ng_role_id, 
+    @rank_code, 
+    @pay_grade_code, 
+    @deleted, 
+    @user_login, 
+    @update_date) 
+ 
+  fetch cur_arms into 
+    @social_security_number, 
+    @recrui.ng_person_id, 
+    @organiza.on_id, 
+    @rank_code 
+end 
+ 
+close cur_arms 
+deallocate cur_arms 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

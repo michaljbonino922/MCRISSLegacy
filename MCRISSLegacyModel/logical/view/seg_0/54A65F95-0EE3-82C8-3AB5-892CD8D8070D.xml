@@ -1,0 +1,83 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<EntityView class="oracle.dbtools.crest.model.design.logical.EntityView" directorySegmentName="seg_0" id="54A65F95-0EE3-82C8-3AB5-892CD8D8070D" name="vw Update Candidate Telephone">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>5322402B-FEEA-1405-D305-FE19D166133F</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT     dbo.PERSON.PERSON_ID, 'C' AS Type, LEFT(LTRIM(RTRIM(LEFT(dbo.Working_USNA.[Personal Phone #], CHARINDEX('-', dbo.Working_USNA.[Personal Phone #], 1)  
+                      - 1))), 4) AS AreaCode, REPLACE(RIGHT(dbo.Working_USNA.[Personal Phone #], 8), '-', '') AS Number 
+FROM         dbo.Working_USNA INNER JOIN 
+                      dbo.PERSON ON dbo.Working_USNA.CSSN = dbo.PERSON.SOCIAL_SECURITY_NUMBER]]></userDefinedSQL>
+<validSQL>false</validSQL>
+<viewType>EntityView</viewType>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="PERSON_ID" id="6AB9C8F0-549B-39D7-2A5C-8B8B6E669AE5">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>E56D3873-3885-8BA8-DD0B-4F15F0E63DE1</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>PERSON_ID</alias>
+<dataType>UNKNOWN</dataType>
+<expression>PERSON_ID</expression>
+<reference>false</reference>
+<viewID>54A65F95-0EE3-82C8-3AB5-892CD8D8070D</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="&apos;C&apos;" id="DF71EB75-3824-0571-312F-D192DC887B94">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>DC1F0F31-011D-CC55-E957-740043D5154B</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Type</alias>
+<dataType>UNKNOWN</dataType>
+<expression>&apos;C&apos;</expression>
+<reference>false</reference>
+<viewID>54A65F95-0EE3-82C8-3AB5-892CD8D8070D</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="LEFT(LTRIM(RTRIM(LEFT(dbo.Working_USNA.[Personal Phone #],CHARINDEX(&apos;-&apos;,dbo.Working_USNA.[Personal Phone #],1) - 1))),4)" id="018DFC1F-FC47-575D-1F2D-8FA507A65D04">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>8B92E072-AFA8-3EA7-4D92-C4898ABAB0D8</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>AreaCode</alias>
+<dataType>UNKNOWN</dataType>
+<expression>LEFT(LTRIM(RTRIM(LEFT(dbo.Working_USNA.[Personal Phone #],CHARINDEX(&apos;-&apos;,dbo.Working_USNA.[Personal Phone #],1) - 1))),4)</expression>
+<reference>false</reference>
+<viewID>54A65F95-0EE3-82C8-3AB5-892CD8D8070D</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="REPLACE(RIGHT(dbo.Working_USNA.[Personal Phone #],8),&apos;-&apos;,&apos;&apos;)" id="F2CA5FE9-FDEE-E009-EEE8-5AC3C34F7F44">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>8BCAC253-C3B1-F13D-497F-C96762A7482A</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Number</alias>
+<dataType>UNKNOWN</dataType>
+<expression>REPLACE(RIGHT(dbo.Working_USNA.[Personal Phone #],8),&apos;-&apos;,&apos;&apos;)</expression>
+<reference>false</reference>
+<viewID>54A65F95-0EE3-82C8-3AB5-892CD8D8070D</viewID>
+</viewElement>
+</viewElements>
+</EntityView>

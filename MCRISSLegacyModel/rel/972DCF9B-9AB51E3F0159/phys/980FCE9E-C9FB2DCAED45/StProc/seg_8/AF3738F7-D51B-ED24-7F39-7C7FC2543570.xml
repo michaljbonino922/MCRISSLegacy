@@ -1,0 +1,176 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[RCTAPI_GetSchoolData]" directorySegmentName="seg_8" id="AF3738F7-D51B-ED24-7F39-7C7FC2543570">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@edipi varchar(10) 
+AS 
+ 
+DECLARE @result   varchar(max) 
+DECLARE @tempJson varchar(max) 
+ 
+SET NOCOUNT ON 
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+ 
+--RssOss.[dbo].[RCTAPI_GetSchoolData] 1266694055 
+--DECLARE @edipi varchar(10) 
+--SET @edipi = 1266694055 
+ 
+DECLARE  
+ @nowMinusTwoYear date.me, 
+ @nowMinusOneYear date.me 
+ 
+SET @nowMinusTwoYear = DATEADD(year, -2, GETDATE()) 
+SET @nowMinusOneYear = DATEADD(year, -1, GETDATE()) 
+ 
+-- Recruiter Info 
+SELECT TOP 1 
+  u.FirstName 
+ ,u.LastName 
+ ,rp.RECRUITING_PERSON_ID AS Recrui.ngPersonId 
+ ,rp.rowguid AS Recrui.ngPersonGuid  
+ ,ro.ORGANIZATION_ID 
+ ,ro.rowguid as OrgGuid 
+ ,ro.COUNTY_CODE 
+ ,ro.STATE_CODE 
+ ,ro.CITY_CODE 
+ ,ro.Street 
+ ,ro.Street2 
+ ,ro.ZIP_CODE 
+INTO #Recruiter  
+FROM  
+ UserMgmt.dbo.[User] u 
+ INNER JOIN MCRISS.dbo.PERSON p ON u.FirstName = p.FIRST_NAME AND u.LastName=p.LAST_NAME 
+ INNER JOIN MCRISS.dbo.RECRUITING_ORGANIZATION ro ON u.Sta.on_OrgUnitID = ro.OrgUnitId 
+ INNER JOIN MCRISS.dbo.RECRUITING_PERSON rp ON rp.RECRUITING_PERSON_ID = p.PERSON_ID AND rp.ORGANIZATION_ID = ro.ORGANIZATION_ID 
+WHERE  
+ Dis.nguishedName like '%' + @edipi AND u.IsAc.ve = 1 AND rp.ORGANIZATION_ID = ro.ORGANIZATION_ID 
+ORDER BY 
+ LastAc.vityDate DESC 
+ 
+-- schools 
+SET @tempJson = ( 
+     SELECT 
+       hs.SCHOOL_CODE       AS schoolId 
+      ,hs.SCHOOL_TYPE       AS schoolTypeCode 
+      ,hs.ORGANIZATION_ID      AS organiza.onId 
+      ,hs.DOD_CODE       AS dodCode 
+      ,hs.HIGHSCHOOL_NAME      AS schoolName 
+      ,hs.STREET        AS street1 
+      ,hs.STREET2        AS street2 
+      ,hs.CITY        AS city 
+      ,hs.STATE_CODE       AS stateCode 
+      ,LEFT(hs.ZIP_CODE,5)     AS zipCode 
+      ,REPLACE(hs.TELEPHONE_NUMBER, '-','') AS telephoneNumber 
+      ,CASE  
+        WHEN hs.DELETED = 'N'  
+       THEN CAST( 1 AS bit)     
+        ELSE CAST(0 AS bit) 
+       END         AS isAc.ve 
+      ,CASE 
+         WHEN hs.COUNTRY_CODE = 'US' OR  hs.COUNTRY_CODE = '8D'    
+           THEN CAST('UNITED STATES'   AS varchar(50)) 
+         ELSE 
+        hsGeo.COUNTRY_DESCRIPTION 
+       END         AS countryId 
+      ,hs.rowguid        AS schoolGuid 
+   
+     FROM 
+      MCRISS.dbo.HIGH_SCHOOL hs 
+ 
+      LEFT OUTER JOIN MCRISS.dbo.GEO_LOCATION hsGeo --Country 
+       ON  hsGeo.CITY_CODE = 0 AND hsGeo.COUNTY_CODE = 0 AND hsGeo.STATE_CODE = hs.COUNTRY_CODE 
+ 
+     WHERE 
+      hs.SCHOOL_TYPE IS NOT NULL 
+      AND (hs.DELETED = 'N' OR hs.DELETED IS NULL)   
+       
+     FOR JSON PATH, ROOT('schools'), INCLUDE_NULL_VALUES 
+) 
+ 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = ISNULL(@tempJson, '"schools":[]')  
+ 
+--schoolTypes 
+SET @tempJson = ( 
+     SELECT 
+       SCHOOL_TYPE_CODE AS schoolTypeCode 
+      ,SCHOOL_TYPE_DESC AS schoolTypeName 
+     FROM 
+      MCRISS.dbo.SCHOOL_TYPE 
+ 
+     FOR JSON PATH, ROOT('schoolTypes'), INCLUDE_NULL_VALUES 
+) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"schoolTypes":[]') 
+ 
+ 
+--schoolPro.les 
+SET @tempJson = ( 
+     SELECT 
+       CAST(pf.SCHOOL_CODE AS varchar(10)) +  
+       '-' +  
+       CAST(SCHOOL_YEAR AS char(4))  AS schoolPro.leId 
+      ,pf.SCHOOL_CODE      AS schoolId 
+      ,pf.ACCESS_CODE      AS schoolAccessCode 
+      ,pf.PRIORITY_CODE     AS schoolPriorityCode 
+      ,pf.SCHOOL_YEAR      AS schoolYear 
+      ,pf.RECRUITER_ID     AS recruiterId 
+      ,pf.CLASS_SIZE      AS classSize 
+      ,pf.MALE_SENIORS     AS maleSeniors 
+      ,pf.FEMALE_SENIORS     AS femaleSeniors 
+      ,pf.rowguid       AS schoolPro.leGuid 
+      ,pf.DESIGNATOR      AS designator  
+     FROM 
+      MCRISS.dbo.HIGH_SCHOOL hs 
+      INNER JOIN #Recruiter rt ON hs.ORGANIZATION_ID = rt.ORGANIZATION_ID 
+      INNER JOIN MCRISS.dbo.HIGH_SCHOOL_PROFILE pf ON hs.SCHOOL_CODE = pf.SCHOOL_CODE 
+       
+     WHERE 
+      hs.SCHOOL_TYPE IS NOT NULL 
+      AND (hs.DELETED = 'N' OR hs.DELETED IS NULL) 
+      AND pf.SCHOOL_YEAR  >= DATEPART(year, @nowMinusTwoYear) 
+      
+     FOR JSON PATH, ROOT('schoolPro.les'), INCLUDE_NULL_VALUES 
+) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"schoolPro.les":[]') 
+ 
+--schoolPriori.es 
+SET @tempJson = ( 
+     SELECT 
+       PRIORITY_CODE   AS schoolPriorityCode 
+      ,SHORT_DESCRIPTION  AS schoolPriorityName  
+     FROM 
+      MCRISS.dbo.HIGH_SCHOOL_PRIORITY 
+ 
+     FOR JSON PATH, ROOT('schoolPriori.es'), INCLUDE_NULL_VALUES 
+) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"schoolPriori.es":[]') 
+ 
+--schoolAccesses 
+SET @tempJson = ( 
+     SELECT 
+       ACCESS_CODE   AS schoolAccessCode 
+      ,SHORT_DESCRIPTION  AS schoolAccessName 
+     FROM 
+      MCRISS.dbo.HIGH_SCHOOL_ACCESS 
+ 
+     FOR JSON PATH, ROOT('schoolAccesses'), INCLUDE_NULL_VALUES 
+) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"schoolAccesses":[]') 
+ 
+ 
+SET @result = '{' + @result + '}' 
+ 
+SELECT @result 
+ 
+ 
+DROP TABLE #Recruiter]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

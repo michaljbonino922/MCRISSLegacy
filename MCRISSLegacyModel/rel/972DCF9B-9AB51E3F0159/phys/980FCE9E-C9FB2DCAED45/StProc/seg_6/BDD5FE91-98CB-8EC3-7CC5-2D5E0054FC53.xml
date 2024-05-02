@@ -1,0 +1,118 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetMarketAnalysis]" directorySegmentName="seg_6" id="BDD5FE91-98CB-8EC3-7CC5-2D5E0054FC53">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@Organiza.onID as integer,  
+      @FiscalYear as integer, 
+      @All as bit 
+       
+   
+AS 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+  IF @All = 1  
+  BEGIN 
+  SELECT   
+   cp.[CollegePro.leID],cp.[SCHOOL_CODE]AS SchoolCode, 
+   hs.highschool_name AS CollegeName,  
+   hs.rowguid as SchoolGuid, 
+   FiscalYear,PriorityCode AS Priority,  
+   cp.BarronsIndex AS BarronIndex,      
+   NumMale, NumFemale, NumAfricanAmerican, NumHispanic, 
+   --need to .x these zeroes   
+   NumOther, Case when (isnull(NumMale,0) + isnull(NumFemale,0) + isnull(NumAfricanAmerican,0) + isnull(NumHispanic,0) + isnull(NumOther,0)) = 0 Then 0 Else 
+           (isnull(NumQCPMale,0) + isnull(NumQCPFemale,0) + isnull(NumQCPAfricanAmerican,0) +  isnull(NumQCPHispanic,0) + isnull(NumQCPOther,0))/(isnull(NumMale,0) + isnull(NumFemale,0) + isnull(NumAfricanAmerican,0) + isnull(NumHispanic,0) + isnull(NumOther,0)) End as PercentQuali.ed, 
+     (isnull(NumQCPMale,0) + isnull(NumQCPFemale,0) + isnull(NumQCPAfricanAmerican,0) + isnull(NumQCPHispanic,0) + isnull(NumQCPOther,0)) AS NumQCP, 
+     (isnull(NumMale,0) + isnull(NumFemale,0) + isnull(NumAfricanAmerican,0) + isnull(NumHispanic,0) + isnull(NumOther,0)) AS NumDQCP, 
+   0 AS NumPool, 0 AS  NumAEV, 
+   DistanceToCollege,TimeToCollegeInMinutes, 
+     cvd.[NumVisitsPlanned] AS NumFYPlannedVisits,  
+     cvd.[ContractGoal] AS NumFYContractGoal  
+ 
+ 
+ FROM [MCRISS].[USMC].[CollegePro.le] cp 
+ LEFT OUTER JOIN [MCRISS].[USMC].[CollegeVisitDetail] cvd ON cp.[CollegePro.leID] = cvd.[CollegePro.leID] 
+ LEFT OUTER JOIN [dbo].High_School hs on cp.school_code = hs.school_code   
+                                        and hs.school_type <> 'HS'                     
+              --and FiscalYear = @FiscalYear 
+         where hs.Organiza.on_ID = @Organiza.onID  
+         and (cp.FiscalYear = @FiscalYear-1 
+         OR cp.FiscalYear = @FiscalYear - 2 
+         OR cp.FiscalYear = @FiscalYear - 3) 
+ 
+END            
+ ELSE 
+ begin 
+ SELECT   
+   cp.[CollegePro.leID],cp.[SCHOOL_CODE]AS SchoolCode, 
+   hs.highschool_name AS CollegeName, 
+   hs.rowguid as SchoolGuid,  
+   FiscalYear,PriorityCode AS Priority,  
+   cp.BarronsIndex AS BarronIndex,      
+   NumMale, NumFemale, NumAfricanAmerican, NumHispanic, 
+   --need to .x these zeroes   
+   NumOther, 
+           Case when (isnull(NumMale,0) + isnull(NumFemale,0) + isnull(NumAfricanAmerican,0) + isnull(NumHispanic,0) + isnull(NumOther,0)) = 0 Then 0 Else 
+           (isnull(NumQCPMale,0) + isnull(NumQCPFemale,0) + isnull(NumQCPAfricanAmerican,0) +  isnull(NumQCPHispanic,0) + isnull(NumQCPOther,0))/(isnull(NumMale,0) + isnull(NumFemale,0) + isnull(NumAfricanAmerican,0) + isnull(NumHispanic,0) + isnull(NumOther,0)) End as PercentQuali.ed, 
+     (isnull(NumQCPMale,0) + isnull(NumQCPFemale,0) + isnull(NumQCPAfricanAmerican,0) + isnull(NumQCPHispanic,0) + isnull(NumQCPOther,0)) AS NumQCP, 
+     (isnull(NumMale,0) + isnull(NumFemale,0) + isnull(NumAfricanAmerican,0) + isnull(NumHispanic,0) + isnull(NumOther,0)) AS NumDQCP, 0 AS NumPool, 0 AS  NumAEV, 
+   DistanceToCollege,TimeToCollegeInMinutes, 
+     cvd.[NumVisitsPlanned] AS NumFYPlannedVisits,  
+     cvd.[ContractGoal] AS NumFYContractGoal  
+ 
+ 
+ FROM [MCRISS].[USMC].[CollegePro.le] cp 
+ LEFT OUTER JOIN [MCRISS].[USMC].[CollegeVisitDetail] cvd ON cp.[CollegePro.leID] = cvd.[CollegePro.leID] 
+ INNER JOIN [dbo].High_School hs on cp.school_code = hs.school_code   
+                                        and hs.school_type <> 'HS'                     
+              --and FiscalYear = @FiscalYear 
+         where hs.Organiza.on_ID = @Organiza.onID  
+         and (cp.FiscalYear = @FiscalYear-1 
+         OR cp.FiscalYear = @FiscalYear - 2 
+         OR cp.FiscalYear = @FiscalYear - 3) 
+  
+ ORDER BY cp.[PriorityCode],cp.[SCHOOL_CODE] 
+ 
+END 
+ 
+ 
+--ALTER PROCEDURE [USMC].[GetMarketAnalysis] 
+--      @SchoolCode as Integer,  
+--      @FiscalYear as Integer 
+--  
+--  
+--AS 
+--SET NOCOUNT ON 
+-- 
+--  SELECT   
+--    [CollegePro.leID], cp.[SCHOOL_CODE] AS SchoolCode, 
+--    hs.highschool_name AS CollegeName,  
+--    [BarronsIndex],[PriorityCode], 
+--    [NumMale],[NumFemale],[NumAfricanAmerican], 
+--    [NumHispanic],[NumOther],[NumQCPMale],[NumQCPFemale], 
+--    [NumQCPAfricanAmerican],[NumQCPHispanic], 
+--    [NumQCPOther], 
+--    --[PoolInfo is Missing], 
+--    [DistanceToCollege], 
+--    [TimeToCollegeInMinutes] 
+-- 
+--  FROM [MCRISS].[USMC].[CollegePro.le] cp 
+--    INNER JOIN [dbo].High_School hs ON  cp.school_code = hs.school_code 
+-- 
+--   
+--  WHERE  cp.SCHOOL_CODE = @SchoolCode  
+--    -- return the data for last three .scal year from the selected .scal year 
+--    AND (cp.FiscalYear = @FiscalYear 
+--    OR cp.FiscalYear = @FiscalYear - 1 
+--    OR cp.FiscalYear = @FiscalYear - 2) 
+--   
+--      --GROUP BY  cp.FiscalYear, PriorityCode 
+--       ORDER BY  cp.FiscalYear, PriorityCode 
+--  --ORDER BY cp.[PriorityCode] 
+-- 
+----- CLEAN UP 
+--SET NOCOUNT OFF]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

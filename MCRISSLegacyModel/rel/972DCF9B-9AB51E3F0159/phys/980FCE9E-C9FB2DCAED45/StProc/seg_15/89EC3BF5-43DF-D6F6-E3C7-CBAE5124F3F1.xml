@@ -1,0 +1,40 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="Proc1011" directorySegmentName="seg_15" id="89EC3BF5-43DF-D6F6-E3C7-CBAE5124F3F1">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@ProspectID  xml 
+AS 
+BEGIN 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+ IF @ProspectID IS NOT null 
+ BEGIN 
+  DECLARE @ProspectsTable TABLE (ID uniqueiden..er)   
+  INSERT INTO @ProspectsTable (ID)  
+  SELECT ParamValues.ID.value('.','VARCHAR(36)') 
+  FROM @ProspectID.nodes('/Prospects/id') as ParamValues(ID)  
+ END 
+  
+ SELECT  
+   PE.PersonEmailId, 
+   PE.PersonId, 
+   PE.PersonEmailTypeId, 
+   PE.EmailAddress,   
+   PE.LastUpdateUserId 
+  FROM  
+   [usmc].[PersonEmail] PE  
+   INNER JOIN [usmc].[Prospect] PR ON PE.PersonId=PR.PersonId    
+  WHERE    
+   PR.ProspectId in  
+   ( 
+    SELECT * FROM @ProspectsTable  
+   ) 
+   AND PR.Suppression='False'   
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

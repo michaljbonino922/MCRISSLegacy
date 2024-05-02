@@ -1,0 +1,42 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateNROTCCandidate]" directorySegmentName="seg_25" id="479751D0-8129-5178-758F-04C5F29DEC82">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@NROTCCandidateID  int = 0, 
+ @NWAID    int, 
+ @ContractID   int = NULL, 
+ @CollegeAcceptanceLeter char(1), 
+ @MedicalDisposi.on  int, 
+ @Consulta.onType  varchar(2) = NULL, 
+ @UserLogin   varchar(15) 
+AS 
+ 
+ 
+ 
+IF EXISTS (SELECT 1 FROM NROTC_CANDIDATE WHERE NROTC_CANDIDATE_ID = @NROTCCandidateID) 
+BEGIN 
+ UPDATE 
+  NROTC_CANDIDATE 
+ SET    
+  COLLEGE_ACCEPTANCE_LETTER  = @CollegeAcceptanceLeter, 
+  MEDICAL_DISPOSITION   = @MedicalDisposi.on, 
+  CONSULTATION_TYPE   = @Consulta.onType, 
+  USER_LOGIN    = @UserLogin, 
+  UPDATE_DATE    = GETDATE() 
+ WHERE 
+  NROTC_CANDIDATE_ID   = @NROTCCandidateID  
+END 
+ELSE 
+BEGIN 
+ INSERT INTO NROTC_CANDIDATE 
+  (NWA_ID, CONTRACT_ID, COLLEGE_ACCEPTANCE_LETTER, MEDICAL_DISPOSITION, CONSULTATION_TYPE, 
+  USER_LOGIN, UPDATE_DATE) 
+ VALUES 
+  (@NWAID, @ContractID, @CollegeAcceptanceLeter, @MedicalDisposi.on, @Consulta.onType, 
+  @UserLogin, GETDATE()) 
+END]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,19 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetConsulta.onTypeByCode]" directorySegmentName="seg_4" id="79FD8C5C-426D-8434-B29B-10980E24CED8">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[(@Code varchar(2)) 
+AS 
+ 
+SELECT 
+  [CONSULTATION_TYPE] AS CODE 
+ ,[CONSULTATION_TYPE_DESCRIPTION] AS DESCRIPTION 
+FROM 
+ [dbo].[CONSULTATION] WITH (NOLOCK) 
+WHERE 
+ CONSULTATION_TYPE = @Code]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

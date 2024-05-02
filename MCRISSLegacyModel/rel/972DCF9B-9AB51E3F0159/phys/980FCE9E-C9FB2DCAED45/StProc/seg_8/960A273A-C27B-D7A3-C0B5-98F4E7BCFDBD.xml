@@ -1,0 +1,70 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateItrEvalDate]" directorySegmentName="seg_8" id="960A273A-C27B-D7A3-C0B5-98F4E7BCFDBD">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@Id uniqueidentifier, 
+@EvalType int, 
+@FieldIndicator int, 
+@ContentDate varchar(20) 
+ 
+AS 
+ 
+BEGIN 
+    
+   SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+   DECLARE @Update_SQL NVARCHAR(4000); 
+    
+   IF @EvalType = 0 
+  SET @Update_SQL = ' UPDATE USMC.TrainingEvalua.on SET '; 
+   IF @EvalType = 1 
+  SET @Update_SQL = ' UPDATE USMC.MonthEvalua.on SET '; 
+   IF @EvalType = 2 
+  SET @Update_SQL = ' UPDATE USMC.MonthSummary SET '; 
+         
+    IF @FieldIndicator = 0 
+         IF @ContentDate = '' 
+   SET @Update_SQL = @Update_SQL +  ' Es.matedDate= null ' ; 
+         ELSE 
+            SET @Update_SQL = @Update_SQL +  ' Es.matedDate= ''' + @ContentDate + ''' ' ; 
+     
+ IF @FieldIndicator = 1 
+    BEGIN 
+        IF @EvalType = 0 
+        BEGIN 
+   IF @ContentDate = '' 
+    SET @Update_SQL = @Update_SQL +  ' CompletedDate= null ' ; 
+            ELSE 
+    SET @Update_SQL = @Update_SQL +  ' CompletedDate= ''' +  @ContentDate + ''' ' ; 
+        END 
+ 
+  IF @EvalType = 1 
+        BEGIN 
+            IF @ContentDate = '' 
+    SET @Update_SQL = @Update_SQL +  ' ReviewByDate= null ' ; 
+            ELSE 
+       SET @Update_SQL = @Update_SQL +  ' ReviewByDate= ''' +  @ContentDate + ''' ' ; 
+   
+        END 
+   
+  IF @EvalType = 2 
+  BEGIN 
+   IF @ContentDate = '' 
+    SET @Update_SQL = @Update_SQL +  ' CommandGroupMemberSignatureDate= null ' ; 
+   ELSE 
+                SET @Update_SQL = @Update_SQL +  ' CommandGroupMemberSignatureDate= ''' +  @ContentDate + ''' ' ; 
+        END 
+ END 
+ 
+    SET @Update_SQL = @Update_SQL + ' WHERE ID=''' + CONVERT(varchar(50),@Id) + ''''; 
+     
+    PRINT(@Update_SQL); 
+    EXEC(@Update_SQL); 
+ 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

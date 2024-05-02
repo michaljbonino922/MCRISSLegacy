@@ -1,0 +1,78 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_4" id="4E60D92C-0855-4886-2433-9FD48524729B" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="_dta_mv_335">
+<sourceDDLFile>create Prospecting script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>FEB39FCF-F576-2D65-495F-97DFC69BEEF3</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  [USMC].[ProspectEduca.on].[ProspectId] as _col_1,  [USMC].[ProspectEduca.on].[EduStatusCode] as _col_2,  [USMC].[ProspectEduca.on].[EduCreden.alCode] as _col_3,  [USMC].[ProspectEduca.on].[EduProjectedTierCode] as _col_4,  count_big(*) as _col_5 FROM  [USMC].[ProspectEduca.on]  GROUP BY  [USMC].[ProspectEduca.on].[ProspectId],  [USMC].[ProspectEduca.on].[EduStatusCode],  [USMC].[ProspectEduca.on].[EduCreden.alCode],  [USMC].[ProspectEduca.on].[EduProjectedTierCode]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="on].[ProspectId]" id="4D0CAB46-0F50-53C0-3DF2-974AE919919E">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_1</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_1</headerAlias>
+<expression>on].[ProspectId]</expression>
+<reference>false</reference>
+<viewID>4E60D92C-0855-4886-2433-9FD48524729B</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="on].[EduStatusCode]" id="A138F40D-554A-9AE7-D8B2-54526FD65D98">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_2</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_2</headerAlias>
+<expression>on].[EduStatusCode]</expression>
+<reference>false</reference>
+<viewID>4E60D92C-0855-4886-2433-9FD48524729B</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="on].[EduCreden.alCode]" id="BBFC87A8-C955-DC2A-8852-2CF7B7204F32">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_3</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_3</headerAlias>
+<expression>on].[EduCreden.alCode]</expression>
+<reference>false</reference>
+<viewID>4E60D92C-0855-4886-2433-9FD48524729B</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="on].[EduProjectedTierCode]" id="672E2A47-87B8-770F-B23A-8E7618D274C5">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_4</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_4</headerAlias>
+<expression>on].[EduProjectedTierCode]</expression>
+<reference>false</reference>
+<viewID>4E60D92C-0855-4886-2433-9FD48524729B</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="count_big(*)" id="F54210AE-DB39-DF2B-BDB0-D42870478704">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_5</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_5</headerAlias>
+<expression>count_big(*)</expression>
+<reference>false</reference>
+<viewID>4E60D92C-0855-4886-2433-9FD48524729B</viewID>
+</viewElement>
+</viewElements>
+</TableView>

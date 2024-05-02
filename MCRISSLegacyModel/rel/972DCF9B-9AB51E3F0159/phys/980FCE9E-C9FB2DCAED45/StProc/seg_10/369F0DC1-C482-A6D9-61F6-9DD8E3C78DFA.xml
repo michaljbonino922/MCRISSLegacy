@@ -1,0 +1,61 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetSMCRReserveUnitByOrg]" directorySegmentName="seg_10" id="369F0DC1-C482-A6D9-61F6-9DD8E3C78DFA">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@Organiza.onID Integer,  
+      @FiscalYear Integer 
+   
+AS 
+SET NOCOUNT ON 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+  
+  SELECT  
+   
+   sr.[SMCRReserveUnitID], 
+   @Organiza.onID AS Organiza.onID, 
+   0 As SchoolCode, 
+   @FiscalYear AS FiscalYear, 
+   [ContractType], 
+   [SMCRReserveUnitName] As SMCRReserveUnitName, 
+   [E1ThruE5Popula.on], 
+   sr.[Street1] AS SMCRStreet1,  
+   sr.[Street2]  AS SMCRStreet2,  
+   sr.[City]  AS SMCRCity, 
+   sr.[State]  AS SMCRState,  
+   sr.[ZipCode]  AS SMCRZipCode, 
+    
+   -- POC Informa.on 
+   pc.[PointOfContactID], 
+    
+   RTRIM (pc.POCLastName) AS POCLastName,  
+   RTRIM(pc.POCFirstName) AS POCFirstName,  
+   POCLegalMiddleName, 
+   pc.[Street1],  
+   pc.[Street2], 
+   pc.[City], 
+   pc.[State], 
+   pc.[ZipCode], 
+         pc.[TelephoneNumber], 
+   pc.[CellPhoneNumber], 
+   pc.[FaxNumber], 
+   pc.[EmailAddress], 
+   sr.[Remarks], 
+   sr.NumVisitsPlanned, 
+   sr.ContractGoal as NumContractGoal 
+     
+    
+  FROM [MCRISS].[USMC].[SMCRReserveUnit] sr 
+   LEFT OUTER JOIN [MCRISS].[USMC].[PointOfContact] pc ON  pc.PointOfContactID = sr.PointOfContactID 
+  
+  WHERE sr.Organiza.onID = @Organiza.onID  
+    AND sr.FiscalYear = @FiscalYear 
+           
+   
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

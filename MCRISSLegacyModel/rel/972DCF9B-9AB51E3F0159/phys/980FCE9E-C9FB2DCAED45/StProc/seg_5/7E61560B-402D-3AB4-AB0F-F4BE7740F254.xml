@@ -1,0 +1,65 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetRecrui.ngPersonnel]" directorySegmentName="seg_5" id="7E61560B-402D-3AB4-AB0F-F4BE7740F254">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@LastName   varchar(20), 
+ @FirstName   varchar(20), 
+ @SSN    varchar(9), 
+ @BilletFromDate  date.me, 
+ @BilletToDate  date.me, 
+ @MosId    varchar(4), 
+ @Billet    varchar(20), 
+ @DaysSinceUpdate int 
+AS 
+BEGIN 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+ SELECT Top 200 
+    T.ID, 
+    T.Billet,        
+       P.LAST_NAME, 
+    P.FIRST_NAME, 
+    P.LEGAL_MIDDLE_NAME, 
+    P.SUFFIX_CD, 
+    M.rowguid, 
+    MC.GENDER_CODE, 
+    P.SOCIAL_SECURITY_NUMBER, 
+    R.RANK_CODE, 
+       M.BILLET_MOS, 
+       R.BILLET_BEGIN_DATE, 
+       RR.SHORT_DESCRIPTION, 
+       O.ORGANIZATION_ID, 
+    O.Name Organiza.onName, 
+    O_PARENT.Name ParentOrganiza.onName, 
+    R.EMAIL_ADDRESS, 
+    R.ON_PRODUCTION, 
+       DATEDIFF(DAY, T.LastUpdatedDate, GETDATE()) AS DaysSinceLastUpdated, 
+    BRC.ClassNumber, 
+       BRC.GradDate 
+FROM USMC.vwMcrissPerson P 
+LEFT OUTER JOIN USMC.vwMcrissMarine AS M ON P.PERSON_ID = M.MARINE_ID 
+LEFT OUTER JOIN USMC.vwMcrissMarineCandidate AS MC on MC.MARINE_CANDIDATE_ID = P.PERSON_ID 
+LEFT OUTER JOIN USMC.vwMcrissRecrui.ngPerson AS R on M.MARINE_ID = R.RECRUITING_PERSON_ID 
+LEFT OUTER JOIN USMC.vwMcrissRecrui.ngOrganiza.on AS O ON O.ORGANIZATION_ID = R.ORGANIZATION_ID 
+LEFT OUTER JOIN USMC.vwMcrissRecrui.ngRole AS RR on R.RECRUITING_ROLE_ID = RR.RECRUITING_ROLE_ID 
+LEFT OUTER JOIN USMC.TrainingFile AS T on M.rowguid = T.RecruiterId 
+LEFT OUTER JOIN USMC.BRC as BRC on T.BRCID = BRC.ID 
+LEFT OUTER JOIN mcriss.dbo.ORGANIZATION_MAP as OM on OM.CHILD_ORGANIZATION_ID = R.ORGANIZATION_ID 
+LEFT OUTER JOIN USMC.vwMcrissRecrui.ngOrganiza.on AS O_PARENT ON O_PARENT.ORGANIZATION_ID = OM.PARENT_ORGANIZATION_ID 
+WHERE (@LastName is null or (P.LAST_NAME like @LastName + '%')) and 
+   (@FirstName is null or (P.FIRST_NAME like @FirstName + '%')) and 
+      (@SSN is null or (P.SOCIAL_SECURITY_NUMBER = @SSN)) and 
+      (@MosId = 0 or (M.BILLET_MOS = @MosId)) and 
+   (@Billet is null or (RR.SHORT_DESCRIPTION = @Billet)) and 
+   (@DaysSinceUpdate = 0 or (DATEDIFF(DAY, T.LastUpdatedDate, GETDATE()) <= @DaysSinceUpdate)) and    
+      (@BilletFromDate is null or (R.BILLET_BEGIN_DATE >= @BilletFromDate)) and   
+      (@BilletToDate is null or (R.BILLET_BEGIN_DATE <= @BilletToDate))   
+   
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

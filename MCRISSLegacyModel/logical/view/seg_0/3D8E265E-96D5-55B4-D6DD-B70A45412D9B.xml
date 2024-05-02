@@ -1,0 +1,41 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<EntityView class="oracle.dbtools.crest.model.design.logical.EntityView" directorySegmentName="seg_0" id="3D8E265E-96D5-55B4-D6DD-B70A45412D9B" name="SELECTION BOARD CURRENT VOTE">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>C1210F35-6C18-6168-3946-F84E9F2EFD26</generatorID>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT SELECTION_BOARD_VOTE.* FROM SELECTION_BOARD_VOTE,  
+(  
+ SELECT BOARD_ID, NWA_ID, VOTER_ID, MAX(VOTE_ORDER) AS CURRENT_MAX_VOTE_ORDER  
+ FROM SELECTION_BOARD_VOTE  
+ GROUP BY BOARD_ID, NWA_ID, VOTER_ID  
+) SELECTION_BOARD_MAX_VOTE_ORDER  
+WHERE SELECTION_BOARD_VOTE.BOARD_ID = SELECTION_BOARD_MAX_VOTE_ORDER.BOARD_ID  
+AND SELECTION_BOARD_VOTE.NWA_ID = SELECTION_BOARD_MAX_VOTE_ORDER.NWA_ID  
+AND SELECTION_BOARD_VOTE.VOTER_ID = SELECTION_BOARD_MAX_VOTE_ORDER.VOTER_ID  
+AND SELECTION_BOARD_VOTE.VOTE_ORDER = SELECTION_BOARD_MAX_VOTE_ORDER.CURRENT_MAX_VOTE_ORDER]]></userDefinedSQL>
+<validSQL>false</validSQL>
+<viewType>EntityView</viewType>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="SELECTION_BOARD_VOTE.*" id="4D4125DF-94FD-0CF2-65FE-7F47F5ABFA60">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>CB413F3A-9BEE-7B41-0B61-23C65C76E495</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>SELECTION_BOARD_VOTE.*</alias>
+<dataType>UNKNOWN</dataType>
+<expression>SELECTION_BOARD_VOTE.*</expression>
+<reference>false</reference>
+<viewID>3D8E265E-96D5-55B4-D6DD-B70A45412D9B</viewID>
+</viewElement>
+</viewElements>
+</EntityView>

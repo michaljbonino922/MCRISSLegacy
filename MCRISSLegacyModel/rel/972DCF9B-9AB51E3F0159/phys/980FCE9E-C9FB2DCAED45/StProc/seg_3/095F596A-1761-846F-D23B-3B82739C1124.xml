@@ -1,0 +1,21 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetBilletsbyOrgType]" directorySegmentName="seg_3" id="095F596A-1761-846F-D23B-3B82739C1124">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@Organiza.onType as varchar(3) 
+AS 
+ 
+SELECT 
+ RR.RECRUITING_ROLE_ID  AS ID,  
+ RR.SHORT_DESCRIPTION AS Descrip.on 
+FROM dbo.ORGANIZATION_BILLET OB WITH (NOLOCK), dbo.RECRUITING_ROLE RR 
+WHERE  
+ OB.RECRUITING_ROLE_ID = RR.RECRUITING_ROLE_ID AND 
+ RR.DELETED = 'N' AND 
+ OB.ORGANIZATION_TYPE = @Organiza.onType 
+ORDER BY Descrip.on]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,91 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SPGEN_RSSACTIVITY]" directorySegmentName="seg_26" id="7B34AA87-6910-C8BD-0C02-81E58F5474B0">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[as 
+declare  
+@Organiza.onID  int, 
+@MccCode  varchar(5), 
+@Ac.vityDate  date.me, 
+@Ac.vityMonth  varchar(2), 
+@Ac.vityYear  varchar(2), 
+@TCAtempts    int, 
+@TCContacts    int, 
+@TCAppointments   int, 
+@TCInterviews    int, 
+@OTContacts     int, 
+@OTInterviews    int, 
+@ACContacts     int, 
+@ACAppointments  int, 
+@ACInterviews    int, 
+@HVAtempts     int, 
+@HVContacts     int, 
+@HVAppointments    int, 
+@HVInterviews    int, 
+@UserLogin  varchar(15) 
+ 
+set @UserLogin = 'migra.on' 
+ 
+ 
+DECLARE ACT cursor for 
+ 
+select RSS_OSS, 
+substring(ACTY_DATE,1,2), 
+substring(ACTY_DATE,3,2), 
+PHONE_CALLS, 
+PHONE_CONTACTS, 
+PHONE_APPTS, 
+PHONE_INTERVWS, 
+OT_SCREENED, 
+OT_INTERVWS, 
+AC_CONTACTS, 
+AC_APPTS, 
+AC_INTERVWS, 
+HV_MADE, 
+HV_CONTACTS, 
+HV_APPTS, 
+HV_INTERVWS 
+from arms..arms_ac.vity 
+ 
+OPEN ACT 
+ 
+FETCH ACT into 
+@MccCode, @Ac.vityYear, @Ac.vityMonth,@TCAtempts,@TCContacts, 
+@TCAppointments,@TCInterviews,@OTContacts,@OTInterviews, 
+@ACContacts,@ACAppointments,@ACInterviews,@HVAtempts,@HVContacts, 
+@HVAppointments,@HVInterviews 
+ 
+WHILE (@@FETCH_STATUS = 0) 
+BEGIN 
+ 
+ set @Ac.vityDate = convert(date.me,'20'+ @Ac.vityYear + '-' + @Ac.vityMonth + '-' + '01') 
+ set @Organiza.onID = (select ORGANIZATION_ID from RECRUITING_ORGANIZATION 
+    where MCC_CODE = @MccCode) 
+  
+ 
+ 
+ if @Organiza.onID is not null 
+ --Executes the Applica.on Stored Procedure 
+ execute sp_UpdateAc.vityAchieved 
+ @Organiza.onID,@Ac.vityDate,@TCAtempts,@TCContacts, 
+ @TCAppointments,@TCInterviews,@OTContacts,@OTInterviews, 
+ @ACContacts,@ACAppointments,@ACInterviews,@HVAtempts, 
+ @HVContacts,@HVAppointments,@HVInterviews,@UserLogin 
+  
+ else  
+ print @MccCode + ' Is not a valid Organiza.on' 
+ 
+ 
+ 
+FETCH ACT into 
+@MccCode, @Ac.vityYear, @Ac.vityMonth,@TCAtempts,@TCContacts, 
+@TCAppointments,@TCInterviews,@OTContacts,@OTInterviews, 
+@ACContacts,@ACAppointments,@ACInterviews,@HVAtempts,@HVContacts, 
+@HVAppointments,@HVInterviews 
+ 
+END]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,27 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetMedicalStatusWaiversAccession]" directorySegmentName="seg_5" id="62964D09-E8DA-4D3F-D5BF-10E74DBFBDD7">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@NWAID int 
+AS 
+ 
+SELECT 
+ [MEDICAL_STATUS_WAIVER_ID], 
+ [SUBMISSION_TYPE_ID], 
+ COALESCE(CONVERT(CHAR(11), [DATE_SUBMITTED_BUMED], 106), null) AS DATE_SUBMITTED_BUMED, 
+ COALESCE(CONVERT(CHAR(11), [DATE_RECEIVED_MCRC], 106), null) AS DATE_RECEIVED_MCRC, 
+ [BUMED_DISPOSITION_ID], 
+ [MCRC_DISPOSITION_ID], 
+ COALESCE(CONVERT(CHAR(11), [DATE_TO_DISTRICT], 106), null) AS DATE_TO_DISTRICT, 
+ [UPDATE_DATE] 
+FROM 
+ [MEDICAL_STATUS_WAIVERS_ACCESSION] WITH (NOLOCK) 
+WHERE 
+ [NWA_ID] = @NWAID 
+ORDER BY 
+ [MEDICAL_STATUS_WAIVER_ID]]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

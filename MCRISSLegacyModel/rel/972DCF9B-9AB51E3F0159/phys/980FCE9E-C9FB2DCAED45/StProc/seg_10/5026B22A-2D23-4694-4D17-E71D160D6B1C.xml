@@ -1,0 +1,26 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertOrUpdateCollegeDegreeType]" directorySegmentName="seg_10" id="5026B22A-2D23-4694-4D17-E71D160D6B1C">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@SchoolCode int, 
+            @FiscalYear int, 
+            @DegreeCode varchar(2), 
+            @UserLogin varchar(50) 
+          
+AS 
+SET NOCOUNT ON 
+ 
+      
+  INSERT INTO [MCRISS].[USMC].[CollegeAvailableDegree] 
+     ([SCHOOL_CODE],[FISCAL_YEAR],[DEGREE_CODE], 
+     [User_Login] ,[Update_Date]) 
+         
+  VALUES          
+    (@SchoolCode, @FiscalYear,@DegreeCode, @UserLogin,  GetDate()) 
+ --- CLEAN UP 
+ SET NOCOUNT OFF]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

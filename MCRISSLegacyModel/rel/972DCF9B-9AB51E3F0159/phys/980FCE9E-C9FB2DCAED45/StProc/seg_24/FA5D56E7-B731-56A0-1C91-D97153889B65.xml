@@ -1,0 +1,160 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateCandidateEduca.on]" directorySegmentName="seg_24" id="FA5D56E7-B731-56A0-1C91-D97153889B65">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@PersonID    int, 
+ @SchoolEndDate    date.me = NULL, 
+ @Educa.onLevel   varchar(2), 
+ @Educa.onCode    char(1)  = NULL, 
+ @SchoolCode    int, 
+ @CivilianEduca.onMajorCode  varchar(2)  = NULL, 
+ @Veri.ca.on    varchar(10)  = NULL, 
+ @OldEduca.onLevel   varchar(2)  = NULL, 
+ @OldSchoolCode    int  = NULL, 
+ @GPA    .oat  = NULL, 
+ @CumGPA    .oat  = NULL, 
+ @ProjectedGradDate  date.me = NULL, 
+ @CreditHours   int  = NULL, 
+ @FullTimeStudent  char(1)  = NULL, 
+ @ProjectedTier   int  = NULL, 
+ @UserLogin    varchar(15) 
+AS 
+ 
+DECLARE @DBID   int 
+DECLARE @DBNAME  sysname 
+ 
+ 
+SELECT  
+ @DBID  = DB_ID(),  
+ @DBNAME = DB_NAME() 
+ 
+--- IF @SchoolEndDate is a futuris.c date then raise error. 
+IF (SELECT DATEDIFF(DAY, @SchoolEndDate, GETDATE())) < 0 
+BEGIN 
+ RAISERROR ('The complete date cannot be a futuris.c date.', 16, 1, @DBID, @DBNAME) 
+ RETURN 
+END 
+ELSE 
+BEGIN 
+--- IF @OldEduca.onLevel IS NULL SET IT TO THE @Educa.onLevel PASSED IN 
+--- IF @OldSchoolCode IS NULL SET IT TO THE @SchoolCode PASSED IN 
+SELECT 
+ @OldEduca.onLevel  = COALESCE(@OldEduca.onLevel, @Educa.onLevel), 
+ @OldSchoolCode   = COALESCE(@OldSchoolCode, @SchoolCode) 
+ 
+ 
+IF EXISTS(SELECT 1 FROM CANDIDATE_EDUCATION  
+  WHERE MARINE_CANDIDATE_ID = @PersonID AND  
+  SCHOOL_CODE    = @OldSchoolCode AND  
+  EDUCATION_LEVEL   = @OldEduca.onLevel) 
+BEGIN 
+ IF EXISTS(SELECT 1 FROM CANDIDATE_EDUCATION 
+   WHERE MARINE_CANDIDATE_ID = @PersonID AND 
+   SCHOOL_END_DATE = @SchoolEndDate AND 
+   (SCHOOL_CODE != @OldSchoolCode OR 
+    EDUCATION_LEVEL != @OldEduca.onLevel)) 
+ BEGIN 
+  RAISERROR ('The applicant cannot have mul.ple educa.on records with the same high grade complete date.', 16, 1, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ ELSE 
+ BEGIN 
+  IF EXISTS(SELECT 1 FROM CANDIDATE_EDUCATION 
+    WHERE MARINE_CANDIDATE_ID = @PersonID AND 
+    COALESCE(SCHOOL_END_DATE, PROJECTED_COMPL_DATE) < COALESCE(@SchoolEndDate, @ProjectedGradDate) AND 
+    CAST(EDUCATION_LEVEL AS INT) >= CAST(@Educa.onLevel AS INT) AND 
+    (SCHOOL_CODE != @OldSchoolCode OR 
+      EDUCATION_LEVEL != @OldEduca.onLevel)) 
+  BEGIN 
+   RAISERROR ('Educa.on record code can''t be lower with a later complete date than the exis.ng educa.on record.', 16, 1, @DBID, @DBNAME) 
+   RETURN 
+  END 
+  ELSE 
+   IF EXISTS(SELECT 1 FROM CANDIDATE_EDUCATION 
+     WHERE MARINE_CANDIDATE_ID = @PersonID AND 
+     COALESCE(SCHOOL_END_DATE, PROJECTED_COMPL_DATE) > COALESCE(@SchoolEndDate, @ProjectedGradDate) AND 
+     CAST(EDUCATION_LEVEL AS INT) < CAST(@Educa.onLevel AS INT) AND 
+     (SCHOOL_CODE != @OldSchoolCode OR 
+       EDUCATION_LEVEL != @OldEduca.onLevel))  
+   BEGIN 
+    RAISERROR ('Educa.on record code can''t be higher with an earlier complete date than the exis.ng educa.on record.', 16, 1, @DBID, @DBNAME) 
+    RETURN 
+   END 
+   ELSE 
+   BEGIN 
+   --- UPDATE EDUCATION  
+   UPDATE  
+    CANDIDATE_EDUCATION 
+   SET  
+    SCHOOL_CODE    = @SchoolCode, 
+    EDUCATION_LEVEL   = @Educa.onLevel, 
+    SCHOOL_END_DATE   = @SchoolEndDate, 
+    EDUCATION_CODE    = @Educa.onCode, 
+    CIVILIAN_EDUCATION_MAJOR_CODE  = @CivilianEduca.onMajorCode, 
+    VERIFICATION    = @Veri.ca.on, 
+    CURRENT_GPA    = @GPA, 
+    CUMULATIVE_GPA    = @CumGPA, 
+    PROJECTED_COMPL_DATE  = @ProjectedGradDate,  
+    CREDIT_HOURS   = @CreditHours, 
+    FULL_TIME_STUDENT  = @FullTimeStudent, 
+    PROJECTED_TIER   = @ProjectedTier, 
+    USER_LOGIN    = @UserLogin, 
+    UPDATE_DATE    = GETDATE() 
+  
+   WHERE  
+    MARINE_CANDIDATE_ID   = @PersonID AND  
+    SCHOOL_CODE    = @OldSchoolCode  AND  
+    EDUCATION_LEVEL   = @OldEduca.onLevel 
+   END 
+ END  
+END 
+ELSE 
+BEGIN 
+ IF EXISTS(SELECT 1 FROM CANDIDATE_EDUCATION 
+   WHERE MARINE_CANDIDATE_ID = @PersonID AND 
+   SCHOOL_END_DATE = @SchoolEndDate) 
+ BEGIN 
+  RAISERROR ('The applicant cannot have mul.ple educa.on records with the same high grade complete date.', 16, 1, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ ELSE 
+ BEGIN 
+  IF EXISTS(SELECT 1 FROM CANDIDATE_EDUCATION 
+    WHERE MARINE_CANDIDATE_ID = @PersonID AND 
+    COALESCE(SCHOOL_END_DATE, PROJECTED_COMPL_DATE) < COALESCE(@SchoolEndDate, @ProjectedGradDate) AND 
+    CAST(EDUCATION_LEVEL AS INT) >= CAST(@Educa.onLevel AS INT)) 
+  BEGIN 
+   RAISERROR ('Educa.on record code can''t be lower with a later complete date than the exis.ng educa.on record.', 16, 1, @DBID, @DBNAME) 
+  END 
+  ELSE 
+   IF EXISTS(SELECT 1 FROM CANDIDATE_EDUCATION 
+     WHERE MARINE_CANDIDATE_ID = @PersonID AND 
+     COALESCE(SCHOOL_END_DATE, PROJECTED_COMPL_DATE) > COALESCE(@SchoolEndDate, @ProjectedGradDate) AND 
+     CAST(EDUCATION_LEVEL AS INT) < CAST(@Educa.onLevel AS INT)) 
+   BEGIN 
+    RAISERROR ('Educa.on record code can''t be higher with an earlier complete date than the exis.ng educa.on record.', 16, 1, @DBID, @DBNAME) 
+    RETURN 
+   END 
+   ELSE 
+   BEGIN 
+   --- INSERT EDUCATION  
+   INSERT INTO CANDIDATE_EDUCATION  
+    (MARINE_CANDIDATE_ID, SCHOOL_CODE, EDUCATION_LEVEL, SCHOOL_END_DATE, 
+    EDUCATION_CODE, CIVILIAN_EDUCATION_MAJOR_CODE, VERIFICATION,  
+    CURRENT_GPA, CUMULATIVE_GPA, PROJECTED_COMPL_DATE,  
+    CREDIT_HOURS, FULL_TIME_STUDENT, PROJECTED_TIER, USER_LOGIN, UPDATE_DATE) 
+   VALUES  
+    (@PersonID, @SchoolCode, @Educa.onLevel, @SchoolEndDate, 
+    @Educa.onCode, @CivilianEduca.onMajorCode, @Veri.ca.on,  
+     @GPA, @CumGPA, @ProjectedGradDate,  
+    @CreditHours, @FullTimeStudent, @ProjectedTier, @UserLogin, GETDATE())  
+   END 
+ END 
+END 
+ 
+END]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

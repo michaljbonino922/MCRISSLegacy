@@ -1,0 +1,140 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="Proc1065" directorySegmentName="seg_15" id="15B0C94A-8AA2-F14D-D72B-49901D408045">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:56 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @star.ngRow int = 1, 
+ @PageSize int = 15, 
+ @FirstName varchar(20) = null, 
+ @LastName varchar(20) = null, 
+ @SSN varchar(9) = null 
+) 
+ 
+AS 
+ 
+--This will return one more row that they asked for so that they know if there is another page of data. 
+DECLARE @LastRow int 
+SET @LastRow = @star.ngRow + @PageSize 
+ 
+ 
+DECLARE @Sor.ngTable TABLE ( 
+ RowNumber int not null, 
+ PersonID uniqueiden..er NOT NULL, 
+    ProspectId uniqueiden..er NOT NULL, 
+ FIRSTNAME VARCHAR(40) NULL,  
+ LASTNAME VARCHAR(40) NULL,   
+ SocialSecurityNumber CHAR(9) NULL, 
+ Street varchar(75) Null, 
+ City varchar(75)  Null, 
+ State varchar(2)  null, 
+ ZipCode varchar(9)  null, 
+ Telephone varchar(25)  null, 
+ Email varchar(256)  null, 
+ RecruiterName varchar(50)  null,  
+ RSS varchar(100) NULL,  
+ Status VARCHAR(40) NULL,  
+ ProspectDisposi.on VARCHAR(40) NULL) 
+ 
+DECLARE @Grid TABLE ( 
+ RowNumber int  null, 
+ PersonID uniqueiden..er  NULL, 
+    ProspectId uniqueiden..er NOT NULL, 
+ FIRSTNAME VARCHAR(40) NULL,  
+ LASTNAME VARCHAR(40) NULL,   
+ SocialSecurityNumber CHAR(9) NULL, 
+ Street varchar(75)  Null, 
+ City varchar(75)  Null, 
+ State varchar(2)  null, 
+ ZipCode varchar(9)  null, 
+ Telephone varchar(25)  null, 
+ Email varchar(256)  null, 
+ RecruiterName varchar(50)  null,  
+ RSS varchar(100) NULL, 
+ Status VARCHAR(40) NULL,  
+ ProspectDisposi.on VARCHAR(40) NULL) 
+ 
+  
+ 
+INSERT INTO @Sor.ngTable (RowNumber, PersonID,ProspectID, SocialSecurityNumber,RSS,RecruiterName, FIRSTNAME, LASTNAME,ProspectDisposi.on) 
+SELECT  
+ ROW_NUMBER() OVER(Order By LASTNAME, FIRSTNAME),  
+ P.PersonID,  
+    Pr.ProspectId, 
+ SOCIALSECURITYNUMBER,  
+ null, 
+ null,  
+ FIRSTNAME,  
+ --LEGAL_MIDDLE_NAME,  
+ LASTNAME, 
+ null 
+FROM [usmc].[Person] p WITH (NOLOCK) 
+INNER JOIN [usmc].[Prospect] pr on p.PersonID = pr.PersonID 
+WHERE  
+ (@FirstName is null OR FIRSTNAME like @FirstName) AND 
+ (@LastName is null OR LASTNAME like @LastName) AND 
+ (@SSN is null OR SOCIALSECURITYNUMBER like @SSN)  
+ 
+INSERT INTO @Grid 
+SELECT *  
+FROM @Sor.ngTable 
+WHERE RowNumber >= @star.ngRow AND RowNumber <= @LastRow 
+ 
+UPDATE @Grid SET  
+ n.Street = PA.Street1, 
+ n.City = PA.City,  
+ n.State = PA.State,  
+ n.ZipCode = PA.ZipCode 
+FROM @Grid n 
+ INNER JOIN PersonAddress PA on n.PersonID = PA.PersonId 
+--INNER JOIN Address A on A.AddressId=PA.AddressId 
+--where PersonAddressTypeId =1 
+ 
+ 
+UPDATE @Grid SET  
+ n.Telephone = pp.PhoneNumber 
+FROM @Grid n 
+ INNER JOIN PersonPhone pp on n.PersonID = pp.PersonId 
+ INNER JOIN Prospect p on p.PersonID = pp.PersonId 
+where PersonPhoneTypeId =1 
+ 
+ 
+UPDATE @Grid SET  
+ n.Email = pe.EmailAddress 
+FROM @Grid n 
+ INNER JOIN PersonEmail pe on n.PersonID = pe.PersonId 
+ INNER JOIN Prospect p on p.PersonID = pe.PersonId 
+where PersonEmailTypeId =1 
+ 
+ 
+UPDATE @Grid SET 
+ n.ProspectDisposi.on = pdt.ProspectDisposi.onType 
+FROM @Grid n 
+ INNER JOIN [Prospect] p on n.ProspectDisposi.on = p.ProspectDisposi.onId 
+    INNER JOIN [ProspectDisposi.onType] pdt on p.ProspectDisposi.onId = pdt.ProspectDisposi.onTypeId 
+ 
+ 
+ 
+SELECT  
+ RowNumber, 
+    PersonID,  
+ ProspectId, 
+ ISNULL(FIRSTNAME, '') as FIRSTNAME, 
+ ISNULL(LASTNAME, '') as LASTNAME, 
+ ISNULL(SOCIALSECURITYNUMBER, '') as SOCIALSECURITYNUMBER, 
+ ISNULL(STREET, '') as STREET,  
+ ISNULL(CITY, '') as CITY, 
+ ISNULL(STATE, '') as STATE, 
+ ISNULL(ZIPCODE, '') as ZIPCODE,  
+ ISNULL(TELEPHONE, '') as TELEPHONE, 
+ ISNULL(EMAIL, '') as EMAIL, 
+ ISNULL(RSS, '') as RSS, 
+ ISNULL(RecruiterName,'') AS RecruiterName, 
+ ISNULL(Status, '') as Status, 
+ ISNULL(ProspectDisposi.on, '') as ProspectDisposi.on  
+ 
+FROM @Grid]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

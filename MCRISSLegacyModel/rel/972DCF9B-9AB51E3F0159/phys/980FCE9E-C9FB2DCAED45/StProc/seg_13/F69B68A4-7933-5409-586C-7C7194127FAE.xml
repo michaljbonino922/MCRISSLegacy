@@ -1,0 +1,41 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_DBA_AddCity]" directorySegmentName="seg_13" id="F69B68A4-7933-5409-586C-7C7194127FAE">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@CITY_CODE varchar(4),  
+@COUNTY_CODE varchar(3),  
+@STATE_CODE varchar(2),  
+@STATE_TEXT varchar(2),  
+@COUNTY_TEXT varchar(30),  
+@CITY_TEXT varchar(30),  
+@USER_LOGIN varchar(15) 
+ 
+AS 
+ 
+INSERT INTO [mcriss].[dbo].[GEO_LOCATION] 
+( 
+[CITY_CODE],  
+[COUNTY_CODE],  
+[STATE_CODE],  
+[STATE_TEXT],  
+[COUNTY_TEXT],  
+[CITY_TEXT],  
+[USER_LOGIN],  
+[UPDATE_DATE] 
+) 
+VALUES 
+( 
+@CITY_CODE, 
+@COUNTY_CODE, 
+@STATE_CODE, 
+@STATE_TEXT, 
+@COUNTY_TEXT, 
+@CITY_TEXT, 
+@USER_LOGIN, 
+GETDATE() 
+)]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

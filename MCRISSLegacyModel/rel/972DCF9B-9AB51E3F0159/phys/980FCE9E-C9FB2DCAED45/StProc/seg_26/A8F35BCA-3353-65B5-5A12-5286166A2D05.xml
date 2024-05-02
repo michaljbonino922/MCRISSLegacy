@@ -1,0 +1,102 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateHSCCPro.le]" directorySegmentName="seg_26" id="A8F35BCA-3353-65B5-5A12-5286166A2D05">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@SchoolPro.leID uniqueiden..er, 
+ @XML_RESPONSE xml = null, 
+ @MALE_SENIORS  int = null, 
+ @FEMALE_SENIORS int = null, 
+ @DESIGNATOR    INT = null, 
+ @FAX           VARCHAR(50) = null, 
+ @WEB_ADDRESS   VARCHAR(100) = null, 
+ @EMAIL_ADDRESS VARCHAR(100) = null, 
+ @WEB_POC       VARCHAR(50) = null, 
+ @CHANNEL_ONE       BIT = null, 
+ @CLASS_SIZE    INT = null, 
+ @VOCATION_TRAINING bit = null, 
+ @TRAINING_MONTH varchar(10) = null, 
+ @TRAINING_LOCATION varchar(50) = null,  
+    @FOUR_YEAR_COLLEGE_PERCENTAGE int = null, 
+    @TWO_YEAR_COLLEGE_PERCENTAGE int = null, 
+    @PERCENT_TO_COLLEGE int = null, 
+    @MILITARY_PERCENTAGE int = null, 
+    @MILITARY_LIAISON varchar(50) = null,  
+    @LIST_RELEASE bit = null, 
+    @RELEASE_MONTH varchar(50) = null, 
+    @SPECIAL_RESTRICTIONS varchar(500) = null, 
+    @POLICY varchar(500) = null, 
+    @PRINCIPAL_NAME varchar(50) = null,  
+    @ASST_PRINCIPAL_NAME varchar(50) = null, 
+    @SUPERINTENDENT_NAME varchar(50) = null,  
+    @SCHOOL_BOARD_PRESIDENT varchar(50) = null,  
+    @SECRETARIES varchar(200) = null,  
+    @GUIDANCE_DEPT_POC varchar(50) = null,  
+    @GUIDANCE_DEPT_SECRETARY varchar(50) = null,  
+    @ATHLETIC_DEPT_REMARKS varchar(1500) = null, 
+    @BAND_DIRECTOR varchar(50) = null,  
+    @STUDENT_REP varchar(50) = null,  
+    @BAND_DEPT_REMARKS varchar(1500) = null, 
+    @PRINCIPAL_OFFICE_REMARKS  varchar(1500) = null,    
+    @SNCOIC_INITIALS varchar(100)   
+ 
+AS 
+BEGIN 
+-- STEP 1: Start the transac.on 
+ BEGIN TRANSACTION 
+ update MCRISS.DBO.High_School_Pro.le set XML_RESPONSE = @XML_RESPONSE, 
+ MALE_SENIORS = @MALE_SENIORS, FEMALE_SENIORS=@FEMALE_SENIORS, 
+ DESIGNATOR =@DESIGNATOR, FAX = @FAX, WEB_ADDRESS = @WEB_ADDRESS, 
+ EMAIL_ADDRESS = @EMAIL_ADDRESS,  WEB_POC = @WEB_POC, 
+ CHANNEL_ONE =@CHANNEL_ONE, 
+ CLASS_SIZE   =@CLASS_SIZE, 
+ VOCATION_TRAINING = @VOCATION_TRAINING, 
+ TRAINING_MONTH = @TRAINING_MONTH, 
+ TRAINING_LOCATION = @TRAINING_LOCATION,  
+    FOUR_YEAR_COLLEGE_PERCENTAGE =  @FOUR_YEAR_COLLEGE_PERCENTAGE, 
+    TWO_YEAR_COLLEGE_PERCENTAGE = @TWO_YEAR_COLLEGE_PERCENTAGE, 
+    PERCENT_TO_COLLEGE = @PERCENT_TO_COLLEGE, 
+    MILITARY_PERCENTAGE = @MILITARY_PERCENTAGE, 
+    MILITARY_LIAISON = @MILITARY_LIAISON,  
+    LIST_RELEASE = @LIST_RELEASE, 
+    RELEASE_MONTH = @RELEASE_MONTH, 
+    SPECIAL_RESTRICTIONS = @SPECIAL_RESTRICTIONS, 
+    POLICY = @POLICY, 
+    PRINCIPAL_NAME = @PRINCIPAL_NAME,  
+    ASST_PRINCIPAL_NAME =@ASST_PRINCIPAL_NAME, 
+    SUPERINTENDENT_NAME =@SUPERINTENDENT_NAME,  
+    SCHOOL_BOARD_PRESIDENT = @SCHOOL_BOARD_PRESIDENT,  
+    SECRETARIES = @SECRETARIES,  
+    GUIDANCE_DEPT_POC = @GUIDANCE_DEPT_POC,  
+    GUIDANCE_DEPT_SECRETARY = @GUIDANCE_DEPT_SECRETARY,  
+    ATHLETIC_DEPT_REMARKS = @ATHLETIC_DEPT_REMARKS, 
+    BAND_DIRECTOR = @BAND_DIRECTOR,  
+    STUDENT_REP = @STUDENT_REP,  
+    BAND_DEPT_REMARKS  = @BAND_DEPT_REMARKS, 
+    PRINCIPAL_OFFICE_REMARKS = @PRINCIPAL_OFFICE_REMARKS, 
+    SNCOIC_INITIALS = @SNCOIC_INITIALS 
+  Where rowguid = @SchoolPro.leID 
+  
+   
+    IF (@@ERROR <> 0) GOTO ErrorHandler 
+   
+     
+COMMIT TRANSACTION  
+ 
+ErrorHandler: 
+ -- Rollback the transac.on if there were any errors 
+ IF @@ERROR <> 0 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+ 
+  -- Raise an error and return 
+  RAISERROR ('Error occurred while performing the change.', 16, 1) 
+  RETURN 
+ END 
+ 
+END]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

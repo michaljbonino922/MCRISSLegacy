@@ -1,0 +1,27 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetAllWaiverCodes]" directorySegmentName="seg_3" id="0E7E1170-604B-7CA5-D486-2B49E496B2BF">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[AS 
+ 
+SELECT 
+ W.WAIVER_ID,  
+ C.WAIVER_CATEGORY_CODE,  
+ T.WAIVER_TYPE_CODE,  
+ L.WAIVER_LEVEL_CODE,  
+ C.WAIVER_CATEGORY_DESC,  
+ T.WAIVER_TYPE_DESC,  
+ L.WAIVER_LEVEL_DESC 
+FROM 
+ WAIVER W WITH (NOLOCK) INNER JOIN WAIVER_CATEGORY C ON  
+  (W.WAIVER_CATEGORY_ID = C.WAIVER_CATEGORY_ID AND  
+  C.WAIVER_CATEGORY_CODE IN ('D', 'F')) 
+ INNER JOIN WAIVER_TYPE T ON W.WAIVER_TYPE_ID = T.WAIVER_TYPE_ID  
+ INNER JOIN WAIVER_LEVEL L ON W.WAIVER_LEVEL_ID = L.WAIVER_LEVEL_ID 
+ORDER BY 
+ WAIVER_CATEGORY_CODE, WAIVER_TYPE_CODE, WAIVER_LEVEL_CODE, W.WAIVER_ID]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

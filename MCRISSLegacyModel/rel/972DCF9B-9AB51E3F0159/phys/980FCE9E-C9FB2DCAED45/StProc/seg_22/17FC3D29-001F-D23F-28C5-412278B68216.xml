@@ -1,0 +1,56 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_MIDeleteReferrals]" directorySegmentName="seg_22" id="17FC3D29-001F-D23F-28C5-412278B68216">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@ContractID  int, 
+ @UserLogin varchar(15) 
+AS 
+ 
+SET NOCOUNT ON 
+ 
+DECLARE @DBID  int 
+DECLARE @DBNAME sysname 
+DECLARE @ErrMsg varchar(100) 
+ 
+SELECT  
+ @DBID  = DB_ID(),  
+ @DBNAME = DB_NAME() 
+ 
+--- CHECK FOR A REFERRAL RECORD (i.e., WAS THIS CONTRACT REFERRED BY SOMEONE ELSE?) 
+--- AND CHECK FOR REFERRER RECORDS (i.e., DID THIS CONTRACT REFER SOMEONE ELSE?) 
+IF EXISTS (SELECT 1 FROM REFERRAL WHERE CONTRACT_ID = @ContractID) OR 
+ EXISTS (SELECT 1 FROM REFERRAL WHERE DEP_CONTRACT_ID = @ContractID) 
+BEGIN  
+ --- BEGIN TRANSACTION 
+ 
+ --- UPDATE THE USER LOGIN BEFORE WE DELETE THE REFERRAL RECORD  
+ UPDATE 
+  REFERRAL 
+ SET  
+  USER_LOGIN  = @UserLogin, 
+  UPDATE_DATE = GETDATE() 
+ WHERE  
+  CONTRACT_ID  = @ContractID OR 
+  DEP_CONTRACT_ID = @ContractID 
+  
+ --- DELETE ANY REFERRAL RECORDS 
+ DELETE FROM REFERRAL WHERE CONTRACT_ID = @ContractID OR DEP_CONTRACT_ID = @ContractID 
+ 
+ IF @@ERROR != 0 OR @@ROWCOUNT = 0 
+ BEGIN 
+  --- ROLLBACK TRANSACTION 
+  SET @ErrMsg = 'An error occurred deleing the referral record for CONTRACT ' + CONVERT(VARCHAR, @ContractID) + '.'  
+  RAISERROR (@ErrMsg, 16, 1, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ 
+ --- COMMIT TRANSACTION 
+END   
+ 
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

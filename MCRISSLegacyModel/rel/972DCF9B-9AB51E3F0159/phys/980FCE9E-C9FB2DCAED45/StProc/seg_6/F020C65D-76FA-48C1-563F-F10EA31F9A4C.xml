@@ -1,0 +1,381 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetWklyAc.vi.esMonthCum_New]" directorySegmentName="seg_6" id="F020C65D-76FA-48C1-563F-F10EA31F9A4C">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@RecruiterID   uniqueidentifier = null, 
+     @OrgID   int, 
+     @Year   int, 
+     @Month  int 
+ 
+AS 
+BEGIN 
+  
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+  
+ CREATE TABLE #TEMP_WEEKLY_START_DATES ( 
+  [StartDate] [date.me] NOT NULL, 
+  [EndDate] [date.me] NOT NULL, 
+  [ID] [int] IDENTITY(1,1) NOT NULL, 
+ )  
+  
+ INSERT INTO #TEMP_WEEKLY_START_DATES 
+ SELECT DISTINCT 
+  wo.StartDate AS StartDate 
+  ,wo.EndDate AS EndDate 
+ FROM USMC.WeeklyObjec.ve wo  
+ INNER JOIN USMC.MonthlyObjec.ve mo ON mo.ID=wo.MonthlyObjec.veID 
+ INNER JOIN MCRISS.dbo.RECRUITING_ORGANIZATION ro ON ro.ORGANIZATION_ID = @OrgID 
+ WHERE mo.Organiza.onId=ro.rowguid 
+ AND mo.Year=@Year 
+ AND mo.Month=@Month 
+ ORDER BY wo.StartDate 
+  
+ -- Here we calculate start and end dates for the selected week, that will be used later   
+ DECLARE @StartDate date.me 
+ DECLARE @EndDate date.me 
+ 
+ SET @StartDate = (SELECT TOP 1 StartDate FROM #TEMP_WEEKLY_START_DATES ORDER BY ID); 
+ SET @EndDate =   (SELECT TOP 1 EndDate   FROM #TEMP_WEEKLY_START_DATES ORDER BY ID DESC); 
+   
+ --- reset .me to 12:00:00 just in case it is not 
+ SET  @StartDate = CAST( (STR(Year(@StartDate)) + '-' + STR(MONTH(@StartDate)) + '-' + STR(DAY(@StartDate)) ) AS date.me) 
+ 
+ -- Make sure @EndDate is at 12:00:00 AM next day of @EndDate to make <@EndDate working  
+ SET  @EndDate = CAST( (STR(Year(@EndDate)) + '-' + STR(MONTH(@EndDate)) + '-' + STR(DAY(@EndDate)) ) AS date.me) 
+ SET  @EndDate = DATEADD(day, 1, @EndDate) 
+ 
+ SELECT DISTINCT  
+  mo.RecruiterID, 
+  @StartDate AS StartDate, 
+     @EndDate AS EndDate, 
+  ro.ORGANIZATION_ID AS OrgId, 
+  ro.[NAME] AS RssName 
+ INTO #TEMP_WEEKLY_DATA 
+ FROM  
+  #TEMP_WEEKLY_START_DATES wsd 
+  INNER JOIN USMC.WeeklyObjec.ve wo ON wo.StartDate = wsd.StartDate 
+  INNER JOIN USMC.MonthlyObjec.ve mo ON mo.ID = wo.MonthlyObjec.veID 
+  INNER JOIN MCRISS.dbo.RECRUITING_ORGANIZATION ro ON ro.ORGANIZATION_ID = @OrgID 
+ WHERE  
+  mo.Organiza.onId=ro.rowguid 
+  AND mo.Year = @Year 
+  AND mo.Month = @Month 
+  AND mo.RecruiterID != '00000000-0000-0000-0000-000000000000' 
+  AND (@RecruiterID IS NULL OR (@RecruiterID IS NOT NULL AND mo.RecruiterID = @RecruiterID)) 
+  
+ -- This table is used to hold the various types of comments atached to a prospect 
+ SELECT 
+  pc.Recrui.ngPersonID AS RecruiterID, 
+  pac.Ac.vity AS Ac.vity, 
+  pac.ProspectAc.vityCommentId, 
+  pc.IsApproved, 
+  pc.ProspectDate AS ProspectDate 
+  ,pct.ProspectCommentType 
+  ,p.ProspectId 
+ INTO #TEMP_PROSPECT_COMMENTS  
+ FROM  
+  #TEMP_WEEKLY_DATA wd  
+  INNER JOIN Prospec.ng.USMC.ProspectComment pc ON pc.Recrui.ngPersonID = wd.RecruiterID  
+  INNER JOIN Prospec.ng.USMC.Prospect p ON pc.ProspectId = p.ProspectId 
+  INNER JOIN Prospec.ng.USMC.ProspectAc.vityComment pac ON pac.ProspectAc.vityCommentId = pc.ProspectAc.vityCommentId 
+  INNER JOIN Prospec.ng.USMC.ProspectCommentType pct ON pct.ProspectCommentTypeId = pac.ProspectCommentTypeId 
+ WHERE  
+  (pc.ProspectDate >= @StartDate AND pc.ProspectDate < @EndDate) 
+  AND pc.IsApproved = 1 
+     AND pct.ProspectCommentType IN ('CM', 'OT-S', 'Col', 'Col-S', 'Col-R', 'NI')  
+  
+ -- This table is used to hold interviews scheduled for a prospect 
+ SELECT  
+  eo.CreatorId AS RecruiterID, 
+  p.Ac.vity AS Ac.vity, 
+  e.ID, 
+  e.StartDate AS ProspectInterviewDate 
+ INTO #TEMP_PROSPECT_INTERVIEWS 
+ FROM  
+  #TEMP_WEEKLY_DATA wd 
+  INNER JOIN RSSOSS.USMC.EventOwners eo ON eo.CreatorId = wd.RecruiterID 
+  INNER JOIN RSSOSS.USMC.Event e ON  e.ID = eo.EventId 
+  INNER JOIN RSSOSS.USMC.EventSubject s on s.EventId = e.ID 
+  INNER JOIN Prospec.ng.USMC.Prospect p ON s.SubjectId = p.ProspectId  
+  INNER JOIN RSSOSS.USMC.EventOutcome oc ON e.ID = oc.EventId 
+  INNER JOIN RSSOSS.USMC.EventType et ON e.EventTypeId = et.ID 
+ WHERE  
+  (InterviewOutcomeId=1 or InterviewOutcomeId=2) -- New Working Applicant or Follow-up 
+  AND et.Type != 'Follow Up' 
+  AND e.IsApproved = 1 
+  AND (e.StartDate >= @StartDate AND e.StartDate < @EndDate) 
+  
+ -- This table is used to hold appointments scheduled for a prospect 
+ SELECT  
+  eo.CreatorId AS RecruiterID, 
+  p.Ac.vity AS Ac.vity, 
+  e.ID, 
+  e.StartDate AS ProspectAppointmentDate 
+ INTO #TEMP_PROSPECT_APPOINTMENTS 
+ FROM  
+  #TEMP_WEEKLY_DATA wd 
+  INNER JOIN RSSOSS.USMC.EventOwners eo ON eo.CreatorId = wd.RecruiterID 
+  INNER JOIN RSSOSS.USMC.EventSubject s ON s.EventId = eo.EventId 
+  INNER JOIN Prospec.ng.USMC.Prospect p ON s.SubjectId = p.ProspectId 
+  INNER JOIN RSSOSS.USMC.Event e ON  e.ID = s.EventId 
+ WHERE  
+  e.IsApproved = 1 
+  AND e.EventSourceId = 16 
+  AND e.EventTypeId = 85 
+  AND (e.StartDate >= @StartDate AND e.StartDate < @EndDate) 
+      
+  
+ SELECT DISTINCT 
+  ProspectDate, 
+  RecruiterID, 
+  Ac.vity, 
+  ProspectID   
+ INTO #TEMP_PROSPECT_COMMENTS_DATES  
+ FROM #TEMP_PROSPECT_COMMENTS pc 
+ 
+ SELECT pc.ProspectDate, pc.Recrui.ngPersonID AS RecruiterID 
+ INTO #TcMade 
+ FROM  
+  #TEMP_WEEKLY_DATA wd  
+  INNER JOIN Prospec.ng.USMC.ProspectComment pc ON pc.Recrui.ngPersonID = wd.RecruiterID  
+  INNER JOIN Prospec.ng.USMC.ProspectAc.vityComment pac ON pac.ProspectAc.vityCommentId = pc.ProspectAc.vityCommentId 
+  INNER JOIN Prospec.ng.USMC.ProspectCommentType pct ON pct.ProspectCommentTypeId = pac.ProspectCommentTypeId 
+    WHERE  
+  pac.Ac.vity = 'TC'  
+  AND pct.ProspectCommentType IN ('CM', 'Col', 'Col-S', 'Col-R', 'NI', 'NA', 'NH', 'NHCB', 'NHLM') 
+  AND (pc.ProspectDate >= @StartDate AND pc.ProspectDate < @EndDate) 
+     AND pc.IsApproved = 1  
+     AND NOT EXISTS (SELECT p2.ProspectId 
+                   FROM RSSOSS.USMC.Event e 
+       INNER JOIN RSSOSS.USMC.EventSubject s ON e.ID = s.EventId 
+       INNER JOIN RSSOSS.USMC.EventOutcome oc ON e.ID = oc.EventId 
+       INNER JOIN RSSOSS.USMC.EventType et ON e.EventTypeId = et.ID 
+       INNER JOIN Prospec.ng.USMC.Prospect p2 ON s.subjectId = pc.ProspectId  
+              WHERE (InterviewOutcomeId=1 or InterviewOutcomeId=2) -- New Working Applicant or Follow-up 
+                       AND et.Type != 'Follow Up' 
+           AND p2.ProspectId= pc.ProspectId 
+           AND ( 
+        CAST( (STR(Year(StartDate)) + '-' + STR(MONTH(StartDate)) + '-' + STR(DAY(StartDate)) ) AS date.me) < 
+              CAST( (STR(Year(pc.ProspectDate)) + '-' + STR(MONTH(pc.ProspectDate)) + '-' + STR(DAY(pc.ProspectDate)) ) AS date.me) 
+                        AND StartDate >= DateAdd(day, -90, pc.ProspectDate) ) ) 
+     
+  
+ SELECT pc.ProspectDate, pc.Recrui.ngPersonID AS RecruiterID 
+ INTO #HvMade 
+ FROM  
+  #TEMP_WEEKLY_DATA wd  
+  INNER JOIN Prospec.ng.USMC.ProspectComment pc ON pc.Recrui.ngPersonID = wd.RecruiterID  
+  INNER JOIN Prospec.ng.USMC.ProspectAc.vityComment pac ON pac.ProspectAc.vityCommentId = pc.ProspectAc.vityCommentId 
+  INNER JOIN Prospec.ng.USMC.ProspectCommentType pct ON pct.ProspectCommentTypeId = pac.ProspectCommentTypeId 
+ WHERE  
+  pac.Ac.vity = 'HV'  
+  AND pct.ProspectCommentType IN ('CM', 'Col', 'Col-S', 'Col-R', 'NI', 'HV-NA', 'HV-NH') 
+     AND pc.IsApproved = 1 
+  AND (pc.ProspectDate >= @StartDate AND pc.ProspectDate < @EndDate) 
+ 
+ 
+ SELECT pc.ProspectDate, pc.Recrui.ngPersonID AS RecruiterID 
+ INTO #EpSent 
+ FROM  
+  #TEMP_WEEKLY_DATA wd  
+  INNER JOIN Prospec.ng.USMC.ProspectComment pc ON pc.Recrui.ngPersonID = wd.RecruiterID  
+  INNER JOIN Prospec.ng.USMC.ProspectAc.vityComment pac ON pac.ProspectAc.vityCommentId = pc.ProspectAc.vityCommentId 
+  INNER JOIN Prospec.ng.USMC.ProspectCommentType pct ON pct.ProspectCommentTypeId = pac.ProspectCommentTypeId 
+ WHERE  
+  pac.Ac.vity = 'EP'  
+  AND pct.ProspectCommentType IN ('CM', 'Col', 'Col-S', 'Col-R', 'NI', 'EP-U', 'EP-M', 'EP-R') 
+     AND pc.IsApproved = 1 
+  AND (pc.ProspectDate >= @StartDate AND pc.ProspectDate < @EndDate) 
+ 
+ SELECT 
+  NULL AS TargetDate, 
+  @StartDate AS StartDate, 
+  DATEADD(day, -1, @EndDate) AS EndDate, 
+  ( SELECT COUNT(ProspectDate) 
+   FROM #TcMade 
+   WHERE  
+    ( @RecruiterID IS NULL OR (@RecruiterID IS NOT NULL AND RecruiterID = @RecruiterID)) 
+    AND DATEPART(hour, ProspectDate) >= 0  AND DATEPART(hour, ProspectDate) <= 11 
+  ) AS TcMadeAm, 
+ 
+  ( SELECT COUNT(ProspectDate) 
+   FROM #TcMade 
+   WHERE  
+    ( @RecruiterID IS NULL OR (@RecruiterID IS NOT NULL AND RecruiterID = @RecruiterID)) 
+    AND DATEPART(hour, ProspectDate) >= 12 AND DATEPART(hour, ProspectDate) <= 16 
+  ) AS TcMadePm, 
+ 
+  ( SELECT COUNT(ProspectDate) 
+   FROM #TcMade 
+   WHERE  
+    ( @RecruiterID IS NULL OR (@RecruiterID IS NOT NULL AND RecruiterID = @RecruiterID)) 
+    AND DATEPART(hour, ProspectDate) >= 17 AND DATEPART(hour, ProspectDate) <= 23 
+  ) AS TcMadeEvening, 
+ 
+  ( SELECT COUNT(ProspectDate) 
+   FROM #TEMP_PROSPECT_COMMENTS_DATES 
+   WHERE  
+    Ac.vity = 'TC' 
+    AND ( @RecruiterID IS NULL OR (@RecruiterID IS NOT NULL AND RecruiterID = @RecruiterID)) 
+    AND DATEPART(hour, ProspectDate) >= 0  AND DATEPART(hour, ProspectDate) <= 11 
+  ) AS TcContAm, 
+ 
+  ( SELECT COUNT(ProspectDate) 
+   FROM #TEMP_PROSPECT_COMMENTS_DATES 
+   WHERE  
+    Ac.vity = 'TC' 
+    AND ( @RecruiterID IS NULL OR (@RecruiterID IS NOT NULL AND RecruiterID = @RecruiterID)) 
+    AND DATEPART(hour, ProspectDate) >= 12 AND DATEPART(hour, ProspectDate) <= 16 
+  ) AS TcContPm, 
+ 
+  ( SELECT COUNT(ProspectDate) 
+   FROM #TEMP_PROSPECT_COMMENTS_DATES 
+   WHERE  
+    Ac.vity = 'TC' 
+    AND ( @RecruiterID IS NULL OR (@RecruiterID IS NOT NULL AND RecruiterID = @RecruiterID)) 
+    AND DATEPART(hour, ProspectDate) >= 17 AND DATEPART(hour, ProspectDate) <= 23 
+  ) AS TcContEvening, 
+ 
+  ( SELECT COUNT(ProspectAppointmentDate)  
+   FROM #TEMP_PROSPECT_APPOINTMENTS 
+   WHERE  
+    Ac.vity = 'TC' 
+    AND ( @RecruiterID IS NULL OR (@RecruiterID IS NOT NULL AND RecruiterID = @RecruiterID)) 
+    AND DATEPART(hour, ProspectAppointmentDate) >= 0  AND DATEPART(hour, ProspectAppointmentDate) <= 11 
+  ) AS TcApptAm, 
+ 
+  ( SELECT COUNT(ProspectAppointmentDate)  
+   FROM #TEMP_PROSPECT_APPOINTMENTS 
+   WHERE  
+    Ac.vity = 'TC' 
+    AND ( @RecruiterID IS NULL OR (@RecruiterID IS NOT NULL AND RecruiterID = @RecruiterID)) 
+    AND DATEPART(hour, ProspectAppointmentDate) >= 12  AND DATEPART(hour, ProspectAppointmentDate) <= 16 
+  ) AS TcApptPm, 
+ 
+  ( SELECT COUNT(ProspectAppointmentDate)  
+   FROM #TEMP_PROSPECT_APPOINTMENTS 
+   WHERE  
+    Ac.vity = 'TC' 
+    AND ( @RecruiterID IS NULL OR (@RecruiterID IS NOT NULL AND RecruiterID = @RecruiterID)) 
+    AND DATEPART(hour, ProspectAppointmentDate) >= 17  AND DATEPART(hour, ProspectAppointmentDate) <= 23 
+  ) AS TcApptEvening, 
+ 
+  ( SELECT COUNT(ProspectInterviewDate)  
+   FROM #TEMP_PROSPECT_INTERVIEWS 
+   WHERE  
+    Ac.vity = 'TC' 
+    AND ( @RecruiterID IS NULL OR (@RecruiterID IS NOT NULL AND RecruiterID = @RecruiterID)) 
+  ) AS TcInterview,   
+   
+  ( SELECT COUNT(ProspectDate) 
+   FROM #TEMP_PROSPECT_COMMENTS_DATES 
+   WHERE  
+    Ac.vity = 'OT' 
+    AND ( @RecruiterID IS NULL OR (@RecruiterID IS NOT NULL AND RecruiterID = @RecruiterID)) 
+  )  AS OtCont, 
+ 
+  ( SELECT COUNT(ProspectInterviewDate)  
+   FROM #TEMP_PROSPECT_INTERVIEWS 
+   WHERE  
+    Ac.vity = 'OT' 
+    AND ( @RecruiterID IS NULL OR (@RecruiterID IS NOT NULL AND RecruiterID = @RecruiterID)) 
+  ) AS OtInterview, 
+  
+  ( SELECT COUNT(ProspectDate) 
+   FROM #TEMP_PROSPECT_COMMENTS_DATES 
+   WHERE  
+    Ac.vity = 'AC' 
+    AND ( @RecruiterID IS NULL OR (@RecruiterID IS NOT NULL AND RecruiterID = @RecruiterID)) 
+  ) AS AcCont, 
+ 
+  ( SELECT COUNT(ProspectAppointmentDate)  
+   FROM #TEMP_PROSPECT_APPOINTMENTS 
+   WHERE  
+    Ac.vity = 'AC' 
+    AND ( @RecruiterID IS NULL OR (@RecruiterID IS NOT NULL AND RecruiterID = @RecruiterID)) 
+  ) AS AcAppt, 
+ 
+  ( SELECT COUNT(ProspectInterviewDate)  
+   FROM #TEMP_PROSPECT_INTERVIEWS 
+   WHERE  
+    Ac.vity = 'AC' 
+    AND ( @RecruiterID IS NULL OR (@RecruiterID IS NOT NULL AND RecruiterID = @RecruiterID)) 
+  ) AS AcInterview,   
+   
+  ( SELECT COUNT(ProspectDate) 
+   FROM #HvMade 
+   WHERE  
+    ( @RecruiterID IS NULL OR (@RecruiterID IS NOT NULL AND RecruiterID = @RecruiterID)) 
+  )  AS HvMade, 
+   
+  ( SELECT COUNT(ProspectDate) 
+   FROM #TEMP_PROSPECT_COMMENTS_DATES 
+   WHERE  
+    Ac.vity = 'HV' 
+    AND ( @RecruiterID IS NULL OR (@RecruiterID IS NOT NULL AND RecruiterID = @RecruiterID)) 
+  ) AS HvCont, 
+   
+  ( SELECT COUNT(ProspectAppointmentDate)  
+   FROM #TEMP_PROSPECT_APPOINTMENTS 
+   WHERE  
+    Ac.vity = 'HV' 
+    AND ( @RecruiterID IS NULL OR (@RecruiterID IS NOT NULL AND RecruiterID = @RecruiterID)) 
+  ) AS HvAppt, 
+   
+  ( SELECT COUNT(ProspectInterviewDate)  
+   FROM #TEMP_PROSPECT_INTERVIEWS 
+   WHERE  
+    Ac.vity = 'HV' 
+    AND ( @RecruiterID IS NULL OR (@RecruiterID IS NOT NULL AND RecruiterID = @RecruiterID)) 
+  ) AS HvInterview,  
+  
+  ( SELECT COUNT(ProspectDate) 
+   FROM #EpSent 
+   WHERE 
+    ( @RecruiterID IS NULL OR (@RecruiterID IS NOT NULL AND RecruiterID = @RecruiterID)) 
+  ) AS EpSent, 
+   
+  ( SELECT COUNT(ProspectDate) 
+   FROM #TEMP_PROSPECT_COMMENTS_DATES 
+   WHERE  
+    Ac.vity = 'EP' 
+    AND ( @RecruiterID IS NULL OR (@RecruiterID IS NOT NULL AND RecruiterID = @RecruiterID)) 
+  )  AS EpCont, 
+   
+  ( SELECT COUNT(ProspectAppointmentDate)  
+   FROM #TEMP_PROSPECT_APPOINTMENTS 
+   WHERE  
+    Ac.vity = 'EP' 
+    AND ( @RecruiterID IS NULL OR (@RecruiterID IS NOT NULL AND RecruiterID = @RecruiterID)) 
+  ) AS EpAppt, 
+   
+  ( SELECT COUNT(ProspectInterviewDate)  
+   FROM #TEMP_PROSPECT_INTERVIEWS 
+   WHERE  
+    Ac.vity = 'EP' 
+    AND ( @RecruiterID IS NULL OR (@RecruiterID IS NOT NULL AND RecruiterID = @RecruiterID)) 
+  ) AS EpInterview   
+  
+ INTO #TEMP_OBJECTIVE_SHEET_BY_WEEK_DATA 
+  
+ 
+ SELECT *  
+ FROM #TEMP_OBJECTIVE_SHEET_BY_WEEK_DATA 
+ 
+ DROP TABLE #TEMP_WEEKLY_DATA 
+ DROP TABLE #TEMP_PROSPECT_COMMENTS 
+ DROP TABLE #TEMP_PROSPECT_INTERVIEWS 
+ DROP TABLE #TEMP_PROSPECT_APPOINTMENTS 
+ DROP TABLE #TEMP_WEEKLY_START_DATES  
+ DROP TABLE #TEMP_OBJECTIVE_SHEET_BY_WEEK_DATA 
+ DROP TABLE #TEMP_PROSPECT_COMMENTS_DATES 
+ DROP TABLE #TcMade 
+ DROP TABLE #HvMade 
+ DROP TABLE #EpSent  
+  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

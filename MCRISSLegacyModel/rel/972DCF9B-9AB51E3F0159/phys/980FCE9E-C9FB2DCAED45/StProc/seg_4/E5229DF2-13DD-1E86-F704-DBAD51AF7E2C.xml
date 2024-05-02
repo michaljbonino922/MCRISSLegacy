@@ -1,0 +1,32 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetCollegeDegreeType]" directorySegmentName="seg_4" id="E5229DF2-13DD-1E86-F704-DBAD51AF7E2C">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@SchoolCode as integer, 
+      @FiscalYear as integer  
+      
+AS 
+SET NOCOUNT ON 
+ BEGIN 
+   
+  SELECT  
+   [SCHOOL_CODE] AS SchoolCode, cad.[DEGREE_CODE] AS DegreeCode, 
+   RTRIM([DEGREE_DESC]) AS DegreeDescrip.on 
+    
+   FROM [MCRISS].[usmc].[CollegeAvailableDegree] cad  
+   INNER JOIN [MCRISS].[usmc].[AvailableDegreeType] adt   
+      ON cad.[DEGREE_CODE] = adt.[DEGREE_CODE] 
+    
+   where [SCHOOL_CODE] = @SchoolCode 
+    AND [FISCAL_YEAR] = @FiscalYear 
+   ORDER BY cad.[DEGREE_CODE] 
+ 
+END 
+  
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

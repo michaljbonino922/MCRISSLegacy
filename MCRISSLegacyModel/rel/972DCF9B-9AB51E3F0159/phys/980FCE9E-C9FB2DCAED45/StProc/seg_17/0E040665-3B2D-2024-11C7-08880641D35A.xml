@@ -1,0 +1,25 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetDistrictOSSs]" directorySegmentName="seg_17" id="0E040665-3B2D-2024-11C7-08880641D35A">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@District  int 
+AS 
+ 
+SELECT  
+ OSS.ORGANIZATION_ID, OSS.SHORT_NAME,  
+ OSS.ORGANIZATION_TYPE 
+FROM  
+ RECRUITING_ORGANIZATION OSS INNER JOIN ORGANIZATION_MAP RS ON 
+  (OSS.ORGANIZATION_ID = RS.CHILD_ORGANIZATION_ID AND 
+  OSS.ORGANIZATION_TYPE = 'OSS' AND 
+  OSS.ISOPEN = 'Y') 
+ INNER JOIN ORGANIZATION_MAP DIST ON  
+  (RS.PARENT_ORGANIZATION_ID = DIST.CHILD_ORGANIZATION_ID AND 
+  DIST.PARENT_ORGANIZATION_ID = @District) 
+ORDER BY  
+ OSS.SHORT_NAME]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,248 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[aesoa.UpdateShipper]" directorySegmentName="seg_0" id="19A14C11-9398-AE47-44C1-FF1D17F95CBF">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@ContractID    int, 
+ @AFADBD     date.me, 
+ @ComponentCode   varchar(2), 
+ @PayEntryBaseDate  date.me,  
+ @PayGradeCode   varchar(3), 
+ @PayGradeEdDate   date.me, 
+ @ShipDate    date.me, 
+ @ShipType     varchar(4), 
+ @TrainingOrgID   int, 
+ @TermOfEnlistment  int, 
+ @UserLogin    varchar(15) 
+AS 
+ 
+ 
+SET NOCOUNT ON  
+ 
+ 
+DECLARE @ShipID   int 
+DECLARE @NWAID   int 
+ 
+SELECT @NWAID = NWA_ID From MCRISS.dbo.[CONTRACT] WHERE CONTRACT_ID = @CONTRACTID; 
+ 
+SET @PayGradeCode = REPLACE(@PayGradeCode, '0', '') 
+ 
+IF (@TrainingOrgID IS NULL) 
+BEGIN  
+ SELECT @TrainingOrgID =  
+  (CASE  
+   WHEN Region = 901 AND org.OSS IS NULL THEN '1' -- enlisted EASTERN REGION Parris Island 
+   WHEN Region = 902 AND org.OSS IS NULL THEN '2' -- enlisted WESTERN REGION San Diego 
+   WHEN org.RSS IS NULL THEN '4' -- o.cer OCS Quan.co VA 
+  END)  
+ FROM 
+  MCRISS.dbo.NWA n  
+  INNER JOIN [USMC].[vwRecrui.ngOrgIDs] org 
+   ON (n.Organiza.on_of_record_id = org.RSS AND OSS IS NULL)  
+    OR 
+      (n.Organiza.on_of_record_id = org.OSS AND RSS IS NULL) 
+  INNER JOIN MCRISS.[dbo].[MARINE_CANDIDATE] mc 
+   ON mc.MARINE_CANDIDATE_ID = n.MARINE_CANDIDATE_ID 
+ WHERE  
+  Nwa_id = @NWAID 
+END  
+ 
+IF EXISTS (SELECT 1 FROM MCRISS.dbo.SHIPPER WHERE CONTRACT_ID = @ContractID) 
+BEGIN 
+ --- get the @ShipID 
+ SELECT @ShipID = S.SHIP_ID FROM MCRISS.dbo.SHIPPER S WHERE S.CONTRACT_ID = @ContractID 
+ 
+ --- UPDATE SHIPPER DATA 
+ UPDATE 
+  MCRISS.dbo.SHIPPER 
+ SET 
+  AFADBD =    @AFADBD,   
+  COMPONENT_CODE =   @ComponentCode,    
+  PAY_ENTRY_BASE_DATE =  @PayEntryBaseDate,  
+  PAY_GRADE_ED_DATE =   @PayGradeEdDate, 
+  PAY_GRADE_CODE =  @PayGradeCode,     
+  SHIP_DATE =    @ShipDate,    
+  SHIP_TYPE =   @ShipType,     
+  TRAINING_ORGANIZATION_ID =  @TrainingOrgID,    
+  UPDATE_DATE =   GETDATE(), 
+  USER_LOGIN =   @UserLogin    
+ WHERE 
+  SHIP_ID = @ShipID 
+  
+ 
+END 
+ELSE 
+BEGIN 
+ --- INSERT SHIPPER DATA  
+ INSERT INTO MCRISS.dbo.SHIPPER  
+ (  
+  CONTRACT_ID, 
+  AFADBD,   
+  COMPONENT_CODE,    
+  PAY_ENTRY_BASE_DATE,  
+  PAY_GRADE_ED_DATE, 
+  PAY_GRADE_CODE,     
+  SHIP_DATE,    
+  SHIP_TYPE,     
+  TRAINING_ORGANIZATION_ID,    
+  UPDATE_DATE, 
+  USER_LOGIN    
+ ) 
+ VALUES  
+ ( 
+  @CONTRACTID, 
+  @AFADBD,   
+  @ComponentCode,    
+  @PayEntryBaseDate,  
+  @PayGradeEdDate, 
+  @PayGradeCode,     
+  @ShipDate,    
+  @ShipType,     
+  @TrainingOrgID,    
+  GETDATE(), 
+  @UserLogin    
+ ) 
+ 
+ IF NOT EXISTS (SELECT CANDIDATE_STATUS_ID FROM MCRISS.dbo.CANDIDATE_STATUS  
+       WHERE  
+      Nwa_ID = @NWAID AND STATUS_TYPE = 'E' AND STATUS_CODE = 'C' AND DISPOSITION_CODE = 'N') 
+ BEGIN 
+   
+  INSERT INTO MCRISS.dbo.CANDIDATE_STATUS 
+  (NWA_ID, STATUS_EFFECTIVE_DATE, STATUS_TYPE, STATUS_CODE, 
+  DISPOSITION_CODE, USER_LOGIN, UPDATE_DATE) 
+  VALUES 
+   (@NWAID,  
+    @AFADBD,    
+    'E',  
+    'C', 
+    'N',  
+    @UserLogin,  
+    GetDate()) 
+ 
+ END 
+ 
+ IF (@SHIPDATE is not null) 
+ BEGIN 
+  UPDATE MCRISS.dbo.[CONTRACT] 
+   set PROJECTED_SHIP_DATE = @SHIPDATE 
+  WHERE CONTRACT_ID = @ContractID; 
+ END 
+ 
+  
+END 
+ 
+-------------------------------------------------------------------------------------------------------- 
+-- Auto generate Boot Leave event 
+-- event source = 18 
+-- event type = 127 
+-------------------------------------------------------------------------------------------------------- 
+IF (@SHIPDATE is not null) 
+BEGIN 
+ DECLARE @eventId  uniqueiden..er 
+ DECLARE @eventOwnerId uniqueiden..er 
+ DECLARE @eventSubjectId uniqueiden..er 
+ DECLARE @orgId   int 
+ DECLARE @subjectName varchar(256) 
+ DECLARE @eventStartDate date.me 
+ DECLARE @eventEndDate date.me 
+ 
+ -- create a GUID for the eventId 
+ SET @eventId = NEWID() 
+ 
+ -- calculate the start date 
+ -- Friday at .me 1600 
+ -- Per ECP 1085 RSS Update the MCRD Card Automated Boot Leave Event 
+ -- Change Event to be within one day 
+ -- start .me at 0100, end .me at 2300 
+ SET @eventStartDate = [usmc].[GetDateDueHome](@ShipDate) 
+ SET @eventStartDate = DATEADD(dd, DATEDIFF(dd, 0, @eventStartDate), 0) 
+ SET @eventStartDate = DATEADD(hh, 1, @eventStartDate) 
+ 
+ -- calculate the end date 
+ -- 10 full days of leave (11), come back on Tuesday at .me 0800 
+ -- Per ECP 1085 RSS Update the MCRD Card Automated Boot Leave Event 
+ -- Change Event to be within one day 
+ -- start .me at 0100, end .me at 2300 
+ SET @eventEndDate = DATEADD(dd, 0, @eventStartDate) 
+ SET @eventEndDate = DATEADD(dd, DATEDIFF(dd, 0, @eventEndDate), 0) 
+ SET @eventEndDate = DATEADD(hh, 23, @eventEndDate) 
+ 
+ SELECT 
+  @eventOwnerId = RECRUITING_PERSON.rowguid, 
+  @eventSubjectId = NWA.rowguid, 
+  @orgId = NWA.ORGANIZATION_OF_RECORD_ID, 
+  @subjectName = RTRIM (PERSON.LAST_NAME) + ', ' + RTRIM(PERSON.FIRST_NAME) + ' ' + IsNull(PERSON.LEGAL_MIDDLE_NAME,'')  
+ FROM MCRISS.dbo.NWA 
+ INNER JOIN MCRISS.dbo.RECRUITING_PERSON on RECRUITING_PERSON.RECRUITING_PERSON_ID = COALESCE(NWA.WORKING_RECRUITER_ID, NWA.RECRUITER_OF_RECORD_ID) 
+ INNER JOIN MCRISS.dbo.PERSON ON PERSON.Person_ID = NWA.MARINE_CANDIDATE_ID 
+ WHERE NWA.NWA_ID = @NWAID 
+ 
+ 
+ -- create the main event record 
+ INSERT INTO [RSSOSS].[USMC].[Event] 
+      (ID, 
+    Organiza.onId, 
+    EventSourceId, 
+    EventTypeId, 
+    EventTypeOther, 
+    Loca.on, 
+    Comments, 
+    IsComplete, 
+    StartDate, 
+    EndDate, 
+    EventPrecision, 
+    LastUpdateDate, 
+    LastUpdateUserId, 
+    OwnerId, 
+    SeriesID) 
+   VALUES 
+      (@eventId, 
+    @orgId, 
+    18, 
+    127, 
+    null, 
+    'RSS', 
+    null, 
+    0, 
+    @eventStartDate, 
+    @eventEndDate, 
+    1, 
+    GETDATE(), 
+    @eventOwnerId, 
+    null, 
+    0) 
+ 
+ -- create the event subject record 
+ INSERT INTO [RSSOSS].[USMC].[EventSubject] 
+      ([Id] 
+      ,[EventId] 
+      ,[SubjectId] 
+      ,[SubjectName]) 
+   VALUES 
+      (newid() 
+      ,@eventId 
+      ,@eventSubjectId 
+      ,@subjectName) 
+ 
+ -- create the event owner record 
+ INSERT INTO [RSSOSS].[USMC].[EventOwners] 
+      ([ID] 
+      ,[EventID] 
+      ,[OwnerID] 
+      ,[CreatorID] 
+      ,[LastUpdateDate] 
+      ,[LastUpadteUserID]) 
+   VALUES  
+      (newid() 
+      ,@eventId 
+      ,@eventOwnerId 
+      ,@eventOwnerId 
+      ,getdate() 
+      ,@eventOwnerId) 
+ 
+END]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

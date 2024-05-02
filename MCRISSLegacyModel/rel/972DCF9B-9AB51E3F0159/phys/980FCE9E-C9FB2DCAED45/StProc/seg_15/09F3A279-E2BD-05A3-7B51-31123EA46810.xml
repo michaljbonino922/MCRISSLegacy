@@ -1,0 +1,182 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SP_GENCANDIDATE_PROFESSEDEXAM]" directorySegmentName="seg_15" id="09F3A279-E2BD-05A3-7B51-31123EA46810">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[as 
+SET ARITHABORT OFF 
+set arithignore on 
+set ansi_warnings o. 
+ 
+declare 
+  @ssn   varchar(9), 
+ @person_id  int, 
+ @exam_type  char(1), 
+ @exam_date  date.me, 
+ @exam_entered_date date.me, 
+ @exam_score  .oat, 
+ @exam_score2  .oat, 
+ @exam_score3  .oat, 
+ @user_login  varchar(15), 
+ @update_date  date.me, 
+ @aacn   varchar(15), 
+ @edt   .oat, 
+ @pa   varchar(2), 
+ @asvab   .oat, 
+ @asvab_date  date.me 
+ 
+ 
+declare professed cursor for 
+ 
+select SSN, 
+ AACN, 
+ convert(.oat,ENGLISH_DIAGNOSTIC_TEST_SCORE), 
+ PUBLIC_AFFAIRS_INTERVIEW_CODE, 
+ convert(.oat,MEPS_AFQT), 
+ ASVAB_DTE 
+ 
+from arms..ARMS179 
+ 
+open professed 
+ 
+fetch professed 
+ into @ssn,@aacn,@edt,@pa,@asvab,@asvab_date 
+ 
+ select @user_login = 'migra.on' 
+ select @update_date = getdate() 
+ select @exam_entered_date = getdate() 
+ 
+while (@@FETCH_STATUS = 0) 
+  begin 
+     select @person_id = PERSON_ID from PERSON 
+      where SOCIAL_SECURITY_NUMBER = @ssn 
+  
+ if @aacn is not NULL 
+         begin 
+ 
+ if not exists (select MARINE_CANDIDATE_ID from CANDIDATE_PROFESSED_EXAM 
+   where PROFESSED_EXAM_TYPE = 'M' and MARINE_CANDIDATE_ID = @person_id and 
+   EXAM_DATE = @asvab_date) 
+   begin 
+ 
+  select @exam_type = 'M' 
+  select @exam_date = @asvab_date 
+  select @exam_score = 2.7 
+  select @exam_score2 = NULL 
+  select @exam_score3 = NULL 
+   
+  
+  insert CANDIDATE_PROFESSED_EXAM 
+   (MARINE_CANDIDATE_ID,PROFESSED_EXAM_TYPE,EXAM_DATE, 
+   EXAM_ENTERED_DATE,EXAM_SCORE,EXAM_SCORE2,EXAM_SCORE3, 
+   USER_LOGIN,UPDATE_DATE) 
+ 
+  values (@person_id,@exam_type,@exam_date,@exam_entered_date,@exam_score, 
+   @exam_score2,@exam_score3,@user_login,@update_date) 
+       
+  print @ssn +'Added AACN to Professed' 
+   end 
+ else print @ssn+'Is not involved in music' 
+ end 
+ 
+  
+  
+ if @edt != 0 
+ begin 
+  
+ if not exists (select MARINE_CANDIDATE_ID from CANDIDATE_PROFESSED_EXAM 
+   where PROFESSED_EXAM_TYPE = 'D'  
+   and MARINE_CANDIDATE_ID = @person_id and 
+   EXAM_DATE = @asvab_date) 
+    
+   begin 
+  select @exam_type = 'D' 
+  select @exam_score = @edt 
+  select @exam_date = @asvab_date 
+  select @exam_score2 = NULL 
+  select @exam_score3 = NULL 
+    
+ 
+  insert CANDIDATE_PROFESSED_EXAM 
+   (MARINE_CANDIDATE_ID,PROFESSED_EXAM_TYPE,EXAM_DATE, 
+   EXAM_ENTERED_DATE,EXAM_SCORE,EXAM_SCORE2,EXAM_SCORE3, 
+   USER_LOGIN,UPDATE_DATE) 
+ 
+  values (@person_id,@exam_type,@exam_date,@exam_entered_date,@exam_score, 
+   @exam_score2,@exam_score3,@user_login,@update_date) 
+   
+  print @ssn+'  English Test added' 
+ end 
+ else print @ssn+'Did not recieve an english test' 
+ 
+   end 
+ 
+ if @pa = 'Y' 
+ begin 
+   
+ if not exists (select MARINE_CANDIDATE_ID from CANDIDATE_PROFESSED_EXAM 
+   where PROFESSED_EXAM_TYPE = 'P' 
+   and MARINE_CANDIDATE_ID = @person_id and 
+   EXAM_DATE = @asvab_date) 
+ 
+   begin 
+  select @exam_type = 'P' 
+  select @exam_score = 1 
+  select @exam_date = @asvab_date 
+  select @exam_score2 = NULL 
+  select @exam_score3 = NULL 
+    
+  insert CANDIDATE_PROFESSED_EXAM 
+   (MARINE_CANDIDATE_ID,PROFESSED_EXAM_TYPE,EXAM_DATE, 
+   EXAM_ENTERED_DATE,EXAM_SCORE,EXAM_SCORE2,EXAM_SCORE3, 
+   USER_LOGIN,UPDATE_DATE) 
+ 
+  values (@person_id,@exam_type,@exam_date,@exam_entered_date,@exam_score, 
+   @exam_score2,@exam_score3,@user_login,@update_date) 
+    
+    print @ssn+'  Public A.airs added' 
+  end 
+     end 
+ if @asvab is not NULL 
+ begin 
+  
+ if not exists (select MARINE_CANDIDATE_ID from CANDIDATE_PROFESSED_EXAM 
+   where PROFESSED_EXAM_TYPE = 'A' 
+ 
+   and MARINE_CANDIDATE_ID = @person_id and 
+   EXAM_DATE = @asvab_date) 
+ 
+    begin 
+  select @exam_type = 'A' 
+  select @exam_score = @asvab 
+  select @exam_date = @asvab_date 
+  select @exam_score2 = NULL 
+  select @exam_score3 = NULL 
+ 
+  insert CANDIDATE_PROFESSED_EXAM 
+   (MARINE_CANDIDATE_ID,PROFESSED_EXAM_TYPE,EXAM_DATE, 
+   EXAM_ENTERED_DATE,EXAM_SCORE,EXAM_SCORE2,EXAM_SCORE3, 
+   USER_LOGIN,UPDATE_DATE) 
+ 
+  values (@person_id,@exam_type,@exam_date,@exam_entered_date,@exam_score, 
+   @exam_score2,@exam_score3,@user_login,@update_date) 
+ 
+    print @ssn+'  Asab added' 
+  end 
+   end 
+ 
+ 
+ fetch professed 
+ into @ssn,@aacn,@edt,@pa,@asvab,@asvab_date 
+ 
+ 
+ 
+end 
+ 
+close professed 
+ 
+deallocate professed]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

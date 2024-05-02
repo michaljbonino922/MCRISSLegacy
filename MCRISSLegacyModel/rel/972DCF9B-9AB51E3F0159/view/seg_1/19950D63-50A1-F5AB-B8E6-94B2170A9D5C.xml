@@ -1,0 +1,117 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_1" id="19950D63-50A1-F5AB-B8E6-94B2170A9D5C" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="_dta_mv_182">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>41213FC8-E0DF-09FE-360A-DCE07497CC58</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  [USMC].[EventSubject].[EventId] as _col_1,  [USMC].[EventSubject].[Id] as _col_2,  [USMC].[EventSubject].[SubjectId] as _col_3,  [USMC].[EventSubject].[SubjectName] as _col_4,  [USMC].[MediaCard].[MediaCardId] as _col_5,  [USMC].[ContactCard].[ID] as _col_6,  [USMC].[ContactCard].[ForFY] as _col_7,  count_big(*) as _col_8 FROM  [USMC].[EventSubject],  [USMC].[MediaCard],  [USMC].[ContactCard]   WHERE  [USMC].[EventSubject].[SubjectId] = [USMC].[ContactCard].[ID]  AND  [USMC].[EventSubject].[SubjectId] = [USMC].[MediaCard].[MediaCardId]  GROUP BY  [USMC].[EventSubject].[EventId],  [USMC].[EventSubject].[Id],  [USMC].[EventSubject].[SubjectId],  [USMC].[EventSubject].[SubjectName],  [USMC].[MediaCard].[MediaCardId],  [USMC].[ContactCard].[ID],  [USMC].[ContactCard].[ForFY]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[EventId]" id="35995CD9-1DE8-5360-7A59-9AD9370CD32C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_1</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_1</headerAlias>
+<expression>[EventId]</expression>
+<reference>false</reference>
+<viewID>19950D63-50A1-F5AB-B8E6-94B2170A9D5C</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[Id]" id="B97C5696-5BE2-9606-E943-9BD106DB36E2">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_2</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_2</headerAlias>
+<expression>[Id]</expression>
+<reference>false</reference>
+<viewID>19950D63-50A1-F5AB-B8E6-94B2170A9D5C</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[SubjectId]" id="1F03DEC4-A52F-C870-6B76-F9F7E0B54D89">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_3</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_3</headerAlias>
+<expression>[SubjectId]</expression>
+<reference>false</reference>
+<viewID>19950D63-50A1-F5AB-B8E6-94B2170A9D5C</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[SubjectName]" id="4AD517A2-20D9-1681-F432-E6813B5D2B25">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_4</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_4</headerAlias>
+<expression>[SubjectName]</expression>
+<reference>false</reference>
+<viewID>19950D63-50A1-F5AB-B8E6-94B2170A9D5C</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[MediaCardId]" id="8DFE537E-69CD-B7DD-D806-F3F03A82397B">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_5</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_5</headerAlias>
+<expression>[MediaCardId]</expression>
+<reference>false</reference>
+<viewID>19950D63-50A1-F5AB-B8E6-94B2170A9D5C</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_872" id="49123E82-7550-3225-D52F-B467385A5DFF">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_6</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_6</headerAlias>
+<expression>[ID]</expression>
+<reference>false</reference>
+<viewID>19950D63-50A1-F5AB-B8E6-94B2170A9D5C</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[ForFY]" id="5A5634F9-5484-2DBF-0402-93F24766A81F">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_7</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_7</headerAlias>
+<expression>[ForFY]</expression>
+<reference>false</reference>
+<viewID>19950D63-50A1-F5AB-B8E6-94B2170A9D5C</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="count_big(*)" id="C7363CDF-00D1-9796-5F41-0E7A3668D6B2">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_8</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_8</headerAlias>
+<expression>count_big(*)</expression>
+<reference>false</reference>
+<viewID>19950D63-50A1-F5AB-B8E6-94B2170A9D5C</viewID>
+</viewElement>
+</viewElements>
+</TableView>

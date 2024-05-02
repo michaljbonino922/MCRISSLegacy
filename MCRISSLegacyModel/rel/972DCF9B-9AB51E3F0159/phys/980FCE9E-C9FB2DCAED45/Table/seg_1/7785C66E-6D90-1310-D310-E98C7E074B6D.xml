@@ -1,0 +1,109 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="on" directorySegmentName="seg_1" id="7785C66E-6D90-1310-D310-E98C7E074B6D">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<schemaObject>674FA3DB-87E4-304D-CB53-F622BFA607BF</schemaObject>
+<database>DB_NULLELEMENT</database>
+<schema>2EDB3CBE-799A-A3C0-599A-1836A28F9451</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="EvalTypeID" id="2D97DDC6-0B47-C965-3BE3-565ECED0BFA7">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:03 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="ExamScore" id="3281020F-F80F-4779-1EC3-776A9CAFBF52">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:03 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="Es.matedDate" id="35D8C558-72AE-EE94-D067-425D2AF4DCF7">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:03 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="CompletedDate" id="3AA4908B-54AD-C78B-00C3-C75D07AECB0A">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:03 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="TrainingFileID" id="69B5CEDB-575D-DB01-E1AD-E38B889F1D8B">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:03 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="ID" id="6C95B81D-83E7-AB5D-0E0C-086756D47863">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:03 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<defaultValue>(newid())</defaultValue>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="SignatureID" id="7EBA11D9-203A-77EE-17A3-82362803709B">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:03 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="LastUpdatedDate" id="C0170ABF-C465-99FF-C3B7-654ED72D394A">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:03 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="LastUpdatedBy" id="DB57C66A-5563-6166-ED14-DE007A53992B">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:03 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="Comment" id="F07E8E02-FD6D-683D-B3A2-391B9E99F254">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:03 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+</columnProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="Prospect_FK" id="02ED1865-4806-BB1A-F4B1-01F7E66FEBD0">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:28 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="FK_TrainingEvalua.on_TrainingFile" id="3D7A3B40-2C36-410A-7394-E1CCAA7CDFEA">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="._LeadStatusDisposi.on_LeadID" id="9A734179-140B-5FDD-3212-8D68E8088F5E">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:25 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="._StatusDisposi.on_StatusID" id="9C31B5D7-1A62-5E0E-2724-57B0399F9C80">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:25 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="FK_TrainingEvalua.on_TrainingEvalType" id="AB277249-1AB5-EAE2-EC12-E58E88C2D84D">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="pk_TakeOneLoca.on_Card" id="AC5EBAA1-D362-F77E-4882-58B6EB322367">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="FK_Mul.MonthEvalua.on_TrainingFile" id="CE01C6A5-B2F0-DC83-DEDB-EB275CD11F78">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="PK_TrainingEvalua.on" id="5CD3F398-EDF9-CC42-B0C2-D41C7ABBE296">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:03 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<clustered>true</clustered>
+<fillFactor>90</fillFactor>
+<partitioningColumn>EFC1C3A0-E2D3-374A-ACA3-B322F3BEB012</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+</TableProxySqlServerv2k5>

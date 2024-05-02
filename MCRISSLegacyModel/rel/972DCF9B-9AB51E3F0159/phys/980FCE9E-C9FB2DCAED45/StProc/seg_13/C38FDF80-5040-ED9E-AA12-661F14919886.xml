@@ -1,0 +1,57 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SaveShipperAdminDiscrepancy]" directorySegmentName="seg_13" id="C38FDF80-5040-ED9E-AA12-661F14919886">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @ID uniqueiden..er, 
+ @ShipperID int, 
+ @DiscrepancySourceID int, 
+ @InterviewerID int, 
+ @Form1966 varchar(200), 
+ @SF86_ENTNAC varchar(200), 
+ @SOU varchar(200), 
+ @Other varchar(200), 
+ @LastEditBy varchar(200) 
+) 
+AS 
+ 
+IF EXISTS(SELECT 1 FROM [USMC].[Shipper_AdminDiscrepancy] WHERE [ID] = @ID) 
+BEGIN 
+ UPDATE [MCRISS].[USMC].[Shipper_AdminDiscrepancy] 
+ SET  
+  [ShipperID] = ShipperID 
+  ,[Form1966] = @Form1966 
+  ,[SOU] = @SOU 
+  ,[SF86_ENTNAC] = @SF86_ENTNAC 
+  ,[Other] = @Other 
+  ,[DiscrepancySourceID] = @DiscrepancySourceID 
+  ,[InterviewerID] = @InterviewerID 
+ WHERE 
+  [ID] = @ID 
+END 
+ELSE 
+BEGIN 
+ INSERT INTO [MCRISS].[USMC].[Shipper_AdminDiscrepancy] 
+  ([ID] 
+  ,[ShipperID] 
+  ,[Form1966] 
+  ,[SOU] 
+  ,[SF86_ENTNAC] 
+  ,[Other] 
+  ,[DiscrepancySourceID] 
+  ,[InterviewerID]) 
+ VALUES 
+  (@ID 
+  ,@ShipperID 
+  ,@Form1966 
+  ,@SOU 
+  ,@SF86_ENTNAC 
+  ,@Other 
+  ,@DiscrepancySourceID 
+  ,@InterviewerID) 
+END]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,89 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateMepsSchedule]" directorySegmentName="seg_27" id="0905D49C-3422-76D7-E7B8-565E887E8DA7">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+      @ScheduleID INT, 
+      @NwaID INT, 
+      @MepsOrganiza.onID INT, 
+      @ProcessingDate DATETIME, 
+      @ArrivalDate DATETIME, 
+      @Asvab CHAR(1), 
+      @SpecialExam CHAR(1), 
+      @CompletePhysical CHAR(1), 
+      @Inspec.onPhysical CHAR(1), 
+      @Consulta.onPhysical CHAR(1), 
+      @Consulta.onType VARCHAR(2), 
+      @Contract CHAR(1), 
+      @DepHold CHAR(1), 
+      @Ship CHAR(1), 
+      @OtherProcessing CHAR(1), 
+      @ProcessingStatus CHAR(1), 
+      @LodgingRequired CHAR(1), 
+      @Transporta.onRequired CHAR(1), 
+      @SpecialExamType VARCHAR(5), 
+      @LastProcessedFor VARCHAR(1), 
+      @ProcessingNotes VARCHAR(250), 
+      @Deleted CHAR(1), 
+      @UserLogin VARCHAR(15), 
+      @Projec.onTypeId INT = NULL, 
+      @AsvabTestType INT = NULL, 
+      @MedicalSpecialExamType INT = NULL, 
+      @Reexamina.on BIT, 
+      @MetSite UNIQUEIDENTIFIER = NULL, 
+   @MirsProjec.onType INT, 
+   @MirsAsvabAc.vity VARCHAR(30), 
+   @MirsMedicalConsultAc.vity VARCHAR(30), 
+   @MirsLiaisonAc.vity CHAR(1), 
+   @MirsFingerprintAc.vity CHAR(1), 
+   @MirsSpecialExamAc.vi.es VARCHAR(200), 
+   @NonMepsShip CHAR(1), 
+   @MirsMetSiteCode VARCHAR(30) 
+ ) 
+AS 
+    UPDATE 
+        [dbo].[MEPS_SCHEDULE] 
+    SET 
+        [NWA_ID] = @NwaID, 
+        [MEPS_ORGANIZATION_ID] = @MepsOrganiza.onID, 
+        [PROCESSING_DATE] = @ProcessingDate, 
+        [ARRIVAL_DATE] = @ArrivalDate, 
+        [ASVAB] = @Asvab, 
+        [SPECIAL_EXAM] = @SpecialExam, 
+        [COMPLETE_PHYSICAL] = @CompletePhysical, 
+        [INSPECTION_PHYSICAL] = @Inspec.onPhysical, 
+        [CONSULTATION_PHYSICAL] = @Consulta.onPhysical, 
+        [CONSULTATION_TYPE] = @Consulta.onType, 
+        [CONTRACT] = @Contract, 
+        [DEP_HOLD] = @DepHold, 
+        [SHIP] = @Ship, 
+        [OTHER_PROCESSING] = @OtherProcessing, 
+        [PROCESSING_STATUS] = @ProcessingStatus, 
+        [LODGING_REQUIRED] = @LodgingRequired, 
+        [TRANSPORTATION_REQUIRED] = @Transporta.onRequired, 
+        [SPECIAL_EXAM_TYPE] = @SpecialExamType, 
+        [LAST_PROCESSED_FOR] = @LastProcessedFor, 
+        [PROCESSING_NOTES] = @ProcessingNotes, 
+        [DELETED] = @Deleted, 
+        [USER_LOGIN] = @UserLogin, 
+        [UPDATE_DATE] = GETDATE(), 
+        PROJECTION_TYPE_ID = (CASE WHEN @Projec.onTypeId = '-1' then PROJECTION_TYPE_ID else @Projec.onTypeId END), 
+        ASVAB_TEST_TYPE = @AsvabTestType, 
+        MEDICAL_SPECIAL_EXAM_TYPE = @MedicalSpecialExamType, 
+        REEXAMINATION = @Reexamina.on, 
+        MET_SITE = @MetSite, 
+  [MIRS_PROJECTION_TYPE] = @MirsProjec.onType, 
+  [MIRS_ASVAB_ACTIVITY] = @MirsAsvabAc.vity, 
+  [MIRS_MEDICAL_CONSULT_ACTIVITY] = @MirsMedicalConsultAc.vity, 
+  [MIRS_LIAISON_ACTIVITY] = @MirsLiaisonAc.vity, 
+  [MIRS_FINGERPRINT_ACTIVITY] = @MirsFingerprintAc.vity, 
+  [MIRS_SPECIAL_EXAM_ACTIVITIES] = @MirsSpecialExamAc.vi.es, 
+  [NONMEPS_SHIP] = @NonMepsShip, 
+  [MIRS_MET_SITE_CODE] = @MirsMetSiteCode 
+    WHERE 
+        SCHEDULE_ID = @ScheduleID;]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

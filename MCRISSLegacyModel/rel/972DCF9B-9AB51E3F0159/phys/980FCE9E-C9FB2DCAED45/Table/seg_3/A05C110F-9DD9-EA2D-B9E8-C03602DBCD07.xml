@@ -1,0 +1,41 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="ODSE_AllMarineLeads" directorySegmentName="seg_3" id="A05C110F-9DD9-EA2D-B9E8-C03602DBCD07">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:51 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<schemaObject>2A6D9360-3BB2-5CEA-6E99-790D76996FDF</schemaObject>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="NEW_LEAD" id="A45C8047-E7BC-3820-C3C2-22D1DDF67713">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:04 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<defaultValue>((0))</defaultValue>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="SSN" id="FE394073-842B-7E12-B962-E72EA06484FB">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:04 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+</columnProxies>
+<indexProxies>
+<IndexProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.IndexProxySqlServerv2k12" name="IDX_NEW_Lead_PJ" id="88C8C544-804F-533F-9395-2334C9207B8D">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:04 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<fillFactor>90</fillFactor>
+<recomputeStatistics>ON</recomputeStatistics>
+</IndexProxy>
+</indexProxies>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="ODSE_AllMarineLeads_PK" id="6D928986-DB04-FB77-6C7A-08B617B0CBBF">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:04 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<clustered>true</clustered>
+<fillFactor>90</fillFactor>
+<partitioningColumn>2CCD1579-54EE-8AF5-9848-EC4669558C67</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+</TableProxySqlServerv2k5>

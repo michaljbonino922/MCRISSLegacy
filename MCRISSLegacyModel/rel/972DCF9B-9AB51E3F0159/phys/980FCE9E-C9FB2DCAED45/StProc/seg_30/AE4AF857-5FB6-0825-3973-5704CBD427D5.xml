@@ -1,0 +1,35 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SelectDocumentsForSec.on]" directorySegmentName="seg_30" id="AE4AF857-5FB6-0825-3973-5704CBD427D5">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:39 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @Sec.onId uniqueiden..er 
+) 
+AS 
+ 
+SELECT 
+ si.[Sec.onItemId], 
+ si.[Sec.onId], 
+ si.[FriendlyName], 
+ si.[Sec.onItemType], 
+ d.[DocumentType], 
+ d.[FileExtension] 
+FROM  
+ [ACP].[Sec.onItem] si 
+INNER JOIN 
+ [ACP].[Document] d ON d.[Sec.onItemId] = si.[Sec.onItemId] 
+WHERE 
+ si.[Sec.onId] = @Sec.onId 
+ AND 
+ si.[Sec.onItemType] = 0 
+ AND 
+ d.[FolderSec.onItemId] IS NULL 
+ORDER BY 
+ [SortOrder] 
+  
+-- 0 = Document, see Sec.onItemType lookup table for values.]]></body>
+<schema>569A41D8-8F40-0619-141C-F4C9436AAF46</schema>
+<database>2D7ED536-DF8E-3523-7DC3-4228EBAF5F66</database>
+</StoredProcedureSqlServerv2k5>

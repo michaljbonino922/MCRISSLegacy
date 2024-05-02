@@ -1,0 +1,39 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_DeleteO.cerWaiver]" directorySegmentName="seg_15" id="FD37A11D-BC90-7D0D-C72B-2BCD5907AB4D">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@O.cerWaiverID  int, 
+ @NWAID   int, 
+ @UserLogin  varchar(15) 
+AS  
+ 
+DECLARE @DBID  int 
+DECLARE @DBNAME sysname 
+ 
+SELECT 
+ @DBID  = DB_ID(), 
+ @DBNAME = DB_NAME() 
+ 
+ 
+IF EXISTS (SELECT 1 FROM OFFICER_WAIVER WHERE OFFICER_WAIVER_ID = @O.cerWaiverID AND NWA_ID = @NWAID) 
+BEGIN 
+ --- DELETE THE RECORD 
+ DELETE FROM OFFICER_WAIVER WHERE OFFICER_WAIVER_ID = @O.cerWaiverID AND NWA_ID = @NWAID 
+ 
+ IF @@ROWCOUNT != 1 
+ BEGIN 
+  RAISERROR ('An error occurred dele.ng the O.cer Waiver record.', 16, 1, @DBID, @DBNAME) 
+  RETURN 
+ END 
+END 
+ 
+IF @@ERROR != 0  
+BEGIN 
+ RAISERROR ('An error occurred dele.ng the O.cer Waiver record.', 16, 2, @DBID, @DBNAME) 
+ RETURN 
+END]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

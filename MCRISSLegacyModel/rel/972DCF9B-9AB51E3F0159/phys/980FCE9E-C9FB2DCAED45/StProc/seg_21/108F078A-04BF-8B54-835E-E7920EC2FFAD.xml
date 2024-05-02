@@ -1,0 +1,126 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_ImportMUDData]" directorySegmentName="seg_21" id="108F078A-04BF-8B54-835E-E7920EC2FFAD">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@OrgID  int,      
+  @UserLogin  varchar(30)   
+    
+AS   
+   
+   
+SET NOCOUNT ON   
+   
+   
+DECLARE @DBID INT,   
+  @DBNAME NVARCHAR(128),   
+  @HR VARCHAR(150)   
+   
+   
+SET @DBID = DB_ID()    
+SET @DBNAME = DB_NAME()   
+SET @HR = 0   
+   
+ Insert into MUD_Staging( 
+ [CITY] 
+      ,[STATE] 
+      ,[ZIP] 
+      ,[AREA_CODE] 
+      ,[FIPS] 
+      ,[COUNTY] 
+      ,[TIMEZONE] 
+      ,[DST] 
+      ,[LATITUDE] 
+      ,[LONGITUDE] 
+      ,[TYPE]) 
+SELECT [City] 
+      ,[ST] 
+      ,[ZIP] 
+      ,[A/C] 
+      ,[FIPS] 
+      ,[County] 
+      ,[T/Z] 
+      ,[DST?] 
+      ,[Lat] 
+      ,[Long] 
+      ,[Type] 
+  FROM [MCRISS].[dbo].[Sheet1$]  
+   
+   
+   
+exec sp_GetMUDNewFIPS   
+ IF @@ERROR != 0    
+ BEGIN   
+  SET @HR = 'An error occurred adding new FIPS.'   
+ END   
+   
+   
+exec sp_GetMUDDeletedZips   
+ IF @@ERROR != 0    
+ BEGIN   
+  SET @HR = 'An error occurred dele.ng ZipCodes.'   
+  ---RETURN   
+ END   
+   
+   
+exec sp_MUDImportNewZips   
+ IF @@ERROR != 0    
+ BEGIN   
+  SET @HR = 'An error occurred adding zipcodes.'   
+  ---RETURN   
+ END  
+ 
+ 
+exec sp_GetMUDReAc.vateZips   
+ IF @@ERROR != 0    
+ BEGIN   
+  SET @HR = 'An error occurred reac.va.ng zipcodes.'   
+  ---RETURN   
+ END   
+   
+   
+exec sp_UpdateMUDCordData   
+ IF @@ERROR != 0    
+ BEGIN   
+  SET @HR = 'An error occurred upda.ng MUD coordinates.'   
+  ---RETURN   
+ END   
+   
+   
+exec sp_GetNewMUDStateCityCnty   
+ IF @@ERROR != 0    
+ BEGIN   
+  SET @HR = 'An error occurred adding new State/County data.'   
+  ---RETURN   
+ END   
+   
+   
+   
+TRUNCATE TABLE MUD_STAGING   
+ 
+TRUNCATE TABLE MUD_NEW_ZIPCODES 
+   
+   
+IF @@ERROR != 0    
+BEGIN   
+ SET @HR = 'An error occurred during the import of MUD data.'   
+ ---RETURN   
+END   
+   
+ --- UPDATE MUD FILE UPLOAD LOG HERE IF THE DTS PACKAGE PROCESSED SUCCESSFULLY     
+ IF @OrgID IS NOT NULL AND @UserLogin IS NOT NULL AND @@ERROR = 0   
+ BEGIN     
+  EXEC sp_UpdateMUDFileLog @OrgID, @UserLogin     
+ END     
+   
+   
+SELECT @HR AS ERROR_DESCRIPTION   
+   
+   
+   
+   
+SET NOCOUNT OFF]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

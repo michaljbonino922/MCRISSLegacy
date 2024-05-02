@@ -1,0 +1,23 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetProgramPeriodsByFY]" directorySegmentName="seg_9" id="479002B2-8E7C-9FD1-4644-2172B256D8E5">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@FiscalYear  int 
+ 
+AS 
+ 
+ SELECT  
+  PROGRAM_PERIOD_ID AS ID, 
+  FY AS FiscalYear, 
+  PERIOD_CODE As PeriodCode,  
+  BEGIN_DATE As BeginDate,  
+  END_DATE As EndDate 
+ FROM  
+  [dbo].[PROGRAM_PERIOD] WITH (NOLOCK) 
+ WHERE  
+  FY = @FiscalYear]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

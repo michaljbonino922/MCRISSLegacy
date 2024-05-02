@@ -1,0 +1,48 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetDisallowedProgramsForCandidateWaiver]" directorySegmentName="seg_16" id="522D13AD-7E79-55F4-34C7-CD8C5026DEE2">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@NWAID    int, 
+ @WaiverCategoryID  int, 
+ @WaiverTypeID  int, 
+ @WaiverLevelID  int 
+AS 
+ 
+DECLARE @WaiverID int 
+ 
+SELECT  @WaiverID = WAIVER_ID 
+FROM WAIVER 
+WHERE WAIVER_CATEGORY_ID = @WaiverCategoryID and WAIVER_TYPE_ID = @WaiverTypeID and WAIVER_LEVEL_ID = @WaiverLevelID 
+ 
+SELECT  
+ PA.PROGRAM_AVAILABILITY_ID, P.PROGRAM_CODE 
+FROM 
+ -- Get all assigned programs for the candidate 
+ CONTRACT C INNER JOIN PROGRAM_AVAILABILITY PA ON 
+  (C.NWA_ID = @NWAID AND C.CONTRACT_ID = PA.CONTRACT_ID) 
+ 
+ -- Join to the PROGRAM table to get the Program Code 
+ INNER JOIN PROGRAM P ON 
+  PA.PROGRAM_ID = P.PROGRAM_ID 
+ 
+ -- Get program criteria waivers 
+ INNER JOIN PROGRAM_CRITERIA_WAIVER PCW ON 
+  (PCW.PROGRAM_ID = PA.PROGRAM_ID AND 
+  PCW.PROGRAM_CRITERIA_ED_DATE =  (SELECT MAX (PCW1.PROGRAM_CRITERIA_ED_DATE) 
+       FROM PROGRAM_CRITERIA_WAIVER PCW1 
+       WHERE  PCW1.PROGRAM_ID = PCW.PROGRAM_ID and 
+       PCW1.PROGRAM_CRITERIA_ED_DATE <= PA.PROGRAM_ASSIGNMENT_DATE)) AND 
+  PCW.WAIVER_ID = @WaiverID 
+ 
+WHERE 
+ -- Make sure candidate does not have XYB override for this waiver 
+ NOT EXISTS (SELECT 1 FROM CANDIDATE_PROGRAM_CRITERIA_WAIVER CPCW INNER JOIN CANDIDATE_WAIVER CW ON  
+     (CW.NWA_ID = @NWAID AND  
+     CW.CANDIDATE_WAIVER_ID = CPCW.CANDIDATE_WAIVER_ID) 
+    WHERE 
+     CPCW.WAIVER_ID = @WaiverID)]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,125 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SaveScreeningResponses]" directorySegmentName="seg_11" id="EAB9041A-D9FA-F2A9-A6CB-B5A109193F6B">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:37 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @LeadID uniqueiden..er, 
+ @ScreeningResponses xml 
+) 
+AS 
+BEGIN 
+ 
+ BEGIN TRANSACTION 
+ DECLARE @ScreeningInfoID uniqueiden..er 
+    declare @ScreeningResponseID uniqueiden..er 
+ declare @ScreeningQues.onID uniqueiden..er 
+ declare @Answer bit 
+ declare @Explana.on varchar(500) 
+ Select @ScreeningInfoID = ScreeningInfoID from [dbo].[ScreeningInfo] 
+  WHERE LeadID = @LeadID 
+  
+ declare @idoc int 
+ 
+    exec sp_xml_preparedocument @idoc output,@ScreeningResponses 
+ 
+    --#te is temp table used to store the xml data. 
+ 
+    select ID,ScreeningQues.onID,Answer,Explana.on into #te from openxml(@idoc,'ArrayOfScreeningResponse/ScreeningResponse',2)   
+    with                                 
+    ( 
+        ID uniqueiden..er, 
+        ScreeningQues.onID uniqueiden..er, 
+        Answer bit, 
+        Explana.on varchar(500) 
+    ) 
+ 
+    --cursor to read  
+    declare cu_xml cursor for select ID,ScreeningQues.onID,Answer,Explana.on from #te     
+ 
+     
+     --Open cursor 
+    open cu_xml 
+ 
+    --fetch the temp table data row by row 
+ 
+    fetch cu_xml into @ScreeningResponseID, @ScreeningQues.onID, @Answer, @Explana.on 
+    while (@@fetch_status = 0) 
+    begin 
+             
+   IF EXISTS(SELECT ScreeningResponseID FROM [dbo].[ScreeningResponse] WHERE [ScreeningResponseID] = @ScreeningResponseID) 
+   BEGIN 
+    UPDATE 
+     [dbo].[ScreeningResponse] 
+    SET  
+     [ScreeningQues.onID] = @ScreeningQues.onID, 
+     [Answer] = @Answer, 
+     [Explana.on] = @Explana.on, 
+     [ScreeningInfoID] = @ScreeningInfoID 
+    WHERE  
+     [ScreeningResponseID] = @ScreeningResponseID 
+   END 
+   ELSE 
+   BEGIN 
+    INSERT INTO [dbo].[ScreeningResponse]  
+    ( 
+     [ScreeningResponseID], 
+     [ScreeningQues.onID], 
+     [Answer], 
+     [Explana.on], 
+     [ScreeningInfoID] 
+    ) 
+    VALUES  
+    ( 
+     @ScreeningResponseID, 
+     @ScreeningQues.onID, 
+     @Answer, 
+     @Explana.on, 
+     @ScreeningInfoID 
+    ) 
+   END 
+   fetch cu_xml into @ScreeningResponseID, @ScreeningQues.onID, @Answer, @Explana.on 
+ end 
+    --close the cursor and deallocate. 
+    Close cu_xml 
+    deallocate cu_xml 
+    
+ BEGIN 
+  UPDATE 
+   [dbo].[ScreeningInfo] 
+  SET  
+   [ISCmodifyDate] = GetDate() 
+  WHERE  
+   [ScreeningInfoID] = @ScreeningInfoID 
+ END 
+  
+  
+ -- Rollback the transac.on if there were any errors 
+ IF @@ERROR <> 0 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+  
+  -- Raise an error and return 
+  RAISERROR ('Error occurred while performing the change.', 16, 1) 
+  RETURN 
+ END 
+  
+ -- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+ IF @@ROWCOUNT > 1 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+  
+  -- Raise an error and return 
+  RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+  RETURN 
+ END 
+  
+ -- If we reach this point, the commands completed successfully. 
+ COMMIT TRANSACTION 
+END]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,52 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateCandidateOCCR]" directorySegmentName="seg_24" id="2D53EAE6-37CD-180D-6374-48FD8BE25CB1">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@PersonId  int,     
+ @MosCode  varchar(4),     
+ @StateCode  varchar(2),   
+ @CountyCode varchar(3),     
+ @CityCode  varchar(4),     
+ @PriorityPref varchar(1),     
+ @UserLogin  varchar(30) 
+ 
+     
+AS     
+     
+     
+SET NOCOUNT ON     
+     
+     
+IF EXISTS (SELECT 1 FROM CANDIDATE_OCCR WHERE MARINE_CANDIDATE_ID = @PersonID)     
+BEGIN     
+ --- UPDATE OCCR     
+ UPDATE     
+  CANDIDATE_OCCR     
+ SET     
+  MOS_CODE  = @MosCode,                       
+  STATE_CODE   = @StateCode,     
+  CITY_CODE   = @CityCode,     
+  COUNTY_CODE = @CountyCode,   
+  PRIORITY_PREF = @PriorityPref,     
+  USER_LOGIN      = @UserLogin,     
+  UPDATE_DATE     = GETDATE()     
+ WHERE      
+  MARINE_CANDIDATE_ID  = @PersonID     
+END     
+ELSE     
+BEGIN     
+ --- INSERT PRIOR SERVICE     
+ INSERT CANDIDATE_OCCR      
+  (MARINE_CANDIDATE_ID, MOS_CODE, STATE_CODE, COUNTY_CODE, CITY_CODE, PRIORITY_PREF, USER_LOGIN, UPDATE_DATE)     
+ VALUES      
+  (@PersonID, @MosCode, @StateCode, @CountyCode, @CityCode, @PriorityPref, @UserLogin, GETDATE())     
+END     
+     
+     
+     
+SET NOCOUNT OFF]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

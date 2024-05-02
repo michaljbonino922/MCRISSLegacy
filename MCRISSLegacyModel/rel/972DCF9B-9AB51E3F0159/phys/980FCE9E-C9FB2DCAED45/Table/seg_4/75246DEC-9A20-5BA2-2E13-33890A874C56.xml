@@ -1,0 +1,107 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="PersonPhone" directorySegmentName="seg_4" id="75246DEC-9A20-5BA2-2E13-33890A874C56">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:09 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<schemaObject>454547C7-2829-9C8F-6E0C-35E4CFDC8E47</schemaObject>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="LastUpdateUserId" id="17D687DE-BE83-BB22-AE65-1BA1CED67364">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="PhoneNumber" id="69F9A481-F027-3A55-267A-04AA82A178E7">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="PersonId" id="7286ED3C-DC21-DB8C-E35B-8A09ADE9800E">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="LastUpdateDate" id="77E35B56-922B-BCF5-C722-6D60B78C5D6B">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="PersonPhoneTypeId" id="C3F46C39-AF35-F436-BE6B-5A70E8AEA2DE">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="PersonPhoneId" id="F583EF6D-68A3-21BB-674B-C966B75303A7">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<defaultValue>(newid())</defaultValue>
+</ColumnProxy>
+</columnProxies>
+<indexProxies>
+<IndexProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.IndexProxySqlServerv2k12" name="IX_PersonId_PhoneNumber_LastUpdateDate" id="03FD24BF-CE49-B20B-1293-10A4628FD1DD">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<fillFactor>100</fillFactor>
+<recomputeStatistics>ON</recomputeStatistics>
+</IndexProxy>
+<IndexProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.IndexProxySqlServerv2k12" name="IX_Person_Phone" id="08215D49-55B4-0AB8-BF83-126920EF7D3B">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<fillFactor>100</fillFactor>
+<padIndex>YES</padIndex>
+<recomputeStatistics>ON</recomputeStatistics>
+</IndexProxy>
+<IndexProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.IndexProxySqlServerv2k12" name="IDX_PersonPhone_RCTAPI_PersonId" id="1A3DF5C7-744C-5BF3-BEFF-ADBEC43FCC9C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<fillFactor>100</fillFactor>
+<recomputeStatistics>ON</recomputeStatistics>
+</IndexProxy>
+<IndexProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.IndexProxySqlServerv2k12" name="Person_PhoneTypeID_PhoneNumber" id="205CEC55-12A1-3CD6-9FCB-FBA3E520E8DF">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<recomputeStatistics>ON</recomputeStatistics>
+</IndexProxy>
+<IndexProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.IndexProxySqlServerv2k12" name="IDX_PersonIDPersonPhoneTyp_141515_PJ" id="466F1D62-E8AF-2238-5CB0-8168D94C70A9">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<recomputeStatistics>ON</recomputeStatistics>
+</IndexProxy>
+</indexProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="Person_PersonPhone_FK1" id="17742C95-60B1-2DE8-F051-DAB6C45A1BAF">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:28 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="PersonPhoneType_PersonPhone_FK1" id="65731A1E-5E0A-E545-C306-1A47A5116F40">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:28 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="PersonPhone_PK" id="0D3D6324-4BDA-086E-4CFD-B73B572D068F">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<clustered>true</clustered>
+<fillFactor>100</fillFactor>
+<partitioningColumn>F583EF6D-68A3-21BB-674B-C966B75303A7</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+<uniqueKeys>
+<UniqueKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.UniqueProxySqlServerv2k5" name="IX_PersonPhone_PersonId_PersonPhoneTypeId" id="E2440382-4B6B-EFC3-9D26-21F7D2C60E67">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</UniqueKey>
+</uniqueKeys>
+</TableProxySqlServerv2k5>

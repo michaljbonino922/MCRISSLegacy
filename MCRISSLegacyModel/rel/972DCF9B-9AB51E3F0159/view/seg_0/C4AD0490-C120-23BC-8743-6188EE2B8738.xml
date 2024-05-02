@@ -1,0 +1,58 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_0" id="C4AD0490-C120-23BC-8743-6188EE2B8738" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="vwStates">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>0719F447-34D3-E35F-DD88-0943F0EC4159</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  
+ '-1' AS ID,  
+ STATE_CODE As Code,  
+ STATE_TEXT As [Name] 
+FROM [dbo].[GEO_LOCATION] WITH (NOLOCK) 
+WHERE  
+ (ISNUMERIC(STATE_CODE) = 1) AND (STATE_CODE <> '00') AND (COUNTY_CODE IN ('000', '0')) AND (CITY_CODE IN ('0', '0000'))]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="&apos;-1&apos;" id="224FE59D-16C1-A796-A530-8CCCBB42B6E5">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>ID</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>ID</headerAlias>
+<expression>&apos;-1&apos;</expression>
+<reference>false</reference>
+<viewID>C4AD0490-C120-23BC-8743-6188EE2B8738</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="STATE_CODE" id="B6240C05-F8CF-5679-6697-A2AB7E0979E5">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Code</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>Code</headerAlias>
+<expression>STATE_CODE</expression>
+<reference>false</reference>
+<viewID>C4AD0490-C120-23BC-8743-6188EE2B8738</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="STATE_TEXT" id="62024AA3-7826-A087-5DCF-A1AC86C73D7B">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Name</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>Name</headerAlias>
+<expression>STATE_TEXT</expression>
+<reference>false</reference>
+<viewID>C4AD0490-C120-23BC-8743-6188EE2B8738</viewID>
+</viewElement>
+</viewElements>
+</TableView>

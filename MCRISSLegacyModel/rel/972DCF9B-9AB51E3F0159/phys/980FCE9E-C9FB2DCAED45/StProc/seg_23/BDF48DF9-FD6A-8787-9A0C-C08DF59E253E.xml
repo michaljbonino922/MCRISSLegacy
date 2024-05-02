@@ -1,0 +1,45 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_ReturnProgramsToPool]" directorySegmentName="seg_23" id="BDF48DF9-FD6A-8787-9A0C-C08DF59E253E">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@ContractID   int, 
+ @ProgramAvailID  int = NULL 
+AS 
+ 
+ 
+DECLARE @CandidateStatusId int 
+DECLARE @NWAID  int 
+DECLARE @STATUS_DESCRIPTION varchar(30) 
+ 
+ 
+Update PROGRAM_AVAILABILITY 
+Set CONTRACT_ID = NULL 
+Where CONTRACT_ID = @ContractID AND 
+ PROGRAM_AVAILABILITY_ID = COALESCE(@ProgramAvailID, PROGRAM_AVAILABILITY_ID) 
+ 
+ 
+--- UPDATE THE REMOVED_PROGRAMS TABLE 
+SET @NWAID = (SELECT NWA_ID FROM CONTRACT WHERE CONTRACT_ID = @ContractID) 
+SELECT @CandidateStatusId = dbo.GetMaxStatusID(@NWAID) 
+ 
+ 
+SELECT 
+ @STATUS_DESCRIPTION = SD.STATUS_DESCRIPTION 
+FROM  
+ CANDIDATE_STATUS CS INNER JOIN STATUS_DISPOSITION SD ON  
+ (CS.STATUS_TYPE = SD.STATUS_TYPE AND  
+  CS.STATUS_CODE = SD.STATUS_CODE AND  
+  CS.DISPOSITION_CODE = SD.DISPOSITION_CODE AND 
+  CANDIDATE_STATUS_ID = @CandidateStatusId) 
+ 
+--- ONLY UPDATE THE REMOVED_PROGRAMS TABLE IF THE CANDIDATE IS A SHIPPER 
+IF @STATUS_DESCRIPTION = 'SHIPPER' AND NOT EXISTS (SELECT 1 FROM REMOVED_PROGRAMS WHERE PROGRAM_AVAILABILITY_ID = @ProgramAvailID AND CONTRACT_ID = @ContractID) 
+BEGIN 
+ INSERT INTO REMOVED_PROGRAMS(PROGRAM_AVAILABILITY_ID, CONTRACT_ID, USER_LOGIN, UPDATE_DATE) 
+ VALUES(@ProgramAvailID, @ContractID, 'SA', GetDate()) 
+END]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

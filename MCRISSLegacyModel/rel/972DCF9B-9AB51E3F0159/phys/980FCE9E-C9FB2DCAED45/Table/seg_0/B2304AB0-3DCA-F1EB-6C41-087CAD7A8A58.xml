@@ -1,0 +1,50 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="ROLLBACK_LOG" directorySegmentName="seg_0" id="B2304AB0-3DCA-F1EB-6C41-087CAD7A8A58">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<schemaObject>2A6D9360-3BB2-5CEA-6E99-790D76996FDF</schemaObject>
+<database>24B9F7BA-5DD4-EAB5-4EB1-35B911743E85</database>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="RESOLUTION" id="11E29868-BDF5-44F6-067B-27B9A89BF21B">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:15 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<defaultValue>(&apos;U&apos;)</defaultValue>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="USER_LOGIN" id="80142766-334E-9E74-7431-0F0193FC4D4C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:15 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="MIRS_IMPORT_ID" id="89A94660-49D9-58A4-C8E9-3E10D1AD52D7">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:15 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="UPDATE_DATE" id="F79BDCBF-5A40-DCA1-AD3A-699EC7B7695A">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:15 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<defaultValue>(getdate())</defaultValue>
+</ColumnProxy>
+</columnProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="FK_ROLLBACKLOG_MIRSLOG" id="D5AE97E7-9363-4EFF-2E34-520BBA094404">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:17 UTC</createdTime>
+<ownerDesignName>create MCRISS_ERROR script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="PK_ROLLBACK_TRANSACTIONS" id="B43A672E-15D6-DD0E-8BDD-7FF3608D0085">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:15 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<clustered>true</clustered>
+<fillFactor>90</fillFactor>
+<partitioningColumn>79D037A8-4897-519A-D353-4A2BE8B6A963</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+</TableProxySqlServerv2k5>

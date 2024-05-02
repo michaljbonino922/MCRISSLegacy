@@ -1,0 +1,80 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUpdateO.cerContract]" directorySegmentName="seg_12" id="DECDECE6-D2CE-7B25-159F-70B1585BDC66">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @NWAID int, 
+ @ContractID int, 
+ @ContractBeginDate date.me, 
+ @ContractGPA .oat, 
+ @DischargeCode varchar(3), 
+ @DischargeDate date.me, 
+ @BackgroundCompleteDate date.me, 
+ @ProjLawGradDate date.me, 
+ @ProjGradDate date.me, 
+ @ProjCommissionDate date.me, 
+ @BoardStatusID int, 
+ @LastEditBy varchar(50) 
+) 
+AS 
+ 
+SET NOCOUNT ON 
+ 
+IF EXISTS (SELECT 1 FROM OFFICER_CONTRACT WHERE CONTRACT_ID = @ContractID OR NWA_ID = @NWAID) 
+BEGIN 
+ IF COALESCE(@ContractID, 0) = 0 
+ BEGIN 
+  SELECT @ContractID = CONTRACT_ID FROM OFFICER_CONTRACT WHERE NWA_ID = @NWAID 
+ END 
+ 
+ --- UPDATE CONTRACT 
+ UPDATE  
+  OFFICER_CONTRACT  
+ SET     
+  CONTRACT_BEGIN_DATE   = @ContractBeginDate,  
+  CONTRACT_GPA    = @ContractGPA,  
+  DISCHARGE_CODE    = @DischargeCode,  
+  DISCHARGE_DATE    = @DischargeDate,  
+  BACKGROUND_COMPLETE_DATE = @BackgroundCompleteDate,  
+  PROJECTED_GRAD_DATE   = @ProjGradDate, 
+  PROJECTED_LAW_GRAD_DATE  = @ProjLawGradDate, 
+  PROJECTED_COMMISSION_DATE = @ProjCommissionDate, 
+  BOARD_STATUS_ID    = @BoardStatusID, 
+  USER_LOGIN    = @LastEditBy,  
+  UPDATE_DATE    = GETDATE() 
+ WHERE  
+  CONTRACT_ID = @ContractID  
+  --- OR NWA_ID = @NWAID 
+ 
+ --- RETURN THE CONTRACT ID 
+ SELECT @ContractID 
+END 
+ELSE 
+BEGIN 
+ --- INSERT CONTRACT 
+ INSERT INTO OFFICER_CONTRACT  
+  (NWA_ID, CONTRACT_BEGIN_DATE, CONTRACT_GPA,  
+  DISCHARGE_CODE, DISCHARGE_DATE, BACKGROUND_COMPLETE_DATE,  
+  PROJECTED_LAW_GRAD_DATE, PROJECTED_GRAD_DATE, PROJECTED_COMMISSION_DATE, BOARD_STATUS_ID, 
+  USER_LOGIN, UPDATE_DATE) 
+ VALUES (@NWAID, @ContractBeginDate, @ContractGPA,  
+  @DischargeCode, @DischargeDate, @BackgroundCompleteDate,  
+  @ProjLawGradDate, @ProjGradDate, @ProjCommissionDate, @BoardStatusID, 
+  @LastEditBy, GETDATE())  
+ 
+ --- RETURN THE CONTRACT ID 
+ SET @ContractID = SCOPE_IDENTITY() 
+ SELECT @ContractID 
+ 
+ --- VERIFY THE APPLICANT'S EDUCATION RECORD(S) AT CONTRACT 
+ EXEC sp_VerifyEduca.onAtContract  
+  @NWAID = @NWAID, 
+  @ContractID = @ContractID,  
+  @ContractBeginDate = @ContractBeginDate, 
+  @UserLogin = @LastEditBy 
+END]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

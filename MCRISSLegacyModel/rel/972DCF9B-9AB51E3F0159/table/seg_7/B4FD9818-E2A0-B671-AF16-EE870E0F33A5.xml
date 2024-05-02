@@ -1,0 +1,116 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_7" id="B4FD9818-E2A0-B671-AF16-EE870E0F33A5" schemaObject="2A6D9360-3BB2-5CEA-6E99-790D76996FDF" name="PostPermission">
+<sourceDDLFile>create UserMgmt script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>685922D1-3D7B-5DEE-9B61-2341BE79B0B1</importedID>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="ID" id="AF200C7F-EB23-A277-1FA7-70396C7E1110">
+<sourceDDLFile>create UserMgmt script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>F75D1F4C-261D-3062-B250-949AA5301E07</importedID>
+<use>0</use>
+<domain>8C77819C-1B2F-24A0-C36D-F924235A9668</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementColumn>true</autoIncrementColumn>
+<identityColumn>true</identityColumn>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="PostID" id="061EA296-3059-D0AC-062A-31443694DB66">
+<sourceDDLFile>create UserMgmt script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>7BD321D8-5EA8-B055-1BFD-2FE54CE7DF3D</importedID>
+<use>0</use>
+<domain>8C77819C-1B2F-24A0-C36D-F924235A9668</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="AEC43F7C-E5B2-4BB8-4F95-FFA4E38C21DB" referredColumn="D180A5AF-9E2E-2222-25F7-868A6CA54ABF"/>
+</associations>
+</Column>
+<Column name="OrgUnitID" id="7787B4D7-C97E-F98D-7793-73F062F584FE">
+<sourceDDLFile>create UserMgmt script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>58756FF1-7676-41A6-0C6C-2B1A39416D17</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>8C77819C-1B2F-24A0-C36D-F924235A9668</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="PermissionID" id="BAB8B0B0-A0F0-3F69-F383-79E66D8B5CE4">
+<sourceDDLFile>create UserMgmt script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>28357FD2-CF50-C3D2-59B7-33CD5A82D05C</importedID>
+<use>0</use>
+<domain>8C77819C-1B2F-24A0-C36D-F924235A9668</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="259F122E-CD51-6A03-B623-AE7EAF63E297" name="PK_PostPermission">
+<sourceDDLFile>create UserMgmt script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>D30141C6-D7BC-9080-8125-3984CD44FC67</importedID>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="AF200C7F-EB23-A277-1FA7-70396C7E1110"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="DEE6B47C-CDEF-84E6-F01D-5397BB6E75B7" name="NonClusteredIndex-20150408_PJ">
+<sourceDDLFile>create UserMgmt script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>04BB286C-09B2-CC39-C45A-99949E664C2D</importedID>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="061EA296-3059-D0AC-062A-31443694DB66"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="260CF3BB-1E91-CB98-B62F-5525187F1D3E" name="FK_PostPermission_Post">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:51 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="061EA296-3059-D0AC-062A-31443694DB66"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+<tableCheckConstraints itemClass="oracle.dbtools.crest.model.design.constraint.TableLevelConstraint">
+<tableCheckConstraint name="[dbo].[PostPermission]" directorySegmentName="seg_6" id="05DF70A2-3154-C605-FE95-EF0B16E52AB0">
+<sourceDDLFile>create UserMgmt script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:50 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>E72A049E-8AC0-48E8-F945-D42352EED2EA</importedID>
+<rule><![CDATA[CONSTRAINT [FK_PostPermission_Post]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITH" directorySegmentName="seg_6" id="29A62E7D-E34E-4518-0162-FEB975323228">
+<sourceDDLFile>create UserMgmt script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:50 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>16F9F8D9-1586-D5F0-C52F-423E80D56825</importedID>
+</tableCheckConstraint>
+</tableCheckConstraints>
+</Table>

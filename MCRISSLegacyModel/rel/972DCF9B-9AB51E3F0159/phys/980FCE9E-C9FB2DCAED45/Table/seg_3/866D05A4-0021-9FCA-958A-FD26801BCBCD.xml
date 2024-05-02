@@ -1,0 +1,57 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="RetrainAtachment" directorySegmentName="seg_3" id="866D05A4-0021-9FCA-958A-FD26801BCBCD">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:52 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<schemaObject>2A6D9360-3BB2-5CEA-6E99-790D76996FDF</schemaObject>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="Data" id="7A755C85-381D-74ED-099B-AE0C24EE7104">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="RetrainAtachmentID" id="864C9E4E-31C0-7D02-ABBE-8F6E2DE9E570">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="FileName" id="9E9DE353-4EAE-30F2-A9A2-0E2F324E5818">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="RetrainID" id="ACFEB07B-A03A-7782-CDF8-0A3038C541F4">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="RetrainAtachmentType" id="E0C73F99-99CE-FBD0-A59E-36A679C80CF2">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+</ColumnProxy>
+</columnProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="._RetrainAtachment_RetrainID" id="18EC8F38-F808-5670-516E-D12DE3BB418A">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:25 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="._RetrainAtachment_RetrainAtachmentTypeID" id="5AB092C0-3646-94DD-B58C-F658CDDF43C0">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:25 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="pk_RetrainAtachment" id="3BA28E71-B549-E020-EE45-799A9A0D103F">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<clustered>true</clustered>
+<partitioningColumn>864C9E4E-31C0-7D02-ABBE-8F6E2DE9E570</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+</TableProxySqlServerv2k5>

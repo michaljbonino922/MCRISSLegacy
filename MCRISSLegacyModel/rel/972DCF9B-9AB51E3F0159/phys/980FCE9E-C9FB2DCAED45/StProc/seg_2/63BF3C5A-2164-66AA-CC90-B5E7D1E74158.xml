@@ -1,0 +1,21 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetAllEthnic]" directorySegmentName="seg_2" id="63BF3C5A-2164-66AA-CC90-B5E7D1E74158">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[AS 
+ 
+SELECT 
+ -1 AS ID, 
+ ETHNIC_CODE AS Code, 
+ ETHNIC_LONG_DESCRIPTION AS Descrip.on, 
+ ETHNIC_ABBREVEATION, 
+ ETHNIC_SHRT_DESCRIPTION 
+FROM [dbo].[ETHNIC] WITH (NOLOCK) 
+WHERE 
+ ETHNIC_CODE != 'Z' 
+ORDER BY [ETHNIC_SHRT_DESCRIPTION]]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

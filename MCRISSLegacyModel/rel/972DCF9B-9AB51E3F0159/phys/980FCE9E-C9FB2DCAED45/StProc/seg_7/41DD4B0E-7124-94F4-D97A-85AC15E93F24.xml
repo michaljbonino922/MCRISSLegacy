@@ -1,0 +1,153 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUpdateMapsSectorRecruiter]" directorySegmentName="seg_7" id="41DD4B0E-7124-94F4-D97A-85AC15E93F24">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@SectorRecruiterId    uniqueidentifier, 
+ @SectorID      uniqueidentifier, 
+ @Recrui.ngPersonId    uniqueidentifier, 
+ --@LastUpdateDate    date.me, 
+ @LastUpdateUserId    uniqueidentifier 
+ 
+AS 
+BEGIN 
+ 
+ -- STEP 1: Start the transac.on 
+ BEGIN TRANSACTION 
+  
+ -- STEP 2 & 3: Issue the data change statement(s), checking @@ERROR a.er each statement 
+ -- empty SectorID for Dele.on 
+ IF( @SectorID IS NULL OR @SectorID = '00000000-0000-0000-0000-000000000000') 
+ BEGIN 
+  INSERT INTO RSSOSS.USMC.MapsSectorRecruiterHist 
+           (SectorRecruiterHistId 
+           ,SectorID 
+           ,Recrui.ngPersonId 
+           ,E.ec.veDate 
+           ,EndDate 
+           ,LastUpdateDate 
+           ,LastUpdateUserId) 
+  SELECT 
+     NEWID()  
+    ,SectorID 
+    ,Recrui.ngPersonId 
+    ,CAST( CAST( Year(LastUpdateDate) as char(4)) + '-' + CAST( Month(LastUpdateDate) as char(2)) + '-' + 
+     CAST( Day(LastUpdateDate) as char(2)) as Date.me) 
+    ,CAST( CAST( Year(Getdate()) as char(4)) + '-' + CAST( Month(Getdate()) as char(2)) + '-' + 
+     CAST( Day(getdate()) as char(2)) as Date.me) 
+    ,GETDATE() 
+    ,@LastUpdateUserId 
+  FROM RSSOSS.USMC.MapsSectorRecruiter 
+  WHERE Recrui.ngPersonId = @Recrui.ngPersonId 
+  
+  DELETE FROM [usmc].[MapsSectorRecruiter] 
+  WHERE Recrui.ngPersonId = @Recrui.ngPersonID  
+  
+ END 
+ -- IF SECTORID IS CHANGED For the Recruiter 
+ ELSE IF EXISTS( SELECT SectorRecruiterId  
+      FROM USMC.MapsSectorRecruiter  
+      WHERE Recrui.ngPersonId = @Recrui.ngPersonId  
+    )  
+    AND 
+    NOT EXISTS( SELECT SectorRecruiterId  
+       FROM USMC.MapsSectorRecruiter  
+       WHERE Recrui.ngPersonId = @Recrui.ngPersonId AND SectorID = @SectorID 
+     )   
+ BEGIN 
+   
+  -- Log the Old value to the history table 
+  INSERT INTO RSSOSS.USMC.MapsSectorRecruiterHist 
+           (SectorRecruiterHistId 
+           ,SectorID 
+           ,Recrui.ngPersonId 
+           ,E.ec.veDate 
+           ,EndDate 
+           ,LastUpdateDate 
+           ,LastUpdateUserId) 
+  SELECT 
+   NEWID()  
+   ,SectorID 
+   ,Recrui.ngPersonId 
+   ,CAST( CAST( YEAR(LastUpdateDate) as char(4)) + '-' +  
+          CAST( MONTH(LastUpdateDate) as char(2)) + '-' + 
+          CAST( DAY(LastUpdateDate) as char(2))  
+          as DateTime 
+        ) 
+   ,CAST( CAST( YEAR(GETDATE()) as char(4)) + '-' +  
+          CAST( MONTH(GETDATE()) as char(2)) + '-' + 
+          CAST( DAY(GETDATE()) as char(2))  
+          as date.me 
+        ) 
+   ,GETDATE() 
+      ,@LastUpdateUserId 
+  FROM  
+   RSSOSS.USMC.MapsSectorRecruiter 
+  WHERE Recrui.ngPersonId = @Recrui.ngPersonId  
+    
+   
+  UPDATE 
+   USMC.MapsSectorRecruiter 
+  SET 
+   SectorID=@SectorID, 
+   Recrui.ngPersonId=@Recrui.ngPersonId, 
+   LastUpdateDate = GETDATE(), 
+   LastUpdateUserId=@LastUpdateUserId 
+  WHERE  
+   Recrui.ngPersonId = @Recrui.ngPersonId  
+   
+ END 
+  
+ -- NEW Sector Assignment 
+ ELSE IF NOT EXISTS( SELECT SectorRecruiterId  
+       FROM USMC.MapsSectorRecruiter  
+       WHERE Recrui.ngPersonId = @Recrui.ngPersonId 
+     ) 
+ BEGIN 
+  
+  INSERT INTO USMC.MapsSectorRecruiter  
+     (SectorRecruiterId, 
+   SectorID, 
+   Recrui.ngPersonId, 
+   LastUpdateDate, 
+   LastUpdateUserId) 
+    VALUES  
+        (@SectorRecruiterId, 
+   @SectorID, 
+   @Recrui.ngPersonId, 
+   GETDATE(), 
+   @LastUpdateUserId) 
+ END 
+ 
+ -- Rollback the transac.on if there were any errors 
+ IF @@ERROR <> 0 
+  BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+ 
+  -- Raise an error and return 
+  RAISERROR ('Error occurred while performing the change.', 16, 1) 
+  RETURN 
+  END 
+ 
+ -- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+ IF @@ROWCOUNT > 2 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+ 
+  -- Raise an error and return 
+  RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+  RETURN 
+ END 
+   
+ -- STEP 4: If we reach this point, the commands completed successfully 
+ --         Commit the transac.on.... 
+ COMMIT TRANSACTION 
+ 
+  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

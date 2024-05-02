@@ -1,0 +1,38 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetDataSheetUploads]" directorySegmentName="seg_2" id="A40DB22B-DE56-4304-81D5-B43199885597">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@TrainingFileId UNIQUEIDENTIFIER, 
+ @DataSheetTypeId int  
+AS 
+BEGIN 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+SELECT DS.ID, 
+    DS.DataSheetTypeID, 
+       DS.TrainingFileID, 
+       DS.FileName, 
+       DS.UserFileName, 
+       DS.UploadDate, 
+       DS.UploadBy, 
+       U1.FirstName UploadedByFirstName, 
+    U1.LastName UploadedByLastName, 
+       DS.LastViewedDate, 
+       DS.LastViewedBy, 
+       U2.FirstName ViewedByFirstName, 
+    U2.LastName ViewedByLastName 
+  FROM [USMC].[DataSheetUpload] DS 
+  LEFT OUTER JOIN [usmc].[vwMcrissUserMgmtUser] AS U1 ON U1.UserID = DS.UploadBy 
+  LEFT OUTER JOIN [usmc].[vwMcrissUserMgmtUser] AS U2 ON U2.UserID = DS.LastViewedBy 
+ WHERE TrainingFileID = @TrainingFileId and  
+       DataSheetTypeID = @DataSheetTypeId 
+ ORDER BY DS.UploadDate DESC    
+   
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

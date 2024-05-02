@@ -1,0 +1,191 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_DeleteContract]" directorySegmentName="seg_15" id="8DA41F7C-0080-F126-B9FA-EB89DDBF408B">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@NWAID   int, 
+ @ContractID   int, 
+ @UserLogin  varchar(15) 
+AS 
+ 
+DECLARE @DBID    int 
+DECLARE @DBNAME   sysname 
+DECLARE @ErrMsg   varchar(100) 
+ 
+DECLARE @ComponentCode  varchar(2) 
+DECLARE @NumReferrals   int 
+ 
+DECLARE @CandidateStatusID int 
+DECLARE @SSN    char(9) 
+ 
+SET NOCOUNT ON 
+ 
+SELECT  
+ @DBID  = DB_ID(),  
+ @DBNAME = DB_NAME() 
+ 
+--- GET THE APPLICANT'S SSN 
+SELECT  
+ @SSN = P.SOCIAL_SECURITY_NUMBER  
+FROM  
+ PERSON P INNER JOIN NWA N ON  
+  (P.PERSON_ID = N.MARINE_CANDIDATE_ID AND 
+  N.NWA_ID = @NWAID) 
+ 
+ 
+BEGIN 
+ --- GET THE COMPONENT_CODE 
+ SELECT @ComponentCode = C.COMPONENT_CODE FROM CONTRACT C WHERE C.CONTRACT_ID = @ContractID 
+ 
+ 
+ --- CHECK FOR ASSIGNED PROGRAMS OR QSNs 
+ IF @ComponentCode IN ('K4', 'K8', 'K9', 'B5')  
+ BEGIN 
+  IF EXISTS (SELECT 1 FROM QSN WHERE CONTRACT_ID = @ContractID) 
+  BEGIN 
+   SET @ErrMsg = 'SSN ' + @SSN + ' has  a QSN assigned and cannot be deleted.'  
+   RAISERROR (@ErrMsg, 16, 1, @DBID, @DBNAME) 
+   RETURN 
+  END 
+ END 
+ ELSE 
+ BEGIN 
+  IF EXISTS (SELECT 1 FROM PROGRAM_AVAILABILITY WHERE CONTRACT_ID = @ContractID) 
+  BEGIN 
+   SET @ErrMsg = 'SSN ' + @SSN + ' has  a PROGRAM assigned and cannot be deleted.'  
+   RAISERROR (@ErrMsg, 16, 2, @DBID, @DBNAME) 
+   RETURN 
+  END 
+ END 
+ 
+ --- CHECK FOR PROGRAM/MOS CODE RECORDS  
+ IF EXISTS (SELECT 1 FROM PROGRAM_MOS_CODES WHERE CONTRACT_ID = @ContractID) 
+ BEGIN 
+  DELETE FROM PROGRAM_MOS_CODES WHERE CONTRACT_ID = @ContractID 
+ 
+  IF @@ERROR != 0 OR @@ROWCOUNT = 0 
+  BEGIN 
+   SET @ErrMsg = 'An error occurred deletIng the Program/MOS codes for SSN ' + @SSN + '.'  
+   RAISERROR (@ErrMsg, 16, 3, @DBID, @DBNAME) 
+   RETURN 
+  END 
+ END 
+ 
+ --- CHECK FOR REFERRALS 
+ IF EXISTS (SELECT 1 FROM REFERRAL WHERE DEP_CONTRACT_ID = @ContractID) 
+ BEGIN 
+  SELECT @NumReferrals = COUNT(REFERRAL_ID) FROM REFERRAL WHERE DEP_CONTRACT_ID = @ContractID 
+ 
+  SET @ErrMsg = 'SSN ' + @SSN + ' has referred ' + convert(varchar, @NumReferrals) + SPACE(1) +  
+   CASE @NumReferrals 
+    WHEN 1 THEN 'poolee and cannot be deleted unless the referral is updated.' 
+    ELSE 'poolees and cannot be deleted unless the referrals are updated.' 
+   END  
+ 
+  RAISERROR (@ErrMsg, 16, 4, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ 
+ --- CHECK FOR REFERRALS 
+ IF EXISTS (SELECT 1 FROM REFERRAL WHERE CONTRACT_ID = @ContractID) 
+ BEGIN  
+  --- UPDATE THE USER LOGIN BEFORE WE DELETE THE REFERRAL RECORD  
+  UPDATE 
+   REFERRAL 
+  SET  
+   USER_LOGIN = @UserLogin 
+  WHERE  
+    CONTRACT_ID = @ContractID     
+  
+  --- DELETE THE REFERRAL RECORD 
+  DELETE FROM REFERRAL WHERE CONTRACT_ID = @ContractID 
+ 
+  IF @@ERROR != 0 OR @@ROWCOUNT = 0 
+  BEGIN 
+   SET @ErrMsg = 'An error occurred deletIng the referral record for SSN ' + @SSN + '.'  
+   RAISERROR (@ErrMsg, 16, 5, @DBID, @DBNAME) 
+   RETURN 
+  END 
+ END   
+ 
+ --- CHECK FOR PADD HISTORY RECORDS 
+ IF EXISTS (SELECT 1 FROM PADD_HISTORY WHERE CONTRACT_ID = @ContractID) 
+ BEGIN 
+  --- UPDATE THE USER LOGIN BEFORE WE DELETE THE PADD_HISTORY RECORD  
+  UPDATE  
+   PADD_HISTORY 
+  SET  
+   USER_LOGIN = @UserLogin 
+  WHERE  
+   CONTRACT_ID = @ContractID     
+ 
+ 
+  --- DELETE THE PADD_HISTORY RECORD 
+  DELETE FROM PADD_HISTORY WHERE CONTRACT_ID = @ContractID 
+ 
+  IF @@ERROR != 0 OR @@ROWCOUNT = 0 
+  BEGIN 
+   SET @ErrMsg = 'An error occurred deletIng the PADD history record for SSN ' + @SSN + '.'  
+   RAISERROR (@ErrMsg, 16, 6, @DBID, @DBNAME) 
+   RETURN 
+  END 
+ END 
+ 
+ --- CHECK FOR ARMS_EXPORT RECORDS 
+ IF EXISTS (SELECT 1 FROM ARMS_EXPORT WHERE CONTRACT_ID = @ContractID) 
+ BEGIN 
+  --- DELETE THE PADD_HISTORY RECORD 
+  DELETE FROM ARMS_EXPORT WHERE CONTRACT_ID = @ContractID 
+ 
+  IF @@ERROR != 0 OR @@ROWCOUNT = 0 
+  BEGIN 
+   SET @ErrMsg = 'An error occurred deletIng the ARMS EXPORT record for SSN ' + @SSN + '.'  
+   RAISERROR (@ErrMsg, 16, 7, @DBID, @DBNAME) 
+   RETURN 
+  END 
+ END 
+ 
+ --- UPDATE CONTRACT DATA WITH THE USER LOGIN BEFORE DELETING IT 
+ UPDATE  
+  CONTRACT 
+ SET 
+  USER_LOGIN = @UserLogin  
+ WHERE 
+  CONTRACT_ID = @ContractID 
+ 
+ --- DELETE THE CONTRACT DATA 
+ DELETE FROM CONTRACT WHERE CONTRACT_ID = @ContractID 
+ 
+ IF @@ERROR != 0 OR @@ROWCOUNT = 0 
+ BEGIN 
+  SET @ErrMsg = 'An error occurred dele.ng the contract record for SSN ' + @SSN + '.'  
+  RAISERROR (@ErrMsg, 16, 8, @DBID, @DBNAME) 
+  RETURN 
+ END  
+ 
+ --- UPDATE THE USER LOGIN IN CANDIDATE STATUS FOR THE CURRENT STATUS RECORD 
+ SET @CandidateStatusID = dbo.GetMaxStatusID(@NWAID) 
+ 
+ UPDATE 
+  CANDIDATE_STATUS 
+ SET 
+  USER_LOGIN = @UserLogin 
+ WHERE 
+  CANDIDATE_STATUS_ID = @CandidateStatusID 
+ 
+ --- DELETE THE STATUS RECORD FROM CANDIDATE_STATUS 
+ DELETE FROM CANDIDATE_STATUS WHERE CANDIDATE_STATUS_ID = @CandidateStatusID 
+  
+ IF @@ERROR != 0 OR @@ROWCOUNT = 0 
+ BEGIN 
+  SET @ErrMsg = 'An error occurred dele.ng the status record for SSN ' + @SSN + '.'  
+  RAISERROR (@ErrMsg, 16, 9, @DBID, @DBNAME) 
+  RETURN 
+ END 
+END 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

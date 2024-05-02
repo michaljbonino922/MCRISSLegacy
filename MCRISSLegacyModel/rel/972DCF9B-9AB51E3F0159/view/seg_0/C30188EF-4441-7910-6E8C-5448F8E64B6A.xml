@@ -1,0 +1,270 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_0" id="C30188EF-4441-7910-6E8C-5448F8E64B6A" schemaObject="2A6D9360-3BB2-5CEA-6E99-790D76996FDF" name="SCHOOLVIEW">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<importedID>91CDC186-16A9-E5A1-2F41-68A82E71FDF6</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  HS.SCHOOL_CODE 
+  ,RO.ORGANIZATION_ID AS UNIT_ID 
+  ,RO.SHORT_NAME AS UNIT 
+  ,HS.DOD_CODE AS DODID 
+  ,RTRIM(LTRIM(HS.HIGHSCHOOL_NAME)) AS SCHOOL_NAME 
+  ,HS.CITY 
+  ,HS.STATE_CODE AS STATE 
+  ,HSP.STATUS_CODE 
+  ,HSP.PRIORITY_CODE 
+  ,HSP.ACCESS_CODE 
+  ,HSP.MALE_SENIORS 
+  ,HSP.FEMALE_SENIORS 
+  ,HSP.PERCENT_TO_COLLEGE 
+  ,OM.PARENT_ORGANIZATION_ID 
+  ,HS.SCHOOL_TYPE 
+  ,HSP.SCHOOL_YEAR 
+  ,HS.DELETED 
+  ,HSP.RECRUITER_ID 
+  ,ISNULL(P.LAST_NAME,'UNASSIGNED') AS [RECRUITER_LAST_NAME] 
+FROM dbo.ORGANIZATION_MAP OM  
+INNER JOIN dbo.HIGH_SCHOOL HS ON OM.CHILD_ORGANIZATION_ID = HS.ORGANIZATION_ID  
+INNER JOIN dbo.HIGH_SCHOOL_PROFILE HSP ON HS.SCHOOL_CODE = HSP.SCHOOL_CODE  
+INNER JOIN dbo.RECRUITING_ORGANIZATION RO ON HS.ORGANIZATION_ID = RO.ORGANIZATION_ID 
+LEFT OUTER JOIN dbo.PERSON P ON P.PERSON_ID = HSP.RECRUITER_ID]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="SCHOOL_CODE" id="F827384F-C251-4B29-6943-320902546EFC">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>SCHOOL_CODE</alias>
+<dataType>UNKNOWN</dataType>
+<expression>SCHOOL_CODE</expression>
+<reference>false</reference>
+<viewID>C30188EF-4441-7910-6E8C-5448F8E64B6A</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ORGANIZATION_ID" id="BB11F617-D8DB-485E-3E32-99EB3F8CB19E">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>UNIT_ID</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>UNIT_ID</headerAlias>
+<expression>ORGANIZATION_ID</expression>
+<reference>false</reference>
+<viewID>C30188EF-4441-7910-6E8C-5448F8E64B6A</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="SHORT_NAME" id="F6A84119-07F6-152F-DAF4-3D07780103BD">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>UNIT</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>UNIT</headerAlias>
+<expression>SHORT_NAME</expression>
+<reference>false</reference>
+<viewID>C30188EF-4441-7910-6E8C-5448F8E64B6A</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="DOD_CODE" id="FDB726B8-B6CE-6463-EB83-404E59762CAF">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>DODID</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>DODID</headerAlias>
+<expression>DOD_CODE</expression>
+<reference>false</reference>
+<viewID>C30188EF-4441-7910-6E8C-5448F8E64B6A</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="RTRIM(LTRIM(HS.HIGHSCHOOL_NAME))" id="9E0A329C-F63C-318C-320F-EAC95ADC5176">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>SCHOOL_NAME</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>SCHOOL_NAME</headerAlias>
+<expression>RTRIM(LTRIM(HS.HIGHSCHOOL_NAME))</expression>
+<reference>false</reference>
+<viewID>C30188EF-4441-7910-6E8C-5448F8E64B6A</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="CITY" id="76BD1A4B-03A6-1FE2-55A7-A9035D20C037">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>CITY</alias>
+<dataType>UNKNOWN</dataType>
+<expression>CITY</expression>
+<reference>false</reference>
+<viewID>C30188EF-4441-7910-6E8C-5448F8E64B6A</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="STATE_CODE" id="BCC8F8B3-6465-9001-B79B-62256DAA3D4D">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>STATE</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>STATE</headerAlias>
+<expression>STATE_CODE</expression>
+<reference>false</reference>
+<viewID>C30188EF-4441-7910-6E8C-5448F8E64B6A</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="STATUS_CODE" id="D1F123B0-26E4-C88F-FD4A-1081A543793F">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>STATUS_CODE</alias>
+<dataType>UNKNOWN</dataType>
+<expression>STATUS_CODE</expression>
+<reference>false</reference>
+<viewID>C30188EF-4441-7910-6E8C-5448F8E64B6A</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="PRIORITY_CODE" id="523703B4-E5F9-D717-419A-FAC035CBDD8A">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>PRIORITY_CODE</alias>
+<dataType>UNKNOWN</dataType>
+<expression>PRIORITY_CODE</expression>
+<reference>false</reference>
+<viewID>C30188EF-4441-7910-6E8C-5448F8E64B6A</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ACCESS_CODE" id="623BA27F-C40D-F049-E53D-58D10411B837">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>ACCESS_CODE</alias>
+<dataType>UNKNOWN</dataType>
+<expression>ACCESS_CODE</expression>
+<reference>false</reference>
+<viewID>C30188EF-4441-7910-6E8C-5448F8E64B6A</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="MALE_SENIORS" id="70A4C0FA-EC12-C6EA-1C69-D55E46481652">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>MALE_SENIORS</alias>
+<dataType>UNKNOWN</dataType>
+<expression>MALE_SENIORS</expression>
+<reference>false</reference>
+<viewID>C30188EF-4441-7910-6E8C-5448F8E64B6A</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="FEMALE_SENIORS" id="F670B509-FC06-97B7-7933-3E417718B21C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>FEMALE_SENIORS</alias>
+<dataType>UNKNOWN</dataType>
+<expression>FEMALE_SENIORS</expression>
+<reference>false</reference>
+<viewID>C30188EF-4441-7910-6E8C-5448F8E64B6A</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="PERCENT_TO_COLLEGE" id="2E83E9E1-3A5D-D6D2-01B4-4DDB2408ADD5">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>PERCENT_TO_COLLEGE</alias>
+<dataType>UNKNOWN</dataType>
+<expression>PERCENT_TO_COLLEGE</expression>
+<reference>false</reference>
+<viewID>C30188EF-4441-7910-6E8C-5448F8E64B6A</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="PARENT_ORGANIZATION_ID" id="4C1567E4-346F-2CEB-57B8-DEFACB6F2DD4">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>PARENT_ORGANIZATION_ID</alias>
+<dataType>UNKNOWN</dataType>
+<expression>PARENT_ORGANIZATION_ID</expression>
+<reference>false</reference>
+<viewID>C30188EF-4441-7910-6E8C-5448F8E64B6A</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="SCHOOL_TYPE" id="3BB3DCB8-9100-FD79-2F13-E8144EA50985">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>SCHOOL_TYPE</alias>
+<dataType>UNKNOWN</dataType>
+<expression>SCHOOL_TYPE</expression>
+<reference>false</reference>
+<viewID>C30188EF-4441-7910-6E8C-5448F8E64B6A</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="SCHOOL_YEAR" id="4B3897AD-C7D3-CA96-AA6A-500E18671315">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>SCHOOL_YEAR</alias>
+<dataType>UNKNOWN</dataType>
+<expression>SCHOOL_YEAR</expression>
+<reference>false</reference>
+<viewID>C30188EF-4441-7910-6E8C-5448F8E64B6A</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="DELETED" id="0354775B-B69B-2D6C-6DF0-B9115EF3043D">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>DELETED</alias>
+<dataType>UNKNOWN</dataType>
+<expression>DELETED</expression>
+<reference>false</reference>
+<viewID>C30188EF-4441-7910-6E8C-5448F8E64B6A</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="RECRUITER_ID" id="5C11080B-A204-8005-C9F6-2AEA3D8CEC4D">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>RECRUITER_ID</alias>
+<dataType>UNKNOWN</dataType>
+<expression>RECRUITER_ID</expression>
+<reference>false</reference>
+<viewID>C30188EF-4441-7910-6E8C-5448F8E64B6A</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ISNULL(P.LAST_NAME,&apos;UNASSIGNED&apos;)" id="A0515E0B-46C7-8BA6-75D4-609D67B42B81">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>RECRUITER_LAST_NAME</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>RECRUITER_LAST_NAME</headerAlias>
+<expression>ISNULL(P.LAST_NAME,&apos;UNASSIGNED&apos;)</expression>
+<reference>false</reference>
+<viewID>C30188EF-4441-7910-6E8C-5448F8E64B6A</viewID>
+</viewElement>
+</viewElements>
+</TableView>

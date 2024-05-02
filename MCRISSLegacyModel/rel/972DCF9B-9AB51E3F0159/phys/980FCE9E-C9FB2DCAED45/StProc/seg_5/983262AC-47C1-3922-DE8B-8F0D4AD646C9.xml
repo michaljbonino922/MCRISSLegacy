@@ -1,0 +1,37 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetRecrui.ngPersonBySSN]" directorySegmentName="seg_5" id="983262AC-47C1-3922-DE8B-8F0D4AD646C9">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@SSN varchar(9) 
+AS 
+BEGIN 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+ SELECT  
+    P.LAST_NAME, 
+    P.FIRST_NAME, 
+    P.LEGAL_MIDDLE_NAME, 
+    P.SOCIAL_SECURITY_NUMBER, 
+    M.rowguid AS Id, 
+    R.RANK_CODE, 
+       M.BILLET_MOS AS MOS, 
+       CASE  M.BILLET_MOS 
+         WHEN '8411' THEN 'Recruiter' 
+         WHEN '8412' THEN 'SNCOIC' 
+          
+         ELSE NULL 
+       END AS Billet 
+FROM  USMC.vwMcrissPerson AS P  
+INNER JOIN USMC.vwMcrissMarine AS M on M.MARINE_ID = P.PERSON_ID    
+LEFT JOIN USMC.vwMcrissRecrui.ngPerson AS R ON R.RECRUITING_PERSON_ID = P.PERSON_ID 
+ 
+WHERE  
+P.SOCIAL_SECURITY_NUMBER = @SSN 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,299 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateNwaFromPac]" directorySegmentName="seg_27" id="CB8F21B2-6F12-F089-F4DB-4923804EA28F">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@NWAId      uniqueiden..er, 
+ @LastName     varchar(75), 
+ @FirstName     varchar(75), 
+ @MiddleName     varchar(75), 
+ @Su.x         varchar(5), 
+ @SocialSecurityNumber  char(9), 
+ @DateOfBirth    date.me, 
+ @Gender      char(1), 
+ @ParentConsentReceived  int, 
+ @Race      varchar(1),  
+ @Ethnicity     varchar(1), 
+ @Religion     varchar(2), 
+ @MepcomRace     varchar(1),  
+ @MepcomEthnicity   varchar(1), 
+ @BirthCountry    varchar(3),  
+ @Ci.zenshipStatus   varchar(2), 
+ @AlienRegistra.onNumber char(10), 
+    @PrimaryPhone    varchar(25) = NULL, 
+ @HomeRecordPhone   varchar(25) = NULL,   
+ @CurrentStreetAddress1  varchar(75), 
+ @CurrentStreetAddress2  varchar(75), 
+ @CurrentZipCode    varchar(9), 
+ @CurrentCityCode   varchar(4), 
+ @CurrentCountyCode   varchar(3), 
+ @CurrentStateCode   varchar(2),  
+ @HomeRecordStreetAddress1 varchar(75), 
+ @HomeRecordStreetAddress2 varchar(75), 
+ @HomeRecordZipCode   varchar(9), 
+ @HomeRecordCityCode   varchar(4), 
+ @HomeRecordCountyCode  varchar(3), 
+ @HomeRecordStateCode  varchar(2),  
+    @EmailAddress    varchar(256), 
+ @Recrui.ngOrganiza.onID uniqueiden..er, 
+ @Recrui.ngPersonID   uniqueiden..er, 
+ @CategoryCode    varchar(6), 
+ @MonthWorkFor    date.me, 
+ @Source      varchar(10), 
+ @SourceDual     varchar(10), 
+ @Ac.vity     varchar(10), 
+ @PPC      varchar(8), 
+ @DriverLicenseNumber  varchar(20), 
+ @DriverLicenseState      varchar(2), 
+ @DriverLicenseExp   date.me, 
+ @LastUpdateUserId   uniqueiden..er, 
+ @ReferralSSN    varchar(9)     
+    
+ 
+AS 
+BEGIN 
+ 
+ -- STEP 1: Start the transac.on 
+ BEGIN TRANSACTION 
+  
+ DECLARE @PersonID int; 
+ DECLARE @ParentalConsent char(1); 
+ DECLARE @WorkingRecruiterID int; 
+    
+ SELECT @PersonID = MARINE_CANDIDATE_ID  
+ FROM dbo.NWA  
+ WHERE rowguid = @NWAId 
+  
+ -- STEP 2 & 3: Issue the data change statement(s), checking @@ERROR a.er each statement 
+ IF @PersonID IS NOT NULL 
+ BEGIN 
+  print @PersonID 
+   
+  UPDATE [MCRISS].[dbo].[PERSON]  
+  SET 
+   [SOCIAL_SECURITY_NUMBER] = @SocialSecurityNumber 
+   ,[FIRST_NAME] = @FirstName 
+   ,[LEGAL_MIDDLE_NAME] = @MiddleName 
+   ,[LAST_NAME] = @LastName 
+   ,[SUFFIX_CD] = @Su.x 
+   ,[USER_LOGIN] = @LastUpdateUserId 
+   ,[UPDATE_DATE] = GetDate() 
+  WHERE [PERSON_ID] = @PersonID 
+ 
+  IF EXISTS(  SELECT TOP 1 MC.MARINE_CANDIDATE_ID 
+     FROM [mcriss].[dbo].[MARINE_CANDIDATE] MC 
+     INNER JOIN [mcriss].[dbo].[vwCurrentNWA] N ON N.MARINE_CANDIDATE_ID = MC.MARINE_CANDIDATE_ID 
+     INNER JOIN [Prospec.ng].[USMC].[Prospect] PRO ON PRO.NwaId = N.rowguid 
+     INNER JOIN [Prospec.ng].[USMC].[O.cerProspectPAC] OPP ON OPP.ProspectId = PRO.ProspectId 
+     WHERE MC.[MARINE_CANDIDATE_ID] = @PersonID 
+      AND PRO.NwaId = @NWAId) 
+  BEGIN 
+   UPDATE MC SET 
+     MC.[DATE_OF_BIRTH] = PER.DateOfBirth 
+    ,MC.[GENDER_CODE] = PER.Gender 
+    ,MC.[RACE_CODE] = OPP.Diversity 
+    ,MC.[ETHNIC_CODE] = OPP.EthnicCode 
+    ,MC.[MEPCOM_RACE_CODE] = OPP.MepcomRaceCode 
+    ,MC.[MEPCOM_ETHNIC_CODE] = OPP.MepcomEthnicCode 
+    ,MC.[CITIZENSHIP] = OPP.Ci.zen 
+    ,MC.[USER_LOGIN] = U.Username 
+    ,MC.[UPDATE_DATE] = GetDate() 
+   FROM [mcriss].[dbo].[MARINE_CANDIDATE] MC 
+   INNER JOIN [mcriss].[dbo].[vwCurrentNWA] N ON N.MARINE_CANDIDATE_ID = MC.MARINE_CANDIDATE_ID 
+   INNER JOIN [Prospec.ng].[USMC].[Prospect] PRO ON PRO.NwaId = N.rowguid 
+   INNER JOIN [Prospec.ng].[USMC].[O.cerProspectPAC] OPP ON OPP.ProspectId = PRO.ProspectId 
+   INNER JOIN [Prospec.ng].[USMC].[Person] PER ON PER.PersonId = PRO.PersonId 
+   INNER JOIN [UserMgmt].[dbo].[User] U ON U.UserID = @LastUpdateUserId 
+   WHERE MC.[MARINE_CANDIDATE_ID] = @PersonID 
+    AND PRO.NwaId = @NWAId 
+  END 
+  ELSE 
+  BEGIN 
+   UPDATE MC SET 
+     MC.[DATE_OF_BIRTH] = @DateOfBirth 
+    ,MC.[GENDER_CODE] = @Gender 
+    ,MC.[RACE_CODE] = @Race 
+    ,MC.[ETHNIC_CODE] = @Ethnicity 
+    --Religion doesn't exist on the OSS PAC 
+    --,[RELIGION_CODE] = @Religion 
+    ,MC.[MEPCOM_RACE_CODE] = @MepcomRace 
+    ,MC.[MEPCOM_ETHNIC_CODE] = @MepcomEthnicity 
+    --Country of origin doesn't exist on the OSS PAC 
+    --,[COUNTRY_OF_ORIGIN] = @BirthCountry 
+    ,MC.[CITIZENSHIP] = @Ci.zenshipStatus 
+    --Driver's license data doesn't exist on the OSS PAC 
+    --,[DRIVER_LICENSE_STATE] = @DriverLicenseState 
+    --,[DRIVER_LICENSE_NUM] = @DriverLicenseNumber 
+    --,[DRIVER_LICENSE_EXP] = @DriverLicenseExp 
+    ,MC.[USER_LOGIN] = U.Username 
+    ,MC.[UPDATE_DATE] = GetDate() 
+   FROM [mcriss].[dbo].[MARINE_CANDIDATE] MC 
+   INNER JOIN [UserMgmt].[dbo].[User] U ON U.UserID = @LastUpdateUserId 
+   WHERE [MARINE_CANDIDATE_ID] = @PersonID  
+  END 
+   
+  IF EXISTS( SELECT MARINE_CANDIDATE_ID FROM dbo.ALIEN_REGISTRATION WHERE MARINE_CANDIDATE_ID = @PersonID ) 
+  BEGIN 
+   IF @AlienRegistra.onNumber IS NOT NULL 
+   BEGIN  
+    UPDATE [MCRISS].[dbo].[ALIEN_REGISTRATION]  
+    SET 
+     [ARN] = @AlienRegistra.onNumber 
+     ,[USER_LOGIN] = @LastUpdateUserId 
+     ,[UPDATE_DATE] = GetDate() 
+    WHERE [MARINE_CANDIDATE_ID] = @PersonID  
+   END 
+   ELSE 
+   BEGIN 
+    DELETE FROM [MCRISS].[dbo].[ALIEN_REGISTRATION] 
+    WHERE [MARINE_CANDIDATE_ID] = @PersonID  
+   END 
+  END 
+  ELSE 
+  BEGIN 
+   IF @AlienRegistra.onNumber IS NOT NULL 
+   BEGIN 
+    INSERT INTO MCRISS.dbo.ALIEN_REGISTRATION 
+     (MARINE_CANDIDATE_ID 
+      ,ARN 
+      ,USER_LOGIN 
+      ,UPDATE_DATE) 
+    VALUES 
+     ( @PersonID 
+      ,@AlienRegistra.onNumber 
+      ,@LastUpdateUserId 
+      ,GetDate() 
+     ) 
+   END 
+  END  
+  UPDATE [MCRISS].[dbo].[ALIEN_REGISTRATION]  
+  SET 
+   [ARN] = @AlienRegistra.onNumber 
+   ,[USER_LOGIN] = @LastUpdateUserId 
+   ,[UPDATE_DATE] = GetDate() 
+  WHERE [MARINE_CANDIDATE_ID] = @PersonID 
+   
+  UPDATE [MCRISS].[dbo].[CANDIDATE_ADDRESS] 
+     SET  
+     [STREET_ADDRESS] = @CurrentStreetAddress1 
+     ,[STREET_ADDRESS_2] = @CurrentStreetAddress2 
+     ,[CITY_CODE] = @CurrentCityCode 
+     ,[COUNTY_CODE] = @CurrentCountyCode 
+     ,[STATE_CODE] = @CurrentStateCode 
+     ,[ZIPCODE] = @CurrentZipCode 
+     ,[USER_LOGIN] = @LastUpdateUserId 
+     ,[UPDATE_DATE] = GetDate() 
+  WHERE [MARINE_CANDIDATE_ID] = @PersonId AND [ADDRESS_TYPE] = 'C' 
+   
+  UPDATE [MCRISS].[dbo].[CANDIDATE_ADDRESS] 
+     SET  
+     [STREET_ADDRESS] = @HomeRecordStreetAddress1 
+     ,[STREET_ADDRESS_2] = @HomeRecordStreetAddress2 
+     ,[CITY_CODE] = @HomeRecordCityCode 
+     ,[COUNTY_CODE] = @HomeRecordCountyCode 
+     ,[STATE_CODE] = @HomeRecordStateCode 
+     ,[ZIPCODE] = @HomeRecordZipCode 
+     ,[USER_LOGIN] = @LastUpdateUserId 
+     ,[UPDATE_DATE] = GetDate() 
+  WHERE [MARINE_CANDIDATE_ID] = @PersonId AND [ADDRESS_TYPE] = 'H' 
+   
+  IF @PrimaryPhone IS NOT NULL AND LEN(@PrimaryPhone) > 3 
+  BEGIN  
+    
+   IF EXISTS(SELECT TELEPHONE_NUMBER FROM [MCRISS].[dbo].[CANDIDATE_TELEPHONE] WHERE [MARINE_CANDIDATE_ID] = @PersonId AND [TELEPHONE_TYPE] = 'C') 
+    BEGIN 
+     UPDATE [MCRISS].[dbo].[CANDIDATE_TELEPHONE]  
+     SET  
+        [AREA_CODE] = LEFT(@PrimaryPhone, 3) 
+       ,[TELEPHONE_NUMBER] = SUBSTRING(@PrimaryPhone, 4, 7) 
+       ,[USER_LOGIN] = @LastUpdateUserId 
+       ,[UPDATE_DATE] = GetDate() 
+     WHERE [MARINE_CANDIDATE_ID] = @PersonId AND [TELEPHONE_TYPE] = 'C' 
+    END 
+   ELSE 
+    BEGIN 
+     INSERT INTO [mcriss].[dbo].[CANDIDATE_TELEPHONE] 
+      ([MARINE_CANDIDATE_ID] 
+      ,[TELEPHONE_TYPE] 
+      ,[AREA_CODE] 
+      ,[TELEPHONE_NUMBER] 
+      ,[USER_LOGIN] 
+      ,[UPDATE_DATE] 
+      ,[rowguid]) 
+     VALUES 
+      (@PersonId 
+      ,'C' 
+      ,LEFT(@PrimaryPhone, 3) 
+      ,SUBSTRING(@PrimaryPhone, 4, 7) 
+      ,@LastUpdateUserId 
+      ,GetDate() 
+      ,NEWID()) 
+    END 
+  END 
+   
+  IF @HomeRecordPhone IS NOT NULL AND LEN(@HomeRecordPhone) > 3 
+  BEGIN  
+   UPDATE [MCRISS].[dbo].[CANDIDATE_TELEPHONE]  
+   SET  
+     [AREA_CODE] = LEFT(@HomeRecordPhone, 3) 
+     ,[TELEPHONE_NUMBER] = SUBSTRING(@HomeRecordPhone, 4, 7) 
+     ,[USER_LOGIN] = @LastUpdateUserId 
+     ,[UPDATE_DATE] = GetDate() 
+   WHERE [MARINE_CANDIDATE_ID] = @PersonId AND [TELEPHONE_TYPE] = 'H' 
+  END 
+ 
+  SELECT @WorkingRecruiterID = RECRUITING_PERSON_ID 
+  FROM dbo.RECRUITING_PERSON 
+  WHERE rowguid = @Recrui.ngPersonID 
+   
+  IF(@ParentConsentReceived = 2) 
+   SET @ParentalConsent = 'Y' 
+  ELSE IF(@ParentConsentReceived = 3) 
+   SET @ParentalConsent = 'N' 
+  ELSE 
+   SET @ParentalConsent = NULL 
+   
+  UPDATE [mcriss].[dbo].[NWA]  
+  SET 
+   [PARENTAL_CONSENT] = @ParentalConsent 
+   ,[WORKING_RECRUITER_ID] = @WorkingRecruiterID   
+   ,[CATEGORY_CODE] = @CategoryCode 
+   ,[SOURCE_CODE] = @Source 
+   ,[SOURCE_CODE_DUAL] = @SourceDual 
+   ,[ACTIVITY_CODE] = @Ac.vity 
+   ,[PPC] = @PPC 
+   ,[PROJECTED_SHIP_MONTH] = MONTH(@MonthWorkFor) 
+   ,[USER_LOGIN] = @LastUpdateUserId 
+   ,[UPDATE_DATE] = GetDate() 
+   ,[EMAIL_ADDRESS] = @EmailAddress 
+   ,[ReferralSSN] = @ReferralSSN 
+   
+  WHERE rowguid = @NWAId 
+    
+ END 
+ ELSE 
+ BEGIN 
+  print 'No such Nwa exis.ng in the database' 
+ END  
+  
+ 
+ -- Rollback the transac.on if there were any errors 
+ IF @@ERROR <> 0 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+ 
+  -- Raise an error and return 
+  RAISERROR ('Error occurred while performing the change.', 16, 1) 
+  RETURN 
+ END 
+  
+ -- STEP 4: If we reach this point, the commands completed successfully 
+ --         Commit the transac.on.... 
+ COMMIT TRANSACTION 
+  
+END]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

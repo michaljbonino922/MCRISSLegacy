@@ -1,0 +1,36 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetAuthorizedPermissions]" directorySegmentName="seg_0" id="1513F558-BC3B-B700-38A8-9504547D9CA9">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:44 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @intPostID int 
+) 
+AS 
+ 
+SELECT null as ContextOrgID, rp.PermissionId 
+FROM Post p WITH (NOLOCK) 
+ INNER JOIN Role r on p.RoleID = r.Id 
+ INNER JOIN RolePermission rp on r.Id = rp.RoleId 
+Where p.Id = @intPostID AND rp.RequiresContext = 0 
+UNION 
+SELECT p.OrgUnitID as ContextOrgID, rp.PermissionId 
+FROM Post p WITH (NOLOCK) 
+ INNER JOIN Role r on p.RoleID = r.Id 
+ INNER JOIN RolePermission rp on r.Id = rp.RoleId 
+Where p.Id = @intPostID AND rp.RequiresContext = 1 
+UNION 
+SELECT dorgs.Decendent as ContextOrgID, rp.PermissionId 
+FROM Post p WITH (NOLOCK) 
+ INNER JOIN Role r on p.RoleID = r.Id 
+ INNER JOIN RolePermission rp on r.Id = rp.RoleId 
+ INNER JOIN [USMC].[Ext_MCRISS_vwDecendentOrgs] dorgs on p.OrgUnitID = dorgs.Parent 
+Where p.Id = @intPostID AND rp.RequiresContext = 1 
+UNION 
+SELECT OrgUnitID as ContextOrgID, PermissionId 
+FROM PostPermission WITH (NOLOCK) 
+WHERE PostID = @intPostID]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>30378C7E-748C-F803-F9A3-93DBFA86C9A7</database>
+</StoredProcedureSqlServerv2k5>

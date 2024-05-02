@@ -1,0 +1,22 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetDegreeType]" directorySegmentName="seg_5" id="68645D90-D6FF-EE1A-40AC-55EFE89738F7">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[AS 
+SET NOCOUNT ON 
+ BEGIN 
+   
+  SELECT  [DEGREE_CODE] AS Code,  
+    RTRIM([DEGREE_DESC]) AS Descrip.on 
+  FROM [MCRISS].[usmc].[AvailableDegreeType] 
+  ORDER BY [DEGREE_CODE] 
+ 
+END 
+  
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,18 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateProjectedGradDate]" directorySegmentName="seg_25" id="E8C85926-C6FB-7A65-F5C0-33523C0748B6">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@NWAID   int, 
+ @ProjectedGradDate date.me, 
+ @UserLogin  varchar(15) 
+AS 
+ 
+INSERT INTO PROJECTED_GRAD_DATE_HISTORY  
+ (NWA_ID, PROJECTED_GRAD_DATE, PROJECTED_GRAD_DATE_CHANGED_DATE, USER_LOGIN, UPDATE_DATE) 
+VALUES  
+ (@NWAID, @ProjectedGradDate, GETDATE(), @UserLogin, GETDATE())]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,53 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_MIRemoveENTNAC]" directorySegmentName="seg_22" id="F12B40F2-2BAC-8F56-DDC5-18D0D5530D6E">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@NWAId int, 
+ @UserLogin varchar(15) 
+AS 
+ 
+SET NOCOUNT ON  
+ 
+DECLARE @DBID  int 
+DECLARE @DBNAME sysname 
+DECLARE @ErrMsg varchar(100) 
+DECLARE @ContractID int 
+ 
+SELECT  
+ @DBID  = DB_ID(),  
+ @DBNAME = DB_NAME() 
+ 
+IF EXISTS (SELECT 1 FROM CONTRACT WHERE NWA_ID = @NWAId) 
+BEGIN 
+ --- BEGIN TRANSACTION 
+ 
+ SET @ContractID = (SELECT CONTRACT_ID FROM CONTRACT WHERE NWA_ID = @NWAId) 
+ 
+ UPDATE  
+  CONTRACT 
+ SET 
+  ENTNAC_SUBMIT_DATE = NULL, 
+  ENTNAC_COMPLETE_DATE  = NULL, 
+  USER_LOGIN   = @UserLogin, 
+  UPDATE_DATE   = GETDATE() 
+ WHERE 
+  CONTRACT_ID   = @ContractID 
+ 
+ IF @@ERROR != 0 OR @@ROWCOUNT = 0 
+ BEGIN 
+  --- ROLLBACK TRANSACTION 
+  SET @ErrMsg = 'An error occurred dele.ng the ENTNAC data for Contract ' + CONVERT(VARCHAR, @ContractID) + '.' 
+  RAISERROR (@ErrMsg, 16, 1, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ 
+ --- COMMIT TRANSACTION 
+END 
+ 
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

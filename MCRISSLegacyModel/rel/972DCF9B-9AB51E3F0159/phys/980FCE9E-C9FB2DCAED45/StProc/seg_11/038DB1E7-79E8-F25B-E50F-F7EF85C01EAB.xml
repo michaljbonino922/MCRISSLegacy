@@ -1,0 +1,114 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[RollbackNWA]" directorySegmentName="seg_11" id="038DB1E7-79E8-F25B-E50F-F7EF85C01EAB">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:37 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[( 
+ @LeadID uniqueiden..er, 
+ @LastEditBy uniqueiden..er = null 
+) 
+ 
+AS 
+BEGIN 
+ 
+ BEGIN TRANSACTION 
+  
+  UPDATE LeadStatusDisposi.on 
+  SET StatusDisposi.onID = 9, 
+   DateUpdated = GETDATE(), 
+   UserGUID = ISNULL(@LastEditBy, UserGUID) 
+  WHERE LeadID = @LeadID; 
+ 
+  -- Rollback the transac.on if there were any errors 
+  IF @@ERROR <> 0 
+  BEGIN 
+   -- Rollback the transac.on 
+   ROLLBACK TRANSACTION 
+  
+   -- Raise an error and return 
+   RAISERROR ('Error occurred while performing the change.', 16, 1) 
+   RETURN 
+  END 
+  
+  -- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+  IF @@ROWCOUNT > 1 
+  BEGIN 
+   -- Rollback the transac.on 
+   ROLLBACK TRANSACTION 
+  
+   -- Raise an error and return 
+   RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+   RETURN 
+  END 
+  
+ COMMIT TRANSACTION 
+ 
+ BEGIN TRANSACTION 
+  
+  UPDATE Lead 
+  SET NWARequested_Date = null, 
+   NWARequested_UserID = null, 
+   NWARequestTypeID = null, 
+   NWAApproved_Date = null, 
+   NWAApproved_UserID = null 
+  WHERE leadid = @LeadID; 
+ 
+  -- Rollback the transac.on if there were any errors 
+  IF @@ERROR <> 0 
+  BEGIN 
+   -- Rollback the transac.on 
+   ROLLBACK TRANSACTION 
+  
+   -- Raise an error and return 
+   RAISERROR ('Error occurred while performing the change.', 16, 1) 
+   RETURN 
+  END 
+  
+  -- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+  IF @@ROWCOUNT > 1 
+  BEGIN 
+   -- Rollback the transac.on 
+   ROLLBACK TRANSACTION 
+  
+   -- Raise an error and return 
+   RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+   RETURN 
+  END 
+ 
+ COMMIT TRANSACTION 
+ 
+ BEGIN TRANSACTION 
+  
+  UPDATE ApplicantPackage 
+   Set DateSubmited = null 
+  WHERE LeadID = @LeadID; 
+ 
+  -- Rollback the transac.on if there were any errors 
+  IF @@ERROR <> 0 
+  BEGIN 
+   -- Rollback the transac.on 
+   ROLLBACK TRANSACTION 
+  
+   -- Raise an error and return 
+   RAISERROR ('Error occurred while performing the change.', 16, 1) 
+   RETURN 
+  END 
+  
+  -- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+  IF @@ROWCOUNT > 1 
+  BEGIN 
+   -- Rollback the transac.on 
+   ROLLBACK TRANSACTION 
+  
+   -- Raise an error and return 
+   RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+   RETURN 
+  END 
+ 
+ COMMIT TRANSACTION 
+ 
+END]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+</StoredProcedureSqlServerv2k5>

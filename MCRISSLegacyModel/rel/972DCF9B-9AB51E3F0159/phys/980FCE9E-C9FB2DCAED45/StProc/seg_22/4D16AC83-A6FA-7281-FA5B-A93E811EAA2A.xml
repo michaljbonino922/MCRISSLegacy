@@ -1,0 +1,27 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_MIGetEduca.onLevelCode]" directorySegmentName="seg_22" id="4D16AC83-A6FA-7281-FA5B-A93E811EAA2A">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@PersonID  int, 
+ @Educa.onCode  char(1) OUTPUT ,  
+ @Educa.onLevel varchar(2) OUTPUT       
+AS           
+      
+SELECT     
+ @Educa.onLevel = EDUCATION_LEVEL,      
+  @Educa.onCode  = EDUCATION_CODE     
+FROM     
+ CANDIDATE_EDUCATION   
+WHERE  
+ MARINE_CANDIDATE_ID  = @PersonID  AND  
+ SCHOOL_END_DATE  = dbo.GetMaxSchoolEndDate(MARINE_CANDIDATE_ID)   
+     
+     
+SELECT     
+ @Educa.onLevel = COALESCE(@Educa.onLevel, SPACE(0)),  
+  @Educa.onCode  = COALESCE(@Educa.onCode, SPACE(0))]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

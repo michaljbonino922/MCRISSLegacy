@@ -1,0 +1,102 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetCandidateLegalO.enseSummary]" directorySegmentName="seg_3" id="F70FBBB6-E001-AD5F-29A4-2EC49EC415B6">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[(@PersonID int) 
+ 
+AS 
+ 
+DECLARE @Tra.cO.enses int 
+DECLARE @NonTra.cO.enses int 
+DECLARE @MisconductO.enses int 
+DECLARE @MarijuanaCount int 
+DECLARE @MajorMisconductO.enses int 
+DECLARE @AdultMajorMisconductO.enses int 
+DECLARE @JuvenileMajorMisconductO.enses int 
+DECLARE @MostRecentOccasion int 
+ 
+SELECT 
+ @Tra.cO.enses = COUNT(*) 
+FROM 
+ [usmc].[CandidateLegalO.ense] clo WITH (NOLOCK) 
+INNER JOIN [usmc].[LegalO.ense] lo 
+ ON  clo.[PersonId] = @PersonID AND 
+  clo.LegalO.enseId = lo.LegalO.enseId AND 
+  lo.LegalO.enseTypeId = 1 
+ 
+SELECT 
+ @NonTra.cO.enses = COUNT(*) 
+FROM 
+ [usmc].[CandidateLegalO.ense] clo WITH (NOLOCK) 
+INNER JOIN [usmc].[LegalO.ense] lo 
+ ON  clo.[PersonId] = @PersonID AND 
+  clo.LegalO.enseId = lo.LegalO.enseId AND 
+  lo.LegalO.enseTypeId = 2 
+ 
+SELECT 
+ @MisconductO.enses = COUNT(*) 
+FROM 
+ [usmc].[CandidateLegalO.ense] clo WITH (NOLOCK) 
+INNER JOIN [usmc].[LegalO.ense] lo 
+ ON  clo.[PersonId] = @PersonID AND 
+  clo.LegalO.enseId = lo.LegalO.enseId AND 
+  lo.LegalO.enseTypeId = 3 
+ 
+SELECT 
+ @MarijuanaCount = COUNT(*) 
+FROM 
+ [usmc].[CandidateLegalO.ense] clo WITH (NOLOCK) 
+WHERE  
+ clo.[PersonId] = @PersonID AND 
+ clo.LegalO.enseId = 316 
+ 
+SELECT 
+ @MajorMisconductO.enses = COUNT(*) 
+FROM 
+ [usmc].[CandidateLegalO.ense] clo WITH (NOLOCK) 
+INNER JOIN [usmc].[LegalO.ense] lo 
+ ON  clo.[PersonId] = @PersonID AND 
+  clo.LegalO.enseId = lo.LegalO.enseId AND 
+  lo.LegalO.enseTypeId = 4 
+ 
+SELECT 
+ @AdultMajorMisconductO.enses = COUNT(*) 
+FROM 
+ [usmc].[CandidateLegalO.ense] clo WITH (NOLOCK) 
+INNER JOIN [usmc].[LegalO.ense] lo 
+ ON  clo.[PersonId] = @PersonID AND 
+  clo.LegalO.enseId = lo.LegalO.enseId AND 
+  clo.IsJuvenile = 0 AND 
+  lo.LegalO.enseTypeId = 4 
+ 
+SELECT 
+ @JuvenileMajorMisconductO.enses = COUNT(*) 
+FROM 
+ [usmc].[CandidateLegalO.ense] clo WITH (NOLOCK) 
+INNER JOIN [usmc].[LegalO.ense] lo 
+ ON  clo.[PersonId] = @PersonID AND 
+  clo.LegalO.enseId = lo.LegalO.enseId AND 
+  clo.IsJuvenile = 1 AND 
+  lo.LegalO.enseTypeId = 4 
+ 
+SELECT 
+ @MostRecentOccasion = MAX(WaiverOccasionId) 
+FROM  
+ [usmc].[CandidateLegalO.ense] WITH (NOLOCK) 
+WHERE 
+ [PersonId] = @PersonID 
+ 
+SELECT 
+  @Tra.cO.enses AS Tra.c 
+ ,@NonTra.cO.enses AS NonTra.c 
+ ,@MisconductO.enses AS Misconduct 
+ ,@MarijuanaCount AS MarijuanaCount 
+ ,@MajorMisconductO.enses AS MajorMisconduct 
+ ,@AdultMajorMisconductO.enses AS AdultMajorMisconduct 
+ ,@JuvenileMajorMisconductO.enses AS JuvenileMajorMisconduct 
+ ,@MostRecentOccasion AS MostRecentOccasion]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

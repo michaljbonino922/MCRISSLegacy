@@ -1,0 +1,31 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateCandidateStatus_PJ]" directorySegmentName="seg_24" id="81BA14DA-8562-09DE-5D53-1AECDBF526E9">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacyModel</ownerDesignName>
+<body><![CDATA[@NWAID int, 
+ @StatusE.ec.veDate date.me, 
+ @StatusType char(1), 
+ @StatusCode varchar(10), 
+ @Disposi.onCode varchar(20), 
+ @UserLogin varchar(15) 
+AS 
+ 
+INSERT INTO CANDIDATE_STATUS_PJ 
+ (NWA_ID, STATUS_EFFECTIVE_DATE, STATUS_TYPE, STATUS_CODE, 
+ DISPOSITION_CODE, USER_LOGIN, UPDATE_DATE) 
+VALUES 
+ (@NWAID, @StatusE.ec.veDate, @StatusType, @StatusCode, 
+ @Disposi.onCode, @UserLogin, GetDate())  
+ 
+IF (SELECT DISPOSITION_DESCRIPTION FROM STATUS_DISPOSITION WHERE STATUS_TYPE = @StatusType AND 
+ STATUS_CODE = @StatusCode AND DISPOSITION_CODE = @Disposi.onCode) like '%DROP%' 
+BEGIN 
+ exec sp_CloseO.cerMissingDocuments 
+  @NWAID = @NWAID, 
+  @UserLogin = @UserLogin 
+END]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>
