@@ -1,0 +1,232 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[DeleteEventSeries]" directorySegmentName="seg_1" id="E070BB7F-25EE-2026-A381-B8EF92EA74E7">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@SeriesID int 
+AS 
+ 
+DECLARE @currentDate date.me = GETDATE() 
+ 
+SELECT ID, EventSourceId INTO #EventIDs FROM [RSSOSS].[USMC].[Event] 
+WHERE SeriesID = @SeriesID 
+AND StartDate > @currentDate 
+ 
+DECLARE @eventSource int = (SELECT top 1 EventSourceId FROM #EventIDs) 
+ 
+IF @eventSource = 1 
+BEGIN 
+ IF EXISTS(SELECT 1 FROM USMC.OssAppointmentEvent WHERE Id IN (SELECT ID FROM #EventIDs)) 
+ BEGIN 
+  DELETE FROM USMC.OssAppointmentEvent WHERE  Id IN (SELECT ID FROM #EventIDs)  
+ END 
+END 
+ 
+IF @eventSource = 5 
+BEGIN 
+ IF EXISTS(SELECT 1 FROM USMC.Orienta.onEvent WHERE ID IN (SELECT ID FROM #EventIDs)) 
+ BEGIN 
+  DELETE FROM USMC.Orienta.onEvent WHERE  ID IN (SELECT ID FROM #EventIDs) 
+ END 
+END 
+ 
+IF @eventSource = 6 
+BEGIN 
+ IF EXISTS(SELECT 1 FROM USMC.EacEvent WHERE ID IN (SELECT ID FROM #EventIDs)) 
+ BEGIN 
+  DELETE FROM USMC.EacEvent WHERE  ID IN (SELECT ID FROM #EventIDs) 
+ END 
+END 
+ 
+IF @eventSource = 7 
+BEGIN 
+ IF EXISTS(SELECT 1 FROM USMC.SMCRUnitEvent WHERE ID IN (SELECT ID FROM #EventIDs)) 
+ BEGIN 
+  DELETE FROM USMC.SMCRUnitEvent WHERE  ID IN (SELECT ID FROM #EventIDs) 
+ END 
+END 
+ 
+IF @eventSource = 8 
+BEGIN 
+ IF EXISTS(SELECT 1 FROM USMC.MCFOPEvent WHERE ID IN (SELECT ID FROM #EventIDs)) 
+ BEGIN 
+  DELETE FROM USMC.MCFOPEvent WHERE  ID IN (SELECT ID FROM #EventIDs) 
+ END 
+END 
+ 
+IF @eventSource = 9 
+BEGIN 
+ IF EXISTS(SELECT 1 FROM USMC.Presenta.onEvent WHERE ID IN (SELECT ID FROM #EventIDs)) 
+ BEGIN 
+  DELETE FROM USMC.Presenta.onEvent WHERE  ID IN (SELECT ID FROM #EventIDs) 
+ END 
+END 
+ 
+IF @eventSource = 10 
+BEGIN 
+ IF EXISTS(SELECT 1 FROM USMC.PoolFunc.onEvent WHERE ID IN (SELECT ID FROM #EventIDs)) 
+ BEGIN 
+  DELETE FROM USMC.PoolFunc.onEvent WHERE  ID IN (SELECT ID FROM #EventIDs) 
+ END 
+END 
+ 
+IF @eventSource = 11 
+BEGIN 
+ IF EXISTS(SELECT 1 FROM USMC.CareerFairEvent WHERE ID IN (SELECT ID FROM #EventIDs)) 
+ BEGIN 
+  DELETE FROM USMC.CareerFairEvent WHERE  ID IN (SELECT ID FROM #EventIDs)  
+ END 
+END 
+ 
+IF @eventSource = 12 
+BEGIN 
+ IF EXISTS(SELECT 1 FROM USMC.EventMandatoryAtendee WHERE EventId IN (SELECT ID FROM #EventIDs)) 
+ BEGIN 
+  DELETE FROM USMC.EventMandatoryAtendee WHERE  EventId IN (SELECT ID FROM #EventIDs)  
+ END 
+  
+ IF EXISTS(SELECT 1 FROM USMC.InternalTrainingEvent WHERE ID IN (SELECT ID FROM #EventIDs)) 
+ BEGIN 
+  DELETE FROM USMC.InternalTrainingEvent WHERE  ID IN (SELECT ID FROM #EventIDs)  
+ END 
+END 
+ 
+IF @eventSource = 16 
+BEGIN 
+ IF EXISTS(SELECT 1 FROM USMC.PGSentEvent WHERE ID IN (SELECT ID FROM #EventIDs)) 
+ BEGIN 
+  DELETE FROM USMC.PGSentEvent WHERE  ID IN (SELECT ID FROM #EventIDs)  
+ END 
+  
+ IF EXISTS(SELECT 1 FROM USMC.PGAc.onEvent WHERE ID IN (SELECT ID FROM #EventIDs)) 
+ BEGIN 
+  DELETE FROM USMC.PGAc.onEvent WHERE  ID IN (SELECT ID FROM #EventIDs)  
+ END 
+END 
+ 
+IF @eventSource = 17 
+BEGIN 
+ IF EXISTS(SELECT 1 FROM USMC.IstEvent WHERE ID IN (SELECT ID FROM #EventIDs)) 
+ BEGIN 
+  DELETE FROM USMC.IstEvent WHERE  ID IN (SELECT ID FROM #EventIDs)  
+ END 
+ 
+ IF EXISTS(SELECT 1 FROM USMC.PooleeAtendee WHERE EventId IN (SELECT ID FROM #EventIDs)) 
+ BEGIN 
+  DELETE FROM USMC.PooleeAtendee WHERE  EventId IN (SELECT ID FROM #EventIDs)  
+ END 
+END 
+ 
+IF @eventSource = 19 
+BEGIN 
+ IF EXISTS(SELECT 1 FROM USMC.StudentListEvent WHERE ID IN (SELECT ID FROM #EventIDs)) 
+ BEGIN 
+  DELETE FROM USMC.StudentListEvent WHERE  ID IN (SELECT ID FROM #EventIDs)  
+ END 
+ 
+ IF EXISTS(SELECT 1 FROM USMC.YouthPhysicalFitnessEvent WHERE ID IN (SELECT ID FROM #EventIDs)) 
+ BEGIN 
+  DELETE FROM USMC.YouthPhysicalFitnessEvent WHERE  ID IN (SELECT ID FROM #EventIDs)  
+ END 
+ 
+ IF EXISTS(SELECT 1 FROM USMC.SeniorTalkEvent WHERE ID IN (SELECT ID FROM #EventIDs)) 
+ BEGIN 
+  DELETE FROM USMC.SeniorTalkEvent WHERE  ID IN (SELECT ID FROM #EventIDs)  
+ END 
+  
+ IF EXISTS(SELECT 1 FROM USMC.JuniorTalkEvent WHERE ID IN (SELECT ID FROM #EventIDs)) 
+ BEGIN 
+  DELETE FROM USMC.JuniorTalkEvent WHERE  ID IN (SELECT ID FROM #EventIDs)  
+ END 
+END 
+ 
+IF @eventSource = 21 
+BEGIN 
+ IF EXISTS(SELECT 1 FROM USMC.IRTAc.onDatesRecap WHERE EventID IN (SELECT ID FROM #EventIDs)) 
+ BEGIN 
+  DELETE FROM USMC.IRTAc.onDatesRecap WHERE  EventID IN (SELECT ID FROM #EventIDs)  
+ END 
+END 
+ 
+IF @eventSource = 22 
+BEGIN 
+ IF EXISTS(SELECT 1 FROM USMC.TakeOneEvent WHERE ID IN (SELECT ID FROM #EventIDs)) 
+ BEGIN 
+  DELETE FROM USMC.TakeOneEvent WHERE  ID IN (SELECT ID FROM #EventIDs)  
+ END 
+END 
+ 
+IF @eventSource IN (3,5,6,7,8,9,10,11,12) 
+BEGIN 
+ IF EXISTS(SELECT 1 FROM USMC.EventBudget WHERE EventId IN (SELECT ID FROM #EventIDs)) 
+ BEGIN 
+  DELETE FROM USMC.EventBudget WHERE  EventId IN (SELECT ID FROM #EventIDs)  
+ END 
+END 
+ 
+--all events poten.ally have the following entries 
+IF EXISTS(SELECT 1 FROM USMC.EventBene.t eb 
+    INNER JOIN USMC.EventOutCome eo ON eb.EventOutcomeId = eo.ID 
+    WHERE eo.EventId IN (SELECT ID FROM #EventIDs)) 
+BEGIN 
+ DELETE FROM USMC.EventBene.t  
+ WHERE EventOutcomeId IN( 
+   SELECT ID 
+   FROM USMC.EventOutcome 
+   WHERE EventId IN (SELECT ID FROM #EventIDs) 
+ ) 
+END 
+ 
+IF EXISTS(SELECT 1 FROM USMC.EventOutCome WHERE EventId IN (SELECT ID FROM #EventIDs)) 
+BEGIN 
+ DELETE FROM USMC.EventOutCome WHERE  EventId IN (SELECT ID FROM #EventIDs)  
+END 
+ 
+IF EXISTS(SELECT 1 FROM USMC.EventApproval WHERE ID IN (SELECT ID FROM #EventIDs)) 
+BEGIN 
+ DELETE FROM USMC.EventApproval WHERE  ID IN (SELECT ID FROM #EventIDs)  
+END 
+ 
+IF EXISTS(SELECT 1 FROM USMC.EventSubject WHERE EventId IN (SELECT ID FROM #EventIDs)) 
+BEGIN 
+ DELETE FROM USMC.EventSubject WHERE  EventId IN (SELECT ID FROM #EventIDs)  
+END 
+ 
+IF EXISTS(SELECT 1 FROM USMC.EventPersonVisibility WHERE EventId IN (SELECT ID FROM #EventIDs)) 
+BEGIN 
+ DELETE FROM USMC.EventPersonVisibility WHERE  EventId IN (SELECT ID FROM #EventIDs)  
+END 
+ 
+IF EXISTS(SELECT 1 FROM USMC.EventOwners WHERE EventId IN (SELECT ID FROM #EventIDs)) 
+BEGIN 
+ DELETE FROM USMC.EventOwners WHERE  EventId IN (SELECT ID FROM #EventIDs)  
+END 
+ 
+--delete/edit the event data itself 
+DELETE FROM [RSSOSS].[USMC].[Event] 
+WHERE SeriesID = @SeriesID 
+AND StartDate > @currentDate 
+ 
+UPDATE [RSSOSS].[USMC].[Event] 
+SET SeriesID = 0 
+WHERE SeriesID = @SeriesID 
+AND StartDate < @currentDate 
+ 
+DELETE FROM [RSSOSS].[USMC].[EventSeries] 
+WHERE SeriesID = @SeriesID 
+ 
+DROP TABLE #EventIDs 
+ 
+IF @@ERROR <> 0 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+ 
+  -- Raise an error and return 
+  RAISERROR ('Error occurred while performing the change.', 16, 1) 
+  RETURN 
+ END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

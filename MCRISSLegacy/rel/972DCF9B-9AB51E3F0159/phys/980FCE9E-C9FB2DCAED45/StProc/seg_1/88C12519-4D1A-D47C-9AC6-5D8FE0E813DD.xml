@@ -1,0 +1,17 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetAllMaritalStatus]" directorySegmentName="seg_1" id="88C12519-4D1A-D47C-9AC6-5D8FE0E813DD">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[AS 
+ 
+SELECT 
+ -1 AS ID, 
+ MARITAL_STATUS_CODE AS Code, 
+ MARITAL_STATUS_DESC AS Descrip.on 
+FROM [dbo].[MARITAL_STATUS] WITH (NOLOCK) 
+ORDER BY MARITAL_STATUS_DESC]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

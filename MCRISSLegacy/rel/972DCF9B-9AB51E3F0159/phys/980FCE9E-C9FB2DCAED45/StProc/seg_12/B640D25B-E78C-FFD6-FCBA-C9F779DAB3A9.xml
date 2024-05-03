@@ -1,0 +1,51 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUpdateNROTCContract]" directorySegmentName="seg_12" id="B640D25B-E78C-FFD6-FCBA-C9F779DAB3A9">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@NWAID   int, 
+ @ContractID  int     = 0, 
+ @ProgramType int     = NULL, 
+ @NROTCUnit  uniqueiden..er = NULL, 
+ @IAndIState  varchar(2)    = NULL, 
+ @IAndICity  varchar(4)    = NULL,  
+ @LeaveOfAbsenceReason int   = NULL, 
+ @LeaveOfAbsenceDate date.me   = NULL,  
+ @LastEditBy  varchar(50) 
+AS 
+ 
+IF COALESCE(@ContractID, 0) = 0 
+BEGIN 
+ SELECT @ContractID = CONTRACT_ID FROM dbo.OFFICER_CONTRACT WHERE NWA_ID = @NWAID 
+END 
+ 
+IF EXISTS (SELECT 1 FROM dbo.NROTC_CONTRACT WHERE CONTRACT_ID = @ContractID OR NWA_ID = @NWAID)  
+BEGIN 
+ UPDATE 
+  dbo.NROTC_CONTRACT 
+ SET 
+  PROGRAM_TYPE  = @ProgramType, 
+  NROTC_UNIT_ROWGUID  = @NROTCUnit, 
+  I_AND_I_STATE   = @IAndIState, 
+  I_AND_I_CITY   = @IAndICity,  
+  LEAVE_OF_ABSENCE_REASON = @LeaveOfAbsenceReason, 
+  LEAVE_OF_ABSENCE_DATE  = @LeaveOfAbsenceDate,  
+  USER_LOGIN   = @LastEditBy, 
+  UPDATE_DATE   = GETDATE() 
+ WHERE 
+  CONTRACT_ID   = @ContractID OR 
+  NWA_ID    = @NWAID 
+END 
+ELSE 
+BEGIN 
+ INSERT INTO dbo.NROTC_CONTRACT 
+  (NWA_ID, CONTRACT_ID, PROGRAM_TYPE, NROTC_UNIT_ROWGUID, I_AND_I_STATE, I_AND_I_CITY, LEAVE_OF_ABSENCE_REASON,  
+  LEAVE_OF_ABSENCE_DATE, USER_LOGIN, UPDATE_DATE) 
+ VALUES 
+  (@NWAID, @ContractID, @ProgramType, @NROTCUnit, @IAndIState, @IAndICity, @LeaveOfAbsenceReason,  
+  @LeaveOfAbsenceDate, @LastEditBy, GETDATE()) 
+END]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

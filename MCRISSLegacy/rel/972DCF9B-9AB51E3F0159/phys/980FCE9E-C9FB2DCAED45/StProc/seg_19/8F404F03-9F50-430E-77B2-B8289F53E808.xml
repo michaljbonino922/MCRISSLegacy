@@ -1,0 +1,26 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetO.cerWaiverHistory]" directorySegmentName="seg_19" id="8F404F03-9F50-430E-77B2-B8289F53E808">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@NWAID int 
+AS 
+ 
+SELECT 
+ W.OFFICER_WAIVER_ID, 
+ CONVERT(CHAR(11), W.WAIVER_SUBMIT_DATE, 106) AS WAIVER_SUBMIT_DATE, 
+ C.WAIVER_CATEGORY_DESC, 
+ T.WAIVER_TYPE_SHORT_DESC, 
+ WS.WAIVER_STATUS_DESC, 
+ T.WAIVER_LEVEL, 
+ T.WAIVER_CODE 
+FROM 
+ OFFICER_WAIVER W INNER JOIN OFFICER_WAIVER_TYPE T ON  
+  (W.NWA_ID = @NWAID AND 
+  W.WAIVER_TYPE_ID = T.WAIVER_TYPE_ID) 
+ INNER JOIN OFFICER_WAIVER_CATEGORY C ON T.WAIVER_CATEGORY_ID = C.WAIVER_CATEGORY_ID 
+ INNER JOIN WAIVER_STATUS WS ON W.WAIVER_STATUS_CODE = WS.WAIVER_STATUS_CODE]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

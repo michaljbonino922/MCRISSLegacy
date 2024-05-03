@@ -1,0 +1,18 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetAllCi.zenshipStatus]" directorySegmentName="seg_1" id="1A5EEED2-ECC2-C945-8471-849395CBA120">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[AS 
+ 
+SELECT 
+ -1 AS ID, 
+ CITIZENSHIP_CODE AS Code, 
+ CITIZENSHIP_DESCRIPTION AS Descrip.on, 
+ TYPE as Usage 
+FROM [dbo].[CITIZENSHIP] WITH (NOLOCK) 
+ORDER BY [CITIZENSHIP_DESCRIPTION]]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,36 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetMIRSExport]" directorySegmentName="seg_18" id="04A92F5B-D515-BDCA-4539-EED7138332E5">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[AS 
+ 
+ 
+SELECT 
+ L.MEPS_NAME AS MEPSName,  
+ L.MEPS_CODE AS MEPSCode,  
+ CONVERT(VARCHAR(15), COALESCE(L.MEPS_IP_ADDRESS, E.MEPS_IP_ADDRESS)) AS MEPSIPAddress,  
+ COALESCE(L.MEPS_IPADDRESS_USER, E.MEPS_IPADDRESS_USER) AS UserLogin,  
+ COALESCE(L.MEPS_IPADDRESS_PWD, E.MEPS_IPADDRESS_PWD) AS [Password],   
+ E.EXPORTED_DATA AS MIRS4KRecord,  
+ E.TRANSACTION_ID AS Transac.onID,  
+ E.TRANSACTION_TYPE_ID AS Transac.onTypeID, 
+ S.SCHEDULE_ID AS ScheduleID  
+FROM  
+ MIRS_EXPORT E INNER JOIN MEPS_SCHEDULE S ON E.SCHEDULE_ID = S.SCHEDULE_ID 
+ INNER JOIN MEPS_ORGANIZATION_LOOKUP L ON S.MEPS_ORGANIZATION_ID = L.MEPS_ORGANIZATION_ID 
+  
+WHERE 
+ E.EXPORTED = 'N' AND 
+ --- EXPORTED_DATA IS NOT NULL AND  
+ COALESCE(E.SCHEDULE_ID, 0) != 0 AND 
+ COALESCE(E.PERSON_ID, 0) != 0 AND 
+ COALESCE(E.MEPS_IP_ADDRESS, '0.0.0.0') != '0.0.0.0' 
+ ORDER BY 
+ E.MEPS_IP_ADDRESS, E.TRANSACTION_ID 
+  
+ op.on (maxdop 1)]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

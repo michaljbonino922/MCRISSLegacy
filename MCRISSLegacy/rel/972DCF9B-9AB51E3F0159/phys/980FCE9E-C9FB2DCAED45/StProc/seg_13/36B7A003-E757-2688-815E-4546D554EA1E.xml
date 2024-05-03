@@ -1,0 +1,43 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_AddNewProgram]" directorySegmentName="seg_13" id="36B7A003-E757-2688-815E-4546D554EA1E">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@ProgramType  varchar(4), 
+ @ProgramStatus char(1), 
+ @ProgramDescrip.on varchar(60), 
+ @ProgramCode  varchar(4), 
+ @ProgramIncep.onDate date.me, 
+ @UserLogin  varchar(15), 
+ @ProgramExists  int output 
+ 
+AS 
+ 
+If Exists(Select * from Program Where @ProgramCode = Program_Code and @ProgramIncep.onDate = INCEPTION_DATE) 
+BEGIN 
+Select @ProgramExists = 0 
+RETURN 
+End 
+ 
+INSERT INTO PROGRAM( 
+ PROGRAM_CODE, 
+ PROGRAM_TYPE, 
+ PROGRAM_DESCRIPTION, 
+ USER_LOGIN, 
+ UPDATE_DATE, 
+ INCEPTION_DATE, 
+ STATUS 
+ ) 
+Select @ProgramCode, 
+ @ProgramType, 
+ @ProgramDescrip.on, 
+ @UserLogin, 
+ getdate(), 
+ @ProgramIncep.onDate, 
+ @ProgramStatus 
+ 
+Select @ProgramExists = 1]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

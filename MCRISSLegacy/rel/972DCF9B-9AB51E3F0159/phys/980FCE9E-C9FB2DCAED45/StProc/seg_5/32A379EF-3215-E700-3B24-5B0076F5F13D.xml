@@ -1,0 +1,37 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetContractGoalViewForRegion]" directorySegmentName="seg_5" id="32A379EF-3215-E700-3B24-5B0076F5F13D">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[(@RegionOrgID int) 
+ 
+AS 
+ 
+SELECT 
+ ro.ORGANIZATION_ID AS OrgID, 
+ ro.SHORT_NAME AS OrgName, 
+ 1 AS FiscalYear, 
+ '' AS Contrac.ngMissionType, 
+ 0 AS [January], 
+ 0 AS [February], 
+ 0 AS [March], 
+ 0 AS [April], 
+ 0 AS [May], 
+ 0 AS [June], 
+ 0 AS [July], 
+ 0 AS [August], 
+ 0 AS [September], 
+ 0 AS [October], 
+ 0 AS [November], 
+ 0 AS [December] 
+FROM 
+ RECRUITING_ORGANIZATION ro WITH (NOLOCK) 
+INNER JOIN ORGANIZATION_MAP om 
+ ON  om.CHILD_ORGANIZATION_ID = ro.ORGANIZATION_ID AND 
+  ro.ORGANIZATION_TYPE = 'D' 
+WHERE 
+ om.PARENT_ORGANIZATION_ID = @RegionOrgID]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

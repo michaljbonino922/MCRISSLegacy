@@ -1,0 +1,143 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_0" id="ECBF5CBA-5869-30F8-D382-AB49ABB607DE" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="_dta_mv_109">
+<sourceDDLFile>create Prospecting script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:25 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>9317D3DA-A2DC-94CC-19B7-C73A608ADEF9</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  [USMC].[Prospect].[ProspectDisposi.onId] as _col_1,  [USMC].[Prospect].[ProspectId] as _col_2,  [USMC].[Prospect].[PersonId] as _col_3,  [USMC].[Prospect].[Recrui.ngPersonId] as _col_4,  [USMC].[Prospect].[Recrui.ngOrganiza.onId] as _col_5,  [USMC].[Person].[PersonId] as _col_6,  [USMC].[Person].[FirstName] as _col_7,  [USMC].[Person].[MiddleName] as _col_8,  [USMC].[Person].[LastName] as _col_9,  count_big(*) as _col_10 FROM  [USMC].[Person],  [USMC].[Prospect]   WHERE  [USMC].[Person].[PersonId] = [USMC].[Prospect].[PersonId]  GROUP BY  [USMC].[Prospect].[ProspectDisposi.onId],  [USMC].[Prospect].[ProspectId],  [USMC].[Prospect].[PersonId],  [USMC].[Prospect].[Recrui.ngPersonId],  [USMC].[Prospect].[Recrui.ngOrganiza.onId],  [USMC].[Person].[PersonId],  [USMC].[Person].[FirstName],  [USMC].[Person].[MiddleName],  [USMC].[Person].[LastName]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[ProspectDisposi.onId]" id="85DC25CC-8DF2-8335-0806-9D4B263803B0">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:25 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_1</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_1</headerAlias>
+<expression>[ProspectDisposi.onId]</expression>
+<reference>false</reference>
+<viewID>ECBF5CBA-5869-30F8-D382-AB49ABB607DE</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[ProspectId]" id="80D8D2A8-9F63-096D-10EA-01402879219C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:25 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_2</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_2</headerAlias>
+<expression>[ProspectId]</expression>
+<reference>false</reference>
+<viewID>ECBF5CBA-5869-30F8-D382-AB49ABB607DE</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[PersonId]" id="CDA87BE8-76D6-2045-0C6E-7E8B14C69741">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:25 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_3</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_3</headerAlias>
+<expression>[PersonId]</expression>
+<reference>false</reference>
+<viewID>ECBF5CBA-5869-30F8-D382-AB49ABB607DE</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[Recrui.ngPersonId]" id="8B439252-9032-F3D6-82EA-0A3A6AB7C1D8">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:25 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_4</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_4</headerAlias>
+<expression>[Recrui.ngPersonId]</expression>
+<reference>false</reference>
+<viewID>ECBF5CBA-5869-30F8-D382-AB49ABB607DE</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[Recrui.ngOrganiza.onId]" id="503E29D2-2F7F-0DB8-578E-E7719E43E727">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:25 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_5</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_5</headerAlias>
+<expression>[Recrui.ngOrganiza.onId]</expression>
+<reference>false</reference>
+<viewID>ECBF5CBA-5869-30F8-D382-AB49ABB607DE</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_605" id="BDDABCCB-1B62-5401-3A4C-7F32D0B68B1A">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:25 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_6</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_6</headerAlias>
+<expression>[PersonId]</expression>
+<reference>false</reference>
+<viewID>ECBF5CBA-5869-30F8-D382-AB49ABB607DE</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[FirstName]" id="4D67EED5-3ACA-7418-E350-319088C95ACB">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:25 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_7</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_7</headerAlias>
+<expression>[FirstName]</expression>
+<reference>false</reference>
+<viewID>ECBF5CBA-5869-30F8-D382-AB49ABB607DE</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[MiddleName]" id="BE76EEE2-3C89-BFB6-38F2-34870D0C207F">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:25 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_8</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_8</headerAlias>
+<expression>[MiddleName]</expression>
+<reference>false</reference>
+<viewID>ECBF5CBA-5869-30F8-D382-AB49ABB607DE</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[LastName]" id="21948E64-379B-76D8-A1C6-BFBD2800E9E7">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:25 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_9</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_9</headerAlias>
+<expression>[LastName]</expression>
+<reference>false</reference>
+<viewID>ECBF5CBA-5869-30F8-D382-AB49ABB607DE</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="count_big(*)" id="92F8984A-1A29-B95A-FEE9-72665DF57778">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:25 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_10</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_10</headerAlias>
+<expression>count_big(*)</expression>
+<reference>false</reference>
+<viewID>ECBF5CBA-5869-30F8-D382-AB49ABB607DE</viewID>
+</viewElement>
+</viewElements>
+</TableView>

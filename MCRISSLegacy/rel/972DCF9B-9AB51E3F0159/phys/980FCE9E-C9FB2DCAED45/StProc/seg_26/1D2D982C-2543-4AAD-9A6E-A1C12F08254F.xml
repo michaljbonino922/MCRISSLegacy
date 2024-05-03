@@ -1,0 +1,88 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_ViewBackupFailuresNew]" directorySegmentName="seg_26" id="1D2D982C-2543-4AAD-9A6E-A1C12F08254F">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@ServerName varchar(25), 
+@NumDaysBack smallint 
+ 
+AS 
+ 
+declare @sql varchar(3500) 
+ 
+--set ansi_nulls on 
+--set ansi_Warnings on 
+set quoted_iden..er o. 
+ 
+--set @ServerName='rcmcriss04a' 
+--set @NumDaysBack='30' 
+ 
+ 
+set @sql = "select a.job_id, run_date," 
+set @sql = @sql + " run_.me = case "  
+set @sql = @sql + "   when len(convert(varchar(6),a.run_.me))=1" 
+set @sql = @sql + "    then '00000'+ convert(varchar(6),a.run_.me) " 
+set @sql = @sql + "   when len(convert(varchar(6),a.run_.me))=2" 
+set @sql = @sql + "    then '0000'+ convert(varchar(6),a.run_.me) " 
+set @sql = @sql + "   when len(convert(varchar(6),a.run_.me))=3" 
+set @sql = @sql + "    then '000'+ convert(varchar(6),a.run_.me) " 
+set @sql = @sql + "   when len(convert(varchar(6),a.run_.me))=4" 
+set @sql = @sql + "    then '00'+ convert(varchar(6),a.run_.me) " 
+set @sql = @sql + "   when len(convert(varchar(6),a.run_.me))=5" 
+set @sql = @sql + "    then '0'+ convert(varchar(6),a.run_.me) " 
+set @sql = @sql + "   else convert(varchar(6),a.run_.me)" 
+set @sql = @sql + "     end," 
+set @sql = @sql + " run_dura.on = case "  
+set @sql = @sql + "   when len(convert(varchar(6),run_dura.on))=1" 
+set @sql = @sql + "    then '00000'+ convert(varchar(6),run_dura.on) " 
+set @sql = @sql + "   when len(convert(varchar(6),run_dura.on))=2" 
+set @sql = @sql + "    then '0000'+ convert(varchar(6),run_dura.on) " 
+set @sql = @sql + "   when len(convert(varchar(6),run_dura.on))=3" 
+set @sql = @sql + "    then '000'+ convert(varchar(6),run_dura.on) " 
+set @sql = @sql + "   when len(convert(varchar(6),run_dura.on))=4" 
+set @sql = @sql + "    then '00'+ convert(varchar(6),run_dura.on) " 
+set @sql = @sql + "   when len(convert(varchar(6),run_dura.on))=5" 
+set @sql = @sql + "    then '0'+ convert(varchar(6),run_dura.on) " 
+set @sql = @sql + "   else convert(varchar(6),run_dura.on)" 
+set @sql = @sql + "     end," 
+set @sql = @sql + " b.name," 
+set @sql = @sql + " next_run_.me = case "  
+set @sql = @sql + "   when len(convert(varchar(6),c.next_run_.me))=1" 
+set @sql = @sql + "    then '00000'+ convert(varchar(6),c.next_run_.me) " 
+set @sql = @sql + "   when len(convert(varchar(6),c.next_run_.me))=2" 
+set @sql = @sql + "    then '0000'+ convert(varchar(6),c.next_run_.me) " 
+set @sql = @sql + "   when len(convert(varchar(6),c.next_run_.me))=3" 
+set @sql = @sql + "    then '000'+ convert(varchar(6),c.next_run_.me) " 
+set @sql = @sql + "   when len(convert(varchar(6),c.next_run_.me))=4" 
+set @sql = @sql + "    then '00'+ convert(varchar(6),c.next_run_.me) " 
+set @sql = @sql + "   when len(convert(varchar(6),c.next_run_.me))=5" 
+set @sql = @sql + "    then '0'+ convert(varchar(6),c.next_run_.me) " 
+set @sql = @sql + "   else convert(varchar(6),c.next_run_.me)" 
+set @sql = @sql + "     end," 
+set @sql = @sql + " 'Failed' as run_status  " 
+set @sql = @sql + " from " + @ServerName + ".msdb.dbo.sysjobhistory a, " + @ServerName + ".msdb.dbo.sysjobs b, " + @ServerName + ".msdb.dbo.sysjobschedules c " 
+set @sql = @sql + "where a.job_id=b.job_id" 
+set @sql = @sql + " and b.job_id=c.job_id" 
+set @sql = @sql + " and a.run_status = 0" 
+set @sql = @sql + " and b.name like '%DB Maintenance Plan%'" 
+--set @sql = @sql + " and b.descrip.on like 'Database Backup%'" 
+set @sql = @sql + " and a.step_id='0'" 
+set @sql = @sql + " and convert(smalldate.me,convert(varchar(8),a.run_date),112)" 
+set @sql = @sql + " between convert(smalldate.me,getdate()-" + convert(varchar(2),@NumDaysBack) + ",112) and convert(smalldate.me,getdate(),112)" 
+/*--set @sql = @sql + " or " 
+set @sql = @sql + "a.job_id=b.job_id" 
+set @sql = @sql + " and b.job_id=c.job_id" 
+set @sql = @sql + " and a.run_status = 0" 
+set @sql = @sql + " and b.name like 'Transac.on Log%'" 
+set @sql = @sql + " and a.step_id='0'" 
+set @sql = @sql + " and convert(smalldate.me,convert(varchar(8),a.run_date),112)" 
+set @sql = @sql + " between convert(smalldate.me,getdate()-" + convert(varchar(2),@NumDaysBack) + ",112) and convert(smalldate.me,getdate(),112)" 
+*/ 
+set @sql = @sql + " order by run_date desc" 
+ 
+--print @sql 
+execute(@sql)]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

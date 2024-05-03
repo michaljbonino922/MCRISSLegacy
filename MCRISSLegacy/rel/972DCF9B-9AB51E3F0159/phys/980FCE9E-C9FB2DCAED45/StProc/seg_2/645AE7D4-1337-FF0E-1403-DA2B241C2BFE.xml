@@ -1,0 +1,75 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetApplica.onChecklistForNwa]" directorySegmentName="seg_2" id="645AE7D4-1337-FF0E-1403-DA2B241C2BFE">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[(@NwaID int) 
+ 
+AS 
+ 
+SELECT  
+  [NWA_ID] 
+ ,[NAVMC10468] 
+ ,[MCFAPFIPTAP] 
+ ,[ACFNAVMC10469] 
+ ,[OFFICIAL_COLLEGE_TRANSCRIPTS] 
+ ,[PREVIOUS_SCHOOL_TRANSCRIPTS] 
+ ,[ASVAB] 
+ ,[PROOF_OF_DEGREE] 
+ ,[LAW_SCHOOL_ACCEPTANCE_LETTER] 
+ ,[STATE_BAR_NOTIFICATION] 
+ ,[INTENT_TO_TRANSFER_TO_4_YR_COLLEGE] 
+ ,[DD_FORM_4] 
+ ,[ANNEX_A] 
+ ,[ANNEX_B] 
+ ,[DD214] 
+ ,[PREVIOUS_DD4] 
+ ,[DD4_DEP_DISCHARGE] 
+ ,[SMCR] 
+ ,[DD_FORM_368] 
+ ,[ROUGH_NAV_MC_763_RFA] 
+ ,[COPY_OF_EPSQ] 
+ ,[SRB] 
+ ,[BIRTH_VERIFICATION] 
+ ,[SSN_CARD] 
+ ,[NAV_MC_538] 
+ ,[DEPENDENCY_STATEMENT] 
+ ,[MARRIAGE_LICENSE] 
+ ,[NAVMC10418_2] 
+ ,[APPLICANT_BRIEFING] 
+ ,[RESTRICTIONS] 
+ ,[FRATERNIZATION_STATEMENT] 
+ ,[USMC_DRUG_POLICY] 
+ ,[MEDICAL_INSURANCE] 
+ ,[NAV_MC_10418] 
+ ,[ADDENDUM_PAGE] 
+ ,[DRUG_STATEMENT] 
+ ,[MINOR_TRAFFIC_ARREST_FORM] 
+ ,[NON_TRAFFIC_ARREST_FORM] 
+ ,[PFT] 
+ ,[PHOTO_PAGE] 
+ ,[TATOO_PHOTO] 
+ ,[DD785] 
+ ,[BODY_FAT_PHOTO] 
+ ,[BODY_FAT_MEASUREMENT] 
+ ,[HUNDRED_WORD_STATEMENT] 
+ ,[OSO_EVALUATION_NAV_MC_10064] 
+ ,[PIQ] 
+ ,[DEAN] 
+ ,[PRF1] 
+ ,[PRF2] 
+ ,[EMPLOYER] 
+ ,[OTHER1] 
+ ,[OTHER2] 
+ ,[I_AND_I] 
+ ,[PRINTS] 
+ ,[ROTC] 
+ ,[USER_LOGIN] 
+FROM  
+ [dbo].[APPLICATION_CHECKLIST] WITH (NOLOCK) 
+WHERE 
+ [NWA_ID] = @NwaID]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

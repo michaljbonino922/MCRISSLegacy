@@ -1,0 +1,24 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetAllProgramTypes]" directorySegmentName="seg_2" id="4BE1D5C2-16D6-1207-F332-75DB22A68F60">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[AS 
+ 
+/*  
+SELECT THE DISTINCT PROGRAM CODES AND THEIR DESCRIPTIONS THAT MEET THE FOLLOWING CONDITIONS:  
+PREFERENCE_END_DATE IS NULL OR PREFERENCE_END_DATE HAS NOT EXPIRED 
+*/ 
+SELECT DISTINCT 
+ PT.PROGRAM_TYPE_CODE As CODE, PT.PROGRAM_TYPE_DESCRIPTION As DESCRIPTION 
+FROM  
+ [dbo].[PROGRAM_TYPE] PT WITH (NOLOCK) LEFT OUTER JOIN [dbo].[PROGRAM_DUTY_PREFERENCE] PDP ON PT.PROGRAM_TYPE_CODE = PDP.PROGRAM_CODE 
+WHERE 
+ PDP.PREFERENCE_END_DATE IS NULL OR 
+ DATEDIFF(DAY, PDP.PREFERENCE_END_DATE, GETDATE()) <= 0 
+ORDER BY  
+ PT.PROGRAM_TYPE_DESCRIPTION]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

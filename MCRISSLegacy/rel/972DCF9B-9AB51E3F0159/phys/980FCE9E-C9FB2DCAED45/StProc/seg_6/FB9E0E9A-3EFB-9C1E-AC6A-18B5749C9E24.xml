@@ -1,0 +1,31 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetSNCOICTrainingStatuses]" directorySegmentName="seg_6" id="FB9E0E9A-3EFB-9C1E-AC6A-18B5749C9E24">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@Organiza.onID  int 
+AS 
+BEGIN 
+ 
+ SET NOCOUNT ON 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+ SELECT ORG_ID 
+ INTO #SncoicTrainingTmp  
+ FROM MCRISS.USMC.GetOrgHierarchyMinimal(@Organiza.onID) 
+ 
+ SELECT vw.* 
+ FROM [RSSOSS].[USMC].[vwSNCOICTrainingStatus] vw  
+ INNER JOIN #SncoicTrainingTmp STT ON STT.ORG_ID = vw.ORGANIZATION_ID 
+ WHERE vw.ORGANIZATION_TYPE = 'RSS'  
+ AND (vw.BILLET = 'SNCOIC' OR vw.BILLET IS NULL) 
+ AND vw.ArchivedDate IS NULL 
+ ORDER BY vw.ORGANIZATION_ID 
+  
+ DROP TABLE #SncoicTrainingTmp 
+  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

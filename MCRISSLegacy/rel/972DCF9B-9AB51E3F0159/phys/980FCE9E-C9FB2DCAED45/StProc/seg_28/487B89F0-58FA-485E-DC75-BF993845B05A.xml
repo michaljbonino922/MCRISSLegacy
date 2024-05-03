@@ -1,0 +1,63 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateRFATrackingDates]" directorySegmentName="seg_28" id="487B89F0-58FA-485E-DC75-BF993845B05A">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@ContractID              INT, 
+   @SentToDistDate          DATETIME = NULL, 
+   @DistReceivedDate        DATETIME = NULL, 
+   @MCRCReceivedDate        DATETIME = NULL, 
+   @MailedToMCRCDate        DATETIME = NULL, 
+   @MCRCOAMailedDate        DATETIME = NULL, 
+   @MCRCMailsToOSS          DATETIME = NULL, 
+   @ScrolledToAc.veDuty    DATE = NULL, 
+   @ScrolledToReserves      DATE = NULL, 
+   @UserLogin               VARCHAR (15) 
+AS 
+   IF EXISTS 
+         (SELECT 1 
+            FROM RFA_TRACKING_DATES 
+           WHERE CONTRACT_ID = @ContractID) 
+      BEGIN 
+         UPDATE RFA_TRACKING_DATES 
+            SET SENT_TO_DIST_DATE = @SentToDistDate, 
+                DIST_RECEIVED_DATE = @DistReceivedDate, 
+                MAILED_TO_MCRC_DATE = @MailedToMCRCDate, 
+                MCRC_RECEIVED_DATE = @MCRCReceivedDate, 
+                MCRC_OA_MAILED_DATE = @MCRCOAMailedDate, 
+                MCRC_MAILS_TO_OSS = @MCRCMailsToOSS, 
+                SCROLLED_TO_ACTIVE_DUTY_DATE = @ScrolledToAc.veDuty, 
+                SCROLLED_TO_RESERVES_DATE = @ScrolledToReserves, 
+                USER_LOGIN = @UserLogin, 
+                UPDATE_DATE = GETDATE () 
+          WHERE CONTRACT_ID = @ContractID 
+      END 
+   ELSE 
+      BEGIN 
+         INSERT INTO RFA_TRACKING_DATES (CONTRACT_ID, 
+                                         SENT_TO_DIST_DATE, 
+                                         DIST_RECEIVED_DATE, 
+                                         MAILED_TO_MCRC_DATE, 
+                                         MCRC_RECEIVED_DATE, 
+                                         MCRC_OA_MAILED_DATE, 
+                                         MCRC_MAILS_TO_OSS, 
+                                         SCROLLED_TO_ACTIVE_DUTY_DATE, 
+                                         SCROLLED_TO_RESERVES_DATE, 
+                                         USER_LOGIN, 
+                                         UPDATE_DATE) 
+         VALUES (@ContractID, 
+                 @SentToDistDate, 
+                 @DistReceivedDate, 
+                 @MailedToMCRCDate, 
+                 @MCRCReceivedDate, 
+                 @MCRCOAMailedDate, 
+                 @MCRCMailsToOSS, 
+                 @ScrolledToAc.veDuty, 
+                 @ScrolledToReserves, 
+                 @UserLogin, 
+                 GETDATE ()) 
+      END]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,98 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_7" id="A1AEA950-B480-12AB-92B4-AFF7E858096C" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="BilletFormalTraining">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:54 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>7F75C195-3C77-2D4D-8A8B-4F73ADE6A3E9</importedID>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="ID" id="C640D2EA-5AA0-C069-269A-E1BE313BE94E">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:57 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>1383F116-A99A-4E07-416B-1D6ED93656C1</importedID>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementColumn>true</autoIncrementColumn>
+<identityColumn>true</identityColumn>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="Billet" id="1A55BCBA-CB36-7788-0B25-F321EFE4B883">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:57 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>FF233262-E9F8-7CD4-5F85-4B25CDEC37CA</importedID>
+<use>0</use>
+<domain>FE83DFFA-9B1F-A4B4-9720-4461C50F7960</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="Code" id="B2DF1565-0987-CCB9-1C82-68FCF48CD2F8">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:57 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>B9D9D706-B4C3-DC45-238A-024F6B2B246C</importedID>
+<use>0</use>
+<domain>887F9BB6-613E-46F2-A5D1-7E71EAB553DB</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="Type" id="B4A17034-142D-B8F8-C89C-2D7410C84947">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:57 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>295699DD-6C48-62C1-4132-EDAA526DCC2E</importedID>
+<use>0</use>
+<domain>2E8EE7FC-99CE-D4AE-132C-50F4AADCC1F4</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="DisplayOrder" id="AB548AEB-17E3-DBDB-6001-0E9303CB6154">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:57 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>E485852F-E9D9-EAB5-0D52-ADDBE8D2AD79</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>0B32FEBA-0818-67BE-914F-5328B1856905</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="Deleted" id="EB47D61E-4A5A-787C-24F3-F09E28B5DB5E">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:57 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>0DA144DC-B720-16F6-CC21-6331FC375E48</importedID>
+<use>0</use>
+<domain>D667A44A-427C-8171-AC91-1F760EF11F37</domain>
+<usesDefaultValue>true</usesDefaultValue>
+<defaultValue>(&apos;N&apos;)</defaultValue>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="78F03C7D-04DC-1303-D0F4-FE906CF3CFE2" name="PK_BilletFormalTraining">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:57 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>0629BC97-B86D-DD17-B31C-E6B58922099D</importedID>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="C640D2EA-5AA0-C069-269A-E1BE313BE94E"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+</Table>

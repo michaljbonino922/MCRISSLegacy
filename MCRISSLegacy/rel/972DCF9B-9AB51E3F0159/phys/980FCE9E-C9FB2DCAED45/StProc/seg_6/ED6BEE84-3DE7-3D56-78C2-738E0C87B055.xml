@@ -1,0 +1,33 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetMOSCriteria]" directorySegmentName="seg_6" id="ED6BEE84-3DE7-3D56-78C2-738E0C87B055">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@MOSCode varchar(4), 
+ @E.ec.veDate  date.me, 
+ @Gender  char(1) 
+AS 
+ 
+SELECT  
+ MOS AS MOSCode, 
+ MOS_CRITERIA_ED_DATE As E.ec.veDate, 
+ GENDER, TERM_OF_ENLISTMENT,  
+ CITIZENSHIP, DRIVER_LICENSE, HIGHEST_WAIVER_LEVEL, 
+ HEIGHT_MINIMUM, HEIGHT_MAXIMUM, EDUCATION_TIER, AGE_MINIMUM, AGE_MAXIMUM,  
+ IsNull(VISION_LEFT_UNCORRECTED, '') As VisLe.Uncorr,  
+ IsNull(VISION_RIGHT_UNCORRECTED, '') As VisRightUncorr, 
+ IsNull(VISION_LEFT_CORRECTED, '') As VisLe.Corr,  
+ IsNull(VISION_RIGHT_CORRECTED, '') As VisRightCorr, 
+ AFQT, GT, EL, PAOI, APT, EDPT, MM, WPMT, DLAB, CL, MEOP, CYBER,  
+ IsNull(COLOR_PERCEPTION, '') As ColorPercep.on 
+ 
+FROM  
+ [dbo].[MOS_CRITERIA] WITH (NOLOCK) 
+WHERE  
+ MOS = @MOSCode 
+ AND MOS_CRITERIA_ED_DATE = @E.ec.veDate 
+ AND GENDER = @Gender]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

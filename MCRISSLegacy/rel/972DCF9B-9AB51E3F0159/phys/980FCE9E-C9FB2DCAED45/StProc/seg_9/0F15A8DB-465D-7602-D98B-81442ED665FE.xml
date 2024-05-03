@@ -1,0 +1,78 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetSMCRReserveUnitBySchoolRowGuid]" directorySegmentName="seg_9" id="0F15A8DB-465D-7602-D98B-81442ED665FE">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@SchoolCode uniqueiden..er,  
+      @FiscalYear Integer 
+   
+AS 
+SET NOCOUNT ON 
+  
+  SELECT  
+   
+   cpsr.[SMCRReserveUnitID], 
+   hs.[Organiza.on_ID] AS Organiza.onID, 
+   hs.[School_Code] As SchoolCode,cp.[FiscalYear], 
+   [ContractType],[SMCRReserveUnitName] As SMCRReserveUnitName, 
+   [E1ThruE5Popula.on], 
+   sr.[Street1] AS SMCRStreet1, sr.[Street2]  AS SMCRStreet2, sr.[City]  AS SMCRCity, 
+   sr.[State]  AS SMCRState, sr.[ZipCode]  AS SMCRZipCode, 
+    
+   -- POC Informa.on 
+   pc.[PointOfContactID], 
+    
+   RTRIM (pc.POCLastName) AS POCLastName, RTRIM(pc.POCFirstName) AS POCFirstName,  
+   POCLegalMiddleName, 
+   pc.[Street1], pc.[Street2],pc.[City],pc.[State],pc.[ZipCode], 
+         pc.[TelephoneNumber],pc.[CellPhoneNumber],pc.[FaxNumber],pc.[EmailAddress], 
+   sr.[Remarks], sr.[NumVisitsPlanned], sr.[ContractGoal] as NumContractGoal 
+     
+    
+  FROM  [USMC].[CollegePro.leSMCRReserveUnit] cpsr  
+     INNER JOIN [MCRISS].[USMC].[SMCRReserveUnit] sr ON sr.[SMCRReserveUnitID] = cpsr.[SMCRReserveUnitID] 
+     INNER JOIN  [MCRISS].[USMC].[CollegePro.le] cp ON cpsr.[CollegePro.leID]= cp.[CollegePro.leID] 
+     INNER JOIN High_School hs on hs.School_Code = cp.School_Code 
+     LEFT OUTER JOIN [MCRISS].[USMC].[PointOfContact] pc ON  pc.PointOfContactID = sr.PointOfContactID 
+    WHERE hs.rowguid = @SchoolCode  
+     AND cp.FiscalYear = @FiscalYear 
+                
+        UNION 
+         
+        SELECT sr.[SMCRReserveUnitID], 
+   hs.[Organiza.on_ID] AS Organiza.onID, 
+   hs.[School_Code] As SchoolCode,@FiscalYear, 
+   [ContractType],[SMCRReserveUnitName] As SMCRReserveUnitName, 
+   [E1ThruE5Popula.on], 
+   sr.[Street1] AS SMCRStreet1, sr.[Street2]  AS SMCRStreet2, sr.[City]  AS SMCRCity, 
+   sr.[State]  AS SMCRState, sr.[ZipCode]  AS SMCRZipCode, 
+    
+   -- POC Informa.on 
+   pc.[PointOfContactID], 
+    
+   RTRIM (pc.POCLastName) AS POCLastName, RTRIM(pc.POCFirstName) AS POCFirstName,  
+   POCLegalMiddleName, 
+   pc.[Street1], pc.[Street2],pc.[City],pc.[State],pc.[ZipCode], 
+   pc.[TelephoneNumber],pc.[CellPhoneNumber],pc.[FaxNumber],pc.[EmailAddress], 
+   sr.[Remarks], sr.[NumVisitsPlanned], sr.[ContractGoal] as NumContractGoal 
+  FROM [USMC].[SMCRReserveUnit] sr 
+   INNER JOIN High_School hs on hs.[ORGANIZATION_ID] = SR.[ORGANIZATIONID] AND hs.rowguid = @SchoolCode 
+   LEFT OUTER JOIN [MCRISS].[USMC].[PointOfContact] pc ON  pc.PointOfContactID = sr.PointOfContactID 
+   WHERE  
+      
+     sr.[SMCRReserveUnitID] NOT IN 
+    ( 
+     SELECT sr.[SMCRReserveUnitID] FROM [USMC].[CollegePro.leSMCRReserveUnit] cpsr 
+       INNER JOIN [MCRISS].[USMC].[SMCRReserveUnit] sr ON sr.[SMCRReserveUnitID] = cpsr.[SMCRReserveUnitID] 
+       INNER JOIN  [MCRISS].[USMC].[CollegePro.le] cp ON cpsr.[CollegePro.leID]= cp.[CollegePro.leID] 
+       INNER JOIN High_School hs on hs.School_Code = cp.School_Code 
+        WHERE hs.rowguid = @SchoolCode  
+        AND cp.FiscalYear = @FiscalYear 
+    ) 
+  
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

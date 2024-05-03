@@ -1,0 +1,48 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetMediaCardDetailReport]" directorySegmentName="seg_13" id="058D842C-5B1B-3950-2198-B94D0C0DBE7F">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[(  
+ @OrgId int = null, 
+ @fy int = null, 
+ @mediaType int = null 
+) 
+AS 
+BEGIN 
+ 
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+SELECT  mt.MediaType,  
+  mc.MediaCardId,  
+  mc.MediaName,  
+  mc.MediaTypeId,  
+  mc.FY,  
+  mc.Street,  
+  mc.PhoneNumber,  
+  mc.Zip_code,  
+        MCRISS.dbo.GEO_LOCATION.CITY_TEXT,  
+        MCRISS.dbo.GEO_LOCATION.STATE_TEXT, 
+  RECRUITING_ORGANIZATION.ORGANIZATION_ID, 
+  ms.SectorDesignator, 
+  case when mc2.MediaCardId is null then 0 else 1 end as NextFyCard 
+FROM    RSSOSS.USMC.MediaCard AS mc INNER JOIN 
+        RSSOSS.USMC.MediaType AS mt ON mc.MediaTypeId = mt.MediaTypeID INNER JOIN 
+        MCRISS.dbo.GEO_LOCATION ON mc.City_Code = GEO_LOCATION.CITY_CODE AND mc.State_Code = GEO_LOCATION.STATE_CODE INNER JOIN 
+        RSSOSS.USMC.MapsSectorZip ON mc.Zip_code = RSSOSS.USMC.MapsSectorZip.Zip INNER JOIN 
+        RSSOSS.USMC.MapsSector AS ms ON RSSOSS.USMC.MapsSectorZip.SectorID = ms.SectorID INNER JOIN 
+        MCRISS.dbo.RECRUITING_ORGANIZATION ON ms.Recrui.ngOrganiza.onId = RECRUITING_ORGANIZATION.rowguid 
+        LEFT JOIN [RSSOSS].[USMC].MediaCard mc2 on mc.MediaName = mc2.MediaName and mc2.FY = mc.FY + 1 
+WHERE   (mc.FY = @fy OR @fy IS NULL)    
+  AND 
+  (RECRUITING_ORGANIZATION.ORGANIZATION_ID = @orgId OR @orgId IS NULL) 
+  AND  
+  (mc.MediaTypeId = @mediaType OR @mediaType IS NULL) 
+  
+ 
+   
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,37 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="ERROR_SEVERITY" directorySegmentName="seg_0" id="96470CDF-FED9-71E7-4FC4-66232C0020BE">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<schemaObject>2A6D9360-3BB2-5CEA-6E99-790D76996FDF</schemaObject>
+<database>24B9F7BA-5DD4-EAB5-4EB1-35B911743E85</database>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="UPDATE_DATE" id="07DB4BAC-1BCB-47D5-2115-639AFCD979A4">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<defaultValue>(getdate())</defaultValue>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="SEVERITY_DESC" id="2DA5A5CA-5D09-6644-4615-DE95545B3DEF">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="SEVERITY_CD" id="427E59C4-70ED-C8C4-3CE9-6217A02B9AA3">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+</columnProxies>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="PK_ERROR_SEVERITY" id="11BCCDBB-671A-B3E3-C38F-868B815DA40E">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<clustered>true</clustered>
+<fillFactor>90</fillFactor>
+<partitioningColumn>01B294E9-9351-6275-9C36-5AF36BA35D56</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+</TableProxySqlServerv2k5>

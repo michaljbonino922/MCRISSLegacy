@@ -1,0 +1,117 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_1" id="2E67A1EB-7086-99F9-A465-C8775184675D" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="_dta_mv_151">
+<sourceDDLFile>create Prospecting script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:25 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>4EE1CE6F-7A39-733C-0149-6ABF8ED6B57F</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  [USMC].[Prospect].[ProspectId] as _col_1,  [USMC].[PersonAddress].[PersonAddressId] as _col_2,  [USMC].[PersonAddress].[ZipCode] as _col_3,  [USMC].[ImportEvent].[SchoolId] as _col_4,  [USMC].[ImportEvent].[ImportEventId] as _col_5,  [USMC].[ImportEvent].[Gradua.onYear] as _col_6,  [USMC].[Prospect].[NwaId] as _col_7,  count_big(*) as _col_8 FROM  [USMC].[PersonAddress],  [USMC].[Prospect],  [USMC].[ImportEvent]   WHERE  [USMC].[PersonAddress].[PersonId] = [USMC].[Prospect].[PersonId]  AND  [USMC].[Prospect].[ProspectId] = [USMC].[ImportEvent].[ImportEventId]  GROUP BY  [USMC].[Prospect].[ProspectId],  [USMC].[PersonAddress].[PersonAddressId],  [USMC].[PersonAddress].[ZipCode],  [USMC].[ImportEvent].[SchoolId],  [USMC].[ImportEvent].[ImportEventId],  [USMC].[ImportEvent].[Gradua.onYear],  [USMC].[Prospect].[NwaId]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[ProspectId]" id="05DBF124-262F-474A-8F03-414175BD328C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:25 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_1</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_1</headerAlias>
+<expression>[ProspectId]</expression>
+<reference>false</reference>
+<viewID>2E67A1EB-7086-99F9-A465-C8775184675D</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[PersonAddressId]" id="70139F79-FAA4-9910-901C-68340CDB8FCF">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:25 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_2</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_2</headerAlias>
+<expression>[PersonAddressId]</expression>
+<reference>false</reference>
+<viewID>2E67A1EB-7086-99F9-A465-C8775184675D</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[ZipCode]" id="C62CCAB9-FE58-8EFE-5DC9-0A4CBC1245C0">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:25 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_3</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_3</headerAlias>
+<expression>[ZipCode]</expression>
+<reference>false</reference>
+<viewID>2E67A1EB-7086-99F9-A465-C8775184675D</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[SchoolId]" id="02B57D57-9F16-70EC-E4F7-5B1F93517755">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:25 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_4</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_4</headerAlias>
+<expression>[SchoolId]</expression>
+<reference>false</reference>
+<viewID>2E67A1EB-7086-99F9-A465-C8775184675D</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[ImportEventId]" id="BBC4168D-A10F-6766-136A-DA350D057F6E">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:25 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_5</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_5</headerAlias>
+<expression>[ImportEventId]</expression>
+<reference>false</reference>
+<viewID>2E67A1EB-7086-99F9-A465-C8775184675D</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[Gradua.onYear]" id="72096529-E365-B436-C1B9-1AE8168EC875">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:25 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_6</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_6</headerAlias>
+<expression>[Gradua.onYear]</expression>
+<reference>false</reference>
+<viewID>2E67A1EB-7086-99F9-A465-C8775184675D</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[NwaId]" id="14AC890C-2397-72F9-EA2A-E685D5C44C85">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:25 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_7</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_7</headerAlias>
+<expression>[NwaId]</expression>
+<reference>false</reference>
+<viewID>2E67A1EB-7086-99F9-A465-C8775184675D</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="count_big(*)" id="4F4B6062-36FE-A03F-4FD4-AB934E6E359E">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:25 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_8</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_8</headerAlias>
+<expression>count_big(*)</expression>
+<reference>false</reference>
+<viewID>2E67A1EB-7086-99F9-A465-C8775184675D</viewID>
+</viewElement>
+</viewElements>
+</TableView>

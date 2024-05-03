@@ -1,0 +1,53 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_5" id="E84C61DE-C8B4-D84F-6F17-9CD8A559F0BE" schemaObject="2A6D9360-3BB2-5CEA-6E99-790D76996FDF" name="TripReport_VW_PJ">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>F3109787-211D-43D7-9030-1464817A16BA</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT     TOP (100) PERCENT FileName, UploadDate, LastViewedDate 
+FROM         USMC.DataSheetUpload 
+WHERE     (FileName LIKE 'TripReport%') 
+ORDER BY UploadDate]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="100) PERCENT" id="2BE4E454-3E5D-1AA3-DF3A-FFC40176D224">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>FileName</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>FileName</headerAlias>
+<expression>100) PERCENT</expression>
+<reference>false</reference>
+<viewID>E84C61DE-C8B4-D84F-6F17-9CD8A559F0BE</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="UploadDate" id="CF1FE760-A9C2-D690-68BF-C3ABC586CA52">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>UploadDate</alias>
+<dataType>UNKNOWN</dataType>
+<expression>UploadDate</expression>
+<reference>false</reference>
+<viewID>E84C61DE-C8B4-D84F-6F17-9CD8A559F0BE</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="LastViewedDate" id="58575AD9-E628-A6C7-27E5-C7B537E1723E">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>LastViewedDate</alias>
+<dataType>UNKNOWN</dataType>
+<expression>LastViewedDate</expression>
+<reference>false</reference>
+<viewID>E84C61DE-C8B4-D84F-6F17-9CD8A559F0BE</viewID>
+</viewElement>
+</viewElements>
+</TableView>

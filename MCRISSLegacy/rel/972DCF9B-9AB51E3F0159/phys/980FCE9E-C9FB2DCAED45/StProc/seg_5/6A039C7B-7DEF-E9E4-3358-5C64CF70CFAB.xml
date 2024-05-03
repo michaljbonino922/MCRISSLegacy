@@ -1,0 +1,186 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetPTADRequestPersonnelByOrgId]" directorySegmentName="seg_5" id="6A039C7B-7DEF-E9E4-3358-5C64CF70CFAB">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @OrgID int = 0 
+) 
+ 
+AS 
+BEGIN 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED  
+   
+ DECLARE @CurrentDate DATETIME  
+ SET @CurrentDate = GETDATE()  
+ 
+ SELECT  
+  NWA_ID 
+  ,MARINE_CANDIDATE_ID 
+  ,ORGANIZATION_OF_RECORD_ID 
+  ,rowguid 
+  ,EMAIL_ADDRESS 
+  ,ProvenPerformer 
+ INTO #NWA 
+ FROM MCRISS.dbo.NWA n 
+ WHERE n.ORGANIZATION_OF_RECORD_ID = @OrgID 
+ 
+ SELECT DISTINCT  N.ORGANIZATION_OF_RECORD_ID AS [OrgID] 
+     ,N.MARINE_CANDIDATE_ID AS [MARINE_CANDIDATE_ID] 
+     ,N.rowguid AS [NWAId] 
+     ,N.NWA_ID AS [NWAId_Int] 
+     ,N.EMAIL_ADDRESS AS [EmailAddress] 
+     ,REPLICATE(' ',10) AS [Rank] 
+     ,RTRIM(P.LAST_NAME) AS [LastName] 
+     ,RTRIM(P.FIRST_NAME) AS [FirstName] 
+     ,REPLICATE(' ',4) AS [MOS] 
+     ,C.CONTRACT_ID AS [CONTRACT_ID] 
+     ,C.CONTRACT_BEGIN_DATE AS [EnlistmentDate] 
+     ,DATEADD(year,C.TERM_OF_ENLISTMENT,S.AFADBD) AS [EAS] 
+     ,NULL AS [EnlistmentCredit] 
+     ,CAST('OA' AS varchar(10)) AS [Sector]      
+     ,REPLICATE(' ',20) AS [TELEPHONE] 
+     ,C.COMPONENT_CODE 
+     ,CAST(NULL AS date.me) AS EXPIRATION_OF_ACTIVE_SERVICE 
+     ,S.AFADBD 
+     ,C.TERM_OF_ENLISTMENT 
+     ,CAST('00000000-0000-0000-0000-000000000000' AS UNIQUEIDENTIFIER) AS [SECTOR_ID]      
+     ,REPLICATE(' ',60) AS [HIGHSCHOOL] 
+     ,CAST('00000000-0000-0000-0000-000000000000' AS UNIQUEIDENTIFIER) AS [HighSchoolID] 
+     ,REPLICATE(' ',5) AS [HS_ZIP] 
+     ,REPLICATE(' ',20) AS [REQUEST_STATUS] 
+     ,CA.ZIPCODE AS [HOR_ZIP] 
+ INTO #TempMarine 
+ FROM MCRISS.dbo.PERSON P 
+ INNER JOIN #NWA n ON P.PERSON_ID = N.MARINE_CANDIDATE_ID 
+         AND N.NWA_ID IN ( SELECT MAX(N2.NWA_ID) 
+               FROM #NWA N2 
+               WHERE N.MARINE_CANDIDATE_ID = N2.MARINE_CANDIDATE_ID) 
+ INNER JOIN MCRISS.dbo.CANDIDATE_STATUS CS ON N.NWA_ID = CS.NWA_ID 
+            AND CS.CANDIDATE_STATUS_ID IN ( SELECT MAX(CS2.CANDIDATE_STATUS_ID) 
+                    FROM MCRISS.dbo.CANDIDATE_STATUS CS2 
+                    WHERE CS.NWA_ID = CS2.NWA_ID) 
+ INNER JOIN MCRISS.dbo.CONTRACT C ON n.NWA_ID = C.NWA_ID 
+ INNER JOIN MCRISS.dbo.SHIPPER S ON C.CONTRACT_ID = S.CONTRACT_ID 
+ INNER JOIN MCRISS.dbo.CANDIDATE_ADDRESS CA ON N.MARINE_CANDIDATE_ID = CA.MARINE_CANDIDATE_ID AND CA.ADDRESS_TYPE = 'H'  
+ WHERE (CS.STATUS_TYPE + CS.STATUS_CODE + CS.DISPOSITION_CODE = 'ECP') 
+   
+ UPDATE tm 
+ SET tm.Rank = pg.RANK_CODE 
+ ,tm.EXPIRATION_OF_ACTIVE_SERVICE = m.EXPIRATION_OF_ACTIVE_SERVICE 
+ ,tm.EAS = m.EXPIRATION_OF_ACTIVE_SERVICE 
+ ,tm.MOS = m.PRIMARY_MOS 
+ FROM #TempMarine tm 
+ INNER JOIN MCRISS.dbo.MARINE m ON m.MARINE_ID = tm.MARINE_CANDIDATE_ID 
+ INNER JOIN MCRISS.dbo.PAY_GRADE PG ON M.PRESENT_GRADE_CODE = PG.PAY_GRADE_CODE 
+  
+ UPDATE tm 
+ SET tm.HIGHSCHOOL = hs.HIGHSCHOOL_NAME 
+ ,tm.HighSchoolID = hs.rowguid  
+ ,tm.HS_ZIP = LEFT(HS.ZIP_CODE,5) 
+ FROM #TempMarine tm 
+ INNER JOIN MCRISS.dbo.CANDIDATE_EDUCATION CE ON tm.MARINE_CANDIDATE_ID = CE.MARINE_CANDIDATE_ID 
+                   AND CE.EDUCATION_LEVEL IN ( SELECT MAX(CE2.EDUCATION_LEVEL) 
+                          FROM MCRISS.dbo.CANDIDATE_EDUCATION CE2 
+                          WHERE CE.MARINE_CANDIDATE_ID = CE2.MARINE_CANDIDATE_ID 
+                          ) 
+                   AND CE.SCHOOL_END_DATE IN (SELECT MAX(CE3.SCHOOL_END_DATE) 
+                            FROM MCRISS.dbo.CANDIDATE_EDUCATION CE3 
+                            WHERE CE.MARINE_CANDIDATE_ID = CE3.MARINE_CANDIDATE_ID 
+                            AND CE.EDUCATION_LEVEL = CE3.EDUCATION_LEVEL 
+                            ) 
+                   AND CE.UPDATE_DATE IN ( SELECT MAX(CE4.UPDATE_DATE) 
+                         FROM MCRISS.dbo.CANDIDATE_EDUCATION CE4 
+                         WHERE CE.MARINE_CANDIDATE_ID = CE4.MARINE_CANDIDATE_ID 
+                         AND CE.EDUCATION_LEVEL = CE4.EDUCATION_LEVEL 
+                         ) 
+ LEFT OUTER JOIN MCRISS.dbo.HIGH_SCHOOL HS ON HS.SCHOOL_CODE = CE.SCHOOL_CODE 
+   
+ SELECT 
+  * 
+ INTO #Marine 
+ FROM #TempMarine 
+ WHERE @CurrentDate < EAS 
+  AND NOT COMPONENT_CODE IN ('K4','B5','K9','K8') 
+  
+ UPDATE m 
+ SET m.TELEPHONE = (CT.AREA_CODE + '-' + CT.TELEPHONE_NUMBER) 
+ FROM #Marine m 
+ INNER JOIN MCRISS.dbo.CANDIDATE_TELEPHONE CT ON m.MARINE_CANDIDATE_ID = CT.MARINE_CANDIDATE_ID 
+ WHERE TELEPHONE_TYPE = 'C' 
+ 
+ SELECT m.MARINE_CANDIDATE_ID, R.REFERRAL_ID 
+ INTO #TEMP_REFERRAL_COUNTS 
+ FROM #Marine m 
+ INNER JOIN MCRISS.dbo.REFERRAL R ON m.MARINE_CANDIDATE_ID = R.MARINE_ID 
+ WHERE R.MARINE_ID IS NOT NULL 
+ 
+ INSERT INTO #TEMP_REFERRAL_COUNTS 
+ SELECT m.MARINE_CANDIDATE_ID, R.REFERRAL_ID 
+ FROM #Marine m 
+ INNER JOIN MCRISS.dbo.REFERRAL R ON m.CONTRACT_ID = R.DEP_CONTRACT_ID 
+ WHERE DEP_CONTRACT_ID IS NOT NULL 
+ 
+ SELECT MARINE_CANDIDATE_ID, COUNT(REFERRAL_ID) AS REF_COUNT 
+ INTO #REFERRAL_COUNTS 
+ FROM #TEMP_REFERRAL_COUNTS 
+ GROUP BY MARINE_CANDIDATE_ID 
+ 
+ UPDATE m 
+ SET m.[EnlistmentCredit] = RC.REF_COUNT 
+ FROM #Marine m 
+ INNER JOIN #REFERRAL_COUNTS RC ON m.MARINE_CANDIDATE_ID = RC.MARINE_CANDIDATE_ID 
+ 
+          
+ UPDATE m 
+ SET  m.[Sector] = SubString(MS.SectorDesignator, 1, 2) 
+  ,m.[SECTOR_ID] = MS.SectorID 
+ FROM #Marine m 
+ INNER JOIN USMC.MapsSectorZip MSZ ON m.HOR_ZIP = MSZ.ZIP 
+ INNER JOIN USMC.MapsSector MS ON MSZ.SectorID = MS.SectorID 
+ WHERE  MS.SectorType = 'E' 
+ 
+  
+ UPDATE m 
+ SET m.REQUEST_STATUS = ras.RequestApprovalStatus 
+ FROM #Marine m 
+ INNER JOIN [RSSOSS].[USMC].[Request] req ON req.Person_ID = m.MARINE_CANDIDATE_ID 
+ INNER JOIN [RSSOSS].[USMC].[RequestApproval] ra ON ra.RequestId = req.RequestId 
+ INNER JOIN [RSSOSS].[USMC].[RequestApprovalStatus] ras ON ras.RequestApprovalStatusId = ra.RequestApprovalStatusId 
+ 
+ SELECT  
+   EAS 
+   ,EnlistmentCredit 
+   ,Rank 
+   ,LastName 
+   ,FirstName 
+   ,HighSchool 
+   ,OrgId 
+   ,EmailAddress 
+   ,MOS 
+   ,Telephone 
+   ,NWAId 
+   ,NWAId_int 
+   ,Sector 
+   ,HS_ZIP 
+   ,REQUEST_STATUS 
+   ,HOR_ZIP 
+ FROM #Marine m 
+ WHERE m.SECTOR IN ( SELECT TOP 1 m2.SECTOR 
+       FROM #Marine m2 
+       WHERE m2.NWAId_int = m.NWAId_int 
+       ORDER BY m2.SECTOR ASC) 
+ ORDER BY m.[LastName] 
+ 
+ DROP TABLE #NWA  
+ DROP TABLE #TempMarine 
+ DROP TABLE #Marine 
+ DROP TABLE #REFERRAL_COUNTS 
+ DROP TABLE #TEMP_REFERRAL_COUNTS 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

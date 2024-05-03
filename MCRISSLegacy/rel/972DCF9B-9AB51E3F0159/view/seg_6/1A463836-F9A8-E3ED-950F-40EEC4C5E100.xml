@@ -1,0 +1,62 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_6" id="1A463836-F9A8-E3ED-950F-40EEC4C5E100" schemaObject="2A6D9360-3BB2-5CEA-6E99-790D76996FDF" name="ViewODSE_MD">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:25 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>745194CD-1758-17BC-F713-3752069D557F</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT        SSN, MONITOR_DETAILS_ID, Draw_Case_Signal_Code, Cycle_Date 
+FROM            dbo.ODSE_MD]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="SSN" id="44E499C3-0CFC-6489-3D81-4D1969D06EEF">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:25 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>SSN</alias>
+<dataType>UNKNOWN</dataType>
+<expression>SSN</expression>
+<reference>false</reference>
+<viewID>1A463836-F9A8-E3ED-950F-40EEC4C5E100</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="MONITOR_DETAILS_ID" id="34AE9A9E-0B05-01A8-C22E-8693E51C5FD8">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:25 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>MONITOR_DETAILS_ID</alias>
+<dataType>UNKNOWN</dataType>
+<expression>MONITOR_DETAILS_ID</expression>
+<reference>false</reference>
+<viewID>1A463836-F9A8-E3ED-950F-40EEC4C5E100</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="Draw_Case_Signal_Code" id="1EFE738B-50B6-9AE9-F4FA-AFA3B82D48E4">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:25 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Draw_Case_Signal_Code</alias>
+<dataType>UNKNOWN</dataType>
+<expression>Draw_Case_Signal_Code</expression>
+<reference>false</reference>
+<viewID>1A463836-F9A8-E3ED-950F-40EEC4C5E100</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="Cycle_Date" id="A809BBD5-4A0A-88C4-42CC-9851EAF66D1A">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:25 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Cycle_Date</alias>
+<dataType>UNKNOWN</dataType>
+<expression>Cycle_Date</expression>
+<reference>false</reference>
+<viewID>1A463836-F9A8-E3ED-950F-40EEC4C5E100</viewID>
+</viewElement>
+</viewElements>
+</TableView>

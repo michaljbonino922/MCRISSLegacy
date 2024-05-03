@@ -1,0 +1,23 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetRFATrackingDates]" directorySegmentName="seg_20" id="C30BF8B2-B195-140F-7BDF-FC7FC55C4C40">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@ContractID int 
+AS 
+ 
+SELECT  
+ COALESCE(CONVERT(CHAR(11), SENT_TO_DIST_DATE, 106), null) AS SENT_TO_DIST_DATE, 
+ COALESCE(CONVERT(CHAR(11), DIST_RECEIVED_DATE, 106), null) AS DIST_RECEIVED_DATE, 
+ COALESCE(CONVERT(CHAR(11), MAILED_TO_MCRC_DATE, 106), null) AS MAILED_TO_MCRC_DATE, 
+ COALESCE(CONVERT(CHAR(11), MCRC_RECEIVED_DATE, 106), null) AS MCRC_RECEIVED_DATE, 
+ COALESCE(CONVERT(CHAR(11), MCRC_OA_MAILED_DATE, 106), null) AS MCRC_OA_MAILED_DATE, 
+ COALESCE(CONVERT(CHAR(11), MCRC_MAILS_TO_OSS, 106), null) AS MCRC_MAILS_TO_OSS 
+FROM  
+ RFA_TRACKING_DATES 
+WHERE 
+ CONTRACT_ID = @ContractID]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

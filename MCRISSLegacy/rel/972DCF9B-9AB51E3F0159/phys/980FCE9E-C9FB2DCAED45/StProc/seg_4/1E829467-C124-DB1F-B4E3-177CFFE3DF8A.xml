@@ -1,0 +1,20 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetCon.gSe.ngByKey]" directorySegmentName="seg_4" id="1E829467-C124-DB1F-B4E3-177CFFE3DF8A">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@Key    uniqueiden..er 
+  
+AS 
+ 
+SET NOCOUNT ON 
+ 
+SELECT [Value] 
+FROM [CFGMGMT].[dbo].[Con.gSe.ngs] 
+WHERE [CFGMGMT].[dbo].[Con.gSe.ngs].[KEY] = @Key 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,40 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_MIGetTrainingOrgIDFromNWAId]" directorySegmentName="seg_22" id="C1D374BE-F233-55B6-D0E6-E2671E235596">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@NWAId    int, 
+ @TrainingOrgID   int OUTPUT 
+AS 
+ 
+ 
+SET NOCOUNT ON  
+ 
+DECLARE 
+@REG_ORG_ID  int, 
+@DIST_ORG_ID  int, 
+@RS_ORG_ID  int, 
+@RSS_ORG_ID  int 
+ 
+SET @REG_ORG_ID = (SELECT ORGANIZATION_OF_RECORD_ID FROM NWA 
+   WHERE NWA_ID = @NWAId) 
+SET @RS_ORG_ID = (SELECT PARENT_ORGANIZATION_ID FROM ORGANIZATION_MAP 
+ WHERE CHILD_ORGANIZATION_ID = @REG_ORG_ID) 
+SET @DIST_ORG_ID = (SELECT PARENT_ORGANIZATION_ID FROM ORGANIZATION_MAP 
+ WHERE CHILD_ORGANIZATION_ID = @RS_ORG_ID) 
+SET @REG_ORG_ID = (SELECT PARENT_ORGANIZATION_ID FROM ORGANIZATION_MAP 
+ WHERE CHILD_ORGANIZATION_ID = @DIST_ORG_ID) 
+ 
+IF @REG_ORG_ID = 901 -- Eastern Region 
+ SET @TrainingOrgID = 1 
+ELSE IF @REG_ORG_ID = 902 -- Western Region 
+ SET @TrainingOrgID = 2 
+ELSE 
+ RAISERROR('sp_MIGetTrainingOrgIDFromOrgID failed to determine training org', 16, 1) 
+ 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

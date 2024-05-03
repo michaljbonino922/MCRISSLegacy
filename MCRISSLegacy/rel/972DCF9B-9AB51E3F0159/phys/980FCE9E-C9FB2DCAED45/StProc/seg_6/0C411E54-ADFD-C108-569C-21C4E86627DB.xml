@@ -1,0 +1,58 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetMOSsByOccupa.onCode]" directorySegmentName="seg_6" id="0C411E54-ADFD-C108-569C-21C4E86627DB">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @strOccupa.onCode char(2) = NULL 
+) 
+AS 
+ 
+-- from sp_GetMOSs 
+/* 
+2014-02-06  Paul Jemiolo Added "and MOS_CODE Not In(5942) " to where clause See below 
+ 
+Changed Where Clause from: 
+ 
+WHERE 
+ (LEN(@Occupa.onCode) > 0 AND RIGHT(MOS_CODE, 2) != ''00'' AND OCCUPATION_CODE = @Occupa.onCode) OR 
+ (LEN(@Occupa.onCode) = 0)  
+  
+To: 
+WHERE 
+ MOS_CODE Not In(5942) and (LEN(@Occupa.onCode) > 0 AND RIGHT(MOS_CODE, 2) != ''00'' AND OCCUPATION_CODE = @Occupa.onCode) OR 
+ (LEN(@Occupa.onCode) = 0)  
+Reason: We needed to exclude this defunct code from the drop down list without dele.ng the history of its use in the  
+QSN table. 
+ 
+*/ 
+ 
+SET @strOccupa.onCode = COALESCE(@strOccupa.onCode, SPACE(0)) 
+ 
+SELECT  
+ MOS_CODE,  
+ /*  
+  // CM: this is what use to be in the original stored proc.  
+  // however, even though this part says to prepend the MOS_CODE 
+  // only when occupa.on code is null, the app s.ll prepends 
+  // the MOS_CODE (must be being done in code) 
+ CASE 
+  WHEN @strOccupa.onCode IS NULL OR LEN(@strOccupa.onCode) = 0 THEN MOS_CODE + '' - '' 
+  ELSE SPACE(0) 
+ END + SHORT_DESCRIPTION AS SHORT_DESCRIPTION, 
+ */ 
+ SHORT_DESCRIPTION, 
+ OCCUPATION_CODE 
+FROM MOS WITH (NOLOCK) 
+WHERE ( 
+  LEN(@strOccupa.onCode) > 0  
+  and MOS_Code Not In(5942) 
+  AND RIGHT(MOS_CODE, 2) != '00'  
+  AND OCCUPATION_CODE = @strOccupa.onCode 
+  ) 
+ OR LEN(@strOccupa.onCode) = 0  
+ORDER BY MOS_CODE]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

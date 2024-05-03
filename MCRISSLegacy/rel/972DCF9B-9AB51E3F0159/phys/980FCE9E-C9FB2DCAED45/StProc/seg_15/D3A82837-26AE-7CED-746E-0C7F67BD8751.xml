@@ -1,0 +1,109 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SP_GENREFERRAL_179]" directorySegmentName="seg_15" id="D3A82837-26AE-7CED-746E-0C7F67BD8751">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[as 
+ 
+declare 
+@ssn   varchar(9), 
+@mcriss_ssn  varchar(9), 
+@ref_ssn  varchar(9), 
+@count   int, 
+@person_id  int, 
+@ref_person_Id  int, 
+@nwa_id   int, 
+@ref_nwa_id  int, 
+@contract_id  int, 
+@ref_contract_id int, 
+@user_login  varchar(15), 
+@update_date  date.me 
+ 
+ 
+declare referral cursor 
+for 
+select  count(p.LAST_NAME),  
+ p.SOCIAL_SECURITY_NUMBER, 
+ a.REFBY, 
+ a.SSN 
+ 
+ from mcriss..PERSON c, arms..ARMS179 a 
+ le. outer join mcriss..PERSON p on a.REFBY = p.SOCIAL_SECURITY_NUMBER 
+ where 
+ a.SSN = c.SOCIAL_SECURITY_NUMBER and 
+ a.REFBY not like ' %' 
+ group by p.SOCIAL_SECURITY_NUMBER, a.REFBY,  a.SSN 
+ ORDER BY count(P.LAST_NAME) 
+ 
+   
+ 
+open referral 
+ 
+fetch referral into 
+ @count, @mcriss_ssn, @ref_ssn,@ssn 
+ 
+set @user_login = 'migra.on' 
+set @update_date = getdate() 
+ 
+while (@@fetch_status = 0)  
+ begin --This is where we start 
+ 
+ IF @count != 0 
+  begin 
+  set @person_id = (select PERSON_ID from PERSON where SOCIAL_SECURITY_NUMBER = @ssn) 
+  set @ref_person_id = (select PERSON_ID from PERSON where SOCIAL_SECURITY_NUMBER = @ref_ssn) 
+  set @nwa_id = (select NWA_ID from NWA where MARINE_CANDIDATE_ID = @person_id) 
+  set @ref_nwa_id = (select NWA_ID from NWA where MARINE_CANDIDATE_ID = @ref_person_id) 
+  set @contract_id = (select CONTRACT_ID from CONTRACT where NWA_ID = @nwa_id) 
+  set @ref_contract_id = (select CONTRACT_ID from CONTRACT where NWA_ID = @ref_nwa_id) 
+ 
+  if @contract_id is not null 
+   begin 
+    if @ref_contract_id is not null 
+     begin 
+      if not exists(select 1 from REFERRAL where CONTRACT_ID = @contract_id 
+      and DEP_CONTRACT_ID = @ref_contract_id) 
+       begin 
+       insert REFERRAL 
+       (REFERRAL_TYPE,CONTRACT_ID,DEP_CONTRACT_ID, 
+       MARINE_ID,RESERVE_ORG_ID,USER_LOGIN,UPDATE_DATE) 
+       
+       values 
+       ('DEP',@contract_id, @ref_contract_id,NULL,NULL,@user_login,@update_date) 
+ 
+       print @ssn+'_Added to the REFERRAL TABLE' 
+       end--was not in REFERRAL and has now been added   
+        
+   
+     end --ref_contract_id is  null 
+    else  
+     begin 
+            print @ref_ssn+'Re.y has not contracted' 
+     end 
+ 
+   end --contract_id was null 
+  else  
+          begin 
+          print @ssn+'Has not contracted at this point' 
+          end 
+ 
+ 
+ 
+ 
+ end-- Finished inner loop 
+ print @ref_ssn+'_ is not a person in MCRISS\RS' 
+  
+  
+  fetch referral into 
+  @count, @mcriss_ssn, @ref_ssn,@ssn 
+ 
+ 
+ end --all done at this point 
+ 
+ 
+close referral 
+deallocate referral]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

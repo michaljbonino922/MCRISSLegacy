@@ -1,0 +1,18 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SetCon.gSe.ng]" directorySegmentName="seg_13" id="52CDDAD1-A3E9-ED31-99AB-67B2B4407295">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @key uniqueiden..er, 
+ @strValue nvarchar(4000) 
+) 
+AS 
+ 
+DELETE FROM Con.gSe.ngs WHERE [key] = @key 
+ 
+INSERT INTO Con.gSe.ngs VALUES (@key, @strValue)]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>D69D904F-243A-55F7-CD07-C6843D12E0F2</database>
+</StoredProcedureSqlServerv2k5>

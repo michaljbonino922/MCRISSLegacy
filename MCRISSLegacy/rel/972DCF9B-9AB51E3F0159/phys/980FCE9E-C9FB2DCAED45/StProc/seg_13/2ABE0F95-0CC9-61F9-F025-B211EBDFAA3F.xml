@@ -1,0 +1,76 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetP.TotalScore]" directorySegmentName="seg_13" id="2ABE0F95-0CC9-61F9-F025-B211EBDFAA3F">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@Gender char(1) 
+ ,@Age int 
+ ,@Crunch int 
+ ,@Pullup int 
+ ,@Pushup int 
+ ,@RunMinute int 
+ ,@RunSecond int 
+ ,@PlankMinute int = null 
+ ,@PlankSecond int = null 
+ 
+AS 
+BEGIN 
+ 
+ DECLARE @CrunchScore int, @PlankScore int, @PullupScore int, @PushupScore int, @RunScore int, @TotalScore int 
+ 
+ SELECT @CrunchScore = [USMC].[GetP.RepsScore] ('Crunch', @Gender, @Age, @Crunch) 
+ 
+ SELECT @PlankScore = [USMC].[GetP.PlankScore] (@Gender, @Age, @PlankMinute, @PlankSecond) 
+ 
+ -- Use the higher score of Crunch and Plank as the crunch score 
+ if @PlankScore > @CrunchScore 
+ BEGIN 
+  SET @CrunchScore = @PlankScore 
+ END 
+ 
+ SELECT @PullupScore = [USMC].[GetP.RepsScore] ('Pullup', @Gender, @Age, @Pullup) 
+ 
+ SELECT @PushupScore = [USMC].[GetP.RepsScore] ('Pushup', @Gender, @Age, @Pushup) 
+   
+    SELECT @RunScore = USMC.GetP.RunScore(@Gender, @Age, @RunMinute, @RunSecond) 
+ 
+ SELECT @TotalScore = @CrunchScore + (CASE WHEN @PullupScore >= @PushupScore THEN @PullupScore ELSE @PushupScore END) + @RunScore 
+ 
+ DECLARE @ScoreRankID char(1), @ScoreClassi.ca.on varchar(20) 
+ 
+ IF @CrunchScore = 0 OR @RunScore = 0 OR (@PullupScore = 0 AND @PushupScore = 0) 
+ BEGIN 
+  SET @ScoreRankID = 'F'; 
+  SET @ScoreClassi.ca.on = 'Failing' 
+ END 
+ ELSE 
+ BEGIN 
+  DECLARE @MinimumScore int, @MaximumScore int 
+ 
+  SELECT @MinimumScore = MIN(MinScore), @MaximumScore = MAX(MinScore) 
+  FROM 
+   [USMC].[P.ScoreRank] 
+ 
+  IF @TotalScore >= @MaximumScore 
+  BEGIN 
+   SET @ScoreRankID = '1'; 
+   SET @ScoreClassi.ca.on = '1st Class'; 
+  END 
+  ELSE IF @TotalScore <= @MinimumScore 
+  BEGIN 
+   SET @ScoreRankID = 'F'; 
+   SET @ScoreClassi.ca.on = 'Failing' 
+  END 
+  ELSE 
+  BEGIN 
+   SELECT TOP 1 @ScoreRankID = ID, @ScoreClassi.ca.on = Classi.ca.on from [USMC].[P.ScoreRank] where MinScore <= @TotalScore ORDER BY MinScore DESC 
+  END  
+ 
+ END 
+ 
+ SELECT @TotalScore as Score, @ScoreRankID as ScoreRankID, @ScoreClassi.ca.on as Classi.ca.on 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,1038 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_ODSE_ImportToRecrui.ngPerson]" directorySegmentName="seg_22" id="FB438DB0-F8B6-C6FE-A762-8F9D2E355B5C">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[AS 
+ 
+DECLARE @insert_produc.on_status_history TABLE  
+(  
+ person_id int, 
+ month_code int, 
+ calendar_year int, 
+ organiza.on_id int, 
+ on_produc.on bit, 
+ non_prod_reason_code varchar(5), 
+ user_login varchar(15), 
+ update_date date.me 
+) 
+ 
+DECLARE @PersonId    int 
+DECLARE @Recrui.ngPersonGuid uniqueiden..er 
+DECLARE @BeginDate    date.me 
+DECLARE @ShortDescrip.on  varchar(15) 
+DECLARE @TodaysDate    date.me = GETDATE() 
+ 
+DECLARE @BilletBeginDate  date.me 
+ 
+ 
+-- STEP 1 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+-- Update basic info in recrui.ng_person table FROM MARINE table 
+UPDATE RECRUITING_PERSON 
+SET  
+ TOUR_BEGIN_DATE = M.CURRENT_TOUR_BEGIN_DATE, 
+ RANK_CODE = (SELECT RANK_CODE FROM PAY_GRADE WHERE PAY_GRADE_CODE = dbo.ODSE_GetPayGradeCode(M.PRESENT_GRADE_CODE,M.PRIMARY_MOS)), 
+ PAY_GRADE_CODE = dbo.ODSE_GetPayGradeCode(M.PRESENT_GRADE_CODE,M.PRIMARY_MOS), 
+ USER_LOGIN = 'MCMODSINTERFACE', 
+ UPDATE_DATE = GETDATE()  
+FROM MARINE M  
+ INNER JOIN RECRUITING_PERSON RP ON (RP.RECRUITING_PERSON_ID=M.MARINE_ID) 
+WHERE   
+ M.EXPIRATION_OF_ACTIVE_SERVICE > GETDATE() 
+ AND  
+ ( 
+  M.PRIMARY_MOS IN ('8411','8412')  
+  OR  
+  M.BILLET_MOS IN ('8411', '8412') 
+ ) 
+ AND  
+ ( 
+  M.PRESENT_MONITORED_COMMAND_CODE IN  
+   ( 
+    SELECT MCC_CODE  
+    FROM RECRUITING_ORGANIZATION 
+    WHERE ISOPEN = 'Y' AND organiza.on_type in ('H','R','D','RS','OSS') 
+   ) 
+  OR  
+  M.PRESENT_MONITORED_COMMAND_CODE IN ('JAA','JBB','KA0') 
+ ) 
+ AND M.PRESENT_GRADE_CODE LIKE 'E%' 
+ AND M.MARINE_ID<>416 
+  
+ 
+-- STEP 2 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+-- Update a record into the produc.on_status_history table for the inac.ve marines 
+-- that are about to be reac.vated via their current_tour_begin_date and tour_end_date of NULL 
+UPDATE PRODUCTION_STATUS_HISTORY 
+SET  
+ MONTH_CODE = MONTH(GETDATE()), 
+ CALENDAR_YEAR = YEAR(GETDATE()), 
+ ORGANIZATION_ID = CASE M.PRESENT_MONITORED_COMMAND_CODE 
+  WHEN 'JAA' THEN (SELECT organiza.on_id FROM recrui.ng_organiza.on WHERE mcc_code='082') 
+  WHEN 'JBB' THEN (SELECT organiza.on_id FROM recrui.ng_organiza.on WHERE mcc_code='082') 
+  WHEN 'KA0' THEN (SELECT organiza.on_id FROM recrui.ng_organiza.on WHERE mcc_code='082') 
+  ELSE 
+   dbo.ODSE_GetLowestLevelOrgID((SELECT organiza.on_id FROM recrui.ng_organiza.on WHERE mcc_code=M.PRESENT_MONITORED_COMMAND_CODE)) 
+  END, 
+ ON_PRODUCTION = '0', 
+ NON_PROD_REASON_CODE = 'NWR', 
+ USER_LOGIN = 'MCMODSINTERFACE', 
+ UPDATE_DATE = GETDATE() 
+FROM MARINE M  
+ INNER JOIN RECRUITING_PERSON RP ON (RP.RECRUITING_PERSON_ID=M.MARINE_ID) 
+ JOIN PRODUCTION_STATUS_HISTORY PSH ON (PSH.PERSON_ID=M.MARINE_ID AND PSH.MONTH_CODE=MONTH(GETDATE()) AND PSH.CALENDAR_YEAR=YEAR(GETDATE())) 
+WHERE 
+ M.EXPIRATION_OF_ACTIVE_SERVICE > GETDATE() 
+ AND  
+ ( 
+  M.PRIMARY_MOS IN ('8411','8412')  
+  OR  
+  M.BILLET_MOS IN ('8411','8412') 
+ ) 
+ AND 
+ (  
+  M.PRESENT_MONITORED_COMMAND_CODE IN (SELECT MCC_CODE FROM RECRUITING_ORGANIZATION WHERE ISOPEN = 'Y' AND organiza.on_type in ('H','R','D','RS','OSS')) 
+  OR  
+  M.PRESENT_MONITORED_COMMAND_CODE IN ('JAA','JBB','KA0') 
+ ) 
+ AND RP.TOUR_END_DATE IS NOT NULL 
+ AND M.PRESENT_GRADE_CODE LIKE 'E%' 
+ 
+ 
+-- STEP 3 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+-- Insert a record into the produc.on_status_history table for the inac.ve marines 
+-- that are about to be reac.vated via their current_tour_begin_date and tour_end_date of NULL 
+INSERT INTO @INSERT_PRODUCTION_STATUS_HISTORY 
+( 
+ PERSON_ID, 
+ MONTH_CODE, 
+ CALENDAR_YEAR, 
+ ORGANIZATION_ID, 
+ ON_PRODUCTION, 
+ NON_PROD_REASON_CODE, 
+ USER_LOGIN, 
+ UPDATE_DATE 
+) 
+SELECT  
+ M.MARINE_ID, 
+ MONTH(GETDATE()), 
+ YEAR(GETDATE()), 
+ ORGANIZATION_ID = CASE M.PRESENT_MONITORED_COMMAND_CODE 
+  WHEN 'JAA' THEN (SELECT organiza.on_id FROM recrui.ng_organiza.on WHERE mcc_code='082') 
+  WHEN 'JBB' THEN (SELECT organiza.on_id FROM recrui.ng_organiza.on WHERE mcc_code='082') 
+  WHEN 'KA0' THEN (SELECT organiza.on_id FROM recrui.ng_organiza.on WHERE mcc_code='082') 
+  ELSE  
+   dbo.ODSE_GetLowestLevelOrgID((SELECT organiza.on_id FROM recrui.ng_organiza.on WHERE mcc_code=M.PRESENT_MONITORED_COMMAND_CODE)) 
+  END, 
+ '0', 
+ 'NWR', 
+ 'MCMODSINTERFACE', 
+ GETDATE() 
+FROM MARINE M  
+ INNER JOIN RECRUITING_PERSON RP ON (RP.RECRUITING_PERSON_ID=M.MARINE_ID) 
+ LEFT OUTER JOIN PRODUCTION_STATUS_HISTORY PSH ON (PSH.PERSON_ID=M.MARINE_ID AND PSH.MONTH_CODE=MONTH(GETDATE()) AND PSH.CALENDAR_YEAR=YEAR(GETDATE())) 
+WHERE   
+ M.EXPIRATION_OF_ACTIVE_SERVICE > GETDATE() 
+ AND  
+ ( 
+  M.PRIMARY_MOS IN ('8411','8412')  
+  OR  
+  M.BILLET_MOS IN ('8411', '8412') 
+ ) 
+ AND 
+ ( 
+  M.PRESENT_MONITORED_COMMAND_CODE IN (SELECT MCC_CODE FROM RECRUITING_ORGANIZATION WHERE ISOPEN = 'Y' and organiza.on_type in ('H','R','D','RS','OSS')) 
+  OR  
+  M.PRESENT_MONITORED_COMMAND_CODE IN ('JAA','JBB','KA0') 
+ ) 
+ AND RP.TOUR_END_DATE IS NOT NULL 
+ AND M.PRESENT_GRADE_CODE LIKE 'E%' 
+ AND PSH.PERSON_ID IS NULL 
+ 
+ 
+-- STEP 4 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+-- Reac.vate a recruiter who is not on tour in MCRISS but meets all quali.ca.ons of an ac.ve 
+-- recruiter and has a new tour begin date in ODSE  
+-- Update tour_begin_date,rank,pay_grade,recrui.ng_organiza.on to RS level, set tour_end_date to NULL, 
+-- set (recrui.ng_role_id=A)/billet to "RECRUITER", ON_PRODUCTION to "N" and NON_PROD_REASON to "New Working Recrui.ng less than 30 days" 
+UPDATE RECRUITING_PERSON 
+SET  
+ TOUR_BEGIN_DATE = M.CURRENT_TOUR_BEGIN_DATE, 
+ RANK_CODE = (SELECT RANK_CODE FROM PAY_GRADE WHERE PAY_GRADE_CODE=dbo.ODSE_GetPayGradeCode(M.PRESENT_GRADE_CODE,M.PRIMARY_MOS)), 
+ PAY_GRADE_CODE = dbo.ODSE_GetPayGradeCode(M.PRESENT_GRADE_CODE,M.PRIMARY_MOS), 
+ ORGANIZATION_ID = CASE M.PRESENT_MONITORED_COMMAND_CODE 
+  WHEN 'JAA' THEN (SELECT organiza.on_id FROM recrui.ng_organiza.on WHERE mcc_code='082') 
+  WHEN 'JBB' THEN (SELECT organiza.on_id FROM recrui.ng_organiza.on WHERE mcc_code='082') 
+  WHEN 'KA0' THEN (SELECT organiza.on_id FROM recrui.ng_organiza.on WHERE mcc_code='082') 
+  ELSE 
+   dbo.ODSE_GetLowestLevelOrgID((SELECT organiza.on_id FROM recrui.ng_organiza.on WHERE mcc_code=M.PRESENT_MONITORED_COMMAND_CODE)) 
+  END, 
+ RECRUITING_ROLE_ID = 'A', 
+ ON_PRODUCTION = 'N', 
+ NON_PROD_REASON_CODE = 'NWR', 
+ USER_LOGIN = 'MCMODSINTERFACE', 
+ MANUAL_ADD = '0', 
+ UPDATE_DATE = GETDATE() 
+FROM MARINE M 
+ INNER JOIN RECRUITING_PERSON RP ON (RP.RECRUITING_PERSON_ID=M.MARINE_ID) 
+WHERE 
+ M.EXPIRATION_OF_ACTIVE_SERVICE > GETDATE() 
+ AND 
+ ( 
+  M.PRIMARY_MOS IN ('8411','8412')  
+  OR  
+  M.BILLET_MOS IN ('8411', '8412') 
+ ) 
+ AND 
+ ( 
+  M.PRESENT_MONITORED_COMMAND_CODE IN (SELECT MCC_CODE FROM RECRUITING_ORGANIZATION WHERE ISOPEN = 'Y' and organiza.on_type in ('H','R','D','RS','OSS')) 
+  OR 
+  M.PRESENT_MONITORED_COMMAND_CODE IN ('JAA','JBB','KA0') 
+ ) 
+ AND RP.TOUR_END_DATE IS NOT NULL 
+ AND M.PRESENT_GRADE_CODE LIKE 'E%' 
+ 
+ 
+-- STEP 5 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+UPDATE PRODUCTION_STATUS_HISTORY 
+SET  
+ MONTH_CODE = MONTH(GETDATE()), 
+ CALENDAR_YEAR = YEAR(GETDATE()), 
+ ORGANIZATION_ID = CASE M.PRESENT_MONITORED_COMMAND_CODE 
+  WHEN 'JAA' THEN (SELECT organiza.on_id FROM recrui.ng_organiza.on WHERE mcc_code='082') 
+  WHEN 'JBB' THEN (SELECT organiza.on_id FROM recrui.ng_organiza.on WHERE mcc_code='082') 
+  WHEN 'KA0' THEN (SELECT organiza.on_id FROM recrui.ng_organiza.on WHERE mcc_code='082') 
+  ELSE 
+   ISNULL(RO.ORGANIZATION_ID,'900') 
+  END, 
+ ON_PRODUCTION = '0', 
+ NON_PROD_REASON_CODE = 'NWR', 
+ USER_LOGIN = 'MCMODSINTERFACE', 
+ UPDATE_DATE = GETDATE() 
+FROM MARINE M 
+ LEFT OUTER JOIN RECRUITING_ORGANIZATION RO ON M.PRESENT_MONITORED_COMMAND_CODE = RO.MCC_CODE 
+ JOIN PRODUCTION_STATUS_HISTORY PSH ON (PSH.PERSON_ID=M.MARINE_ID AND PSH.MONTH_CODE=MONTH(GETDATE()) AND PSH.CALENDAR_YEAR=YEAR(GETDATE())) 
+WHERE 
+ M.MARINE_ID NOT IN (SELECT RECRUITING_PERSON_ID FROM RECRUITING_PERSON)   
+ AND M.EXPIRATION_OF_ACTIVE_SERVICE > GETDATE() 
+ AND 
+ ( 
+  M.PRIMARY_MOS IN ('8411','8412')  
+  OR  
+  M.BILLET_MOS IN ('8411', '8412') 
+ ) 
+ AND 
+ ( 
+  M.PRESENT_MONITORED_COMMAND_CODE IN (SELECT MCC_CODE FROM RECRUITING_ORGANIZATION WHERE ISOPEN = 'Y' AND organiza.on_type in ('H','R','D','RS','OSS')) 
+  OR M.PRESENT_MONITORED_COMMAND_CODE IN ('JAA','JBB','KA0') 
+ ) 
+ AND M.PRESENT_GRADE_CODE LIKE 'E%' 
+  
+ 
+-- STEP 6 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+-- Insert a record into the produc.on_status_history table for new recruiters 
+-- that are about to be added to MCRISS 
+INSERT INTO @INSERT_PRODUCTION_STATUS_HISTORY 
+( 
+ PERSON_ID, 
+ MONTH_CODE, 
+ CALENDAR_YEAR, 
+ ORGANIZATION_ID, 
+ ON_PRODUCTION, 
+ NON_PROD_REASON_CODE, 
+ USER_LOGIN, 
+ UPDATE_DATE 
+) 
+SELECT 
+ M.MARINE_ID, 
+ MONTH(GETDATE()), 
+ YEAR(GETDATE()), 
+ ORGANIZATION_ID = CASE M.PRESENT_MONITORED_COMMAND_CODE 
+  WHEN 'JAA' THEN (SELECT organiza.on_id FROM recrui.ng_organiza.on WHERE mcc_code='082') 
+  WHEN 'JBB' THEN (SELECT organiza.on_id FROM recrui.ng_organiza.on WHERE mcc_code='082') 
+  WHEN 'KA0' THEN (SELECT organiza.on_id FROM recrui.ng_organiza.on WHERE mcc_code='082') 
+  ELSE 
+   ISNULL(RO.ORGANIZATION_ID,'900') 
+  END, 
+ '0', 
+ 'NWR', 
+ 'MCMODSINTERFACE', 
+ GETDATE() 
+FROM MARINE M 
+ LEFT OUTER JOIN RECRUITING_ORGANIZATION RO ON M.PRESENT_MONITORED_COMMAND_CODE = RO.MCC_CODE 
+ LEFT OUTER JOIN PRODUCTION_STATUS_HISTORY PSH ON (PSH.PERSON_ID=M.MARINE_ID AND PSH.MONTH_CODE=MONTH(GETDATE()) AND PSH.CALENDAR_YEAR=YEAR(GETDATE())) 
+WHERE 
+ M.MARINE_ID NOT IN (SELECT RECRUITING_PERSON_ID FROM RECRUITING_PERSON)   
+ AND M.EXPIRATION_OF_ACTIVE_SERVICE > GETDATE() 
+ AND (M.PRIMARY_MOS IN ('8411','8412') OR M.BILLET_MOS IN ('8411', '8412')) 
+ AND  
+ ( 
+  M.PRESENT_MONITORED_COMMAND_CODE IN (SELECT MCC_CODE FROM RECRUITING_ORGANIZATION WHERE ISOPEN = 'Y' and organiza.on_type in ('H','R','D','RS','OSS')) 
+  OR  
+  M.PRESENT_MONITORED_COMMAND_CODE IN ('JAA','JBB','KA0') 
+ ) 
+ AND M.PRESENT_GRADE_CODE LIKE 'E%' 
+ AND PSH.PERSON_ID IS NULL 
+ 
+ 
+-- STEP 7 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+--Populate RECRUITING_PERSON table with recruiters which do not exist 
+INSERT INTO RECRUITING_PERSON 
+( 
+ RECRUITING_PERSON_ID, 
+ ORGANIZATION_ID, 
+ RECRUITING_ROLE_ID, 
+ RANK_CODE, 
+ PAY_GRADE_CODE,  
+ DELETED, 
+ TOUR_BEGIN_DATE, 
+ NON_PROD_REASON_CODE, 
+ IS_ASSIGNED, 
+ ON_PRODUCTION, 
+ USER_LOGIN, 
+ UPDATE_DATE 
+) 
+SELECT 
+ MARINE_ID, 
+ ORGANIZATION_ID = CASE M.PRESENT_MONITORED_COMMAND_CODE 
+  WHEN 'JAA' THEN (SELECT organiza.on_id FROM recrui.ng_organiza.on WHERE mcc_code='082') 
+  WHEN 'JBB' THEN (SELECT organiza.on_id FROM recrui.ng_organiza.on WHERE mcc_code='082') 
+  WHEN 'KA0' THEN (SELECT organiza.on_id FROM recrui.ng_organiza.on WHERE mcc_code='082') 
+  ELSE 
+   ISNULL(RO.ORGANIZATION_ID,'900') 
+  END, 
+ 'A', 
+ (SELECT RANK_CODE FROM PAY_GRADE WHERE PAY_GRADE_CODE=dbo.ODSE_GetPayGradeCode(M.PRESENT_GRADE_CODE,M.PRIMARY_MOS)), dbo.ODSE_GetPayGradeCode(M.PRESENT_GRADE_CODE,M.PRIMARY_MOS), 
+ 'N', 
+ CURRENT_TOUR_BEGIN_DATE,  
+ 'NWR', 
+ 'N', 
+ 'N', 
+ 'MCMODSINTERFACE', 
+ GETDATE() 
+FROM MARINE M  
+ LEFT OUTER JOIN RECRUITING_ORGANIZATION RO ON M.PRESENT_MONITORED_COMMAND_CODE = RO.MCC_CODE 
+WHERE  
+ M.MARINE_ID NOT IN (SELECT RECRUITING_PERSON_ID FROM RECRUITING_PERSON)   
+ AND M.EXPIRATION_OF_ACTIVE_SERVICE > GETDATE() 
+ AND  
+ ( 
+  M.PRIMARY_MOS IN ('8411','8412')  
+  OR  
+  M.BILLET_MOS IN ('8411', '8412') 
+ ) 
+ AND 
+ ( 
+  M.PRESENT_MONITORED_COMMAND_CODE IN (SELECT MCC_CODE FROM RECRUITING_ORGANIZATION WHERE ISOPEN = 'Y' and organiza.on_type in ('H','R','D','RS','OSS')) 
+  OR 
+  M.PRESENT_MONITORED_COMMAND_CODE IN ('JAA','JBB','KA0') 
+ ) 
+ AND M.PRESENT_GRADE_CODE LIKE 'E%' 
+ 
+ 
+-- STEP 8 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+-- Take Recruiters o. produc.on when EAS is reached 
+-- Ac.ve Recruiter shall be assigened to Recrui.ng Organiza.on HQ as indicated by the PMCC in Ac.ve Marine Data 
+-- Ac.ve Recruiter shall be placed in a non-produc.on status 
+-- Ac.ve Recruiter shall be assigned a non-produc.on reason of "New recruiter,assigned less than 30 days ago" 
+UPDATE PRODUCTION_STATUS_HISTORY 
+SET  
+ MONTH_CODE = MONTH(GETDATE()), 
+ CALENDAR_YEAR = YEAR(GETDATE()), 
+ ORGANIZATION_ID = RP.ORGANIZATION_ID, 
+ ON_PRODUCTION = '0', 
+ NON_PROD_REASON_CODE = 'EOT', 
+ USER_LOGIN = 'MCMODSINTERFACE', 
+ UPDATE_DATE = GETDATE() 
+FROM RECRUITING_PERSON RP 
+ JOIN MARINE M ON (RP.RECRUITING_PERSON_ID=M.MARINE_ID)  
+ JOIN PRODUCTION_STATUS_HISTORY PSH ON (PSH.PERSON_ID=M.MARINE_ID AND PSH.MONTH_CODE=MONTH(GETDATE()) AND PSH.CALENDAR_YEAR=YEAR(GETDATE())) 
+WHERE 
+ RP.TOUR_END_DATE IS NULL 
+ AND M.EXPIRATION_OF_ACTIVE_SERVICE <= GETDATE() 
+ AND M.PRESENT_GRADE_CODE LIKE 'E%' 
+ 
+ 
+-- STEP 9 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+-- Insert record into produc.on_status_history for recruiter who has reached EAS 
+INSERT INTO @INSERT_PRODUCTION_STATUS_HISTORY 
+( 
+ PERSON_ID, 
+ MONTH_CODE, 
+ CALENDAR_YEAR, 
+ ORGANIZATION_ID, 
+ ON_PRODUCTION, 
+ NON_PROD_REASON_CODE, 
+ USER_LOGIN, 
+ UPDATE_DATE 
+) 
+SELECT 
+ M.MARINE_ID, 
+ MONTH(GETDATE()), 
+ YEAR(GETDATE()), 
+ RP.ORGANIZATION_ID, 
+ '0', 
+ 'EOT', 
+ 'MCMODSINTERFACE', 
+ GETDATE() 
+FROM RECRUITING_PERSON RP  
+ JOIN MARINE M ON (RP.RECRUITING_PERSON_ID=M.MARINE_ID) 
+ LEFT OUTER JOIN PRODUCTION_STATUS_HISTORY PSH ON (PSH.PERSON_ID=M.MARINE_ID AND PSH.MONTH_CODE=MONTH(GETDATE()) AND PSH.CALENDAR_YEAR=YEAR(GETDATE())) 
+WHERE 
+ RP.TOUR_END_DATE IS NULL 
+ AND M.EXPIRATION_OF_ACTIVE_SERVICE<=GETDATE() 
+ AND M.PRESENT_GRADE_CODE LIKE 'E%' 
+ AND PSH.PERSON_ID IS NULL 
+ 
+-- STEP 10 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+-- Set recruiters to an inac.ve status when EAS is reached 
+ 
+-- Before upda.ng RECRUITING_PERSON 
+-- remove the recruiter's sector due to being EOT 
+-------------------------------------------------------------------------- 
+SELECT 
+ rp.[rowguid] 
+INTO #TEMP_EAS_reached 
+FROM RECRUITING_PERSON RP 
+ JOIN MARINE M ON RP.RECRUITING_PERSON_ID=M.MARINE_ID 
+WHERE  
+ RP.TOUR_END_DATE IS NULL 
+ AND M.EXPIRATION_OF_ACTIVE_SERVICE <= GETDATE() 
+ AND M.PRESENT_GRADE_CODE LIKE 'E%' 
+ 
+DECLARE cursor_EAS_reached CURSOR 
+ 
+FOR SELECT 
+ [rowguid] 
+FROM #TEMP_EAS_reached 
+ 
+OPEN cursor_EAS_reached 
+ 
+FETCH NEXT FROM cursor_EAS_reached 
+INTO 
+ @Recrui.ngPersonGuid 
+ 
+WHILE @@FETCH_STATUS = 0 
+ BEGIN 
+  EXEC [RSSOSS].[USMC].[InsertUpdateMapsSectorRecruiter] 
+   @SectorRecruiterId = null, 
+   @SectorID = null, 
+   @Recrui.ngPersonId = @Recrui.ngPersonGuid, 
+   @LastUpdateUserId = '00000000-0000-0000-0000-000000000000' 
+ 
+  FETCH NEXT FROM cursor_EAS_reached 
+  INTO 
+   @Recrui.ngPersonGuid 
+ END 
+ 
+CLOSE cursor_EAS_reached 
+ 
+DEALLOCATE cursor_EAS_reached 
+ 
+DROP TABLE #TEMP_EAS_reached 
+-------------------------------------------------------------------------- 
+ 
+UPDATE RECRUITING_PERSON 
+SET 
+ NON_PROD_REASON_CODE = 'EOT', 
+ ON_PRODUCTION = 'N', 
+ USER_LOGIN = 'MCMODSINTERFACE', 
+ UPDATE_DATE = GETDATE() 
+FROM RECRUITING_PERSON RP 
+ JOIN MARINE M ON RP.RECRUITING_PERSON_ID=M.MARINE_ID 
+WHERE  
+ RP.TOUR_END_DATE IS NULL 
+ AND M.EXPIRATION_OF_ACTIVE_SERVICE <= GETDATE() 
+ AND M.PRESENT_GRADE_CODE LIKE 'E%' 
+ 
+ 
+-- STEP 11 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+-- Take Recruiters o. produc.on when they are transferred to a non-recrui.ng MCC. 
+UPDATE PRODUCTION_STATUS_HISTORY 
+SET  
+ MONTH_CODE = MONTH(GETDATE()), 
+ CALENDAR_YEAR = YEAR(GETDATE()), 
+ ORGANIZATION_ID = RP.ORGANIZATION_ID, 
+ ON_PRODUCTION = '0', 
+ NON_PROD_REASON_CODE = 'EOT', 
+ USER_LOGIN = 'MCMODSINTERFACE', 
+ UPDATE_DATE = GETDATE() 
+FROM RECRUITING_PERSON RP  
+ JOIN MARINE M ON (RP.RECRUITING_PERSON_ID = M.MARINE_ID) 
+ JOIN PRODUCTION_STATUS_HISTORY PSH ON (PSH.PERSON_ID=M.MARINE_ID AND PSH.MONTH_CODE=MONTH(GETDATE()) AND PSH.CALENDAR_YEAR=YEAR(GETDATE())) 
+WHERE 
+ RP.TOUR_END_DATE IS NULL  
+ AND  
+ ( 
+  M.PRESENT_MONITORED_COMMAND_CODE NOT IN (SELECT MCC_CODE FROM RECRUITING_ORGANIZATION WHERE ISOPEN = 'Y' AND ORGANIZATION_TYPE IN ('H','R','D','RS','OSS')) 
+  AND  
+  M.PRESENT_MONITORED_COMMAND_CODE NOT IN ('JAA','JBB','KA0') 
+ ) 
+ AND M.PRESENT_GRADE_CODE LIKE 'E%' 
+ 
+ 
+-- STEP 12 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+-- Insert a record into produc.on_status_history for recruiters who do not have a valid recrui.ng PMCC 
+INSERT INTO @INSERT_PRODUCTION_STATUS_HISTORY 
+( 
+ PERSON_ID, 
+ MONTH_CODE, 
+ CALENDAR_YEAR, 
+ ORGANIZATION_ID, 
+ ON_PRODUCTION, 
+ NON_PROD_REASON_CODE, 
+ USER_LOGIN, 
+ UPDATE_DATE 
+) 
+SELECT 
+ M.MARINE_ID, 
+ MONTH(GETDATE()), 
+ YEAR(GETDATE()), 
+ RP.ORGANIZATION_ID, 
+ '0', 
+ 'EOT', 
+ 'MCMODSINTERFACE', 
+ GETDATE() 
+FROM RECRUITING_PERSON RP  
+ JOIN MARINE M ON (RP.RECRUITING_PERSON_ID=M.MARINE_ID) 
+ LEFT OUTER JOIN PRODUCTION_STATUS_HISTORY PSH ON (PSH.PERSON_ID=M.MARINE_ID AND PSH.MONTH_CODE=MONTH(GETDATE()) AND PSH.CALENDAR_YEAR=YEAR(GETDATE())) 
+WHERE 
+ RP.TOUR_END_DATE IS NULL 
+ AND  
+ ( 
+  M.PRESENT_MONITORED_COMMAND_CODE NOT IN (SELECT MCC_CODE FROM RECRUITING_ORGANIZATION WHERE ISOPEN = 'Y' AND ORGANIZATION_TYPE IN ('H','R','D','RS','OSS')) 
+  AND  
+  M.PRESENT_MONITORED_COMMAND_CODE NOT IN ('JAA','JBB','KA0') 
+ ) 
+ AND M.PRESENT_GRADE_CODE LIKE 'E%' 
+ AND PSH.PERSON_ID IS NULL 
+ 
+ 
+-- STEP 13 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+-- Set recruiters to an inac.ve status when they are transferred to a non-recrui.ng MCC. 
+-- IF CURRENT_TOUR_BEGIN_DATE IS NULL, SET THE TOUR_END_DATE EQUAL TO THE GREATER 
+-- OF THE "Last Unit Detach Date/DETACHED_LAST_COMMAND_DATE" or "Last Transfer Ac.on Date" 
+ 
+-- Before upda.ng RECRUITING_PERSON 
+-- remove the recruiter's sector due to being EOT 
+-------------------------------------------------------------------------- 
+SELECT 
+ rp.[rowguid] 
+INTO #TEMP_transferred_non_MCC 
+FROM RECRUITING_PERSON RP  
+ JOIN MARINE M ON (RP.RECRUITING_PERSON_ID=M.MARINE_ID) 
+WHERE 
+ RP.TOUR_END_DATE IS NULL 
+ AND  
+ ( 
+  M.PRESENT_MONITORED_COMMAND_CODE NOT IN (SELECT MCC_CODE FROM RECRUITING_ORGANIZATION WHERE ISOPEN = 'Y' AND ORGANIZATION_TYPE IN ('H','R','D','RS','OSS')) 
+  AND  
+  M.PRESENT_MONITORED_COMMAND_CODE NOT IN ('JAA','JBB','KA0') 
+ ) 
+ AND M.PRESENT_GRADE_CODE LIKE 'E%' 
+ AND RP.MANUAL_ADD='0' 
+ 
+DECLARE cursor_transferred_non_MCC CURSOR 
+ 
+FOR SELECT 
+ [rowguid] 
+FROM #TEMP_transferred_non_MCC 
+ 
+OPEN cursor_transferred_non_MCC 
+ 
+FETCH NEXT FROM cursor_transferred_non_MCC 
+INTO 
+ @Recrui.ngPersonGuid 
+ 
+WHILE @@FETCH_STATUS = 0 
+ BEGIN 
+  EXEC [RSSOSS].[USMC].[InsertUpdateMapsSectorRecruiter] 
+   @SectorRecruiterId = null, 
+   @SectorID = null, 
+   @Recrui.ngPersonId = @Recrui.ngPersonGuid, 
+   @LastUpdateUserId = '00000000-0000-0000-0000-000000000000' 
+ 
+  FETCH NEXT FROM cursor_transferred_non_MCC 
+  INTO 
+   @Recrui.ngPersonGuid 
+ END 
+ 
+CLOSE cursor_transferred_non_MCC 
+ 
+DEALLOCATE cursor_transferred_non_MCC 
+ 
+DROP TABLE #TEMP_transferred_non_MCC 
+-------------------------------------------------------------------------- 
+ 
+UPDATE RECRUITING_PERSON 
+SET 
+ NON_PROD_REASON_CODE = 'EOT', 
+ ON_PRODUCTION = 'N', 
+ USER_LOGIN = 'MCMODSINTERFACE', 
+ UPDATE_DATE = GETDATE() 
+FROM RECRUITING_PERSON RP  
+ JOIN MARINE M ON (RP.RECRUITING_PERSON_ID=M.MARINE_ID) 
+WHERE 
+ RP.TOUR_END_DATE IS NULL 
+ AND  
+ ( 
+  M.PRESENT_MONITORED_COMMAND_CODE NOT IN (SELECT MCC_CODE FROM RECRUITING_ORGANIZATION WHERE ISOPEN = 'Y' AND ORGANIZATION_TYPE IN ('H','R','D','RS','OSS')) 
+  AND  
+  M.PRESENT_MONITORED_COMMAND_CODE NOT IN ('JAA','JBB','KA0') 
+ ) 
+ AND M.PRESENT_GRADE_CODE LIKE 'E%' 
+ AND RP.MANUAL_ADD='0' 
+ 
+ 
+-- STEP 14 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+UPDATE PRODUCTION_STATUS_HISTORY 
+SET  
+ MONTH_CODE = MONTH(GETDATE()), 
+ CALENDAR_YEAR = YEAR(GETDATE()), 
+ ORGANIZATION_ID = RP.ORGANIZATION_ID, 
+ ON_PRODUCTION = '0', 
+ NON_PROD_REASON_CODE = 'EOT', 
+ USER_LOGIN = 'MCMODSINTERFACE', 
+ UPDATE_DATE = GETDATE() 
+FROM RECRUITING_PERSON RP  
+ JOIN MARINE M ON (RP.RECRUITING_PERSON_ID=M.MARINE_ID) 
+ JOIN PRODUCTION_STATUS_HISTORY PSH ON (PSH.PERSON_ID=M.MARINE_ID AND PSH.MONTH_CODE=MONTH(GETDATE()) AND PSH.CALENDAR_YEAR=YEAR(GETDATE())) 
+WHERE 
+ RP.TOUR_END_DATE IS NULL 
+ AND  
+ ( 
+  M.BILLET_MOS NOT IN ('8411','8412')  
+  AND  
+  M.PRIMARY_MOS NOT IN ('8411','8412') 
+ ) 
+ AND M.PRESENT_GRADE_CODE LIKE 'E%' 
+ 
+ 
+-- STEP 15 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+-- Insert record into produc.on_status_history for recruiters who now do not have a PMOS or BMOS equal to 8411 or 8412 
+INSERT INTO @INSERT_PRODUCTION_STATUS_HISTORY 
+( 
+ PERSON_ID, 
+ MONTH_CODE, 
+ CALENDAR_YEAR, 
+ ORGANIZATION_ID, 
+ ON_PRODUCTION, 
+ NON_PROD_REASON_CODE, 
+ USER_LOGIN, 
+ UPDATE_DATE 
+) 
+SELECT 
+ M.MARINE_ID, 
+ MONTH(GETDATE()), 
+ YEAR(GETDATE()), 
+ RP.ORGANIZATION_ID, 
+ '0', 
+ 'EOT', 
+ 'MCMODSINTERFACE', 
+ GETDATE() 
+FROM RECRUITING_PERSON RP  
+ JOIN MARINE M ON (RP.RECRUITING_PERSON_ID=M.MARINE_ID) 
+ LEFT OUTER JOIN PRODUCTION_STATUS_HISTORY PSH ON (PSH.PERSON_ID=M.MARINE_ID AND PSH.MONTH_CODE=MONTH(GETDATE()) AND PSH.CALENDAR_YEAR=YEAR(GETDATE())) 
+WHERE  
+ RP.TOUR_END_DATE IS NULL 
+ AND (M.BILLET_MOS NOT IN ('8411','8412') AND M.PRIMARY_MOS NOT IN ('8411','8412')) 
+ AND M.PRESENT_GRADE_CODE LIKE 'E%' 
+ AND PSH.PERSON_ID IS NULL 
+ 
+ 
+-- STEP 16 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+-- Set recruiters to an inac.ve status when they are assigned to a non-recrui.ng MOS 
+-- SET TOUR_END_DATE to DATE MOS CHANGE WAS DISCOVERED, WHICH IS THE CURRENT DATE 
+ 
+-- Before upda.ng RECRUITING_PERSON 
+-- remove the recruiter's sector due to being EOT 
+-------------------------------------------------------------------------- 
+SELECT 
+ rp.[rowguid] 
+INTO #TEMP_transferred_non_MOS 
+FROM RECRUITING_PERSON RP  
+ JOIN MARINE M ON (RP.RECRUITING_PERSON_ID=M.MARINE_ID) 
+WHERE 
+ RP.TOUR_END_DATE IS NULL 
+ AND  
+ ( 
+  M.BILLET_MOS NOT IN ('8411','8412')  
+  AND  
+  M.PRIMARY_MOS NOT IN ('8411','8412') 
+ ) 
+ AND M.PRESENT_GRADE_CODE LIKE 'E%' 
+ AND RP.MANUAL_ADD='0' 
+ 
+DECLARE cursor_transferred_non_MOS CURSOR 
+ 
+FOR SELECT 
+ [rowguid] 
+FROM #TEMP_transferred_non_MOS 
+ 
+OPEN cursor_transferred_non_MOS 
+ 
+FETCH NEXT FROM cursor_transferred_non_MOS 
+INTO 
+ @Recrui.ngPersonGuid 
+ 
+WHILE @@FETCH_STATUS = 0 
+ BEGIN 
+  EXEC [RSSOSS].[USMC].[InsertUpdateMapsSectorRecruiter] 
+   @SectorRecruiterId = null, 
+   @SectorID = null, 
+   @Recrui.ngPersonId = @Recrui.ngPersonGuid, 
+   @LastUpdateUserId = '00000000-0000-0000-0000-000000000000' 
+ 
+  FETCH NEXT FROM cursor_transferred_non_MOS 
+  INTO 
+   @Recrui.ngPersonGuid 
+ END 
+ 
+CLOSE cursor_transferred_non_MOS 
+ 
+DEALLOCATE cursor_transferred_non_MOS 
+ 
+DROP TABLE #TEMP_transferred_non_MOS 
+-------------------------------------------------------------------------- 
+ 
+UPDATE RECRUITING_PERSON 
+SET  
+ NON_PROD_REASON_CODE = 'EOT', 
+ ON_PRODUCTION = 'N', 
+ USER_LOGIN = 'MCMODSINTERFACE', 
+ UPDATE_DATE = GETDATE() 
+FROM RECRUITING_PERSON RP  
+ JOIN MARINE M ON (RP.RECRUITING_PERSON_ID=M.MARINE_ID) 
+WHERE 
+ RP.TOUR_END_DATE IS NULL 
+ AND  
+ ( 
+  M.BILLET_MOS NOT IN ('8411','8412')  
+  AND  
+  M.PRIMARY_MOS NOT IN ('8411','8412') 
+ ) 
+ AND M.PRESENT_GRADE_CODE LIKE 'E%' 
+ AND RP.MANUAL_ADD='0' 
+ 
+ 
+-- STEP 17 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+UPDATE PRODUCTION_STATUS_HISTORY 
+SET  
+ MONTH_CODE = MONTH(GETDATE()), 
+ CALENDAR_YEAR = YEAR(GETDATE()), 
+ ORGANIZATION_ID = RP.ORGANIZATION_ID, 
+ ON_PRODUCTION = '0', 
+ NON_PROD_REASON_CODE = CASE dbo.IsTransferWithinDistrict(SUBSTRING(RO.MCC_CODE,1,3),M.PRESENT_MONITORED_COMMAND_CODE) 
+      WHEN 0 THEN 'TOD' 
+      WHEN 1 THEN 'TID' 
+     END, 
+ USER_LOGIN = 'MCMODSINTERFACE', 
+ UPDATE_DATE = GETDATE() 
+FROM MCRISS..RECRUITING_PERSON RP 
+ JOIN MCRISS..PERSON P ON RP.RECRUITING_PERSON_ID = P.PERSON_ID 
+ JOIN MCRISS..RECRUITING_ORGANIZATION RO ON RP.ORGANIZATION_ID = RO.ORGANIZATION_ID 
+ JOIN MCRISS..MARINE M ON P.PERSON_ID = M.MARINE_ID 
+ JOIN PRODUCTION_STATUS_HISTORY PSH ON (PSH.PERSON_ID=M.MARINE_ID AND PSH.MONTH_CODE=MONTH(GETDATE()) AND PSH.CALENDAR_YEAR=YEAR(GETDATE())) 
+WHERE 
+ SUBSTRING(RO.MCC_CODE,1,3) <> PRESENT_MONITORED_COMMAND_CODE 
+ AND 
+ -- IF ASSIGNED TO CHILD OSS IN RECRUITING PERSON AND PARENT RS IN MARINE DO NOT MOVE 
+ SUBSTRING(RO.MCC_CODE,1,3) NOT IN (SELECT SUBSTRING(ROX.MCC_CODE,1,3) 
+          FROM MCRISS..RECRUITING_ORGANIZATION ROX 
+          JOIN MCRISS..ORGANIZATION_MAP OMX ON OMX.CHILD_ORGANIZATION_ID = ROX.ORGANIZATION_ID 
+          JOIN MCRISS..RECRUITING_ORGANIZATION ROY ON OMX.PARENT_ORGANIZATION_ID =ROY.ORGANIZATION_ID 
+          WHERE ROY.MCC_CODE =PRESENT_MONITORED_COMMAND_CODE AND ROY.ORGANIZATION_TYPE = 'RS') 
+ AND 
+ -- IF ASSIGNED TO CHILD OSS IN MARINE AND PARENT RS IN RECRUITING PERSON DO NOT MOVE 
+ SUBSTRING(RO.MCC_CODE,1,3) NOT IN (SELECT SUBSTRING(ROY.MCC_CODE,1,3) 
+          FROM MCRISS..RECRUITING_ORGANIZATION ROX 
+          JOIN MCRISS..ORGANIZATION_MAP OMX ON OMX.CHILD_ORGANIZATION_ID = ROX.ORGANIZATION_ID 
+          JOIN MCRISS..RECRUITING_ORGANIZATION ROY ON OMX.PARENT_ORGANIZATION_ID = ROY.ORGANIZATION_ID 
+          WHERE SUBSTRING(ROX.MCC_CODE,1,3) = PRESENT_MONITORED_COMMAND_CODE AND ROY.ORGANIZATION_TYPE = 'RS') 
+ AND NOT (RO.MCC_CODE = '082' AND PRESENT_MONITORED_COMMAND_CODE = 'JAA') 
+ AND NOT (RO.MCC_CODE = '082' AND PRESENT_MONITORED_COMMAND_CODE = 'JBB') 
+ AND NOT (RO.MCC_CODE = '082' AND PRESENT_MONITORED_COMMAND_CODE = 'KA0') 
+ AND (PRIMARY_MOS IN ('8411', '8412') OR BILLET_MOS IN ('8411', '8412')) 
+ AND EXPIRATION_OF_ACTIVE_SERVICE > GETDATE() 
+ AND  
+ ( 
+  PRESENT_MONITORED_COMMAND_CODE IN (SELECT MCC_CODE FROM MCRISS..RECRUITING_ORGANIZATION WHERE ORGANIZATION_TYPE IN ('H', 'R', 'D', 'RS', 'OSS')) 
+  OR 
+  PRESENT_MONITORED_COMMAND_CODE IN  ('JAA','JBB','KA0') 
+ ) 
+ AND M.PRESENT_GRADE_CODE LIKE 'E%' 
+ 
+ 
+ 
+-- STEP 18 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+INSERT INTO @INSERT_PRODUCTION_STATUS_HISTORY 
+( 
+ PERSON_ID, 
+ MONTH_CODE, 
+ CALENDAR_YEAR, 
+ ORGANIZATION_ID, 
+ ON_PRODUCTION, 
+ NON_PROD_REASON_CODE, 
+ USER_LOGIN, 
+ UPDATE_DATE 
+) 
+SELECT 
+ M.MARINE_ID, 
+ MONTH(GETDATE()), 
+ YEAR(GETDATE()), 
+ RP.ORGANIZATION_ID, 
+ '0', 
+ CASE dbo.IsTransferWithinDistrict(SUBSTRING(RO.MCC_CODE,1,3),M.PRESENT_MONITORED_COMMAND_CODE) 
+   WHEN 0 THEN 'TOD' 
+   WHEN 1 THEN 'TID' 
+  END, 
+ 'MCMODSINTERFACE', 
+ GETDATE() 
+FROM MCRISS..RECRUITING_PERSON RP 
+ JOIN MCRISS..PERSON P ON RP.RECRUITING_PERSON_ID = P.PERSON_ID 
+ JOIN MCRISS..RECRUITING_ORGANIZATION RO ON RP.ORGANIZATION_ID = RO.ORGANIZATION_ID 
+ JOIN MCRISS..MARINE M ON P.PERSON_ID = M.MARINE_ID 
+ LEFT OUTER JOIN PRODUCTION_STATUS_HISTORY PSH ON (PSH.PERSON_ID=M.MARINE_ID AND PSH.MONTH_CODE=MONTH(GETDATE()) AND PSH.CALENDAR_YEAR=YEAR(GETDATE())) 
+WHERE 
+ SUBSTRING(RO.MCC_CODE,1,3) <> PRESENT_MONITORED_COMMAND_CODE 
+ AND 
+ -- IF ASSIGNED TO CHILD OSS IN RECRUITING PERSON AND PARENT RS IN MARINE DO NOT MOVE 
+ SUBSTRING(RO.MCC_CODE,1,3) NOT IN (SELECT SUBSTRING(ROX.MCC_CODE,1,3) 
+          FROM MCRISS..RECRUITING_ORGANIZATION ROX 
+          JOIN MCRISS..ORGANIZATION_MAP OMX ON OMX.CHILD_ORGANIZATION_ID = ROX.ORGANIZATION_ID 
+          JOIN MCRISS..RECRUITING_ORGANIZATION ROY ON OMX.PARENT_ORGANIZATION_ID =ROY.ORGANIZATION_ID 
+          WHERE ROY.MCC_CODE =PRESENT_MONITORED_COMMAND_CODE AND ROY.ORGANIZATION_TYPE = 'RS') 
+ AND 
+ -- IF ASSIGNED TO CHILD OSS IN MARINE AND PARENT RS IN RECRUITING PERSON DO NOT MOVE 
+ SUBSTRING(RO.MCC_CODE,1,3) NOT IN (SELECT SUBSTRING(ROY.MCC_CODE,1,3) 
+          FROM MCRISS..RECRUITING_ORGANIZATION ROX 
+          JOIN MCRISS..ORGANIZATION_MAP OMX ON OMX.CHILD_ORGANIZATION_ID = ROX.ORGANIZATION_ID 
+          JOIN MCRISS..RECRUITING_ORGANIZATION ROY ON OMX.PARENT_ORGANIZATION_ID = ROY.ORGANIZATION_ID 
+          WHERE SUBSTRING(ROX.MCC_CODE,1,3) = PRESENT_MONITORED_COMMAND_CODE AND ROY.ORGANIZATION_TYPE = 'RS') 
+ AND NOT (RO.MCC_CODE = '082' AND PRESENT_MONITORED_COMMAND_CODE = 'JAA') 
+ AND NOT (RO.MCC_CODE = '082' AND PRESENT_MONITORED_COMMAND_CODE = 'JBB') 
+ AND NOT (RO.MCC_CODE = '082' AND PRESENT_MONITORED_COMMAND_CODE = 'KA0') 
+ AND (PRIMARY_MOS IN ('8411', '8412') OR BILLET_MOS IN ('8411', '8412')) 
+ AND EXPIRATION_OF_ACTIVE_SERVICE > GETDATE() 
+ AND  
+ ( 
+  PRESENT_MONITORED_COMMAND_CODE IN (SELECT MCC_CODE FROM MCRISS..RECRUITING_ORGANIZATION WHERE ORGANIZATION_TYPE IN ('H', 'R', 'D', 'RS', 'OSS')) 
+  OR 
+  PRESENT_MONITORED_COMMAND_CODE IN ('JAA','JBB','KA0') 
+ ) 
+ AND M.PRESENT_GRADE_CODE LIKE 'E%' 
+ AND PSH.PERSON_ID IS NULL 
+ 
+ 
+-- STEP 19 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+-- Update recruiters who have moved to other organiza.ons 
+-- Must convert RSS and OSS organiza.ons to parent RS organiza.on 
+ 
+ 
+-- Before upda.ng RECRUITING_PERSON 
+-- log recuriter history and remove the recruiter's sector 
+-------------------------------------------------------------------------- 
+SELECT 
+ rp.[RECRUITING_PERSON_ID] 
+ ,rp.[rowguid] 
+ ,rp.[TOUR_BEGIN_DATE] 
+ ,rr.Short_Descrip.on 
+ ,rp.BILLET_BEGIN_DATE 
+INTO #TEMP_moved_recruiters 
+FROM MCRISS..RECRUITING_PERSON RP 
+ JOIN MCRISS..PERSON P ON RP.RECRUITING_PERSON_ID = P.PERSON_ID 
+ JOIN MCRISS..RECRUITING_ORGANIZATION RO ON RP.ORGANIZATION_ID = RO.ORGANIZATION_ID 
+ JOIN MCRISS..MARINE M ON P.PERSON_ID = M.MARINE_ID 
+ JOIN MCRISS..Recrui.ng_Role rr ON rp.Recrui.ng_Role_id = rr.Recrui.ng_Role_Id 
+WHERE  
+ SUBSTRING(RO.MCC_CODE,1,3) <> PRESENT_MONITORED_COMMAND_CODE 
+ AND 
+ -- IF ASSIGNED TO CHILD OSS IN RECRUITING PERSON AND PARENT RS IN MARINE DO NOT MOVE 
+ SUBSTRING(RO.MCC_CODE,1,3) NOT IN (SELECT SUBSTRING(ROX.MCC_CODE,1,3) 
+          FROM MCRISS..RECRUITING_ORGANIZATION ROX 
+          JOIN MCRISS..ORGANIZATION_MAP OMX ON OMX.CHILD_ORGANIZATION_ID = ROX.ORGANIZATION_ID 
+          JOIN MCRISS..RECRUITING_ORGANIZATION ROY ON OMX.PARENT_ORGANIZATION_ID =ROY.ORGANIZATION_ID 
+          WHERE ROY.MCC_CODE =PRESENT_MONITORED_COMMAND_CODE AND ROY.ORGANIZATION_TYPE = 'RS') 
+ AND 
+ -- IF ASSIGNED TO CHILD OSS IN MARINE AND PARENT RS IN RECRUITING PERSON DO NOT MOVE 
+ SUBSTRING(RO.MCC_CODE,1,3) NOT IN (SELECT SUBSTRING(ROY.MCC_CODE,1,3) 
+          FROM MCRISS..RECRUITING_ORGANIZATION ROX 
+          JOIN MCRISS..ORGANIZATION_MAP OMX ON OMX.CHILD_ORGANIZATION_ID = ROX.ORGANIZATION_ID 
+          JOIN MCRISS..RECRUITING_ORGANIZATION ROY ON OMX.PARENT_ORGANIZATION_ID = ROY.ORGANIZATION_ID 
+          WHERE SUBSTRING(ROX.MCC_CODE,1,3) = PRESENT_MONITORED_COMMAND_CODE AND ROY.ORGANIZATION_TYPE = 'RS') 
+ AND NOT (RO.MCC_CODE = '082' AND PRESENT_MONITORED_COMMAND_CODE = 'JAA') 
+ AND NOT (RO.MCC_CODE = '082' AND PRESENT_MONITORED_COMMAND_CODE = 'JBB') 
+ AND NOT (RO.MCC_CODE = '082' AND PRESENT_MONITORED_COMMAND_CODE = 'KA0') 
+ AND (PRIMARY_MOS IN ('8411', '8412') OR BILLET_MOS IN ('8411', '8412')) 
+ AND EXPIRATION_OF_ACTIVE_SERVICE > GETDATE() 
+ AND 
+ ( 
+  PRESENT_MONITORED_COMMAND_CODE IN (SELECT MCC_CODE FROM MCRISS..RECRUITING_ORGANIZATION WHERE ORGANIZATION_TYPE IN ('H', 'R', 'D', 'RS', 'OSS')) 
+  OR 
+  PRESENT_MONITORED_COMMAND_CODE IN ('JAA','JBB','KA0') 
+ ) 
+ AND M.PRESENT_GRADE_CODE LIKE 'E%' 
+ 
+DECLARE cursor_moved_recruiters CURSOR 
+ 
+FOR SELECT 
+ [RECRUITING_PERSON_ID], 
+ [rowguid], 
+ [TOUR_BEGIN_DATE], 
+ Short_Descrip.on 
+FROM #TEMP_moved_recruiters 
+ 
+OPEN cursor_moved_recruiters 
+ 
+FETCH NEXT FROM cursor_moved_recruiters 
+INTO @PersonId, 
+ @Recrui.ngPersonGuid, 
+ @BeginDate, 
+ @ShortDescrip.on, 
+ @BilletBeginDate 
+ 
+WHILE @@FETCH_STATUS = 0 
+ BEGIN 
+ 
+  -- Check if @BeginDate is null or not null 
+  IF @BeginDate is not null 
+  BEGIN 
+   EXEC MCRISS.USMC.InsertRecruiterHistory 
+    @PersonId = @PersonId, 
+    @BeginDate = @BeginDate, 
+    @BilletEndDate = @TodaysDate, 
+    @ShortDescrip.on = @ShortDescrip.on, 
+    @UserLogin = 'MCMODSINTERFACE' 
+  END 
+ 
+  IF @BeginDate is null AND @BilletBeginDate is not null 
+  BEGIN 
+   EXEC MCRISS.USMC.InsertRecruiterHistory 
+    @PersonId = @PersonId, 
+    @BeginDate = @BilletBeginDate, 
+    @BilletEndDate = @TodaysDate, 
+    @ShortDescrip.on = @ShortDescrip.on, 
+    @UserLogin = 'MCMODSINTERFACE' 
+  END 
+ 
+  EXEC [RSSOSS].[USMC].[InsertUpdateMapsSectorRecruiter] 
+   @SectorRecruiterId = null, 
+   @SectorID = null, 
+   @Recrui.ngPersonId = @Recrui.ngPersonGuid, 
+   @LastUpdateUserId = '00000000-0000-0000-0000-000000000000' 
+   
+  FETCH NEXT FROM cursor_moved_recruiters 
+  INTO @PersonId, 
+   @Recrui.ngPersonGuid, 
+   @BeginDate, 
+   @ShortDescrip.on, 
+   @BilletBeginDate 
+   
+ END 
+ 
+CLOSE cursor_moved_recruiters 
+ 
+DEALLOCATE cursor_moved_recruiters 
+ 
+DROP TABLE #TEMP_moved_recruiters 
+-------------------------------------------------------------------------- 
+ 
+ 
+UPDATE RECRUITING_PERSON 
+SET  
+ ORGANIZATION_ID = CASE M.PRESENT_MONITORED_COMMAND_CODE 
+  WHEN 'JAA' THEN (SELECT organiza.on_id FROM recrui.ng_organiza.on WHERE mcc_code='082') 
+  WHEN 'JBB' THEN (SELECT organiza.on_id FROM recrui.ng_organiza.on WHERE mcc_code='082') 
+  WHEN 'KA0' THEN (SELECT organiza.on_id FROM recrui.ng_organiza.on WHERE mcc_code='082') 
+  ELSE 
+   dbo.ODSE_GetLowestLevelOrgID((SELECT organiza.on_id FROM recrui.ng_organiza.on WHERE mcc_code=M.PRESENT_MONITORED_COMMAND_CODE)) 
+  END, 
+ ON_PRODUCTION = 'N', 
+ NON_PROD_REASON_CODE = CASE dbo.IsTransferWithinDistrict(SUBSTRING(RO.MCC_CODE,1,3),M.PRESENT_MONITORED_COMMAND_CODE) 
+  WHEN 0 THEN 'TOD' 
+  WHEN 1 THEN 'TID' 
+  END, 
+ USER_LOGIN = 'MCMODSINTERFACE', 
+ MANUAL_ADD = '0', 
+ UPDATE_DATE = GETDATE() 
+FROM MCRISS..RECRUITING_PERSON RP 
+ JOIN MCRISS..PERSON P ON RP.RECRUITING_PERSON_ID = P.PERSON_ID 
+ JOIN MCRISS..RECRUITING_ORGANIZATION RO ON RP.ORGANIZATION_ID = RO.ORGANIZATION_ID 
+ JOIN MCRISS..MARINE M ON P.PERSON_ID = M.MARINE_ID 
+WHERE  
+ SUBSTRING(RO.MCC_CODE,1,3) <> PRESENT_MONITORED_COMMAND_CODE 
+ AND 
+ -- IF ASSIGNED TO CHILD OSS IN RECRUITING PERSON AND PARENT RS IN MARINE DO NOT MOVE 
+ SUBSTRING(RO.MCC_CODE,1,3) NOT IN (SELECT SUBSTRING(ROX.MCC_CODE,1,3) 
+          FROM MCRISS..RECRUITING_ORGANIZATION ROX 
+          JOIN MCRISS..ORGANIZATION_MAP OMX ON OMX.CHILD_ORGANIZATION_ID = ROX.ORGANIZATION_ID 
+          JOIN MCRISS..RECRUITING_ORGANIZATION ROY ON OMX.PARENT_ORGANIZATION_ID =ROY.ORGANIZATION_ID 
+          WHERE ROY.MCC_CODE =PRESENT_MONITORED_COMMAND_CODE AND ROY.ORGANIZATION_TYPE = 'RS') 
+ AND 
+ -- IF ASSIGNED TO CHILD OSS IN MARINE AND PARENT RS IN RECRUITING PERSON DO NOT MOVE 
+ SUBSTRING(RO.MCC_CODE,1,3) NOT IN (SELECT SUBSTRING(ROY.MCC_CODE,1,3) 
+          FROM MCRISS..RECRUITING_ORGANIZATION ROX 
+          JOIN MCRISS..ORGANIZATION_MAP OMX ON OMX.CHILD_ORGANIZATION_ID = ROX.ORGANIZATION_ID 
+          JOIN MCRISS..RECRUITING_ORGANIZATION ROY ON OMX.PARENT_ORGANIZATION_ID = ROY.ORGANIZATION_ID 
+          WHERE SUBSTRING(ROX.MCC_CODE,1,3) = PRESENT_MONITORED_COMMAND_CODE AND ROY.ORGANIZATION_TYPE = 'RS') 
+ AND NOT (RO.MCC_CODE = '082' AND PRESENT_MONITORED_COMMAND_CODE = 'JAA') 
+ AND NOT (RO.MCC_CODE = '082' AND PRESENT_MONITORED_COMMAND_CODE = 'JBB') 
+ AND NOT (RO.MCC_CODE = '082' AND PRESENT_MONITORED_COMMAND_CODE = 'KA0') 
+ AND (PRIMARY_MOS IN ('8411', '8412') OR BILLET_MOS IN ('8411', '8412')) 
+ AND EXPIRATION_OF_ACTIVE_SERVICE > GETDATE() 
+ AND 
+ ( 
+  PRESENT_MONITORED_COMMAND_CODE IN (SELECT MCC_CODE FROM MCRISS..RECRUITING_ORGANIZATION WHERE ORGANIZATION_TYPE IN ('H', 'R', 'D', 'RS', 'OSS')) 
+  OR 
+  PRESENT_MONITORED_COMMAND_CODE IN ('JAA','JBB','KA0') 
+ ) 
+ AND M.PRESENT_GRADE_CODE LIKE 'E%' 
+ 
+ 
+-- STEP 20 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+-- INSERT INTO PRODUCTION_STATUS_HISTORY THE ENTRIES FOR NEW WORKING RECRUITERS 
+INSERT INTO PRODUCTION_STATUS_HISTORY 
+( 
+ PERSON_ID, 
+ MONTH_CODE, 
+ CALENDAR_YEAR, 
+ ORGANIZATION_ID, 
+ ON_PRODUCTION, 
+ NON_PROD_REASON_CODE, 
+ USER_LOGIN, 
+ UPDATE_DATE 
+) 
+SELECT DISTINCT 
+ PERSON_ID, 
+ MONTH_CODE, 
+ CALENDAR_YEAR, 
+ ORGANIZATION_ID, 
+ ON_PRODUCTION, 
+ NON_PROD_REASON_CODE, 
+ USER_LOGIN, 
+ GETDATE() 
+FROM @INSERT_PRODUCTION_STATUS_HISTORY]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

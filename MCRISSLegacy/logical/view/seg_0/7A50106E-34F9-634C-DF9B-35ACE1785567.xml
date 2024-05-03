@@ -1,0 +1,100 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<EntityView class="oracle.dbtools.crest.model.design.logical.EntityView" directorySegmentName="seg_0" id="7A50106E-34F9-634C-DF9B-35ACE1785567" name="vwKeys">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>AC267ECE-467A-A4FE-F1E2-4FD7D4CB9658</generatorID>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT     p.SOCIAL_SECURITY_NUMBER AS SSN, p.PERSON_ID, n.NWA_ID, c.CONTRACT_ID, s.SHIP_ID 
+FROM         MCRISS.dbo.PERSON AS p LEFT OUTER JOIN 
+                      MCRISS.dbo.NWA AS n ON p.PERSON_ID = n.MARINE_CANDIDATE_ID LEFT OUTER JOIN 
+                      MCRISS.dbo.CONTRACT AS c ON n.NWA_ID = c.NWA_ID LEFT OUTER JOIN 
+                      MCRISS.dbo.SHIPPER AS s ON c.CONTRACT_ID = s.CONTRACT_ID]]></userDefinedSQL>
+<validSQL>false</validSQL>
+<viewType>EntityView</viewType>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="SOCIAL_SECURITY_NUMBER" id="FDED7C5D-7BB6-348D-33D6-CBE433AA4921">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>45C194D8-1604-E942-04E0-160AE99E31A4</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>SSN</alias>
+<dataType>UNKNOWN</dataType>
+<expression>SOCIAL_SECURITY_NUMBER</expression>
+<reference>false</reference>
+<viewID>7A50106E-34F9-634C-DF9B-35ACE1785567</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="PERSON_ID" id="99CE1FEF-5112-7825-0005-38EBF3B96B2D">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>0E3B1DF0-83E1-059A-E00C-15D56EB05E42</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>PERSON_ID</alias>
+<dataType>UNKNOWN</dataType>
+<expression>PERSON_ID</expression>
+<reference>false</reference>
+<viewID>7A50106E-34F9-634C-DF9B-35ACE1785567</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="NWA_ID" id="F6C2EB05-A297-B4E7-9243-75D718597249">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>B3B1B507-EE46-265C-BB1E-AB25D1182118</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>NWA_ID</alias>
+<dataType>UNKNOWN</dataType>
+<expression>NWA_ID</expression>
+<reference>false</reference>
+<viewID>7A50106E-34F9-634C-DF9B-35ACE1785567</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="CONTRACT_ID" id="3235F7CF-400E-49B8-98C7-B1766C3D0968">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>73108BEC-8600-1FD7-9D12-91B3D298BFA4</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>CONTRACT_ID</alias>
+<dataType>UNKNOWN</dataType>
+<expression>CONTRACT_ID</expression>
+<reference>false</reference>
+<viewID>7A50106E-34F9-634C-DF9B-35ACE1785567</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="SHIP_ID" id="A4D3046C-0CFD-6A0B-4CE1-BAD2832F6328">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>1F2355B1-7964-66AF-6946-48FED1D7B7F2</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>SHIP_ID</alias>
+<dataType>UNKNOWN</dataType>
+<expression>SHIP_ID</expression>
+<reference>false</reference>
+<viewID>7A50106E-34F9-634C-DF9B-35ACE1785567</viewID>
+</viewElement>
+</viewElements>
+</EntityView>

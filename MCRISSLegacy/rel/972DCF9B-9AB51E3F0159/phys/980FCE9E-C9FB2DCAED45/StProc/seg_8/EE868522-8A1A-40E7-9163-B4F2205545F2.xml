@@ -1,0 +1,384 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetPreviousFYShipped]" directorySegmentName="seg_8" id="EE868522-8A1A-40E7-9163-B4F2205545F2">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@Organiza.onID  as integer,  
+@FiscalYear   as integer 
+ 
+AS 
+ 
+SET NOCOUNT ON 
+DECLARE @Organiza.onType varchar(3) 
+DECLARE @ChildOrgType varchar(3) 
+ 
+ 
+SELECT  @Organiza.onType = Organiza.on_Type from recrui.ng_organiza.on RO 
+       where RO.Organiza.on_ID = @Organiza.onID 
+ 
+ 
+ 
+SET @ChildOrgType = CASE @Organiza.onType 
+  WHEN 'H' THEN 'R' 
+  WHEN 'R' THEN 'D' 
+  WHEN 'D' THEN 'RS' 
+  WHEN 'RS' THEN 'OSS' 
+  ELSE 'OSS' 
+  END 
+ 
+ 
+CREATE TABLE #ORG  
+( 
+ORG_ID INT,  
+SHORT_NAME varchar(15), 
+-- the sp GetChildOrg does not return the name column 
+--NAME varchar(45),  
+ORG_TYPE varchar(3) DEFAULT 'D' 
+) 
+ 
+/* 
+-- need to verify if the case for child organiza.on id is needed 
+ 
+IF @Organiza.onType IN ('H', 'R', 'D', 'RS') 
+BEGIN 
+--- GET CHILD ORGS 
+INSERT INTO #ORG 
+EXEC sp_GetChildOrgs @Organiza.onID, @ChildOrgType 
+ 
+END */ 
+ 
+-- .x this if condi.on based on the above scenerio for non-oss organiza.ons 
+--IF @Organiza.onType = 'OSS' 
+BEGIN 
+--- INSERT ONLY THE ORG ID 
+INSERT INTO #ORG (ORG_ID) VALUES (@Organiza.onID) 
+END 
+ 
+---------------------------------------------------------------------------------------------------------------------- 
+-- select the plccomb actuals 
+---------------------------------------------------------------------------------------------------------------------- 
+ select 
+  1 AS DataTableNum, 'PLC' AS O.cerSourceCode, mcc.component_code AS ComponentCode,  
+  mcc.component_descrip.on AS ComponentAbbrevia.on, 
+ 
+  CASE  
+   WHEN MC.RACE_CODE IN ('A','B','D','F') THEN 'O' 
+   WHEN MC.RACE_CODE = 'C' THEN 'AA' 
+   -- W in race/ethnic code is for white and not for women 
+   -- WHEN MC.RACE_CODE = 'E' AND  MC.ETHNIC_CODE = 'P' THEN 'W' 
+   WHEN MC.RACE_CODE = 'E' AND  MC.ETHNIC_CODE IN ('1','4','6','9')  THEN 'H' 
+   WHEN MC.RACE_CODE = 'E' AND  MC.ETHNIC_CODE NOT IN ('1','4','6','9', 'P') THEN 'O' 
+  END AS DiversityCode, 
+  MC.GENDER_CODE AS GenderCode,  
+   
+  COUNT(*) AS NumContracts 
+ 
+ from NWA N    
+  -- use o.cer_contract table instead of CONTRACT table 
+  inner join OFFICER_CONTRACT OFC ON OFC.NWA_ID = N.NWA_ID 
+ 
+  inner join OCS_CLASS OC ON OC.FISCAL_YEAR = @FiscalYear 
+  inner join OCS O ON (O.NWA_ID = N.NWA_ID AND  O.OCS_CLASS_ID = OC.CLASS_ID) 
+      --AND O.COMPONENT_CODE = N.OFFICER_COMPONENT_CODE) 
+ 
+ 
+  --inner join COMPONENT_CODE CC ON CC.COMPONENT_CODE = O.COMPONENT_CODE 
+  inner join COMPONENT_CODE CC ON CC.COMPONENT_CODE = N.OFFICER_COMPONENT_CODE 
+        AND N.OFFICER_COMPONENT_CODE IS NOT NULL 
+ 
+  --the marine_candidate table is joined for diveristy and gender informa.on  
+  inner join MARINE_CANDIDATE MC ON N.MARINE_CANDIDATE_ID = MC.MARINE_CANDIDATE_ID 
+  inner join usmc.mission_component_code  mcc on  mcc.Component_Code =  cc.Component_Code 
+               
+   
+ 
+  where  --OC.FISCAL_YEAR = @FiscalYear AND ORGANIZATION_OF_RECORD_ID =  @Organiza.onID 
+ 
+   -- can also use this BACH_GRAD_YEAR and BACH_GRAD_MONTH from the o.cer_contract table 
+   --AND 
+    OC.TRAINING_TYPE_CODE = 'PLCCOMB' 
+   -- AND (datepart(YY, OFC.PROJECTED_GRAD_DATE) = (@FiscalYear + 1)  
+   -- OR datepart(YY, OFC.PROJECTED_LAW_GRAD_DATE) = (@FiscalYear + 1)) 
+   AND OFC.DISCHARGE_CODE IS NULL  AND  OFC.DISCHARGE_DATE IS NULL 
+   -- both discharge_code and discharge_date have to be null for a candidate to be in  
+   -- enrolled state 
+  
+  GROUP BY  
+  mcc.component_code, 
+  mcc.component_descrip.on, 
+  CASE  
+    WHEN MC.RACE_CODE IN ('A','B','D','F') THEN 'O' 
+    WHEN MC.RACE_CODE = 'C' THEN 'AA' 
+    -- W in race/ethnic code is for white and not for women 
+    -- WHEN MC.RACE_CODE = 'E' AND  MC.ETHNIC_CODE = 'P' THEN 'W' 
+    WHEN MC.RACE_CODE = 'E' AND  MC.ETHNIC_CODE IN ('1','4','6','9')  THEN 'H' 
+    WHEN MC.RACE_CODE = 'E' AND  MC.ETHNIC_CODE NOT IN ('1','4','6','9', 'P') THEN 'O' 
+  END, 
+  MC.GENDER_CODE 
+ 
+ UNION 
+---------------------------------------------------------------------------------------------------------------------- 
+--select the plcsr and plcjr actuals 
+---------------------------------------------------------------------------------------------------------------------- 
+ 
+  select 
+ 
+  CASE  
+   WHEN OC.TRAINING_TYPE_CODE = 'PLCSR' THEN 2 
+   --AND (datepart(YY, OFC.PROJECTED_GRAD_DATE) = (@FiscalYear + 2)  
+   WHEN OC.TRAINING_TYPE_CODE = 'PLCJR' THEN 3 
+   -- OR datepart(YY, OFC.PROJECTED_GRAD_DATE) = (@FiscalYear + 3) 
+  END AS DataTableNum, 
+  'PLC' AS O.cerSourceCode, mcc.component_code AS ComponentCode,  
+  mcc.component_descrip.on AS ComponentAbbrevia.on, 
+   
+   
+  CASE  
+   WHEN MC.RACE_CODE IN ('A','B','D','F') THEN 'O' 
+   WHEN MC.RACE_CODE = 'C' THEN 'AA' 
+   -- W in race/ethnic code is for white and not for women 
+   -- WHEN MC.RACE_CODE = 'E' AND  MC.ETHNIC_CODE = 'P' THEN 'W' 
+   WHEN MC.RACE_CODE = 'E' AND  MC.ETHNIC_CODE IN ('1','4','6','9')  THEN 'H' 
+   WHEN MC.RACE_CODE = 'E' AND  MC.ETHNIC_CODE NOT IN ('1','4','6','9', 'P') THEN 'O' 
+  END AS DiversityCode, 
+  MC.GENDER_CODE AS GenderCode, COUNT(*) AS NumContracts 
+ 
+  -- S.SHIP_TYPE AS INCREMENT 
+  --'1' AS INCREMENT  --need to .x this 
+ 
+ from NWA N    
+  -- use o.cer_contract table instead of CONTRACT table 
+  inner join OFFICER_CONTRACT OFC ON OFC.NWA_ID = N.NWA_ID 
+ 
+  inner join OCS_CLASS OC ON OC.FISCAL_YEAR = @FiscalYear 
+  inner join OCS O ON (O.NWA_ID = N.NWA_ID AND  O.OCS_CLASS_ID = OC.CLASS_ID) 
+       --AND O.COMPONENT_CODE = N.OFFICER_COMPONENT_CODE) 
+ 
+ 
+  --inner join COMPONENT_CODE CC ON CC.COMPONENT_CODE = O.COMPONENT_CODE 
+  inner join COMPONENT_CODE CC ON CC.COMPONENT_CODE = N.OFFICER_COMPONENT_CODE 
+        AND N.OFFICER_COMPONENT_CODE IS NOT NULL 
+ 
+  --the marine_candidate table is joined for diveristy informa.on  
+  inner join MARINE_CANDIDATE MC ON N.MARINE_CANDIDATE_ID = MC.MARINE_CANDIDATE_ID 
+  inner join usmc.mission_component_code  mcc on  mcc.Component_Code =  cc.Component_Code 
+ 
+ 
+  -- ORGANIZATION_OF_RECORD_ID is a foreign key from the recrui.ng_organiza.on table 
+ where  OC.FISCAL_YEAR = @FiscalYear AND ORGANIZATION_OF_RECORD_ID =  @Organiza.onID 
+   -- can also use this BACH_GRAD_YEAR and BACH_GRAD_MONTH from the o.cer_contract table 
+   AND (OC.TRAINING_TYPE_CODE = 'PLCSR' OR OC.TRAINING_TYPE_CODE = 'PLCJR') 
+   --AND (datepart(YY, OFC.PROJECTED_GRAD_DATE) = (@FiscalYear + 2)  
+   -- OR datepart(YY, OFC.PROJECTED_GRAD_DATE) = (@FiscalYear + 3) 
+   -- OR datepart(YY, OFC.PROJECTED_LAW_GRAD_DATE) = (@FiscalYear + 2) 
+   -- OR datepart(YY, OFC.PROJECTED_LAW_GRAD_DATE) = (@FiscalYear + 3)) 
+   --AND (OFC.DISCHARGE_CODE = NULL AND OFC.DISCHARGE_DATE = NULL) 
+   AND OFC.DISCHARGE_CODE IS NULL  AND  OFC.DISCHARGE_DATE IS NULL 
+   -- both discharge_code and discharge_date have to be null for a candidate to be in  
+   -- enrolled state 
+   GROUP BY  OC.TRAINING_TYPE_CODE, 
+   mcc.component_code, 
+   mcc.component_descrip.on, 
+   CASE  
+     WHEN MC.RACE_CODE IN ('A','B','D','F') THEN 'O' 
+     WHEN MC.RACE_CODE = 'C' THEN 'AA' 
+     -- W in race/ethnic code is for white and not for women 
+     -- WHEN MC.RACE_CODE = 'E' AND  MC.ETHNIC_CODE = 'P' THEN 'W' 
+     WHEN MC.RACE_CODE = 'E' AND  MC.ETHNIC_CODE IN ('1','4','6','9')  THEN 'H' 
+     WHEN MC.RACE_CODE = 'E' AND  MC.ETHNIC_CODE NOT IN ('1','4','6','9', 'P') THEN 'O' 
+   END,  
+   MC.GENDER_CODE 
+ 
+UNION 
+--------------------------------------------------------------------------------------------------------------------- 
+-- select the occ fall actuals for the .scal year 
+---------------------------------------------------------------------------------------------------------------------- 
+ 
+ select 
+ 
+  1 AS DataTableNum, 'OCC' AS O.cerSourceCode, mcc.component_code AS ComponentCode,  
+  mcc.component_descrip.on AS ComponentAbbrevia.on, 
+  CASE  
+    WHEN MC.RACE_CODE IN ('A','B','D','F') THEN 'O' 
+    WHEN MC.RACE_CODE = 'C' THEN 'AA' 
+    -- W in race/ethnic code is for white and not for women 
+    -- WHEN MC.RACE_CODE = 'E' AND  MC.ETHNIC_CODE = 'P' THEN 'W' 
+    WHEN MC.RACE_CODE = 'E' AND  MC.ETHNIC_CODE IN ('1','4','6','9')  THEN 'H' 
+    WHEN MC.RACE_CODE = 'E' AND  MC.ETHNIC_CODE NOT IN ('1','4','6','9', 'P') THEN 'O' 
+  END AS DiversityCode, 
+  MC.GENDER_CODE AS GenderCode, COUNT(*) AS NumContracts 
+ 
+ from NWA N    
+  -- use o.cer_contract table instead of CONTRACT table 
+  inner join OFFICER_CONTRACT OFC ON OFC.NWA_ID = N.NWA_ID 
+  inner join OCS_CLASS OC ON OC.FISCAL_YEAR = @FiscalYear 
+  inner join OCS O ON (O.NWA_ID = N.NWA_ID AND O.OCS_CLASS_ID = OC.CLASS_ID) 
+       --AND O.COMPONENT_CODE = N.OFFICER_COMPONENT_CODE) 
+        
+  --inner join COMPONENT_CODE CC ON CC.COMPONENT_CODE = O.COMPONENT_CODE 
+  inner join COMPONENT_CODE CC ON CC.COMPONENT_CODE = N.OFFICER_COMPONENT_CODE 
+       AND N.OFFICER_COMPONENT_CODE IS NOT NULL 
+  --the marine_candidate table is joined for diveristy informa.on  
+  inner join MARINE_CANDIDATE MC ON N.MARINE_CANDIDATE_ID = MC.MARINE_CANDIDATE_ID 
+  inner join usmc.mission_component_code  mcc on  mcc.Component_Code =  cc.Component_Code 
+    
+ 
+ -- ORGANIZATION_OF_RECORD_ID is a foreign key from the recrui.ng_organiza.on table 
+ where -- OC.FISCAL_YEAR = @FiscalYear AND ORGANIZATION_OF_RECORD_ID =  @Organiza.onID 
+   --AND  
+   OC.TRAINING_TYPE_CODE = 'OCC' 
+   -- AND (datepart(YY, OFC.PROJECTED_GRAD_DATE) = (@FiscalYear + 1)  
+   -- OR datepart(YY, OFC.PROJECTED_LAW_GRAD_DATE) = (@FiscalYear + 1)) 
+   AND datepart(mm, OC.CLASS_BEGIN_DATE) >=9 and datepart(mm, OC.CLASS_BEGIN_DATE) <=12  
+   AND OFC.DISCHARGE_CODE IS NULL  AND  OFC.DISCHARGE_DATE IS NULL 
+   -- both discharge_code and discharge_date have to be null for a candidate to be in  
+   -- enrolled state 
+ 
+  GROUP BY   
+  mcc.component_code, 
+  mcc.component_descrip.on, 
+   CASE  
+    WHEN MC.RACE_CODE IN ('A','B','D','F') THEN 'O' 
+    WHEN MC.RACE_CODE = 'C' THEN 'AA' 
+    -- W in race/ethnic code is for white and not for women 
+    -- WHEN MC.RACE_CODE = 'E' AND  MC.ETHNIC_CODE = 'P' THEN 'W' 
+    WHEN MC.RACE_CODE = 'E' AND  MC.ETHNIC_CODE IN ('1','4','6','9')  THEN 'H' 
+    WHEN MC.RACE_CODE = 'E' AND  MC.ETHNIC_CODE NOT IN ('1','4','6','9', 'P') THEN 'O' 
+  END,  
+  MC.GENDER_CODE 
+ 
+UNION 
+---------------------------------------------------------------------------------------------------------------------- 
+-- select the occ winter actuals for the .scal year 
+---------------------------------------------------------------------------------------------------------------------- 
+ 
+ select 
+ 
+  2 AS DataTableNum, 'OCC' AS O.cerSourceCode, mcc.component_code AS ComponentCode, 
+  mcc.component_descrip.on AS ComponentAbbrevia.on, 
+ 
+  CASE  
+   WHEN MC.RACE_CODE IN ('A','B','D','F') THEN 'O' 
+   WHEN MC.RACE_CODE = 'C' THEN 'AA' 
+   -- W in race/ethnic code is for white and not for women 
+   -- WHEN MC.RACE_CODE = 'E' AND  MC.ETHNIC_CODE = 'P' THEN 'W' 
+   WHEN MC.RACE_CODE = 'E' AND  MC.ETHNIC_CODE IN ('1','4','6','9')  THEN 'H' 
+   WHEN MC.RACE_CODE = 'E' AND  MC.ETHNIC_CODE NOT IN ('1','4','6','9', 'P') THEN 'O' 
+  END AS DiversityCode, 
+  MC.GENDER_CODE AS GenderCode, COUNT(*) AS NumContracts 
+   
+ from NWA N    
+  -- use o.cer_contract table instead of CONTRACT table 
+  inner join OFFICER_CONTRACT OFC ON OFC.NWA_ID = N.NWA_ID 
+ 
+  inner join OCS_CLASS OC ON OC.FISCAL_YEAR = @FiscalYear 
+ 
+  inner join OCS O ON (O.NWA_ID = N.NWA_ID AND O.OCS_CLASS_ID = OC.CLASS_ID) 
+       --AND O.COMPONENT_CODE = N.OFFICER_COMPONENT_CODE) 
+ 
+  --inner join COMPONENT_CODE CC ON CC.COMPONENT_CODE = O.COMPONENT_CODE 
+  inner join COMPONENT_CODE CC ON CC.COMPONENT_CODE = N.OFFICER_COMPONENT_CODE 
+         AND N.OFFICER_COMPONENT_CODE IS NOT NULL 
+          
+  --the marine_candidate table is joined for diveristy informa.on  
+ 
+  inner join MARINE_CANDIDATE MC ON N.MARINE_CANDIDATE_ID = MC.MARINE_CANDIDATE_ID 
+  inner join usmc.mission_component_code  mcc on  mcc.Component_Code =  cc.Component_Code 
+ 
+  -- ORGANIZATION_OF_RECORD_ID is a foreign key from the recrui.ng_organiza.on table 
+  where  --OC.FISCAL_YEAR = @FiscalYear AND ORGANIZATION_OF_RECORD_ID =  @Organiza.onID 
+    --AND  
+    OC.TRAINING_TYPE_CODE = 'OCC' 
+    -- AND (datepart(YY, OFC.PROJECTED_GRAD_DATE) = (@FiscalYear + 2)  
+    -- OR datepart(YY, OFC.PROJECTED_LAW_GRAD_DATE) = (@FiscalYear + 2)) 
+    AND datepart(mm, OC.CLASS_BEGIN_DATE) >=1 and datepart(mm, OC.CLASS_BEGIN_DATE) <=4  
+    AND OFC.DISCHARGE_CODE IS NULL  AND  OFC.DISCHARGE_DATE IS NULL 
+    -- both discharge_code and discharge_date have to be null for a candidate to be in  
+    -- enrolled state 
+ 
+   GROUP BY   
+   mcc.component_code, 
+   mcc.component_descrip.on, 
+   CASE  
+     WHEN MC.RACE_CODE IN ('A','B','D','F') THEN 'O' 
+     WHEN MC.RACE_CODE = 'C' THEN 'AA' 
+     -- W in race/ethnic code is for white and not for women 
+     -- WHEN MC.RACE_CODE = 'E' AND  MC.ETHNIC_CODE = 'P' THEN 'W' 
+     WHEN MC.RACE_CODE = 'E' AND  MC.ETHNIC_CODE IN ('1','4','6','9')  THEN 'H' 
+     WHEN MC.RACE_CODE = 'E' AND  MC.ETHNIC_CODE NOT IN ('1','4','6','9', 'P') THEN 'O' 
+   END,  
+   MC.GENDER_CODE 
+ 
+UNION 
+ 
+---------------------------------------------------------------------------------------------------------------------- 
+-- select the occ summer actuals for the .scal year 
+---------------------------------------------------------------------------------------------------------------------- 
+ 
+ select 
+  3 AS DataTableNum, 'OCC' AS O.cerSourceCode, mcc.component_code AS ComponentCode, 
+  mcc.component_descrip.on AS ComponentAbbrevia.on, 
+  CASE  
+    WHEN MC.RACE_CODE IN ('A','B','D','F') THEN 'O' 
+    WHEN MC.RACE_CODE = 'C' THEN 'AA' 
+    -- W in race/ethnic code is for white and not for women 
+    -- WHEN MC.RACE_CODE = 'E' AND  MC.ETHNIC_CODE = 'P' THEN 'W' 
+    WHEN MC.RACE_CODE = 'E' AND  MC.ETHNIC_CODE IN ('1','4','6','9')  THEN 'H' 
+    WHEN MC.RACE_CODE = 'E' AND  MC.ETHNIC_CODE NOT IN ('1','4','6','9', 'P') THEN 'O' 
+  END AS DiversityCode, 
+  MC.GENDER_CODE AS GenderCode, COUNT(*) AS NumContracts  
+ 
+ from NWA N    
+  -- use o.cer_contract table instead of CONTRACT table 
+  inner join OFFICER_CONTRACT OFC ON OFC.NWA_ID = N.NWA_ID 
+ 
+  inner join OCS_CLASS OC ON OC.FISCAL_YEAR = @FiscalYear 
+ 
+  inner join OCS O ON (O.NWA_ID = N.NWA_ID AND O.OCS_CLASS_ID = OC.CLASS_ID) 
+       --AND O.COMPONENT_CODE = N.OFFICER_COMPONENT_CODE) 
+ 
+  --Component should be retrieved from o.cer_contract or ocs table instead of  
+  --nwa table - this needs to be corrected in the database design and/or  
+  -- the applica.on popula.ng these two tables. Component_code is  
+  --stored in the nwa, o.cer_contract and ocs tables and it is null in o.cer  
+  -- contract and ocs tables.   
+ 
+  --inner join COMPONENT_CODE CC ON CC.COMPONENT_CODE = O.COMPONENT_CODE 
+  inner join COMPONENT_CODE CC ON CC.COMPONENT_CODE = N.OFFICER_COMPONENT_CODE 
+          AND N.OFFICER_COMPONENT_CODE IS NOT NULL 
+   
+  --the marine_candidate table is joined for diveristy informa.on  
+  inner join MARINE_CANDIDATE MC ON N.MARINE_CANDIDATE_ID = MC.MARINE_CANDIDATE_ID 
+  inner join usmc.mission_component_code  mcc on  mcc.Component_Code =  cc.Component_Code 
+ 
+ -- ORGANIZATION_OF_RECORD_ID is a foreign key from the recrui.ng_organiza.on table 
+ where  --OC.FISCAL_YEAR = @FiscalYear AND ORGANIZATION_OF_RECORD_ID =  @Organiza.onID 
+   --AND  
+   OC.TRAINING_TYPE_CODE = 'OCC' 
+   -- AND (datepart(YY, OFC.PROJECTED_GRAD_DATE) = (@FiscalYear + 3)  
+   -- OR datepart(YY, OFC.PROJECTED_LAW_GRAD_DATE) = (@FiscalYear + 3)) 
+   AND datepart(mm, OC.CLASS_BEGIN_DATE) >=5 and datepart(mm, OC.CLASS_BEGIN_DATE) <=8   
+   AND OFC.DISCHARGE_CODE IS NULL  AND  OFC.DISCHARGE_DATE IS NULL 
+   -- both discharge_code and discharge_date have to be null for a candidate to be in  
+   -- enrolled state 
+ 
+  GROUP BY   
+  mcc.component_code, 
+  mcc.component_descrip.on, 
+  CASE  
+    WHEN MC.RACE_CODE IN ('A','B','D','F') THEN 'O' 
+    WHEN MC.RACE_CODE = 'C' THEN 'AA' 
+    -- W in race/ethnic code is for white and not for women 
+    -- WHEN MC.RACE_CODE = 'E' AND  MC.ETHNIC_CODE = 'P' THEN 'W' 
+    WHEN MC.RACE_CODE = 'E' AND  MC.ETHNIC_CODE IN ('1','4','6','9')  THEN 'H' 
+    WHEN MC.RACE_CODE = 'E' AND  MC.ETHNIC_CODE NOT IN ('1','4','6','9', 'P') THEN 'O' 
+  END,  
+  MC.GENDER_CODE 
+ 
+--- CLEAN UP 
+DROP TABLE #ORG 
+SET NOCOUNT OFF]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

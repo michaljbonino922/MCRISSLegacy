@@ -1,0 +1,41 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetAEPFileLog]" directorySegmentName="seg_16" id="B538C3D1-7FAB-1F77-F08E-A94CEF8C153B">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@PersonID  int 
+AS 
+ 
+SELECT 
+ U.AEP_FILE_UPLOAD_LOG_ID,  
+ 0 AS AEP_FILE_DOWNLOAD_LOG_ID,  
+ U.[FILE_NAME],  
+ LEFT(U.[FILE_NAME], CHARINDEX('_', U.[FILE_NAME]) - 1) + RIGHT(U.[FILE_NAME], 4) AS FILE_DISPLAY_NAME,  
+ U.USER_LOGIN,  
+ CONVERT(VARCHAR(23), U.UPDATE_DATE, 121) AS ACTION_DATE,  
+ 'UPLOAD' AS FILE_ACTION 
+FROM  
+ AEP_FILE_UPLOAD_LOG U  
+WHERE 
+ U.PERSON_ID = @PersonID 
+ 
+UNION  
+ 
+SELECT 
+ U.AEP_FILE_UPLOAD_LOG_ID,  
+ D.AEP_FILE_DOWNLOAD_LOG_ID,  
+ U.[FILE_NAME],  
+ LEFT(U.[FILE_NAME], CHARINDEX('_', U.[FILE_NAME]) - 1) + RIGHT(U.[FILE_NAME], 4) AS FILE_DISPLAY_NAME,  
+ D.USER_LOGIN,  
+ COALESCE(CONVERT(VARCHAR(23), D.UPDATE_DATE, 121), SPACE(0)) AS ACTION_DATE,  
+ 'DOWNLOAD' AS FILE_ACTION 
+FROM  
+ AEP_FILE_UPLOAD_LOG U INNER JOIN AEP_FILE_DOWNLOAD_LOG D ON U.AEP_FILE_UPLOAD_LOG_ID = D.AEP_FILE_UPLOAD_LOG_ID 
+WHERE 
+ U.PERSON_ID = @PersonID 
+ORDER BY  
+ ACTION_DATE DESC]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

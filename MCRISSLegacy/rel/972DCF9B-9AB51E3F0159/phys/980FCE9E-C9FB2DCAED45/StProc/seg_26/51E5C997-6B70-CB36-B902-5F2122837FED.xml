@@ -1,0 +1,25 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateCandidateLanguage]" directorySegmentName="seg_26" id="51E5C997-6B70-CB36-B902-5F2122837FED">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[(@MarineCandidateID int 
+ ,@LanguageCode varchar(2) 
+ ,@UserLogin varchar(15) 
+ ,@UpdateDate date.me) 
+AS 
+ 
+UPDATE  
+ [dbo].[CANDIDATE_LANGUAGE]  
+SET 
+  [MARINE_CANDIDATE_ID] = @MarineCandidateID 
+ ,[LANGUAGE_CODE] = @LanguageCode 
+ ,[USER_LOGIN] = @UserLogin 
+ ,[UPDATE_DATE] = @UpdateDate 
+WHERE 
+ MARINE_CANDIDATE_ID = @MarineCandidateID AND 
+ LANGUAGE_CODE = @LanguageCode]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

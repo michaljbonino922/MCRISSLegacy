@@ -1,0 +1,56 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateAc.vityObjec.ve]" directorySegmentName="seg_24" id="AA86F3A6-B27F-E9CA-0840-62EE335B6C05">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@Organiza.onID  int, 
+ @FiscalYear   int, 
+ @Month    int, 
+ @InterviewsObjec.ve  int, 
+ @NWAsObjec.ve   int, 
+ @TCSObjec.ve   int, 
+ @OTSObjec.ve   int, 
+ @ACSObjec.ve   int, 
+ @HVSObjec.ve   int, 
+ @ContractObjec.ve  int, 
+ @StartDate   date.me, 
+ @EndDate   date.me, 
+ @WorkDays   int, 
+ @UserLogin   varchar(15) 
+AS 
+ 
+IF EXISTS (SELECT 1 FROM ACTIVITY_OBJECTIVE WHERE ORGANIZATION_ID = @Organiza.onID AND FISCAL_YEAR = @FiscalYear AND MONTH =  @Month) 
+BEGIN 
+ UPDATE  
+  ACTIVITY_OBJECTIVE  
+ SET   
+  INTERVIEWS_OBJECTIVE  = @InterviewsObjec.ve, 
+  NWAS_OBJECTIVE   = @NWAsObjec.ve, 
+  TCS_OBJECTIVE   = @TCSObjec.ve, 
+  OTS_OBJECTIVE   = @OTSObjec.ve, 
+  ACS_OBJECTIVE   = @ACSObjec.ve, 
+  HVS_OBJECTIVE   = @HVSObjec.ve, 
+  CONTRACT_OBJECTIVE  = @ContractObjec.ve, 
+  START_DATE   = @StartDate, 
+  END_DATE   = @EndDate, 
+  WORK_DAYS   = @WorkDays, 
+  USER_LOGIN   = @UserLogin,  
+  UPDATE_DATE   = GETDATE()  
+ WHERE  
+  ORGANIZATION_ID  = @Organiza.onID AND  
+  FISCAL_YEAR   = @FiscalYear AND  
+  MONTH    = @Month 
+END 
+ELSE 
+BEGIN 
+ INSERT INTO ACTIVITY_OBJECTIVE  
+  (ORGANIZATION_ID, FISCAL_YEAR, MONTH, INTERVIEWS_OBJECTIVE,  NWAS_OBJECTIVE, CONTRACT_OBJECTIVE, TCS_OBJECTIVE,  
+  OTS_OBJECTIVE, ACS_OBJECTIVE, HVS_OBJECTIVE, START_DATE, END_DATE, WORK_DAYS, USER_LOGIN, UPDATE_DATE) 
+ VALUES  
+  (@Organiza.onID, @FiscalYear, @Month, @InterviewsObjec.ve, @NWAsObjec.ve, @ContractObjec.ve, @TCSObjec.ve,  
+  @OTSObjec.ve, @ACSObjec.ve, @HVSObjec.ve, @StartDate, @EndDate, @WorkDays, @UserLogin, GETDATE()) 
+END]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

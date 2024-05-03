@@ -1,0 +1,96 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetHSRptByOrgIdFY]" directorySegmentName="seg_3" id="789DFA11-2BAF-2E37-6BE5-C2009B8255C3">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@orgUnitId int, 
+     @.scalYear int, 
+     @schooltype varchar(10)     
+   
+AS 
+BEGIN 
+   
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+  
+  
+ CREATE TABLE #DataTable   
+ (  
+   [rowid] INT NOT NULL IDENTITY(1,1) 
+  ,[Sector] VARCHAR(2) Not NULL 
+  ,[Name] varchar(50)  
+  ,[Address] varchar(200)  
+  ,[SchoolType] varchar(20) 
+  ,[Priority] INT Default null 
+  ,[MaleSeniors] INT DEFAULT 0 
+  ,[SchoolCode] INT   
+ ) 
+ 
+ CREATE UNIQUE CLUSTERED INDEX IX_rowid ON #DataTable (rowid) 
+ 
+ DECLARE @fyst VARCHAR(20) 
+ DECLARE @fyed VARCHAR(20) 
+ 
+ DECLARE @DTfyst DATETIME 
+ DECLARE @DTfyed DATETIME 
+ 
+ 
+ SELECT @fyst = str(@.scalYear -1) + '/10/1' 
+ SELECT @DTfyst = convert(DATETIME, @fyst,101) 
+ 
+ --print @DTfyst 
+ 
+ SELECT @fyed = STR(@.scalYear) + '/9/30' 
+ SELECT @DTfyed = CONVERT(DATETIME, @fyed,101)  
+ --print @DTfyed 
+ Insert into #DataTable([Name],[Sector],[Address],[SchoolType],[Priority],[MaleSeniors]) 
+ SELECT   hs.HighSchool_Name 
+   ,rst.[Sector] 
+   ,hs.Street + ', ' + hs.City + ', ' + hs.State_Code + ' ' + le.(hs.Zip_Code,5) As Address 
+   ,hs.school_type 
+   ,hsp.Priority_Code  Priority 
+   ,rst.Mhssr 
+    
+ FROM  (SELECT   COUNT(p.PersonId) AS Mhssr, CASE WHEN SectorDesignator IS NOT NULL THEN SectorDesignator ELSE 'OA' END AS Sector, 
+  hs.School_Code, hs.School_type 
+FROM            PROSPECTING.USMC.Prospect AS p INNER JOIN 
+                         PROSPECTING.USMC.ProspectSchool AS ps ON ps.ProspectId = p.ProspectId INNER JOIN 
+                         PROSPECTING.USMC.vwMcrissHighSchool AS hs ON ps.SchoolId = hs.rowguid AND hs.school_type=@schooltype INNER JOIN 
+                         PROSPECTING.USMC.Person AS pr ON p.PersonId = pr.PersonId AND hs.ORGANIZATION_ID = @orgUnitId AND p.Gradua.onYear = @.scalYear AND  
+                         pr.Gender = 'm' LEFT OUTER JOIN 
+                         USMC.MapsSectorZip AS mz ON mz.Zip = LEFT(hs.ZIP_CODE, 5) LEFT OUTER JOIN 
+                         USMC.MapsSector AS ms ON ms.SectorID = mz.SectorID AND mz.E.ec.veDate < @DTfyed 
+GROUP BY ms.SectorDesignator, hs.School_Code, hs.School_type 
+ 
+union 
+SELECT   COUNT(p.PersonId) AS Mhssr, CASE WHEN SectorDesignator IS NOT NULL THEN SectorDesignator ELSE 'OA' END AS Sector, 
+  hs.School_Code, hs.School_type 
+FROM            PROSPECTING.USMC.Prospect AS p INNER JOIN 
+                         PROSPECTING.USMC.ProspectSchool AS ps ON ps.ProspectId = p.ProspectId INNER JOIN 
+                         PROSPECTING.USMC.vwMcrissHighSchool AS hs ON ps.SchoolId = hs.rowguid AND hs.school_type=@schooltype INNER JOIN 
+                         PROSPECTING.USMC.Person AS pr ON p.PersonId = pr.PersonId AND hs.ORGANIZATION_ID = @orgUnitId AND p.Gradua.onYear = @.scalYear AND  
+                         pr.Gender = 'm' Inner JOIN 
+                         USMC.MapsSectorZipHist AS mzh ON mzh.Zip = LEFT(hs.ZIP_CODE, 5) LEFT OUTER JOIN 
+                         USMC.MapsSector AS ms ON ms.SectorID = mzh.SectorID AND mzh.E.ec.veDate < @DTfyed 
+                         AND mzh.EndDate > @DTfyed 
+GROUP BY ms.SectorDesignator, hs.School_Code, hs.School_type 
+ 
+) rst 
+inner join PROSPECTING.USMC.vwMcrissHighSchool AS hs on rst.School_Code = hs.School_Code 
+ le. outer JOIN  MCRISS.DBO.HIGH_SCHOOL_PROFILE hsp on hsp.School_Code= rst.School_Code and hsp.School_year = @.scalYear 
+  
+ 
+if (@schooltype = 'CC')  
+ select * from #DataTable where schooltype=@schooltype or schooltype='2Y' order by Sector 
+else if (@schooltype= 'COL')   
+ select * from #DataTable where schooltype=@schooltype or schooltype='4Y' order by Sector        
+    
+else 
+   select * from #DataTable where schooltype=@schooltype order by Sector  
+    
+   drop TABLE #DataTable 
+    
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

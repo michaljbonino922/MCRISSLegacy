@@ -1,0 +1,44 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[spChangeStatus]" directorySegmentName="seg_0" id="7E703935-FD86-E641-72E8-7D1E8493B3E5">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:09 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@error_id int, 
+@status varchar(20) 
+ 
+as 
+ 
+if @status = 'RESOLVED' 
+begin 
+ update error_log 
+ set STATUS = @status, 
+  REPROCESS = 'N' 
+ where ERROR_LOG_ID = @error_id 
+end 
+else 
+ 
+if @status = 'OBE' 
+begin 
+ update error_log 
+ set STATUS = @status, 
+  REPROCESS = 'N' 
+ where ERROR_LOG_ID = @error_id 
+end 
+else 
+ 
+if @status = 'UNRESOLVED' 
+begin 
+ update error_log 
+ set STATUS = @status 
+ where  ERROR_LOG_ID = @error_id 
+end 
+else  
+begin 
+ print 'The status value you entered is incorrect.' 
+ print 'You may only enter RESOLVED, UNRESOLVED, or OBE.' 
+ print 'Please try again.' 
+end]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>24B9F7BA-5DD4-EAB5-4EB1-35B911743E85</database>
+</StoredProcedureSqlServerv2k5>

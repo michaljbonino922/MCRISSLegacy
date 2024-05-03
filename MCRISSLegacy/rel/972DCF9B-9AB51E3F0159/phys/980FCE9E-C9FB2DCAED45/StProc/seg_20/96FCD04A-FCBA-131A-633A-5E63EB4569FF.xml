@@ -1,0 +1,19 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetRegCMCValue]" directorySegmentName="seg_20" id="96FCD04A-FCBA-131A-633A-5E63EB4569FF">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@FiscalYear int,  
+ @Region  int, 
+ @RegCMCValue int OUTPUT  
+AS 
+ 
+SELECT @RegCMCValue = MISSION_VALUE 
+FROM CONTRACTING_MISSION_PLAN 
+WHERE CONTRACTING_MISSION_PLAN.FISCAL_YEAR =  @FiscalYear AND 
+CONTRACTING_MISSION_PLAN.ORGANIZATION_ID = @Region AND 
+MONTH_CODE = 0 AND CONTRACTING_MISSION_TYPE = 'CMC']]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

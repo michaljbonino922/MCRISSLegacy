@@ -1,0 +1,42 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetAllOrgsHRDRS]" directorySegmentName="seg_2" id="F1739625-6D92-DF94-2511-BAA625999A03">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[AS 
+ 
+SELECT  
+ [ORGANIZATION_ID] 
+      ,[STATE_CODE] 
+      ,[ORGANIZATION_TYPE] 
+      ,[MEPS_ORGANIZATION_ID] 
+      ,[NAME] 
+      ,[SHORT_NAME] 
+      ,[MCC_CODE] 
+      ,[TO_PROD_RECRUITERS] 
+      ,[STREET] 
+      ,[STREET2] 
+      ,[CITY] 
+      ,[ZIP_CODE] 
+      ,[ISOPEN] 
+      ,[DELETED] 
+      ,[IS_ASSIGNED] 
+      ,[USER_LOGIN] 
+      ,[UPDATE_DATE] 
+      ,[EFFECTIVE_DATE] 
+      ,[rowguid] 
+      ,[poc_email] 
+      ,[OrgUnitId] 
+      ,[DateClosed] 
+      ,[CITY_CODE] 
+      ,[COUNTY_CODE] 
+      ,[STATE_GEO_CODE] 
+FROM  
+ [MCRISS].[dbo].[RECRUITING_ORGANIZATION] 
+WHERE  
+ [ORGANIZATION_TYPE] IN ('H', 'R', 'D', 'RS') 
+ AND ([DateClosed] IS NULL OR [DateClosed] >= '2015-10-01')]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

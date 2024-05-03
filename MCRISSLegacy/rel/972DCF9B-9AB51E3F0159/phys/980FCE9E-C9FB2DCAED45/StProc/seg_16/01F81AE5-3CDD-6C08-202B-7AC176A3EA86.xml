@@ -1,0 +1,72 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetAssignProgramCriteria]" directorySegmentName="seg_16" id="01F81AE5-3CDD-6C08-202B-7AC176A3EA86">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@ProgramAvailabilityID  int, 
+ @ContractBeginDate  date.me, 
+ @TermOfEnlistment  int OUTPUT, 
+ @Gender   char(1) OUTPUT, 
+ @Ci.zenship  varchar(2) OUTPUT, 
+ @DriverLic  char(1) OUTPUT, 
+ @HighestWaiverLevel int OUTPUT, 
+ @HeightMin  int OUTPUT, 
+ @HeightMax  int OUTPUT, 
+ @AgeMin   int OUTPUT, 
+ @AgeMax   int OUTPUT, 
+ @Le.UncorrVis  varchar(10) OUTPUT, 
+ @RightUncorrVis  varchar(10) OUTPUT, 
+ @Le.CorrVis  varchar(10) OUTPUT, 
+ @RightCorrVis  varchar(10) OUTPUT, 
+ @Educa.onTier  varchar(2) OUTPUT, 
+ @AFQT   int OUTPUT, 
+ @GT   int OUTPUT, 
+ @EL   int OUTPUT, 
+ @CL   int OUTPUT, 
+ @MM   int OUTPUT, 
+ @PAOI   char(1) OUTPUT, 
+ @WPMT   int OUTPUT, 
+ --- @MEOP   decimal(5,2) OUTPUT, 
+ @MEOP   varchar(5) OUTPUT, 
+ @APT   int OUTPUT, 
+ @EDPT   int OUTPUT, 
+ @DLAB   int OUTPUT, 
+ @ColorPercep.on varchar(6) OUTPUT, 
+ @ProgramType  varchar(4) OUTPUT 
+AS 
+ 
+DECLARE @ProgramID  int 
+DECLARE @E.ec.veDate date.me 
+ 
+--- get the program id 
+SET @ProgramID = (SELECT PROGRAM_ID FROM PROGRAM_AVAILABILITY WHERE PROGRAM_AVAILABILITY_ID = @ProgramAvailabilityID) 
+ 
+--- get the most recent program criteria e.ec.ve date for this program 
+SELECT @E.ec.veDate = MAX(PC.PROGRAM_CRITERIA_ED_DATE) FROM PROGRAM_CRITERIA PC  
+WHERE PC.PROGRAM_ID = @ProgramID AND PC.PROGRAM_CRITERIA_ED_DATE <= @ContractBeginDate 
+ 
+--- get the program criteria  
+SELECT  
+ @Gender = PC.GENDER, @TermOfEnlistment = PC.TERM_OF_ENLISTMENT, @Ci.zenship = PC.CITIZENSHIP,  
+ @DriverLic = PC.DRIVER_LICENSE, @HighestWaiverLevel = PC.HIGHEST_WAIVER_LEVEL,  
+ @HeightMin = PC.HEIGHT_MINIMUM, @HeightMax = PC.HEIGHT_MAXIMUM, @Educa.onTier = PC.EDUCATION_TIER,  
+ @AgeMin = PC.AGE_MINIMUM, @AgeMax = PC.AGE_MAXIMUM,  
+ @Le.UncorrVis = PC.VISION_LEFT_UNCORRECTED, @RightUncorrVis = PC.VISION_RIGHT_UNCORRECTED,  
+ @Le.CorrVis = PC.VISION_LEFT_CORRECTED, @RightCorrVis = PC.VISION_RIGHT_CORRECTED, 
+ @AFQT = PC.AFQT, @GT = PC.GT, @EL = PC.EL, @PAOI = PC.PAOI, @APT = PC.APT, @EDPT = PC.EDPT,  
+ @MM = PC.MM, @WPMT = PC.WPMT, @DLAB = PC.DLAB, @CL = PC.CL,  
+ --- @MEOP = PC.MEOP,  
+ @MEOP = CONVERT(VARCHAR(5), PC.MEOP),  
+ @ColorPercep.on = PC.COLOR_PERCEPTION 
+FROM  
+ PROGRAM_CRITERIA PC  
+WHERE  
+ PC.PROGRAM_ID = @ProgramID AND  
+ PC.PROGRAM_CRITERIA_ED_DATE = @E.ec.veDate  
+ 
+--- get the program type 
+SELECT  @ProgramType = P.PROGRAM_TYPE FROM PROGRAM P WHERE P.PROGRAM_ID = @ProgramID]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

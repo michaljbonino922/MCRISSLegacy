@@ -1,0 +1,44 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[CreateOnDemandTrainingFileFromSearch]" directorySegmentName="seg_0" id="772D8527-30EB-21AB-38D2-0F79DC371A21">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@RecruiterId  UNIQUEIDENTIFIER, 
+ @UserId    UNIQUEIDENTIFIER 
+  
+AS 
+BEGIN 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+Declare @Billet varchar(20); 
+Declare @MOSID varchar(4); 
+Declare @StartDate date.me; 
+Declare @TrainingFileId int 
+ 
+SELECT @MOSID = M.BILLET_MOS, 
+       @StartDate = R.BILLET_BEGIN_DATE, 
+    @Billet =  
+       CASE RR.SHORT_DESCRIPTION 
+         WHEN 'RECRUITER' THEN 'Recruiter' 
+         WHEN 'NCOIC' THEN 'SNCOIC' 
+         WHEN 'OSA' THEN 'OSA' 
+         WHEN 'OSO' THEN 'OSO' 
+         ELSE 'Recruiter' 
+       END 
+FROM   USMC.vwMcrissMarine M 
+LEFT OUTER JOIN USMC.vwMcrissRecrui.ngPerson AS R on M.MARINE_ID = R.RECRUITING_PERSON_ID 
+LEFT OUTER JOIN USMC.vwMcrissRecrui.ngRole AS RR on R.RECRUITING_ROLE_ID = RR.RECRUITING_ROLE_ID 
+WHERE  M.rowguid = @RecruiterId 
+ 
+set @StartDate = GETDATE(); 
+ 
+execute @TrainingFileId = USMC.CreateTrainingFileShell @Billet, @MOSID, @RecruiterId, @StartDate, @UserId 
+ 
+select @TrainingFileId; 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

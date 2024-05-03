@@ -1,0 +1,210 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[spShipperOverride]" directorySegmentName="seg_0" id="DB51AB6E-4CE3-DCD9-C0CF-7D95268849A4">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:09 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[as 
+ 
+/* 
+Purpose: Ship records will be inserted and the criteria will not be checked for any applicants that exist as a marine in the OLTP 
+table and whose PADD is 90 or more days OLD.   
+ 
+Note: This stored procedure uses linked servers to insert/update data on 1A. This 
+stored procedure is solely intended to work in the production environment. 
+The stored procedure that resides on test uses the same logic but is configured to  
+work on test using linked servers. 
+ 
+Author: Booz-Allen & Hamilton 
+ 
+Mod  Date    Who    What 
+================================================================================ 
+001  Aug 31, 2002   Gregory Gonzalez  Initial Creation in response to SCR 2427  
+002             Sep 17, 2002   GG    MOR Signed. Green light for promtion to production 
+*/ 
+ 
+begin 
+ 
+ delete from SHIPPER_OVERRIDE 
+ 
+ 
+ /****Populate with Shipper Criteria Failues that remain to be reprocessed***/ 
+ insert into SHIPPER_OVERRIDE (MIRS_IMPORT_ID, SSN, FOURK,SPF_CODE, MIRS_TRANSACTION, PAYGRADE_ED_DATE,PAYGRADE,COMPONENT, 
+ TRAINING_ORG_ID,SHIP_DATE,PEBD,ERROR_LOG_ID) 
+ select mil.mirs_import_id, mil.ssn, mil.fourK, mil.spf_code,mil.mirs_transaction, substring(fourk,287,8),case substring(fourk,284,1) + substring(fourk,286,1) 
+          when 'E8' then 'E8A' 
+          when 'E9' then 'E9A' 
+          else substring(fourk,284,1) + substring(fourk,286,1) 
+          end, 
+  case mil.spf_code  
+   when 'DMR' then 'K5' 
+   when 'DMZ' then '13' 
+   else case substring(fourk,280,1) 
+    when '5' then 'B5' 
+    when '3' then 'K8' 
+    when '6' then 'K4' 
+    else case substring(fourk,59,1) 
+     when '1' then '11' 
+     else case substring(fourk,60,1) 
+      when '1' then '11'  
+      else 'K9' 
+          end 
+         end 
+        end  
+  end, 
+  case substring(fourk,332,3) 
+   when '016' then 1 
+   when '017' then 2 
+   else null 
+  end, 
+  case spf_code 
+   when 'DMR' then substring(fourk,264,8) 
+   when 'DMV' then substring(fourk,34,8) 
+   else null 
+  end, 
+  substring(fourk,272,8), 
+  el.error_log_id 
+ from mirs_import_log mil inner join mirs_transaction_lookup mtl on mil.mirs_transaction = mtl.mirs_transaction and mtl.transaction_type in ('C','S','CS') 
+ inner join mirs_import_error mie on mie.mirs_import_id = mil.mirs_import_id 
+ inner join error_log el on el.error_log_id = mie.error_log_id and el.error_cd = 38 and el.reprocess = 'Y' 
+ 
+ 
+ delete from shipper_override 
+ where isdate(ship_date) = 0 or 
+       isdate(paygrade_ed_date) = 0 or 
+       isdate(pebd) = 0 
+ 
+ 
+ /**Get Primary Keys: We only want records that have a marine, nwa, and contract id**/ 
+ /**Get Person and MArine ID **/ 
+ update SHIPPER_OVERRIDE 
+ set person_id = p.person_Id, marine_id = m.marine_id 
+ from SHIPPER_OVERRIDE st inner join mcriss.dbo.person p on st.ssn = p.social_security_number 
+ inner join mcriss.dbo.marine m on p.person_id = m.marine_id 
+ 
+ /** Filter out those that do not have person or marine id */ 
+ delete from SHIPPER_OVERRIDE 
+ where person_id is null or marine_id is null 
+ 
+ /**Get MAx NWA ID */ 
+ update SHIPPER_OVERRIDE 
+ set max_nwa_id = n.nwa_id 
+ from SHIPPER_OVERRIDE st inner join mcriss.dbo.nwa n on st.person_id = n.marine_candidate_id and n.nwa_id = (select max(n2.nwa_id)  
+    from mcriss.dbo.nwa n2  
+    where n2.marine_candidate_id = st.person_id) 
+ 
+ 
+ /**Get Contract */ 
+ update SHIPPER_OVERRIDE 
+ set max_contract_id = c.contract_id, contract_padd = c.projected_ship_date 
+ from SHIPPER_OVERRIDE st inner join mcriss.dbo.contract c on st.max_nwa_id = c.nwa_id and c.contract_id = (select max(c2.contract_id) 
+     from mcriss.dbo.contract c2  
+     where c2.nwa_id = st.max_nwa_id) 
+ 
+ /***Remove those that cant be satisfied  i.e.  No NWA, No Contract, Padd less than 90 days in the past**/ 
+ delete from SHIPPER_OVERRIDE 
+ where max_nwa_id is null or max_contract_id is null or 
+ datediff(dd,contract_padd,getDate())   < 90 
+ 
+ 
+ update SHIPPER_OVERRIDE 
+ set ship_id = s.ship_id 
+ from SHIPPER_OVERRIDE st inner join [MCRISS-vdb01\processing].mcriss.dbo.shipper s on st.max_contract_id = s.contract_id 
+ 
+  
+ delete from shipper_override  
+ where ship_id is not null 
+ 
+/***Identify Training Organization**/ 
+/**All Females go to Parris Island**/ 
+ update SHIPPER_OVERRIDE 
+ set training_org_id = 1 
+ from SHIPPER_OVERRIDE st inner join [MCRISS-vdb01\processing].mcriss.dbo.marine_candidate mc on st.person_id = mc.marine_candidate_id and mc.gender_code = 'F' 
+ 
+ 
+ 
+/***Where the Training Org Id Could Not Be determined get it from Organization_Of Record**/ 
+/**NWA should be assigned to RSS**/ 
+ update SHIPPER_OVERRIDE 
+ set training_org_id = case rod.reg_org_id 
+    when 901 then 1 
+    when 902 then 2 
+    else null 
+           end 
+ from SHIPPER_OVERRIDE st inner join mcriss.dbo.nwa n on st.max_nwa_id = n.nwa_id and st.training_org_id is null 
+ inner join mcriss_olap.dbo.recruiting_organization_dim rod on n.organization_of_record_id = rod.rss_org_id 
+ 
+ 
+ 
+ /**Remove if Training Org Null**/ 
+ delete from SHIPPER_OVERRIDE 
+ where training_org_id is null 
+ 
+ 
+ /**Lets determine the SQL Operation to perform first */ 
+ /**Flag the first record for each distinct ssn for insert*/ 
+ update shipper_override 
+ set sql_operation = 'I' 
+ from shipper_override st 
+ where error_log_id in (select min(error_log_id) 
+   from shipper_override 
+   group by ssn) 
+ 
+ 
+ /**Records that were not flagged for insert will be flagged for updating*/ 
+ update shipper_override 
+ set sql_operation = 'U' 
+ where sql_operation is null 
+ 
+ 
+ /**Insert new shipper record**/ 
+ /**There may be more than one ship transaction for an SSN.  
+ In which case the first one needs to be treated as an insert. 
+ The balance needs to be treated as updates**/ 
+ /**Insert the first ship transaction per ssn into the OLTP Shipper table.**/ 
+ insert into [MCRISS-vdb01\processing].mcriss.dbo.shipper (CONTRACT_ID,SHIP_TYPE,TRAINING_ORGANIZATION_ID, 
+ SHIP_DATE,PAY_ENTRY_BASE_DATE,PAY_GRADE_CODE,PAY_GRADE_ED_DATE,AFADBD,COMPONENT_CODE,USER_LOGIN,UPDATE_DATE) 
+ select max_contract_id, 'ENL',training_org_id,ship_date,pebd,paygrade,paygrade_ed_date,ship_date,component,'MFR001-02',getDate() 
+ from SHIPPER_OVERRIDE st 
+ where sql_operation = 'I' 
+ 
+ 
+ /** Get the Ship Id for the new Ship Records that were inserted.**/ 
+ update SHIPPER_OVERRIDE 
+ set ship_id = s.ship_id 
+ from SHIPPER_OVERRIDE st inner join [MCRISS-vdb01\processing].mcriss.dbo.shipper s on st.max_contract_id = s.contract_id 
+ 
+ 
+ 
+ /**Now we need to create an entry in the candidate status table for each of the records that made it**/ 
+ insert into [MCRISS-vdb01\processing].mcriss.dbo.candidate_status (NWA_ID, STATUS_EFFECTIVE_DATE,STATUS_TYPE,STATUS_CODE,DISPOSITION_CODE,USER_LOGIN,UPDATE_DATE) 
+ select distinct max_nwa_id, ship_date, 'E', 'C', 'N','MFR001-02',getDate() 
+ from SHIPPER_OVERRIDE 
+ where sql_operation = 'I' 
+  
+ 
+ /**Update record where sql_operation set to U*/ 
+ update [MCRISS-vdb01\processing].mcriss.dbo.shipper  
+ set TRAINING_ORGANIZATION_ID = st.training_org_id, 
+ SHIP_DATE = st.ship_date, 
+ PAY_ENTRY_BASE_DATE = st.pebd, 
+ PAY_GRADE_CODE = st.paygrade, 
+ PAY_GRADE_ED_DATE = st.paygrade_ed_date, 
+ AFADBD = st.ship_date, 
+ COMPONENT_CODE = st.component, 
+ USER_LOGIN = 'MFR001-02', 
+ UPDATE_DATE = getDate() 
+ from SHIPPER_OVERRIDE st inner join [MCRISS-vdb01\processing].mcriss.dbo.shipper s on st.ship_id = s.ship_id 
+ and st.sql_operation = 'U' 
+ 
+ 
+ /**update the error log to indicate the error has been reprocessed. 
+ **/ 
+ update error_log 
+ set reprocess = 'N', status = 'RESOLVED',update_date = getDate() 
+ from SHIPPER_OVERRIDE st inner join error_log el on st.error_log_id = el.error_log_id and ship_id is not null 
+  
+end]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>24B9F7BA-5DD4-EAB5-4EB1-35B911743E85</database>
+</StoredProcedureSqlServerv2k5>

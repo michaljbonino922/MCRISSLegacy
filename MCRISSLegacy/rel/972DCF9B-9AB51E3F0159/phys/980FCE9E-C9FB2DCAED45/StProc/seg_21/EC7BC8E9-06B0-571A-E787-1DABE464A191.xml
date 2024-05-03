@@ -1,0 +1,138 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SP_InsertNWA_179]" directorySegmentName="seg_21" id="EC7BC8E9-06B0-571A-E787-1DABE464A191">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@person_id   int, 
+@educa.on_code  char(1), 
+@educa.on_level  varchar(2), 
+@nwa_date   date.me, 
+@rss_resp   varchar(6), 
+@projected_ship_month  int, 
+@dep_recr_ssn   varchar(9), 
+@source_code   varchar(10), 
+@ac.vity_code   varchar(2), 
+@ppc    varchar(7), 
+@component_code  varchar(2), 
+@prior_srvc   varchar(2), 
+@air_grnd   char(1), 
+@dual_source   varchar(3) 
+ 
+AS  
+ 
+declare 
+ @category_code        varchar(6),  
+ @nwa_log_notes   varchar(20), 
+ @parental_consent   char(1), 
+ @projected_prog_choice1  varchar(4), 
+ @projected_prog_choice2  varchar(4), 
+ @projected_prog_choice3  varchar(4), 
+ @comp_change_.ag   varchar(1), 
+ @bach_grad_year   int, 
+ @user_login    varchar(15), 
+ @update_date    date.me, 
+ @org_of_record    int, 
+ @dep_recr_id    int, 
+ @nwa_id    int 
+ 
+ 
+ 
+set @nwa_log_notes      = NULL 
+set @parental_consent   = NULL 
+set @projected_prog_choice1 = NULL 
+set @projected_prog_choice2 = NULL 
+set @projected_prog_choice3 = NULL 
+set @bach_grad_year = NULL 
+set @update_date = getdate() 
+set @user_login = 'migra.on' 
+ 
+set @org_of_record = ( select ORGANIZATION_ID  
+                                  from TEMP_RECRUITING_ORGANIZATION 
+      where MCC_CODE = @rss_resp) 
+ 
+set @dep_recr_id = ( select PERSON_ID from PERSON 
+                            where SOCIAL_SECURITY_NUMBER = @dep_recr_ssn) 
+ 
+/********************************************************************************************************************************** 
+Adjusts the Category_Codes and Component_Codes for Migra.on from Arms to Mcriss.  Requirements were 
+completed for this sec.on by GySgt Calvanese and implemented by Rob McAndrew w/ Booz Allen & Hamilton 
+************************************************************************************************************************************/  
+ --logic for all prior service 
+ if @prior_srvc in ('K1','K2','K3','K4') 
+ set @component_code = '11'-- Component_Code for Prior Service 
+  
+ --logic for all regulars who may have had their Comp_Cd 's changed in Arms a.er shipping 
+ if @component_code = '11' and @prior_srvc not in ('K1','K2','K3','K4') 
+ set @component_code = 'K5' -- Component_Code for USMC Regular(Dep) 
+ 
+ --logic for prior service category  
+ if @component_code = '11'  
+ begin 
+  if @prior_srvc in ('K1','K2') 
+  set @category_code = 'P' 
+  if @prior_srvc in ('K3','K4') 
+  set @category_code = 'R' 
+   
+ end 
+ 
+ --logic for se.ng Regular's Category Code  
+ if @component_code = 'K5' 
+ set @category_code = 'R' 
+ 
+ --logic for Reservest 
+ if @component_code not in ('11','K5') 
+ set @category_code = @air_grnd  
+/****************************************************************************************************************************************** 
+   End of The COMPONENT_CODE Conversion 
+*******************************************************************************************************************************************/ 
+ 
+      --sets the proper educa.on code 
+ 
+       if @educa.on_code = 'M' 
+      select @educa.on_code = '9' 
+ 
+       if @educa.on_level = '01' 
+      select @educa.on_level = '1' 
+       if @educa.on_level = '02' 
+      select @educa.on_level = '2' 
+       if @educa.on_level = '03' 
+      select @educa.on_level = '3' 
+       if @educa.on_level = '04' 
+      select @educa.on_level = '4' 
+       if @educa.on_level = '05' 
+      select @educa.on_level = '5' 
+       if @educa.on_level = '06' 
+      select @educa.on_level = '6' 
+       if @educa.on_level = '07' 
+      select @educa.on_level = '7' 
+       if @educa.on_level = '08' 
+      select @educa.on_level = '8' 
+       if @educa.on_level = '09' 
+      select @educa.on_level = '9' 
+ 
+ 
+       insert NWA 
+     (MARINE_CANDIDATE_ID, NWA_DECLARED_DATE, NWA_DATE_STARTED_WORKING,PARENTAL_CONSENT,PROJECTED_SHIP_MONTH, 
+ NWA_LOG_NOTES,PROJECTED_PROG_CHOICE1,PROJECTED_PROG_CHOICE2,PROJECTED_PROG_CHOICE3, ACTIVITY_CODE, 
+ SOURCE_CODE, RECRUITER_OF_RECORD_ID,ORGANIZATION_OF_RECORD_ID,WORKING_RECRUITER_ID,  
+ CATEGORY_CODE, EDUCATION_LEVEL, EDUCATION_CODE, PPC,COMP_CHANGE_FLAG, BACH_GRAD_YEAR, 
+ USER_LOGIN, UPDATE_DATE, SOURCE_CODE_DUAL) 
+    values(@person_id, @nwa_date, @nwa_date, 
+           @parental_consent, @projected_ship_month, @nwa_log_notes, 
+     @projected_prog_choice1, @projected_prog_choice2,  
+     @projected_prog_choice3, @ac.vity_code, @source_code, 
+     @dep_recr_id, @org_of_record,  
+     @dep_recr_id, @category_code, @educa.on_level, 
+     @educa.on_code, @ppc, @comp_change_.ag, @bach_grad_year, 
+     @user_login,@update_date, @dual_source) 
+         
+  
+ select @nwa_id = max(NWA_ID) from NWA where MARINE_CANDIDATE_ID = @person_id 
+ 
+       exec SPGEN_CANDSTATUS @nwa_id,'NWA','ENL',@nwa_date 
+ 
+    print 'CAND STATUS UPDATED']]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

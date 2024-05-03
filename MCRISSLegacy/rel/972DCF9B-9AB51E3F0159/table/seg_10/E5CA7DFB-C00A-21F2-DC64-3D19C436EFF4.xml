@@ -1,0 +1,103 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_10" id="E5CA7DFB-C00A-21F2-DC64-3D19C436EFF4" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="RssDataSheetSector">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>42D1FA84-1441-2621-982B-8A1D8447DB8A</importedID>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="RssDataSheetSectorId" id="A3672D94-FA64-AF47-47EB-001C52FE1C48">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:07 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>1AA2AD32-7AF2-098B-1C44-C37B2B8087D7</importedID>
+<use>0</use>
+<domain>5B1C7CF5-EF3B-C5B8-1E76-224B54D9B1CB</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="RssDataSheetId" id="A1BFF797-995E-3AD0-BDF8-FA4D8081DE50">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:07 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>E518E92B-52E5-31D7-F782-1424D2B28F7D</importedID>
+<use>0</use>
+<domain>5B1C7CF5-EF3B-C5B8-1E76-224B54D9B1CB</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="267E410C-4B45-12E8-EC04-FD1F0380FA24" referredColumn="26E6E70E-3931-7104-2132-76A97703B04B"/>
+</associations>
+</Column>
+<Column name="SectorDesignator" id="C14EE477-5212-D348-D4EE-E9122725616C">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:07 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>B613F7F9-5062-BF6A-37FF-00BE9A0FFC37</importedID>
+<use>0</use>
+<domain>429DB81C-B38B-9EFA-A0CA-C5A1DC3956FC</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="SectorProblems" id="2E64EB68-B265-80B5-E58B-48DF810C8672">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:07 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>51F8A354-40B5-9330-4731-5C3A8FE38C0A</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>CA3579CE-0B53-2D63-1340-310CB84C426B</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="4A8609E9-8674-2459-BAD4-3AD66F9D1EDC" name="pk_RssDataSheetSector">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:07 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>3AFF33F5-1F07-C0BB-D4F1-523060CE5D1A</importedID>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="A3672D94-FA64-AF47-47EB-001C52FE1C48"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="839EF987-7253-C2E5-C458-978E991BF1CF" name="._RssDataSheetSector_RssDatasheet">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="A1BFF797-995E-3AD0-BDF8-FA4D8081DE50"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+<tableCheckConstraints itemClass="oracle.dbtools.crest.model.design.constraint.TableLevelConstraint">
+<tableCheckConstraint name="[USMC].[RssDataSheetSector]" directorySegmentName="seg_8" id="438187A8-0B7E-4523-35F5-E502218541FA">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:07 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>FEF3FAC5-E6EE-07CB-D7F5-758FFF22284A</importedID>
+<rule><![CDATA[CONSTRAINT [._RssDataSheetSector_RssDatasheet]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITH" directorySegmentName="seg_8" id="3D458A44-FD6F-85C5-FD0C-67665C6A0C53">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:07 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>A0A6ECCD-6739-8B6D-0AC8-55FB8DF4ECAB</importedID>
+</tableCheckConstraint>
+</tableCheckConstraints>
+</Table>

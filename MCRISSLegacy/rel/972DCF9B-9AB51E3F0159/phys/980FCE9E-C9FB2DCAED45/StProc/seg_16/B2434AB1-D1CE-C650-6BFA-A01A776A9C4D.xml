@@ -1,0 +1,22 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetCandidateAddressByNWAID]" directorySegmentName="seg_16" id="B2434AB1-D1CE-C650-6BFA-A01A776A9C4D">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@NWAID int 
+AS 
+ 
+SELECT 
+ CA.ADDRESS_TYPE, CA.STREET_ADDRESS, 
+ CA.CITY_CODE, CA.COUNTY_CODE, 
+ CA.STATE_CODE, CA.ZIPCODE 
+FROM  
+ CANDIDATE_ADDRESS CA INNER JOIN NWA ON CA.MARINE_CANDIDATE_ID = NWA.MARINE_CANDIDATE_ID  
+WHERE  
+ NWA.NWA_ID = @NWAID 
+ORDER BY  
+ ADDRESS_TYPE]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

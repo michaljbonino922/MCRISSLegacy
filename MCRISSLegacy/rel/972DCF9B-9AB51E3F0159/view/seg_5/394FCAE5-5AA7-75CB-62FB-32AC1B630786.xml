@@ -1,0 +1,78 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_5" id="394FCAE5-5AA7-75CB-62FB-32AC1B630786" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="_dta_mv_62">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>0DBC6260-BA47-1D71-4EC7-1516CC61AD54</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  [USMC].[EventSubject].[Id] as _col_1,  [USMC].[EventSubject].[SubjectId] as _col_2,  [USMC].[PGSentEvent].[PGReturned] as _col_3,  count_big(*) as _col_4, count_big([RSSOSS].[USMC].[PGSentEvent].[ID]) as _col_5 FROM  [USMC].[Event],  [USMC].[EventSubject],  [USMC].[PGSentEvent]   WHERE  [USMC].[Event].[ID] = [USMC].[PGSentEvent].[ID]  AND  [USMC].[EventSubject].[EventId] = [USMC].[PGSentEvent].[ID]  GROUP BY  [USMC].[EventSubject].[Id],  [USMC].[EventSubject].[SubjectId],  [USMC].[PGSentEvent].[PGReturned]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[Id]" id="1BDAF20B-C2E9-F265-CF3D-B872808ECD1F">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_1</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_1</headerAlias>
+<expression>[Id]</expression>
+<reference>false</reference>
+<viewID>394FCAE5-5AA7-75CB-62FB-32AC1B630786</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[SubjectId]" id="188C6E80-EAC9-D0CD-E517-9D99151ECA03">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_2</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_2</headerAlias>
+<expression>[SubjectId]</expression>
+<reference>false</reference>
+<viewID>394FCAE5-5AA7-75CB-62FB-32AC1B630786</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[PGReturned]" id="E4D7B656-340A-2C8C-9C6E-7CE175912B42">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_3</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_3</headerAlias>
+<expression>[PGReturned]</expression>
+<reference>false</reference>
+<viewID>394FCAE5-5AA7-75CB-62FB-32AC1B630786</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="count_big(*)" id="BD98AB1E-7DA2-ED32-B80C-583FD0092949">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_4</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_4</headerAlias>
+<expression>count_big(*)</expression>
+<reference>false</reference>
+<viewID>394FCAE5-5AA7-75CB-62FB-32AC1B630786</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="count_big([RSSOSS].[USMC].[PGSentEvent].[ID])" id="295DF862-C7C8-72FA-D6E6-51288FDCB80F">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_5</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_5</headerAlias>
+<expression>count_big([RSSOSS].[USMC].[PGSentEvent].[ID])</expression>
+<reference>false</reference>
+<viewID>394FCAE5-5AA7-75CB-62FB-32AC1B630786</viewID>
+</viewElement>
+</viewElements>
+</TableView>

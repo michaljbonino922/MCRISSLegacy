@@ -1,0 +1,122 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetKeyManCandidates]" directorySegmentName="seg_5" id="51BE1BFF-519C-8D07-8960-3607C705CB1F">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[(@OrgId int 
+ ,@CollegeId uniqueiden..er = NULL 
+ ,@FilterType varchar(4000)) 
+ 
+AS 
+ 
+DECLARE @ListofTypes TABLE(Type VARCHAR(40), Disposi.onCode varchar(10), TypeDesc VARCHAR(100), ID INT IDENTITY(1,1)); 
+INSERT INTO @ListofTypes 
+SELECT 'All', 'All', 'All' 
+UNION ALL 
+SELECT 'DistrictPendingAddi.onalInforma.on', 'AI', 'Pending Addi.onal Informa.on-District' 
+UNION ALL 
+SELECT 'OcsShipper', 'AP', 'OCS/Shipper' 
+UNION ALL 
+SELECT 'OcsIni.alDrop', 'AQ', 'OCS/Ini.al Drop' 
+UNION ALL 
+SELECT 'OcsTrainingDrop','AR', 'OCS/Training Drop' 
+UNION ALL 
+SELECT 'SubmitedToRegion', 'AS', 'Submited To Region' 
+UNION ALL 
+SELECT 'RegionPendingAddi.onalInforma.on', 'AT', 'Pending Addi.onal Informa.on-Region' 
+UNION ALL 
+SELECT 'ApprovedByMcrc', 'AW', 'MCRC Approved' 
+UNION ALL 
+SELECT 'WithdrawnByMcrc', 'AY', 'Withdrawn By MCRC' 
+UNION ALL 
+SELECT 'DistrictRetain', 'BC', 'District Retain' 
+UNION ALL 
+SELECT 'DistrictHardDrop', 'BD', 'District Hard Drop' 
+UNION ALL 
+SELECT 'Awai.ngSubmission', 'Q', 'Awai.ng Submission' 
+UNION ALL 
+SELECT 'WithdrawnByOss', 'S', 'Withdrawn By OSS' 
+UNION ALL 
+SELECT 'ApprovedByRegion', 'AU', 'Region Approved' 
+UNION ALL 
+SELECT 'SubmitedToDistrict', 'R', 'Submited To District' 
+UNION ALL 
+SELECT 'DistrictSelected', 'W', 'District Selected' 
+UNION ALL 
+SELECT 'WithdrawnByDistrict', 'BA', 'Withdrawn By District' 
+UNION ALL 
+SELECT 'CompletedPlcJrTraining', 'X', 'Completed PLC JR Training' 
+UNION ALL 
+SELECT 'FullyTrained', 'Y', 'Fully Trained' 
+UNION ALL 
+SELECT 'Commission', 'C', 'Commission'  
+UNION ALL 
+SELECT 'DidNotAcceptCommission', 'BB', 'Did not Accept Commission' 
+ 
+ 
+DECLARE @docHandle int 
+-- Create internal representa.on of the XML document and return the xml-doc Handle ID 
+EXEC sp_xml_preparedocument @docHandle OUTPUT, @FilterType 
+  
+--select @docHandle -- 37 
+ 
+DECLARE @ListofCodes TABLE(Disposi.onCode varchar(10), TypeDesc VARCHAR(100), ID INT IDENTITY(1,1)); 
+insert into @ListofCodes  
+ SELECT Disposi.onCode, TypeDesc FROM @ListofTypes where Type in ( 
+SELECT --ContactID,  
+FilterType 
+FROM OPENXML(@docHandle, N'//item') 
+WITH (FilterType VARCHAR(50))) 
+ 
+SELECT 
+   c.[NwaId] 
+ ,c.[NwaRowGuid]  
+ ,c.[O.cerContractId] 
+ ,c.[O.cerContractRowGuid] 
+ ,c.[Name] 
+ ,c.[RaceCode] 
+ ,c.[EthnicCode] 
+ ,c.[SchoolName] 
+ ,c.[SchoolCode] 
+ ,c.[SchoolRowGuid]  
+ ,c.[ProjectedCommissionDate] AS CommissionDate 
+ ,c.[GenderCode] 
+ ,c.[ClassNumber] 
+ ,c.[O.cerSourceCode] 
+ ,c.[ShipMission] 
+ ,oss.[NAME] AS OssName 
+ ,lc.TypeDesc AS OcsTrainingType  
+ ,(SELECT TOP 1 
+   cc.[COMPONENT_DESCRIPTION] 
+  FROM [dbo].[COMPONENT_CODE] cc 
+  WHERE cc.[COMPONENT_CODE] = c.[O.cerComponentCode]) AS Program 
+FROM 
+ [usmc].[vwO.cerPoolBoardCandidates] c 
+INNER JOIN [dbo].[RECRUITING_ORGANIZATION] oss 
+ ON oss.[ORGANIZATION_ID] = c.[Organiza.onOfRecordId] 
+ INNER JOIN @ListofCodes lc on lc.[Disposi.onCode] = c.[Disposi.onCode] 
+WHERE 
+ c.[Organiza.onOfRecordId] = @OrgId AND 
+ (@CollegeId IS NULL OR c.[SchoolRowGuid] = @CollegeId) AND 
+  
+ (  
+ (c.[StatusType] = 'O' AND c.[StatusCode] = 'B' AND 
+  c.[Disposi.onCode] in ('AI','AP', 'AQ', 'AR', 'AS', 'AT', 'AW','AU','AY', 'BA', 'BC', 'BD', 'Q','R','S','W', 'X', 'Y')) 
+    
+ OR 
+   
+ (c.[StatusType] = 'O' AND c.[StatusCode] = 'D' AND   
+         c.[Disposi.onCode] in('C', 'BB') ) 
+ ) 
+  and c.[STATUS_EFFECTIVE_DATE]  
+    = (select top 1 STATUS_EFFECTIVE_DATE    
+  from dbo.MARINE_CANDIDATE m    
+  inner join dbo.NWA n on m.MARINE_CANDIDATE_ID = n.MARINE_CANDIDATE_ID   
+  inner join dbo.CANDIDATE_STATUS cs on cs.nwa_id = n.nwa_id 
+  where m.MARINE_CANDIDATE_ID = c.MarineCandidateId 
+  order by STATUS_EFFECTIVE_DATE DESC) 
+ ORDER BY c.[Name]]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

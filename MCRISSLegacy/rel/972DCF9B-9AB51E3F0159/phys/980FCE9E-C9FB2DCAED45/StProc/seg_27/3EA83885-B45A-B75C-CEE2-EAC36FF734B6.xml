@@ -1,0 +1,25 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateQSN_Unassign]" directorySegmentName="seg_27" id="3EA83885-B45A-B75C-CEE2-EAC36FF734B6">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @ContractID int, 
+ @LastEditBy varchar(50) 
+) 
+AS 
+ 
+UPDATE [MCRISS].[dbo].[QSN] SET 
+ [CONTRACT_ID] = null 
+ ,[BONUS_CONTROL_NUMBER] = null 
+ ,[BONUS_AMOUNT] = null 
+ ,[KICKER_CONTROL] = null 
+ ,[PROGRAM_ASSIGNMENT_DATE] = null 
+ ,[USER_LOGIN] = @LastEditBy 
+ ,[UPDATE_DATE] = GetDate() 
+WHERE  
+ CONTRACT_ID = @ContractID]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,69 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetCandidateProgramCriteriaWaiver]" directorySegmentName="seg_4" id="88113B61-BDBB-6200-5909-D152661ACF7F">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[(@CandidateWaiverID int) 
+ 
+AS 
+ 
+IF @CandidateWaiverID = -1 
+ SELECT DISTINCT 
+   NULL AS CANDIDATE_WAIVER_ID 
+  ,'N' AS Checked 
+  ,w.[WAIVER_ID] 
+  ,w.[EFFECTIVE_DATE] 
+  ,wc.[WAIVER_CATEGORY_ID] 
+  ,wc.[WAIVER_CATEGORY_CODE] 
+  ,wc.[WAIVER_CATEGORY_DESC] 
+  ,wt.[WAIVER_TYPE_ID] 
+  ,wt.[WAIVER_TYPE_CODE] 
+  ,wt.[WAIVER_TYPE_DESC] 
+  ,wl.[WAIVER_LEVEL_ID] 
+  ,wl.[WAIVER_LEVEL_CODE] 
+  ,wl.[WAIVER_LEVEL_DESC] 
+ FROM 
+  [dbo].[WAIVER] w WITH (NOLOCK) 
+ INNER JOIN [dbo].[WAIVER_CATEGORY] wc 
+  ON w.WAIVER_CATEGORY_ID = wc.WAIVER_CATEGORY_ID AND 
+   wc.WAIVER_CATEGORY_CODE IN ('D', 'F') 
+ INNER JOIN [dbo].[WAIVER_TYPE] wt 
+  ON w.WAIVER_TYPE_ID = wt.WAIVER_TYPE_ID 
+ INNER JOIN [dbo].[WAIVER_LEVEL] wl 
+  ON w.WAIVER_LEVEL_ID = wl.WAIVER_LEVEL_ID 
+ LEFT OUTER JOIN [dbo].[CANDIDATE_PROGRAM_CRITERIA_WAIVER] pcw 
+  ON  pcw.WAIVER_ID = w.WAIVER_ID  
+ELSE 
+ SELECT 
+   @CandidateWaiverID AS CANDIDATE_WAIVER_ID 
+  ,CASE  
+   WHEN pcw.[CANDIDATE_WAIVER_ID] IS NULL THEN 'N' 
+   ELSE 'Y'  
+   END AS Checked 
+  ,w.[WAIVER_ID] 
+  ,w.[EFFECTIVE_DATE] 
+  ,wc.[WAIVER_CATEGORY_ID] 
+  ,wc.[WAIVER_CATEGORY_CODE] 
+  ,wc.[WAIVER_CATEGORY_DESC] 
+  ,wt.[WAIVER_TYPE_ID] 
+  ,wt.[WAIVER_TYPE_CODE] 
+  ,wt.[WAIVER_TYPE_DESC] 
+  ,wl.[WAIVER_LEVEL_ID] 
+  ,wl.[WAIVER_LEVEL_CODE] 
+  ,wl.[WAIVER_LEVEL_DESC] 
+ FROM 
+  [dbo].[WAIVER] w WITH (NOLOCK) 
+ INNER JOIN [dbo].[WAIVER_CATEGORY] wc 
+  ON w.WAIVER_CATEGORY_ID = wc.WAIVER_CATEGORY_ID AND 
+   wc.WAIVER_CATEGORY_CODE IN ('D', 'F') 
+ INNER JOIN [dbo].[WAIVER_TYPE] wt 
+  ON w.WAIVER_TYPE_ID = wt.WAIVER_TYPE_ID 
+ INNER JOIN [dbo].[WAIVER_LEVEL] wl 
+  ON w.WAIVER_LEVEL_ID = wl.WAIVER_LEVEL_ID 
+ LEFT OUTER JOIN [dbo].[CANDIDATE_PROGRAM_CRITERIA_WAIVER] pcw 
+  ON  pcw.CANDIDATE_WAIVER_ID = @CandidateWaiverID AND 
+   pcw.WAIVER_ID = w.WAIVER_ID]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

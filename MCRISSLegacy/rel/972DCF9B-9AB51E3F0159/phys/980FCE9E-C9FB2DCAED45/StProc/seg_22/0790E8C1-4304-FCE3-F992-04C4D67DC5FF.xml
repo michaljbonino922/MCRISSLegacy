@@ -1,0 +1,72 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_MIUpdateSpecialExam]" directorySegmentName="seg_22" id="0790E8C1-4304-FCE3-F992-04C4D67DC5FF">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@MarineCandidateID int, 
+ @ExamType  char(4), 
+ @ExamDate  varchar(20), 
+ @ExamScore  int, 
+ @ExamScore2  int = NULL, 
+ @ExamScore3  int = NULL, 
+ @UserLogin  varchar(15) 
+AS 
+ 
+DECLARE @TranType  varchar(8) 
+DECLARE @ErrMsg   varchar(100) 
+ 
+DECLARE @DBID INT 
+DECLARE @DBNAME NVARCHAR(128) 
+ 
+SET NOCOUNT ON  
+ 
+SELECT  
+ @DBID  = DB_ID(),  
+ @DBNAME = DB_NAME() 
+ 
+ 
+IF EXISTS (SELECT 1 FROM CANDIDATE_SPECIAL_EXAM CSE WHERE CSE.MARINE_CANDIDATE_ID = @MarineCandidateId AND 
+   CSE.SPECIAL_EXAM_TYPE = @ExamType AND CSE.SPECIAL_EXAM_DATE = @ExamDate) 
+BEGIN 
+ SET @TranType = 'upda.ng' 
+ 
+ UPDATE  
+  CANDIDATE_SPECIAL_EXAM 
+ SET 
+  SPECIAL_EXAM_SCORE = @ExamScore, 
+  SPECIAL_EXAM_SCORE2 = @ExamScore2, 
+  SPECIAL_EXAM_SCORE3 = @ExamScore3, 
+  USER_LOGIN = @UserLogin, 
+  UPDATE_DATE = GETDATE() 
+ WHERE 
+  MARINE_CANDIDATE_ID = @MarineCandidateId AND 
+  SPECIAL_EXAM_TYPE = @ExamType AND 
+  SPECIAL_EXAM_DATE = @ExamDate 
+END 
+ELSE  
+BEGIN 
+ SET @TranType = 'adding' 
+ 
+ INSERT INTO CANDIDATE_SPECIAL_EXAM  
+  (MARINE_CANDIDATE_ID, SPECIAL_EXAM_TYPE, SPECIAL_EXAM_DATE,  
+  SPECIAL_EXAM_SCORE, SPECIAL_EXAM_SCORE2, SPECIAL_EXAM_SCORE3,  
+  USER_LOGIN, UPDATE_DATE) 
+ VALUES  
+  (@MarineCandidateId, @ExamType, @ExamDate,  
+  @ExamScore, @ExamScore2, @ExamScore3,  
+  @UserLogin, GETDATE()) 
+END 
+ 
+ 
+IF @@ERROR != 0 OR @@ROWCOUNT = 0 
+BEGIN 
+ SET @ErrMsg = 'An error occurred ' + @TranType + ' the special exam record.' 
+ RAISERROR (@ErrMsg, 16, 3, @DBID, @DBNAME) 
+ RETURN 
+END 
+  
+SET NOCOUNT OFF]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

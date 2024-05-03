@@ -1,0 +1,109 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertOCSClassAssignment]" directorySegmentName="seg_10" id="1D0B568D-FB8B-9A2E-8A12-3EE9414487AF">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @ID int = null, 
+ @NwaID int, 
+  
+ @ClassType varchar(7), 
+ @FiscalYear int, 
+ @ClassIncrement int, 
+  
+-- @SCHEDULED_SHIP_DATE  date.me, 
+-- @COMPONENT_CODE  varchar(2), 
+-- @PEBD  date.me, 
+-- @REPORT_DATE  date.me, 
+-- @ACCESSION_SUBMITTED  char(1), 
+-- @CLASS_RESULT_CODE  char(1), 
+-- @CLASS_RESULT_DATE  date.me, 
+-- @CLASS_STANDING  int, 
+-- @CLASS_AVERAGE  .oat, 
+-- @DROP_REASON  varchar(6), 
+-- @TRAINING_DROP_WEEK  int, 
+-- @ACADEMIC_AVERAGE  .oat, 
+-- @MILITARY_SKILLS_AVERAGE  .oat, 
+-- @LEADERSHIP_AVERAGE  .oat, 
+-- @CLASS_COMMENTS  varchar(250), 
+-- @JOIN_TYPE  char(1), 
+-- @COMPANY  char(1), 
+-- @PLATOON  int, 
+-- @NOTICE_OF_ELIGIBILITY  char(1), 
+-- @AIRLINE  varchar(25), 
+-- @FLIGHT_NUMBER  varchar(10), 
+-- @ARRIVAL_DATE  date.me, 
+-- @GOV_POV  char(1), 
+-- @DISPLAY_RECORD  char(1), 
+  
+ @LastEditBy varchar(50) 
+) 
+as  
+ 
+DECLARE @OCS_CLASS_ID int 
+SET @OCS_CLASS_ID = (SELECT TOP 1 [CLASS_ID] FROM [MCRISS].[dbo].[OCS_CLASS] WHERE [TRAINING_TYPE_CODE] = @ClassType AND [FISCAL_YEAR] = @FiscalYear AND [CLASS_NUMBER] = @ClassIncrement) 
+ 
+INSERT INTO [mcriss].[dbo].[OCS] 
+ ([NWA_ID] 
+-- ,[SCHEDULED_SHIP_DATE] 
+-- ,[COMPONENT_CODE] 
+ ,[OCS_CLASS_ID] 
+-- ,[PEBD] 
+-- ,[REPORT_DATE] 
+-- ,[ACCESSION_SUBMITTED] 
+-- ,[CLASS_RESULT_CODE] 
+-- ,[CLASS_RESULT_DATE] 
+-- ,[CLASS_STANDING] 
+-- ,[CLASS_AVERAGE] 
+-- ,[DROP_REASON] 
+-- ,[TRAINING_DROP_WEEK] 
+-- ,[ACADEMIC_AVERAGE] 
+-- ,[MILITARY_SKILLS_AVERAGE] 
+-- ,[LEADERSHIP_AVERAGE] 
+-- ,[CLASS_COMMENTS] 
+-- ,[JOIN_TYPE] 
+-- ,[COMPANY] 
+-- ,[PLATOON] 
+-- ,[NOTICE_OF_ELIGIBILITY] 
+-- ,[AIRLINE] 
+-- ,[FLIGHT_NUMBER] 
+-- ,[ARRIVAL_DATE] 
+-- ,[GOV_POV] 
+-- ,[DISPLAY_RECORD] 
+ ,[USER_LOGIN] 
+ ,[UPDATE_DATE] 
+ ,[rowguid]) 
+VALUES 
+ (@NwaID 
+-- ,@SCHEDULED_SHIP_DATE 
+-- ,@COMPONENT_CODE 
+ ,@OCS_CLASS_ID 
+-- ,@PEBD 
+-- ,@REPORT_DATE 
+-- ,@ACCESSION_SUBMITTED 
+-- ,@CLASS_RESULT_CODE 
+-- ,@CLASS_RESULT_DATE 
+-- ,@CLASS_STANDING 
+-- ,@CLASS_AVERAGE 
+-- ,@DROP_REASON 
+-- ,@TRAINING_DROP_WEEK 
+-- ,@ACADEMIC_AVERAGE 
+-- ,@MILITARY_SKILLS_AVERAGE 
+-- ,@LEADERSHIP_AVERAGE 
+-- ,@CLASS_COMMENTS 
+-- ,@JOIN_TYPE 
+-- ,@COMPANY 
+-- ,@PLATOON 
+-- ,@NOTICE_OF_ELIGIBILITY 
+-- ,@AIRLINE 
+-- ,@FLIGHT_NUMBER 
+-- ,@ARRIVAL_DATE 
+-- ,@GOV_POV 
+-- ,@DISPLAY_RECORD 
+ ,@LastEditBy 
+ ,GetDate() 
+ ,NewID())]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

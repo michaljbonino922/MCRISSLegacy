@@ -1,0 +1,74 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="TrainingRecord" directorySegmentName="seg_1" id="687AA3EE-4077-164F-7D92-3D0712F3EC26">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:56 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<schemaObject>454547C7-2829-9C8F-6E0C-35E4CFDC8E47</schemaObject>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="Remarks" id="4AEFE9B2-BAF7-2FFD-F57F-E7FCE5ED0959">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:10 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="TrainingRecordTypeID" id="72CFD533-B9D6-B54A-52EA-0D67455FB666">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:10 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="RecordDate" id="7C6E8353-DD7D-9684-35C6-C8CE0244C326">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:10 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="Subject" id="809FF93D-1B00-6580-111E-AC287E7288BB">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:10 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="LastUpdatedBy" id="8254CD89-D773-4FC5-9663-5ECC66968360">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:10 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="ID" id="8CC61CCC-1CF5-4113-EB7F-74D5E4D34B75">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:10 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<defaultValue>(newid())</defaultValue>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="LastUpdatedDate" id="B34A5119-0026-D235-FBF3-6A19C105924E">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:10 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="TrainingFileID" id="C89249F0-7660-E7D1-9898-479C4BA2E9C7">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:10 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+</columnProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="FK_TrainingRecord_TrainingFile" id="64F4B6D3-7435-1BC2-8CE5-78A200FA9BB8">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="FK_TrainingRecord_TrainingRecordType" id="7EC8EF24-39F0-3B79-9B19-45466CEA33F4">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="PK_TrainingRecord" id="A6CC1D94-9064-9849-BE50-88CD3BB75D5A">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:10 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<clustered>true</clustered>
+<fillFactor>90</fillFactor>
+<partitioningColumn>EFC1C3A0-E2D3-374A-ACA3-B322F3BEB012</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+</TableProxySqlServerv2k5>

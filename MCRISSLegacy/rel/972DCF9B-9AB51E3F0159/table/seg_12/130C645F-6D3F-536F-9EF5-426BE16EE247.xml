@@ -1,0 +1,100 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_12" id="130C645F-6D3F-536F-9EF5-426BE16EE247" schemaObject="B106B664-0C0B-E788-08ED-5CF8E449BE22" name="GradCommDateChangeRequest">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:56 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>C34020F7-9E8C-E2AB-CE28-E7CFA7BA9475</importedID>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="RequestID" id="30E5D2AA-C9B9-BA76-27BF-E22AB8B2D6D8">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:59 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>B8416899-EEDB-546D-5701-E1C1BA82F308</importedID>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="1FB0A742-6D32-F50D-7C0D-7B327C29BB88" referredColumn="9F02F9FB-4BD9-D607-6894-1D8CA9871BB3"/>
+</associations>
+</Column>
+<Column name="GradDate" id="06E6CCF9-C01A-2357-B16D-61B031C89F5A">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:59 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>B6994622-3907-0721-67A4-9EE27E6BC673</importedID>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="CommissionDate" id="C389D00F-0B0C-44ED-6F31-5A8D15159FF9">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:59 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>FC01A04F-6D32-9C12-A6E7-6D5D22EDC6B2</importedID>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="ReferenceText" id="17AB6FB4-E39A-478B-A831-88B79ED5340A">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:59 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>31821E76-343C-16B6-4B51-DA3B16AA7CF1</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>112EC867-2395-1EE9-3931-C67F7873405F</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="45948BF7-3A4A-3E08-C13F-E12F5E8BFDED" name="GradCommDateChangeRequest_PK">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:59 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>2F6933F0-E5F4-B000-0C81-6A6969A17CC4</importedID>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="30E5D2AA-C9B9-BA76-27BF-E22AB8B2D6D8"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="45517722-3CDA-4F7C-6765-7275EA2A111A" name="FK_Request_GradCommDateChangeRequest">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:03 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="30E5D2AA-C9B9-BA76-27BF-E22AB8B2D6D8"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+<tableCheckConstraints itemClass="oracle.dbtools.crest.model.design.constraint.TableLevelConstraint">
+<tableCheckConstraint name="[ACP].[GradCommDateChangeRequest]" directorySegmentName="seg_10" id="8DF9FB7A-C9DC-00E9-203E-E1D1340FE833">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:59 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>EA3BC56B-BF83-754A-051D-4080058ACE7D</importedID>
+<rule><![CDATA[CONSTRAINT [FK_Request_GradCommDateChangeRequest]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITH" directorySegmentName="seg_10" id="83F2B003-FE92-0650-AD02-DD5710A186FA">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:59 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>0D9624C0-14BE-2092-C45A-B6E0392FAEAA</importedID>
+</tableCheckConstraint>
+</tableCheckConstraints>
+</Table>

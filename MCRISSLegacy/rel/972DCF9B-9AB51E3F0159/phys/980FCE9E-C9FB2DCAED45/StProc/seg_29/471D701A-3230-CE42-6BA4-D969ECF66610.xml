@@ -1,0 +1,24 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetContactInforma.on]" directorySegmentName="seg_29" id="471D701A-3230-CE42-6BA4-D969ECF66610">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:39 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @PersonID uniqueiden..er 
+) 
+AS 
+ 
+SELECT 
+ [PersonID], 
+ [HomeEmail], 
+ [HomePhone], 
+ [MobilePhone], 
+ [WorkEmail], 
+ [WorkPhone] 
+FROM [ACP].[ContactInforma.on] 
+WHERE 
+ [PersonID] = @PersonID]]></body>
+<schema>569A41D8-8F40-0619-141C-F4C9436AAF46</schema>
+<database>2D7ED536-DF8E-3523-7DC3-4228EBAF5F66</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,20 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetLanguageHistory]" directorySegmentName="seg_17" id="6AB0E03D-951A-7067-D78F-6D2B301F2E7F">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@PersonId int 
+ 
+ 
+AS 
+ 
+Select L.LANGUAGE_CODE_DESCRIPTION, 
+ L.LANGUAGE_CODE 
+From CANDIDATE_LANGUAGE CL, 
+ LANGUAGE L 
+Where CL.MARINE_CANDIDATE_ID = @PersonId 
+ AND CL.LANGUAGE_CODE = L.LANGUAGE_CODE]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

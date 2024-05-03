@@ -1,0 +1,22 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetCMCAssignedValues]" directorySegmentName="seg_4" id="B417A511-EBBD-B3B3-0CE2-8CCBD17B647D">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@FiscalYear int, 
+ @CategoryCode char(2), 
+ @Recrui.ngOrgID  int  
+AS 
+ 
+SELECT ORGANIZATION_ID = 'CMC',  MONTH_CODE, QUOTA_VALUE, REQMT_VALUE 
+FROM RECRUITING_ORGANIZATION WITH (NOLOCK)  
+ INNER JOIN SHIPPING_QUOTA_PLAN ON  
+     RECRUITING_ORGANIZATION.ORGANIZATION_ID = SHIPPING_QUOTA_PLAN.ORGANIZATION_ID 
+WHERE SHIPPING_QUOTA_PLAN.FISCAL_YEAR =  @FiscalYear AND 
+RECRUITING_ORGANIZATION.ORGANIZATION_TYPE = 'R' AND 
+SHIPPING_QUOTA_PLAN.CATEGORY_CODE = @CategoryCode AND 
+SHIPPING_QUOTA_PLAN.ORGANIZATION_ID = @Recrui.ngOrgID]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

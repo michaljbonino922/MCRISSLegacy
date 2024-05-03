@@ -1,0 +1,47 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_DBAInsertUpdateUserList]" directorySegmentName="seg_14" id="EC731266-C6A3-2219-C8E9-F8E45B7C676A">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@userid   varchar(30), 
+ @mcc      varchar(5) 
+ 
+as 
+ 
+declare  
+ @updatedate     date.me, 
+ @login    varchar(15) 
+ 
+ 
+set @login = (select system_user) 
+set @updatedate = getdate() 
+ 
+ 
+--- Add the user account if it doesn't exist. 
+ 
+if not exists (select 1 from user_list where user_id = @userid) 
+ 
+begin 
+ insert into user_list (user_id, mcc_code, user_login, update_date) 
+ values (@userid, @mcc, @login, @updatedate) 
+ 
+ print @userid + ' ' + 'has been added' 
+ 
+ end 
+ 
+ 
+--- If the user account already exists, update the MCC Code. 
+ 
+else  begin 
+ update user_list 
+ set mcc_code = @mcc, user_login = @login, update_date = getdate() 
+ where user_id = @userid 
+ 
+ 
+ print 'MCC Code for ' + @userid + ' ' + 'has been updated' 
+ 
+end]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

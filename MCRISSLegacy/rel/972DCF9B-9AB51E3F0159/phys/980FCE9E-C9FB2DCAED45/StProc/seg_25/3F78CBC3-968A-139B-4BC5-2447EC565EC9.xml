@@ -1,0 +1,52 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateProgramCriteriaWaiver]" directorySegmentName="seg_25" id="3F78CBC3-968A-139B-4BC5-2447EC565EC9">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@ProgramID   AS INT, 
+ @E.ec.veDate   AS DATETIME, 
+ @WaiverID   AS INT, 
+ @AddCriteria   AS CHAR(1), 
+ @UserLogin   AS VARCHAR(15) 
+AS 
+ 
+SET NOCOUNT ON 
+ 
+IF NOT EXISTS (SELECT 1 FROM PROGRAM_CRITERIA_WAIVER PCW WHERE  
+  PCW.PROGRAM_ID = @ProgramID AND 
+  PCW.PROGRAM_CRITERIA_ED_DATE = @E.ec.veDate AND 
+  PCW.WAIVER_ID = @WaiverID) 
+BEGIN 
+ ------------------------ 
+ -- If the record does not exist and the user is trying to add a record, 
+ -- then perform the insert. 
+ ------------------------ 
+ IF @AddCriteria = 'Y' 
+ BEGIN 
+  INSERT INTO PROGRAM_CRITERIA_WAIVER  
+   (PROGRAM_ID, PROGRAM_CRITERIA_ED_DATE, WAIVER_ID, USER_LOGIN) 
+  VALUES  
+   (@ProgramID, @E.ec.veDate, @WaiverID, @UserLogin) 
+ END 
+END 
+ELSE 
+BEGIN 
+ ------------------------ 
+ -- If the record does exist and the user is not trying to add a record, 
+ -- then perform the delete. 
+ ------------------------ 
+ IF @AddCriteria = 'N' 
+ BEGIN 
+  DELETE FROM PROGRAM_CRITERIA_WAIVER WHERE PROGRAM_ID = @ProgramID AND PROGRAM_CRITERIA_ED_DATE = @E.ec.veDate AND WAIVER_ID = @WaiverID 
+ END 
+END 
+ 
+------------------------ 
+-- Otherwise, there is nothing to be done. 
+------------------------ 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

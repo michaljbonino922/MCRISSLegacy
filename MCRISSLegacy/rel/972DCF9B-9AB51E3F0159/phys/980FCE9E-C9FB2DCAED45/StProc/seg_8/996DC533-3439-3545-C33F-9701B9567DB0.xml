@@ -1,0 +1,417 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[RCTAPI_GetCardData]" directorySegmentName="seg_8" id="996DC533-3439-3545-C33F-9701B9567DB0">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@edipi varchar(10) 
+AS 
+ 
+SET NOCOUNT ON 
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+DECLARE @result   varchar(max) 
+DECLARE @tempJson varchar(max) 
+ 
+--RssOss.[dbo].[RCTAPI_GetCardData] 1266694055 
+--DECLARE @edipi varchar(10) 
+--SET @edipi = 1266694055 
+ 
+DECLARE  
+ @nowMinusTwoYear date.me, 
+ @nowMinusOneYear date.me 
+ 
+SET @nowMinusTwoYear = DATEADD(year, -2, GETDATE()) 
+SET @nowMinusOneYear = DATEADD(year, -1, GETDATE()) 
+ 
+-- Recruiter Info 
+SELECT TOP 1 
+  u.FirstName 
+ ,u.LastName 
+ ,rp.RECRUITING_PERSON_ID AS Recrui.ngPersonId 
+ ,rp.rowguid AS Recrui.ngPersonGuid  
+ ,ro.ORGANIZATION_ID 
+ ,ro.rowguid as OrgGuid 
+ ,ro.COUNTY_CODE 
+ ,ro.STATE_CODE 
+ ,ro.CITY_CODE 
+ ,ro.Street 
+ ,ro.Street2 
+ ,ro.ZIP_CODE 
+INTO #Recruiter  
+FROM  
+ UserMgmt.dbo.[User] u 
+ INNER JOIN MCRISS.dbo.PERSON p ON u.FirstName = p.FIRST_NAME AND u.LastName=p.LAST_NAME 
+ INNER JOIN MCRISS.dbo.RECRUITING_ORGANIZATION ro ON u.Sta.on_OrgUnitID = ro.OrgUnitId 
+ INNER JOIN MCRISS.dbo.RECRUITING_PERSON rp ON rp.RECRUITING_PERSON_ID = p.PERSON_ID AND rp.ORGANIZATION_ID = ro.ORGANIZATION_ID 
+WHERE  
+ Dis.nguishedName like '%' + @edipi AND u.IsAc.ve = 1 AND rp.ORGANIZATION_ID = ro.ORGANIZATION_ID 
+ORDER BY 
+ LastAc.vityDate DESC 
+ 
+ 
+SELECT DISTINCT 
+  sz.SectorID, sz.zip 
+INTO #SectorZip 
+FROM 
+ RSSOSS.USMC.MapsSector s 
+ INNER JOIN #Recruiter r  
+  ON (s.Recrui.ngOrganiza.onId = r.OrgGuid ) 
+ INNER JOIN RSSOSS.USMC.MapsSectorZip sz 
+  ON s.SectorID = sz.SectorID 
+ INNER JOIN RSSOSS.USMC.MapsSectorRecruiter sr 
+  ON s.SectorID = sr.SectorID AND sr.Recrui.ngPersonId = r.Recrui.ngPersonGuid 
+WHERE 
+ s.SectorType = 'E' 
+ 
+-- mediaCards 
+SET @tempJson = ( 
+     SELECT DISTINCT 
+       MediaCardId AS mediaCardId 
+      ,MediaTypeId AS mediaTypeId 
+      ,COALESCE( 
+       card1Geo.rowguid, 
+       card2Geo.rowguid 
+       )     AS cityId 
+      ,MediaName  AS mediaName 
+      ,DatePrepared AS datePrepared 
+      ,FY    AS .scalYear 
+      ,Street   AS street 
+      ,Zip_code  AS zipCode 
+      ,EmailAddress AS emailAddress 
+      ,POC   AS poc 
+      ,CASE  
+         WHEN ISNUMERIC(REPLACE(PhoneNumber, '-', '')) = 1 THEN 
+        SUBSTRING(REPLACE(PhoneNumber, '-', ''), 1, 3) + '-' +  
+        SUBSTRING(REPLACE(PhoneNumber, '-', ''), 4, 3) + '-' + 
+        SUBSTRING(REPLACE(PhoneNumber, '-', ''), 7, 4) 
+       ELSE 
+       PhoneNumber 
+       END   AS phoneNumber 
+      ,Comments  AS comments 
+  
+     FROM  
+      RSSOSS.USMC.MediaCard mc 
+      INNER JOIN #SectorZip sz ON mc.Zip_code = sz.zip 
+ 
+      LEFT OUTER JOIN MCRISS.dbo.GEO_LOCATION card1Geo --City 
+      ON card1Geo.CITY_CODE = mc.City_Code AND card1Geo.STATE_CODE = mc.State_Code AND card1Geo.COUNTRY_DESCRIPTION <> 'UNITED STATES' 
+         AND (card1Geo.STATE_CODE <> '00' AND card1Geo.COUNTY_CODE <> '000' AND (card1Geo.CITY_CODE NOT IN ('0000', '0'))) 
+ 
+      LEFT OUTER JOIN MCRISS.dbo.GEO_LOCATION card2Geo --City 
+      ON card2Geo.CITY_CODE = mc.City_Code AND card2Geo.COUNTY_CODE = mc.County_Code AND card2Geo.STATE_CODE = mc.State_Code AND card2Geo.COUNTRY_DESCRIPTION = 'UNITED STATES' 
+         AND (card2Geo.STATE_CODE <> '00' AND card2Geo.COUNTY_CODE <> '000' AND (card2Geo.CITY_CODE NOT IN ('0000', '0'))) 
+ 
+     WHERE  
+       FY >= DATEPART(year, @nowMinusTwoYear) 
+       --AND MediaCardId IN ('.a1f2c4-c7d9-46a5-bbc2-0e9841e26250','d55d5017-22f9-4df4-b3a3-0f769898f745') 
+     FOR JSON PATH, ROOT('mediaCards'), INCLUDE_NULL_VALUES 
+) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = ISNULL(@tempJson, '"mediaCards":[]')  
+ 
+--takeOneCards 
+SET @tempJson = ( 
+     SELECT DISTINCT 
+       ID    AS takeOneCardId 
+      ,DatePrepared AS datePrepared 
+      ,FY    AS .scalYear 
+      ,tc.SectorID AS sectorId 
+     FROM  
+      RSSOSS.USMC.TakeOneCard tc 
+      INNER JOIN #SectorZip sz ON tc.SectorID = sz.SectorID 
+     WHERE  
+       FY >= DATEPART(year, @nowMinusTwoYear) AND 
+       FY <= DATEPART(year, DATEADD(year, 1, GETDATE())) 
+       FOR JSON PATH, ROOT('takeOneCards'), INCLUDE_NULL_VALUES 
+) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"takeOneCards":[]') 
+ 
+ 
+--takeOneLoca.ons 
+SET @tempJson = ( 
+     SELECT DISTINCT 
+       tol.ID      AS takeOneLoca.onId 
+      ,tol.TakeOneCardID   AS takeOneCardId 
+      ,tol.Loca.onName   AS loca.onName 
+      ,tol.LocStreet1    AS street 
+      ,COALESCE( 
+       card1Geo.rowguid, 
+       card2Geo.rowguid 
+       )        AS cityId 
+      ,tol.ZipCode    AS zipCode 
+      ,tol.ContactFirstName  AS contactFirstName 
+      ,tol.ContactLastName  AS contactLastName 
+      ,tol.ContactMiddleIni.alAS contactMiddleIni.al 
+      ,tol.ContactTitle   AS contactTitle 
+      ,CASE  
+         WHEN ISNUMERIC(REPLACE(tol.Phone, '-', '')) = 1 THEN 
+        SUBSTRING(REPLACE(tol.Phone, '-', ''), 1, 3) + '-' +  
+        SUBSTRING(REPLACE(tol.Phone, '-', ''), 4, 3) + '-' + 
+        SUBSTRING(REPLACE(tol.Phone, '-', ''), 7, 4) 
+       ELSE 
+       tol.Phone 
+       END      AS phone 
+      ,tol.EmailAddress   AS emailAddress 
+      ,tol.Stock     AS stock 
+      ,tol.IsAc.ve    AS isAc.ve 
+     FROM 
+      RSSOSS.USMC.TakeOneLoca.on tol 
+      INNER JOIN RSSOSS.USMC.TakeOneCard tc ON tol.TakeOneCardID = tc.ID 
+      INNER JOIN #SectorZip sz ON tc.SectorID = sz.SectorID 
+ 
+      LEFT OUTER JOIN MCRISS.dbo.GEO_LOCATION card1Geo --City 
+      ON card1Geo.CITY_CODE = tol.CityCode AND card1Geo.STATE_CODE = tol.StateCode AND card1Geo.COUNTRY_DESCRIPTION <> 'UNITED STATES' 
+         AND (card1Geo.STATE_CODE <> '00' AND card1Geo.COUNTY_CODE <> '000' AND (card1Geo.CITY_CODE NOT IN ('0000', '0'))) 
+ 
+      LEFT OUTER JOIN MCRISS.dbo.GEO_LOCATION card2Geo --City 
+      ON card2Geo.CITY_CODE = tol.CityCode AND card2Geo.COUNTY_CODE = tol.CountyCode AND card2Geo.STATE_CODE = tol.StateCode AND card2Geo.COUNTRY_DESCRIPTION = 'UNITED STATES' 
+         AND (card2Geo.STATE_CODE <> '00' AND card2Geo.COUNTY_CODE <> '000' AND (card2Geo.CITY_CODE NOT IN ('0000', '0'))) 
+     WHERE  
+       tc.FY >= DATEPART(year, @nowMinusTwoYear) AND 
+       tc.FY <= DATEPART(year, DATEADD(year, 1, GETDATE())) 
+      
+     FOR JSON PATH, ROOT('takeOneLoca.ons'), INCLUDE_NULL_VALUES 
+) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"takeOneLoca.ons":[]') 
+ 
+--takeOneLoca.onRestocks 
+SET @tempJson = ( 
+     SELECT DISTINCT 
+       tolr.ID     AS takeOneLoca.onRestockId 
+      ,tolr.TakeOneLoca.onID AS takeOneLoca.onId 
+      ,tolr.RestockDate  AS restockDate 
+      ,tolr.StockAdded   AS stockAdded 
+     FROM 
+      RSSOSS.USMC.TakeOneLoca.onRestock tolr 
+      INNER JOIN RSSOSS.USMC.TakeOneLoca.on tol on tol.ID = tolr.TakeOneLoca.onID 
+      INNER JOIN RSSOSS.USMC.TakeOneCard tc ON tol.TakeOneCardID = tc.ID 
+      INNER JOIN #SectorZip sz ON tc.SectorID = sz.SectorID 
+     WHERE  
+       tc.FY >= DATEPART(year, @nowMinusTwoYear) AND 
+       tc.FY <= DATEPART(year, DATEADD(year, 1, GETDATE())) 
+      
+     FOR JSON PATH, ROOT('takeOneLoca.onRestocks'), INCLUDE_NULL_VALUES 
+) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"takeOneLoca.onRestocks":[]') 
+ 
+--contactCards 
+SET @tempJson = ( 
+     SELECT DISTINCT 
+       ID    AS contactCardId 
+      ,COALESCE( 
+       home1Geo.rowguid, 
+       home2Geo.rowguid    
+       )     AS homeCityId 
+      ,COALESCE( 
+       work1Geo.rowguid, 
+       work2Geo.rowguid   
+       )     AS workCityId      
+      ,DatePrepared AS datePrepared 
+      ,ForFY   AS .scalYear 
+      ,FirstName  AS .rstName 
+      ,MiddleName  AS middleName 
+      ,LastName  AS lastName 
+      ,EmailAddress AS emailAddress 
+       
+      ,Home_Street1 AS homeStreet1 
+      ,Home_Street2 AS homeStreet2 
+       
+      ,Home_ZipCode AS homeZipCode 
+      ,Home_Phone  AS homePhoneNumber 
+      ,Work_Street1 AS workStreet1 
+      ,Work_Street2 AS workStreet2 
+       
+      ,Work_ZipCode AS workZipCode 
+      ,Work_Phone  AS workPhoneNumber 
+      ,A.lia.ons AS a.lia.ons 
+      ,FormerUSMC  AS formerUsmc 
+      ,Other   AS otherMilitaryBranch 
+      ,ValueToRSS  AS valueToRss 
+     FROM  
+      RSSOSS.USMC.ContactCard cc 
+      INNER JOIN #SectorZip sz ON cc.Work_ZipCode = sz.zip 
+ 
+      LEFT OUTER JOIN MCRISS.dbo.GEO_LOCATION home1Geo --City 
+      ON home1Geo.CITY_CODE = cc.Home_City AND home1Geo.STATE_CODE = cc.Home_State AND home1Geo.COUNTRY_DESCRIPTION <> 'UNITED STATES' 
+         AND (home1Geo.STATE_CODE <> '00' AND home1Geo.COUNTY_CODE <> '000' AND (home1Geo.CITY_CODE NOT IN ('0000', '0'))) 
+ 
+      LEFT OUTER JOIN MCRISS.dbo.GEO_LOCATION home2Geo --City 
+      ON home2Geo.CITY_CODE = cc.Home_City AND home2Geo.COUNTY_CODE = cc.Home_County AND home2Geo.STATE_CODE = cc.Home_State AND home2Geo.COUNTRY_DESCRIPTION = 'UNITED STATES' 
+         AND (home2Geo.STATE_CODE <> '00' AND home2Geo.COUNTY_CODE <> '000' AND (home2Geo.CITY_CODE NOT IN ('0000', '0'))) 
+ 
+      LEFT OUTER JOIN MCRISS.dbo.GEO_LOCATION work1Geo --City 
+      ON work1Geo.CITY_CODE = cc.Work_City AND work1Geo.STATE_CODE = cc.Work_State AND work1Geo.COUNTRY_DESCRIPTION <> 'UNITED STATES' 
+         AND (work1Geo.STATE_CODE <> '00' AND work1Geo.COUNTY_CODE <> '000' AND (work1Geo.CITY_CODE NOT IN ('0000', '0'))) 
+ 
+      LEFT OUTER JOIN MCRISS.dbo.GEO_LOCATION work2Geo --City 
+      ON work2Geo.CITY_CODE = cc.Work_City AND work2Geo.COUNTY_CODE = cc.Work_County  AND work2Geo.STATE_CODE = cc.Work_State AND work2Geo.COUNTRY_DESCRIPTION = 'UNITED STATES' 
+         AND (work2Geo.STATE_CODE <> '00' AND work2Geo.COUNTY_CODE <> '000' AND (work2Geo.CITY_CODE NOT IN ('0000', '0'))) 
+     WHERE  
+       ForFY >= DATEPART(year, @nowMinusTwoYear) 
+ 
+     FOR JSON PATH, ROOT('contactCards'), INCLUDE_NULL_VALUES 
+) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"contactCards":[]') 
+ 
+--irtCards 
+SET @tempJson = ( 
+     SELECT DISTINCT 
+       IRTCardID   AS irtCardId 
+      ,RecruiterID  AS recruiterId 
+      ,RecruiterRankName AS recruiterRankName 
+      ,RssOrgID   AS rssOrgId 
+      ,irtc.SectorID  AS sectorId 
+      ,CardNameDesc  AS cardIdName 
+      ,Sector    AS sector 
+      ,ForFY    AS .scalYear 
+      ,DatePrepared  AS datePrepared 
+      ,Frequency   AS frequency 
+      ,[Hours]   AS [hours] 
+     FROM 
+      RSSOSS.USMC.IRTCard irtc 
+      INNER JOIN #SectorZip sz ON irtc.SectorID = sz.SectorID 
+     WHERE  
+       ForFY >= DATEPART(year, @nowMinusTwoYear) 
+ 
+     FOR JSON PATH, ROOT('irtCards'), INCLUDE_NULL_VALUES 
+ 
+) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"irtCards":[]') 
+ 
+--irtAc.onDateRecaps 
+SET @tempJson = ( 
+     SELECT DISTINCT 
+       rc.IRTAc.onDateID  AS irtAc.onDateRecapId 
+      ,rc.IRTCardID   AS irtCardId 
+      ,rc.EventID    AS eventId 
+      ,rc.Ac.onDate   AS ac.onDate 
+      ,rc.HoursSpent   AS hoursSpent 
+      ,rc.TC     AS telephoneCall 
+      ,rc.AC     AS areaCanvassing 
+      ,rc.HV     AS homeVisit 
+      ,rc.DC     AS digitalCommunica.on 
+      ,rc.ResultsAppt   AS resultsAppointment 
+      ,rc.ResultsIntv   AS resultsInterview 
+      ,rc.RefReceived   AS referralReceived 
+      ,rc.MediaVisits   AS mediaVisits 
+      ,rc.HSVisits   AS highSchoolVisits 
+      ,rc.TOServiced   AS toServices 
+      ,rc.PooleeContacts  AS pooleeContacts 
+      ,rc.ContactVisits  AS contactVisits 
+     FROM 
+      RSSOSS.USMC.IRTAc.onDatesRecap rc 
+      INNER JOIN RSSOSS.USMC.IRTCard irtc ON rc.IRTCardID = irtc.IRTCardID 
+      INNER JOIN #SectorZip sz ON irtc.SectorID = sz.SectorID 
+     WHERE  
+       irtc.ForFY >= DATEPART(year, @nowMinusTwoYear) 
+ 
+     FOR JSON PATH, ROOT('irtAc.onDateRecaps'), INCLUDE_NULL_VALUES 
+) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"irtAc.onDateRecaps":[]') 
+ 
+--irtStops 
+SET @tempJson = ( 
+     SELECT DISTINCT 
+       stp.StopID    AS irtStopId 
+      ,stp.IRTCardID   AS irtCardId 
+      ,COALESCE( 
+       stop1Geo.rowguid, 
+       stop2Geo.rowguid  
+       )      AS cityId 
+      ,stp.StopNumber   AS stopNumber 
+      ,stp.Organiza.onName AS organiza.onName 
+      ,stp.Street    AS street1 
+      ,stp.Street2   AS street2 
+      ,stp.ZipCode   AS zipCode 
+      ,stp.PhoneNumber  AS phoneNumber 
+      ,stp.Time    AS .me 
+      ,stp.Title    AS contactTitle 
+      ,stp.FirstName   AS contactFirstName 
+      ,stp.MI     AS contactMiddleIni.al 
+      ,stp.LastName   AS contactLastName 
+      ,stp.Comments   AS notes    
+     FROM 
+      RSSOSS.USMC.IRTStops stp 
+      INNER JOIN RSSOSS.USMC.IRTCard irtc ON stp.IRTCardID = irtc.IRTCardID 
+      INNER JOIN #SectorZip sz ON irtc.SectorID = sz.SectorID 
+ 
+      LEFT OUTER JOIN MCRISS.dbo.GEO_LOCATION stop1Geo --City 
+      ON stop1Geo.CITY_CODE = stp.CityCode AND stop1Geo.STATE_CODE = stp.StateCode AND stop1Geo.COUNTRY_DESCRIPTION <> 'UNITED STATES' 
+         AND (stop1Geo.STATE_CODE <> '00' AND stop1Geo.COUNTY_CODE <> '000' AND (stop1Geo.CITY_CODE NOT IN ('0000', '0'))) 
+ 
+      LEFT OUTER JOIN MCRISS.dbo.GEO_LOCATION stop2Geo --City 
+      ON stop2Geo.CITY_CODE = stp.CityCode AND stop2Geo.COUNTY_CODE = stp.CountyCode AND stop2Geo.STATE_CODE = stp.StateCode AND stop2Geo.COUNTRY_DESCRIPTION = 'UNITED STATES' 
+         AND (stop2Geo.STATE_CODE <> '00' AND stop2Geo.COUNTY_CODE <> '000' AND (stop2Geo.CITY_CODE NOT IN ('0000', '0'))) 
+ 
+     WHERE  
+      irtc.ForFY >= DATEPART(year, @nowMinusTwoYear) 
+ 
+     FOR JSON PATH, ROOT('irtStops'), INCLUDE_NULL_VALUES 
+) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"irtStops":[]') 
+ 
+--irtStopAc.vi.es 
+SET @tempJson = ( 
+     SELECT DISTINCT 
+       sa.StopAc.vi.esID AS irtStopAc.vityId 
+      ,sa.StopID    AS irtStopId 
+      ,sa.Ac.vity   AS ac.vity 
+      ,sa.Ac.vityCount  AS ac.vityCount 
+     FROM 
+      RSSOSS.USMC.IRTStopAc.vi.es sa 
+      INNER JOIN RSSOSS.USMC.IRTStops stp ON stp.StopID = sa.StopID 
+      INNER JOIN RSSOSS.USMC.IRTCard irtc ON stp.IRTCardID = irtc.IRTCardID 
+      INNER JOIN #SectorZip sz ON irtc.SectorID = sz.SectorID 
+     WHERE  
+      irtc.ForFY >= DATEPART(year, @nowMinusTwoYear) 
+ 
+     FOR JSON PATH, ROOT('irtStopAc.vi.es'), INCLUDE_NULL_VALUES 
+) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"irtStopAc.vi.es":[]') 
+ 
+--hsccVisitCards 
+SET @tempJson = ( 
+ 
+  SELECT DISTINCT 
+    vc.ID    AS hsccVisitCardId 
+   ,vc.School_Code  AS schoolId 
+   ,vc.DatePrepared AS datePrepared 
+   ,vc.ToSchool  AS dateToSchool 
+   ,vc.School_Year  AS schoolYear 
+   ,vc.Calendar  AS numberOfCalendars 
+   ,vc.Remark   AS notes 
+  FROM 
+   MCRISS.dbo.HIGH_SCHOOL hs 
+   INNER JOIN #Recruiter rt ON hs.ORGANIZATION_ID = rt.ORGANIZATION_ID 
+   INNER JOIN MCRISS.dbo.HIGH_SCHOOL_PROFILE pf ON hs.SCHOOL_CODE = pf.SCHOOL_CODE 
+   INNER JOIN RSSOSS.USMC.HSCCVisitCard vc ON vc.School_Code = pf.SCHOOL_CODE 
+  WHERE 
+   hs.SCHOOL_TYPE IS NOT NULL 
+   AND hs.DELETED = 'N' 
+   AND vc.SCHOOL_YEAR  >= DATEPART(year, @nowMinusTwoYear) 
+ 
+  FOR JSON PATH, ROOT('hsccVisitCards'), INCLUDE_NULL_VALUES 
+   
+) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"hsccVisitCards":[]') 
+ 
+SET @result = '{' + @result + '}' 
+ 
+SELECT @result 
+ 
+ 
+DROP TABLE #SectorZip 
+DROP TABLE #Recruiter]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

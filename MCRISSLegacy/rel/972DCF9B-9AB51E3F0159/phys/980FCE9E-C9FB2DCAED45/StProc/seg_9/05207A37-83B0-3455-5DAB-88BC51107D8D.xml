@@ -1,0 +1,242 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetShipView]" directorySegmentName="seg_9" id="05207A37-83B0-3455-5DAB-88BC51107D8D">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @Star.ngRow int, 
+ @PageSize int, 
+ @FromDate date.me, 
+ @ToDate date.me, 
+ @OrgID int, 
+ @SortBy int 
+) 
+AS 
+ 
+SET NOCOUNT ON 
+ 
+DECLARE @now date.me 
+SET @now = getdate() 
+ 
+--This will return one more row that they asked for so that they know if there is another page of data. 
+DECLARE @LastRow int 
+SET @LastRow = @Star.ngRow + @PageSize 
+ 
+ 
+-- Get data .ltered by SHIP_DATE and Org 
+DECLARE @FilterTable TABLE ( 
+ SHIP_DATE date.me NULL,  
+ CONTRACT_ID int NULL,  
+ DATE_OF_ENLIST date.me NULL,  
+ COMPONENT_CODE varchar(2) NULL,  
+ NWA_ID int NULL, 
+ PERSON_ID int NULL,  
+ RSS varchar(62) NULL,  
+ TIER varchar(5) NULL 
+ ) 
+INSERT INTO @FilterTable  
+SELECT  
+ s.SHIP_DATE, 
+ c.CONTRACT_ID, 
+ c.MEPS_CONTRACT_DATE, 
+ c.COMPONENT_CODE, 
+ n.NWA_ID, 
+ n.MARINE_CANDIDATE_ID, 
+ rss.[NAME],   
+ CASE dbo.GetTier(n.EDUCATION_CODE, c.MEPS_CONTRACT_DATE,n.MARINE_CANDIDATE_ID) 
+  WHEN 1 THEN 'I' 
+  WHEN 2 THEN 'II' 
+  WHEN 3 THEN 'III' 
+  END  
+ AS TIER    
+FROM SHIPPER s WITH (NOLOCK) 
+ INNER JOIN CONTRACT c ON s.CONTRACT_ID = c.CONTRACT_ID 
+ INNER JOIN NWA n on c.NWA_ID = n.NWA_ID  
+ INNER JOIN [USMC].[vwRecrui.ngOrgIDs] vw ON n.ORGANIZATION_OF_RECORD_ID = vw.root 
+ INNER JOIN RECRUITING_ORGANIZATION rss ON vw.RSS = rss.ORGANIZATION_ID 
+WHERE  
+ s.SHIP_DATE >= @FromDate AND s.SHIP_DATE <= @ToDate AND 
+ (vw.RS = @OrgID OR vw.RSS = @OrgID OR vw.District = @OrgID OR vw.Region = @OrgID OR vw.HQ = @OrgID) 
+ 
+ 
+ 
+-- Get addi.onal data needed for sor.ng 
+DECLARE @PreSortTable TABLE ( 
+ SHIP_DATE date.me NULL,  
+ CONTRACT_ID int NULL,  
+ DATE_OF_ENLIST date.me NULL,  
+ COMPONENT_CODE varchar(2) NULL,  
+ NWA_ID int NULL, 
+ PERSON_ID int NULL,  
+ RSS varchar(62) NULL, 
+ TIER varchar(5) NULL, 
+ PERSON_NAME varchar(62) NULL,  
+ SSN varchar(9) NULL,  
+ GENDER_CODE varchar(1) NULL,  
+ COMPONENT_DESCRIPTION varchar(50) NULL,  
+ DISPOSITION_DESCRIPTION varchar(62) NULL, 
+ RECRUITER_OF_RECORD_ID int NULL, 
+ AFQT_SCORE INT NULL, 
+ MENTAL_GROUP varchar(5) NULL   
+ ) 
+INSERT INTO @PreSortTable 
+SELECT 
+ ..*, 
+ RTRIM(p.LAST_NAME) + SPACE(1) + RTRIM(p.FIRST_NAME) + SPACE(1) + COALESCE(p.LEGAL_MIDDLE_NAME, SPACE(0)), 
+ p.SOCIAL_SECURITY_NUMBER, 
+ mc.GENDER_CODE, 
+ cc.COMPONENT_DESCRIPTION, 
+ sd.DISPOSITION_DESCRIPTION, 
+ RECRUITER_OF_RECORD_ID, 
+ null, 
+ null 
+FROM 
+ @FilterTable . 
+ INNER JOIN PERSON p ON ..PERSON_ID = p.PERSON_ID 
+ INNER JOIN MARINE_CANDIDATE mc ON ..PERSON_ID = mc.MARINE_CANDIDATE_ID 
+ INNER JOIN NWA n on ..NWA_ID = n.NWA_ID  
+ INNER JOIN CANDIDATE_STATUS cs ON cs.CANDIDATE_STATUS_ID = dbo.GetMaxStatusID(n.NWA_ID) 
+ INNER JOIN STATUS_DISPOSITION sd ON  (CS.STATUS_TYPE = SD.STATUS_TYPE AND CS.STATUS_CODE = SD.STATUS_CODE AND CS.DISPOSITION_CODE = SD.DISPOSITION_CODE) 
+ INNER JOIN COMPONENT_CODE cc ON ..COMPONENT_CODE = cc.COMPONENT_CODE 
+  
+--update presort table 
+UPDATE @PreSortTable 
+SET 
+ AFQT_SCORE = CA.AFQT_SCORE,  
+ MENTAL_GROUP =  
+  CASE  
+   WHEN(CA.AFQT_SCORE >= 93) THEN 'I'   
+   WHEN CA.AFQT_SCORE  BETWEEN 65 AND 92 THEN 'II' 
+   WHEN CA.AFQT_SCORE  BETWEEN 50 AND 64 THEN 'IIIA' 
+   WHEN CA.AFQT_SCORE  BETWEEN 31 AND 49 THEN 'IIIB' 
+   WHEN CA.AFQT_SCORE  BETWEEN 21 AND 30 THEN 'IV' 
+  END  
+    
+FROM 
+ @PreSortTable preSortTable 
+ INNER JOIN CANDIDATE_ASVAB CA ON (preSortTable.PERSON_ID = CA.MARINE_CANDIDATE_ID AND CA.ASVAB_DATE = dbo.GetMaxASVABDate(CA.MARINE_CANDIDATE_ID)) 
+ 
+ 
+-- Sort Data  
+DECLARE @Sor.ngTable TABLE ( 
+ RowNumber int NULL,  
+ SHIP_DATE date.me NULL,  
+ CONTRACT_ID int NULL,  
+ DATE_OF_ENLIST date.me NULL,  
+ COMPONENT_CODE varchar(2) NULL,  
+ NWA_ID int NULL, 
+ PERSON_ID int NULL,  
+ RSS varchar(62) NULL, 
+ TIER varchar(5) NULL, 
+ PERSON_NAME varchar(62) NULL,  
+ SSN varchar(9) NULL,  
+ GENDER_CODE varchar(1) NULL,  
+ COMPONENT_DESCRIPTION varchar(50) NULL,  
+ DISPOSITION_DESCRIPTION varchar(62) NULL, 
+ RECRUITER_OF_RECORD_ID int NULL, 
+ AFQT_SCORE INT NULL, 
+ MENTAL_GROUP varchar(5) NULL  
+ ) 
+ 
+IF @SortBy = 1 
+ INSERT INTO @Sor.ngTable 
+ SELECT ROW_NUMBER() OVER(Order By SHIP_DATE), pst.* 
+ FROM @PreSortTable pst  
+ ORDER BY SHIP_DATE 
+IF @SortBy = 2 
+ INSERT INTO @Sor.ngTable 
+ SELECT ROW_NUMBER() OVER(Order By PERSON_NAME), pst.* 
+ FROM @PreSortTable pst  
+ ORDER BY PERSON_NAME 
+IF @SortBy = 3 
+ INSERT INTO @Sor.ngTable 
+ SELECT ROW_NUMBER() OVER(Order By GENDER_CODE), pst.* 
+ FROM @PreSortTable pst  
+ ORDER BY GENDER_CODE 
+IF @SortBy = 4 
+ INSERT INTO @Sor.ngTable 
+ SELECT ROW_NUMBER() OVER(Order By DATE_OF_ENLIST), pst.* 
+ FROM @PreSortTable pst  
+ ORDER BY DATE_OF_ENLIST 
+IF @SortBy = 5 
+ INSERT INTO @Sor.ngTable 
+ SELECT ROW_NUMBER() OVER(Order By COMPONENT_CODE), pst.* 
+ FROM @PreSortTable pst  
+ ORDER BY COMPONENT_CODE 
+IF @SortBy = 6 
+ INSERT INTO @Sor.ngTable 
+ SELECT ROW_NUMBER() OVER(Order By RSS), pst.* 
+ FROM @PreSortTable pst  
+ ORDER BY RSS 
+IF @SortBy = 7 
+ INSERT INTO @Sor.ngTable 
+ SELECT ROW_NUMBER() OVER(Order By DISPOSITION_DESCRIPTION), pst.* 
+ FROM @PreSortTable pst  
+ ORDER BY DISPOSITION_DESCRIPTION 
+IF @SortBy = 8 
+ INSERT INTO @Sor.ngTable 
+ SELECT ROW_NUMBER() OVER(Order By TIER), pst.* 
+ FROM @PreSortTable pst  
+ ORDER BY TIER 
+IF @SortBy = 9 
+ INSERT INTO @Sor.ngTable 
+ SELECT ROW_NUMBER() OVER(Order By MENTAL_GROUP), pst.* 
+ FROM @PreSortTable pst  
+ ORDER BY MENTAL_GROUP 
+ 
+ 
+ 
+ 
+ 
+ 
+-- Limit data to current page 
+DECLARE @Grid TABLE ( 
+ RowNumber int NULL,  
+ SHIP_DATE date.me NULL,  
+ CONTRACT_ID int NULL,  
+ DATE_OF_ENLIST date.me NULL,  
+ COMPONENT_CODE varchar(2) NULL,  
+ NWA_ID int NULL, 
+ PERSON_ID int NULL,  
+ RSS varchar(62) NULL, 
+ TIER varchar(5) NULL, 
+ PERSON_NAME varchar(62) NULL,  
+ SSN varchar(9) NULL,  
+ GENDER_CODE varchar(1) NULL,  
+ COMPONENT_DESCRIPTION varchar(50) NULL,  
+ DISPOSITION_DESCRIPTION varchar(62) NULL, 
+ RECRUITER_OF_RECORD_ID int NULL, 
+ AFQT_SCORE INT NULL, 
+ MENTAL_GROUP varchar(5) NULL, 
+ RECRUITER_NAME varchar(62) NULL  
+ ) 
+ 
+INSERT INTO @Grid 
+SELECT *, null 
+FROM @Sor.ngTable 
+WHERE RowNumber >= @star.ngRow AND RowNumber <= @LastRow 
+ 
+ 
+-- Get the last of the data needed for display 
+UPDATE @Grid SET  
+ g.RECRUITER_NAME = p.[LAST_NAME] 
+FROM @Grid g 
+ INNER JOIN PERSON p on p.PERSON_ID = g.RECRUITER_OF_RECORD_ID 
+ 
+ 
+-- Return the data 
+SELECT * FROM @Grid 
+ 
+SELECT 
+ (SELECT COUNT(*) FROM @Sor.ngTable) AS Total, 
+ (SELECT COUNT(*) FROM @Sor.ngTable WHERE COMPONENT_CODE = 'K5' AND GENDER_CODE = 'M') AS RegularMales, 
+ (SELECT COUNT(*) FROM @Sor.ngTable WHERE COMPONENT_CODE = 'K5' AND GENDER_CODE = 'F') AS RegularFemales, 
+ (SELECT COUNT(*) FROM @Sor.ngTable WHERE COMPONENT_CODE IN ('B5', 'K4', 'K8', 'K9') AND GENDER_CODE = 'M') AS ReserveMales, 
+ (SELECT COUNT(*) FROM @Sor.ngTable WHERE COMPONENT_CODE IN ('B5', 'K4', 'K8', 'K9') AND GENDER_CODE = 'F') AS ReserveFemales, 
+ (SELECT COUNT(*) FROM @Sor.ngTable WHERE AFQT_SCORE >=50 AND COMPONENT_CODE = 'K5' AND GENDER_CODE = 'M') AS AlpahRegularMales 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

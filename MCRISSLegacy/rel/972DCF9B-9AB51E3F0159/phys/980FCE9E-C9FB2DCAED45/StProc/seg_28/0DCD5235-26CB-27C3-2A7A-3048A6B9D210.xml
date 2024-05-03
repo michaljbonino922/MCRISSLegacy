@@ -1,0 +1,100 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUpdateWorkingFile]" directorySegmentName="seg_28" id="0DCD5235-26CB-27C3-2A7A-3048A6B9D210">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:58:46 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @FormId uniqueiden..er, 
+ @PersonId uniqueiden..er, 
+ @Sec.onId uniqueiden..er, 
+ @FolderId uniqueiden..er, 
+ @FormTemplateId uniqueiden..er, 
+ @FriendlyName varchar(50), 
+ @Extension char(3), 
+ @FileSize bigint, 
+ @IsValidated bit, 
+ @IsSigned bit, 
+ @Data image, 
+ @UserName varchar(50) 
+) 
+AS 
+DECLARE @retVal int 
+ 
+IF EXISTS(SELECT 1 FROM [AFP].[USMC].[Form] WHERE FormId = @FormId) 
+BEGIN 
+ -- Before upda.ng, archive the old record if IsValidated or IsSigned 
+ DELETE FROM [AFP].[USMC].[WorkingFileArchive] 
+ WHERE FormId = @FormId AND IsSigned = @IsSigned AND IsValidated =  @IsValidated 
+ 
+ INSERT INTO [AFP].[USMC].[WorkingFileArchive] 
+ SELECT newID(),* FROM [AFP].[USMC].[Form] WHERE FormId = @FormId AND IsSigned = @IsSigned AND IsValidated =  @IsValidated 
+  
+ -- perform the update 
+ UPDATE [AFP].[USMC].[Form] 
+  SET PersonId = @PersonId 
+   ,Sec.onId = @Sec.onId 
+   ,FolderId = @FolderId 
+   ,FormTemplateId = @FormTemplateId 
+   ,FriendlyName = @FriendlyName 
+   ,Extension = @Extension 
+   ,FileSize = @FileSize 
+   ,IsValidated = @IsValidated 
+   ,IsSigned = @IsSigned 
+   ,UploadedBy = @UserName 
+   ,DateUploaded = GetDate() 
+   ,Data = @Data 
+ WHERE FormId = @FormId 
+  
+ -- Record the update in the history table. 
+ INSERT INTO [AFP].[USMC].[FormHistory] 
+  ([FormId], [Ac.on] ,[Actor] ,[Ac.onDate]) 
+ VALUES  
+  (@FormId, 'Updated', @UserName, GetDate()) 
+ 
+ SET @retVal = 1 
+END 
+ELSE 
+BEGIN  
+ INSERT INTO [AFP].[USMC].[Form] 
+  ([FormId] 
+  ,[PersonId] 
+  ,[Sec.onId] 
+  ,[FolderId] 
+  ,[FormTemplateId] 
+  ,[FriendlyName] 
+  ,[Extension] 
+  ,[FileSize] 
+  ,[IsValidated] 
+  ,[IsSigned] 
+  ,[UploadedBy] 
+  ,[DateUploaded] 
+  ,[Data]) 
+ VALUES 
+  (@FormId 
+  ,@PersonId 
+  ,@Sec.onId 
+  ,@FolderId 
+  ,@FormTemplateId 
+  ,@FriendlyName 
+  ,@Extension 
+  ,@FileSize 
+  ,@IsValidated 
+  ,@IsSigned 
+  ,@UserName 
+  ,GetDate() 
+  ,@Data) 
+              
+ -- Record the insert in the history table. 
+ INSERT INTO [AFP].[USMC].[FormHistory] 
+  ([FormId], [Ac.on] ,[Actor] ,[Ac.onDate]) 
+ VALUES  
+  (@FormId, 'Added', @UserName, GetDate()) 
+ 
+ SET @retVal = 0 
+END 
+ 
+SELECT @retVal]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>DC23F770-7DD9-7021-9572-6AE599ACA3AE</database>
+</StoredProcedureSqlServerv2k5>

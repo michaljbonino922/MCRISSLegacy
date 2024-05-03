@@ -1,0 +1,39 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateNROTCBoost]" directorySegmentName="seg_25" id="6E509F2D-DEC8-2D5C-1B83-EBD84E52CA76">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@NWAID     INT,  
+ @ProgramBeginDate  DATETIME = NULL, 
+ @ProgramGradDate  DATETIME = NULL, 
+ @AdvancedProgram  VARCHAR(2) = NULL, 
+ @UserLogin    VARCHAR(15) 
+AS 
+ 
+IF EXISTS(SELECT 1 FROM NROTC_BOOST WHERE NWA_ID = @NWAID) 
+BEGIN 
+ --- UPDATE THE RECORD 
+ UPDATE  
+  NROTC_BOOST   
+ SET  
+  PROGRAM_BEGIN_DATE  = @ProgramBeginDate, 
+  PROGRAM_GRAD_DATE  = @ProgramGradDate, 
+  ADVANCED_PROGRAM  = @AdvancedProgram, 
+  USER_LOGIN    = @UserLogin, 
+  UPDATE_DATE    = GETDATE() 
+ WHERE  
+  NWA_ID     = @NWAID  
+  
+END 
+ELSE 
+BEGIN 
+ --- INSERT THE RECORD 
+ INSERT INTO NROTC_BOOST 
+  (NWA_ID, PROGRAM_BEGIN_DATE, PROGRAM_GRAD_DATE, ADVANCED_PROGRAM, USER_LOGIN, UPDATE_DATE) 
+ VALUES 
+  (@NWAID, @ProgramBeginDate, @ProgramGradDate, @AdvancedProgram, @UserLogin, GETDATE())  
+END]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

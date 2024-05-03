@@ -1,0 +1,100 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="RequestApproval" directorySegmentName="seg_0" id="1941F53C-92B9-5D1A-C102-454E46406C10">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<schemaObject>454547C7-2829-9C8F-6E0C-35E4CFDC8E47</schemaObject>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="ViewedBy" id="0F3537C9-E3D2-9C92-CFDA-6CA6975FFBAF">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:06 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="RequestApprovalStepId" id="137575F4-7C88-2CBB-3A93-2822862CC952">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:06 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="RequestApprovalStatusId" id="240B8AE8-D48A-0582-B56E-11A0283933F1">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:06 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="Comments" id="5D70EDAE-17F8-FE80-8B9F-E62EFE784667">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:06 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="LastUpdateDate" id="5FFE09B3-78A8-2846-F0DF-ED1354220BDB">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:06 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="RequestApprovalId" id="68D1E8EA-2376-9246-F4DD-0F99F75733D7">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:06 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<defaultValue>(newid())</defaultValue>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="IsViewed" id="73C74A47-3A62-39A7-BCFA-232B55BF1341">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:06 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<defaultValue>(&apos;No&apos;)</defaultValue>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="RequestId" id="C361E02C-9971-3130-3E77-A0C368788056">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:06 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="LastUpdateUserId" id="CBFDE762-3890-B9F1-6119-0E415A3E5AC6">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:06 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+</columnProxies>
+<indexProxies>
+<IndexProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.IndexProxySqlServerv2k12" name="IDX_RequestApprovalStatusID_41515_PJ" id="E2211059-2FC2-1D14-BA22-BF4C6AA6981B">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:06 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<recomputeStatistics>ON</recomputeStatistics>
+</IndexProxy>
+<IndexProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.IndexProxySqlServerv2k12" name="IDX_RequestID_41515_PJ" id="E713E84E-0736-307A-EA83-0B891D62C908">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:06 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<fillFactor>100</fillFactor>
+<recomputeStatistics>ON</recomputeStatistics>
+</IndexProxy>
+</indexProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="FK_RequestApproval_Request" id="1433F86F-EAC0-F5E7-72CC-65E90CF0E574">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="FK_RequestApproval_RequestApprovalStatus" id="26AF788E-6207-047D-98C6-4872C617DAAD">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="FK_RequestApproval_RequestApprovalStep" id="F2ECE4D6-0683-8CBA-8350-6D49A06B41ED">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="PK_RequestApproval" id="E70998C2-7D30-9E0E-63E6-2697380DAFF0">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:06 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<clustered>true</clustered>
+<fillFactor>100</fillFactor>
+<partitioningColumn>68D1E8EA-2376-9246-F4DD-0F99F75733D7</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+</TableProxySqlServerv2k5>

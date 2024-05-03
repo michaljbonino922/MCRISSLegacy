@@ -1,0 +1,18 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetDescendentRecrui.ngOrgs]" directorySegmentName="seg_28" id="24BBCFE4-09EC-7FF0-1B63-269FD54D4E4B">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:58:46 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[AS 
+ 
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+SELECT [Parent] 
+      ,[Decendent] as Descendent 
+  FROM [mcriss].[USMC].[vwDecendentRecrui.ngOrgs] 
+order by parent, descendent desc 
+FOR XML PATH('DescendentRecrui.ngOrg'), ROOT('DescendentRecrui.ngOrgs')]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>DC23F770-7DD9-7021-9572-6AE599ACA3AE</database>
+</StoredProcedureSqlServerv2k5>

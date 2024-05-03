@@ -1,0 +1,273 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_TestDeleteContracts]" directorySegmentName="seg_23" id="8894354B-6E3A-973E-74C9-689F8881D0A9">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@SSNPre.x   varchar(9), 
+ @NumberToDelete  int, 
+ @UserLogin  varchar(15) = 'SA' 
+AS 
+ 
+ 
+DECLARE @DBID    int 
+DECLARE @DBNAME   nvarchar(128) 
+ 
+DECLARE @NWAID   int 
+DECLARE @ContractID   int 
+DECLARE @ShipID   int 
+DECLARE @ComponentCode  varchar(2) 
+ 
+DECLARE @NumReferrals   int 
+ 
+DECLARE @CandidateStatusID int 
+DECLARE @StatusType  char(1) 
+DECLARE @StatusCode  char(1) 
+DECLARE @Disposi.onCode char(1) 
+ 
+DECLARE @i   int 
+DECLARE @ErrMsg   varchar(100) 
+ 
+DECLARE @Ini.alSSN   char(9) 
+DECLARE @FirstSSN  char(9) 
+DECLARE @LastSSN  char(9) 
+DECLARE @LenSSNPre.x   int 
+DECLARE @SSN    char(9) 
+DECLARE @SSNMessage  varchar(100) 
+ 
+ 
+SET NOCOUNT ON 
+ 
+ 
+SELECT  
+ @DBID = DB_ID(),  
+ @DBNAME = DB_NAME() 
+ 
+ 
+--- MAKE SURE THE NUMBER OF SHIPPERS TO BE DELETED IS BETWEEN 1 AND 9999 
+IF @NumberToDelete NOT BETWEEN 1 AND 9999 
+BEGIN 
+ RAISERROR ('You must enter a number between 1 and 9999.', 16, 1, @DBID, @DBNAME) 
+ RETURN  
+END 
+ 
+--- MAKE SURE THE SSN PREFIX IS 5 CHARACTERS LONG 
+SET @LenSSNPre.x = LEN(@SSNPre.x) 
+ 
+ 
+--- IF THE SSN PREFIX IS LESS THAN 5 CHARACTERS LONG, APPEND 0's UNTIL IT'S 5 CHARACTERS LONG 
+IF @LenSSNPre.x < 5 
+BEGIN 
+ SET @SSNPre.x = RTRIM(@SSNPre.x) + REPLICATE('0', 5 - LEN(@SSNPre.x)) 
+END 
+ 
+--- INITIALIZE THE COUNTER 
+SET @i = 1 
+ 
+ 
+ 
+SET @Ini.alSSN = CASE  
+   WHEN LEN(@SSNPre.x) = 9 THEN @SSNPre.x 
+   WHEN EXISTS (SELECT 1 FROM PERSON P WHERE P.SOCIAL_SECURITY_NUMBER LIKE @SSNPre.x + '%') 
+    THEN CONVERT(CHAR(9), CONVERT(INT, (SELECT MAX(P.SOCIAL_SECURITY_NUMBER) FROM PERSON P  
+         WHERE P.SOCIAL_SECURITY_NUMBER LIKE @SSNPre.x + '%') + 1)) 
+   ELSE @SSNPre.x + '0000' 
+   END 
+ 
+ 
+ 
+ 
+WHILE @i <= @NumberToDelete 
+BEGIN 
+ --- DEFINE THE SSN FOR THE SHIPPER TO BE DELETED 
+ SET @SSN = CONVERT(CHAR(9), CONVERT(INT, @Ini.alSSN) + (@i - 1)) 
+ 
+ 
+ --- MAKE SURE THE SSN BELONGS TO A CONTRACT POOLEE 
+ --- get the NWAID, ContractID and Status/Disposi.on 
+ EXEC sp_GetCurrentStatusDisposi.on @SSN = @SSN, @NWAID = @NWAID OUTPUT,  
+     @ContractID = @ContractID OUTPUT,  
+     @CandidateStatusID = @CandidateStatusID OUTPUT, @StatusType = @StatusType OUTPUT,  
+     @StatusCode = @StatusCode OUTPUT, @Disposi.onCode = @Disposi.onCode OUTPUT  
+ 
+ --- MAKE SURE THE SSN BELONGS TO AN MCRD GRAD OR MCRD DISCHARGE 
+ IF @StatusType = 'E' AND @StatusCode = 'B' AND @Disposi.onCode = 'K' 
+ BEGIN 
+ 
+  --- GET THE COMPONENT_CODE 
+  SELECT @ComponentCode = C.COMPONENT_CODE FROM CONTRACT C WHERE C.CONTRACT_ID = @ContractID 
+ 
+ 
+  --- CHECK FOR ASSIGNED PROGRAMS OR QSNs 
+  IF @ComponentCode IN ('K4', 'K8', 'K9', 'B5')  
+  BEGIN 
+   IF EXISTS (SELECT 1 FROM QSN WHERE CONTRACT_ID = @ContractID) 
+   BEGIN 
+    SET @ErrMsg = 'SSN ' + @SSN + ' has  a QSN assigned and cannot be deleted.'  
+    RAISERROR (@ErrMsg, 16, 1, @DBID, @DBNAME) 
+    RETURN 
+   END 
+  END 
+  ELSE 
+  BEGIN 
+   IF EXISTS (SELECT 1 FROM PROGRAM_AVAILABILITY WHERE CONTRACT_ID = @ContractID) 
+   BEGIN 
+    SET @ErrMsg = 'SSN ' + @SSN + ' has  a PROGRAM assigned and cannot be deleted.'  
+    RAISERROR (@ErrMsg, 16, 2, @DBID, @DBNAME) 
+    RETURN 
+   END 
+  END 
+ 
+ 
+  IF EXISTS (SELECT 1 FROM REFERRAL WHERE DEP_CONTRACT_ID = @ContractID) 
+  BEGIN 
+   SELECT @NumReferrals = COUNT(REFERRAL_ID) FROM REFERRAL WHERE DEP_CONTRACT_ID = @ContractID 
+ 
+   SET @ErrMsg = 'SSN ' + @SSN + ' has referred ' + convert(varchar, @NumReferrals) + SPACE(1) +  
+    CASE @NumReferrals 
+     WHEN 1 THEN 'poolee and cannot be deleted unless the referral is updated.' 
+     ELSE 'poolees and cannot be deleted unless the referrals are updated.' 
+    END  
+ 
+   RAISERROR (@ErrMsg, 16, 3, @DBID, @DBNAME) 
+   RETURN 
+  END 
+ 
+ 
+  --- START THE TRANSACTION 
+  BEGIN TRANSACTION 
+ 
+ 
+  --- CHECK FOR REFERRALS 
+  IF EXISTS (SELECT 1 FROM REFERRAL WHERE CONTRACT_ID = @ContractID) 
+  BEGIN  
+   --- UPDATE THE USER LOGIN BEFORE WE DELETE THE REFERRAL RECORD  
+   UPDATE 
+    REFERRAL 
+   SET  
+    USER_LOGIN = @UserLogin 
+   WHERE  
+    CONTRACT_ID = @ContractID     
+  
+   --- DELETE THE REFERRAL RECORD 
+   DELETE FROM REFERRAL WHERE CONTRACT_ID = @ContractID 
+ 
+   IF @@ERROR != 0 OR @@ROWCOUNT = 0 
+   BEGIN 
+    ROLLBACK TRANSACTION 
+    SET @ErrMsg = 'An error occurred deleing the referral record for SSN ' + @SSN + '.'  
+    RAISERROR (@ErrMsg, 16, 4, @DBID, @DBNAME) 
+    RETURN 
+   END 
+  END   
+ 
+  IF EXISTS (SELECT 1 FROM PADD_HISTORY WHERE CONTRACT_ID = @ContractID) 
+  BEGIN 
+   --- UPDATE THE USER LOGIN BEFORE WE DELETE THE PADD_HISTORY RECORD  
+   UPDATE  
+    PADD_HISTORY 
+   SET  
+    USER_LOGIN = @UserLogin 
+   WHERE  
+    CONTRACT_ID = @ContractID     
+ 
+ 
+   --- DELETE THE PADD_HISTORY RECORD 
+   DELETE FROM PADD_HISTORY WHERE CONTRACT_ID = @ContractID 
+ 
+   IF @@ERROR != 0 OR @@ROWCOUNT = 0 
+   BEGIN 
+    ROLLBACK TRANSACTION 
+    SET @ErrMsg = 'An error occurred deleing the PADD history record for SSN ' + @SSN + '.'  
+    RAISERROR (@ErrMsg, 16, 5, @DBID, @DBNAME) 
+    RETURN 
+   END 
+  END 
+ 
+  --- UPDATE CONTRACT DATA WITH THE USER LOGIN BEFORE DELETING IT 
+  UPDATE  
+   CONTRACT 
+  SET 
+   USER_LOGIN = @UserLogin  
+  WHERE 
+   CONTRACT_ID = @ContractID 
+ 
+ 
+  --- DELETE THE CONTRACT DATA 
+  DELETE FROM CONTRACT WHERE CONTRACT_ID = @ContractID 
+ 
+  IF @@ERROR != 0 OR @@ROWCOUNT = 0 
+  BEGIN 
+   ROLLBACK TRANSACTION 
+   SET @ErrMsg = 'An error occurred dele.ng the contract record for SSN ' + @SSN + '.'  
+   RAISERROR (@ErrMsg, 16, 6, @DBID, @DBNAME) 
+   RETURN 
+  END 
+  
+ 
+  --- UPDATE THE USER LOGIN IN CANDIDATE STATUS FOR THE CURRENT STATUS RECORD 
+  UPDATE 
+   CANDIDATE_STATUS 
+  SET 
+   USER_LOGIN = 'SA' 
+  WHERE 
+   CANDIDATE_STATUS_ID = @CandidateStatusID 
+ 
+ 
+ 
+  --- DELETE THE STATUS RECORD FROM CANDIDATE_STATUS 
+  DELETE FROM CANDIDATE_STATUS WHERE CANDIDATE_STATUS_ID = @CandidateStatusID 
+  
+  IF @@ERROR != 0 OR @@ROWCOUNT = 0 
+  BEGIN 
+   ROLLBACK TRANSACTION 
+   SET @ErrMsg = 'An error occurred dele.ng the status record for SSN ' + @SSN + '.'  
+   RAISERROR (@ErrMsg, 16, 7, @DBID, @DBNAME) 
+   RETURN 
+  END 
+ 
+  --- IF WE MAKE IT HERE COMMIT THE TRANSACTION 
+  COMMIT TRANSACTION 
+ END 
+ ELSE 
+ BEGIN 
+  SET @ErrMsg = 'SSN ' + @SSN + ' does not belong to a contract poolee.'  
+  RAISERROR (@ErrMsg, 16, 8, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ 
+ SELECT 
+  @FirstSSN = CASE @i 
+    WHEN 1 THEN @SSN 
+    ELSE @FirstSSN 
+    END, 
+  @LastSSN = CASE  
+    WHEN @i BETWEEN 1 AND @NumberToDelete THEN @SSN 
+    ELSE @LastSSN  
+    END 
+ 
+ --- INCREMENT THE COUNTER 
+ SET @i = @i + 1  
+END 
+ 
+ 
+SET NOCOUNT OFF 
+ 
+ 
+--- DEFINE THE MESSAGE TO DISPLAY 
+SET @SSNMessage = CASE  
+   WHEN (@FirstSSN IS NOT NULL AND LEN(@FirstSSN) = 9) AND 
+    (@LastSSN IS NOT NULL AND LEN(@LastSSN) = 9)  
+   THEN 
+    'The contracts deleted range from SSN ' + @FirstSSN + ' to ' + @LastSSN + '.' 
+   ELSE SPACE(0) 
+   END 
+ 
+ 
+IF @SSNMessage IS NOT NULL AND LEN(@SSNMessage) > 0 
+BEGIN 
+ PRINT @SSNMessage 
+END]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

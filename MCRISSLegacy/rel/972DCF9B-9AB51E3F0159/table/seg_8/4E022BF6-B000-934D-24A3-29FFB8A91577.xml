@@ -1,0 +1,125 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_8" id="4E022BF6-B000-934D-24A3-29FFB8A91577" schemaObject="2A6D9360-3BB2-5CEA-6E99-790D76996FDF" name="LeadHistoryLineItem">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>186CEB4A-C2FF-D204-60AA-9B4CE7578341</importedID>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="LeadHistoryLineItemID" id="2FB4B9D1-1762-8CF5-89CF-8133111C4A9B">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>CFD80F8B-FEA7-CA80-4135-DEF356C3F4E2</importedID>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="ChangedField" id="F14330E1-EEB0-73D9-A073-B8039D5BFA1E">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>FE29F69E-48B3-EAD2-4CC1-ABDCAF4D4823</importedID>
+<use>0</use>
+<domain>2E8EE7FC-99CE-D4AE-132C-50F4AADCC1F4</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="OldValue" id="29106F72-9135-7C67-6420-0CC30611277C">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>2D21700E-54E0-B3E4-1585-F1083EE01C0B</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>27508766-BB8A-7C66-5C01-9D4029B8962D</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="NewValue" id="BD80D5A6-64B6-7679-2786-4420F0C85B07">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>9BD9C9DF-0FC7-CF27-CE4A-6B0033AA9898</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>27508766-BB8A-7C66-5C01-9D4029B8962D</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="LeadHistoryID" id="2E9D6CDE-8E4A-A885-0870-8B158C57B6E0">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>A121047B-A656-081E-445D-A2F8CBEFE468</importedID>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="0EF1717B-7C32-85AA-B236-3DEF171B27A8" referredColumn="660EFB49-7BF7-4F5A-3B21-F94B7A3E94F9"/>
+</associations>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="2A8871E3-63B3-C458-0BF5-CBF2734DBAF6" name="pk_LeadHistoryLineItem">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>AA737406-8B81-C783-1262-0E98F9612AC2</importedID>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="2FB4B9D1-1762-8CF5-89CF-8133111C4A9B"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="25CFA039-5103-A16B-10B4-D255AB247411" name="missing_index_18102">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>31479A8F-6F48-F06E-2025-6B7481A538CC</importedID>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="F14330E1-EEB0-73D9-A073-B8039D5BFA1E"/>
+<colUsage columnID="2E9D6CDE-8E4A-A885-0870-8B158C57B6E0"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="6DDFEB2D-F85C-A7D0-DC6C-CA34CCED7AA2" name="._LeadHistoryLineItem_LeadHistory">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:25 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="2E9D6CDE-8E4A-A885-0870-8B158C57B6E0"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+<tableCheckConstraints itemClass="oracle.dbtools.crest.model.design.constraint.TableLevelConstraint">
+<tableCheckConstraint name="[dbo].[LeadHistoryLineItem]" directorySegmentName="seg_4" id="D9D8CBFD-BF4E-1C08-3507-9E04C62A51B8">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:02 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>51F6C42E-FD74-FF4C-9566-62F75C353EFB</importedID>
+<rule><![CDATA[CONSTRAINT [._LeadHistoryLineItem_LeadHistory]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITH" directorySegmentName="seg_4" id="B3D62DC2-14B8-19E2-1124-B69A3ABE2965">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:02 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>A8D4F147-6A9A-DDFA-5CB5-BBA2B64D8922</importedID>
+</tableCheckConstraint>
+</tableCheckConstraints>
+</Table>

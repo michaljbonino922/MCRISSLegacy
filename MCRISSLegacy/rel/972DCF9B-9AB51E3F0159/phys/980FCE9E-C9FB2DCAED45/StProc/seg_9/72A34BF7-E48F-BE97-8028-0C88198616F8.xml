@@ -1,0 +1,183 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetQualityIndicators]" directorySegmentName="seg_9" id="72A34BF7-E48F-BE97-8028-0C88198616F8">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@Organiza.onID     int,  
+ @FiscalYear   int,  
+ @ContractType  int 
+ 
+  
+AS 
+ 
+BEGIN 
+    
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+  
+ DECLARE @startDate date.me = convert(date.me,convert(varchar(4),@FiscalYear-2)+'-07-01 00:00:00',120) 
+ DECLARE @endDate date.me = convert(date.me,convert(varchar(4),@FiscalYear-1)+'-06-30 23:59:59',120) 
+  
+ -- Get the withdrawn NWAs so the withdrawn contracts can be excluded 
+ CREATE TABLE #Withdrawals(NWA_ID int) 
+ Insert into #Withdrawals 
+ Exec [MCRISS].[USMC].[GetWithdrawnNWAs]; 
+  
+ SELECT N.NWA_ID  
+ INTO #NWAIDs 
+ FROM NWA N 
+ INNER JOIN [OCS] ocs ON ocs.[NWA_ID] = n.[NWA_ID] 
+ INNER JOIN [OCS_CLASS] class ON class.[CLASS_ID] = ocs.[OCS_CLASS_ID] 
+ INNER JOIN [OFFICER_CONTRACT] cont ON cont.NWA_ID = N.NWA_ID 
+ WHERE N.ORGANIZATION_OF_RECORD_ID = @Organiza.onID 
+  AND 
+  (  
+   ( N.OFFICER_COMPONENT_CODE IN ('0A', '0B', '0C', '0E') AND 
+    @ContractType = 0 
+   )  
+   OR 
+   ( N.OFFICER_COMPONENT_CODE IN ('1A', '1B', '1C', '1H', '1E') AND 
+    @ContractType = 1 
+   )   
+  ) 
+  AND 
+  ( 
+   ( class.[TRAINING_TYPE_CODE] IN ('PLCJR', 'PLCSR', 'PLCCOMB') AND 
+    @ContractType = 0 
+   )  
+   OR 
+   ( class.[TRAINING_TYPE_CODE] = 'OCC' AND 
+    @ContractType = 1 
+   ) 
+  ) 
+  AND cont.CONTRACT_BEGIN_DATE BETWEEN @startDate AND @endDate 
+  
+  
+  
+ SELECT dis.nct 
+  RTrim(ISNULL(p.LAST_NAME, '')) + ' ' +  
+  RTrim(ISNULL(p.FIRST_NAME, '')) + ' ' +  
+  RTrim(ISNULL(p.LEGAL_MIDDLE_NAME,'')) AS CandidateName 
+ 
+  , MinorityStatus = CASE  
+         WHEN (MC.RACE_CODE + MC.ETHNIC_CODE) IN 
+        ('EP','EZ','FP','FZ') THEN 'N'            
+         ELSE 'Y' 
+         END 
+ 
+  ,( SELECT HIGHSCHOOL_NAME FROM HIGH_SCHOOL  
+     WHERE SCHOOL_CODE =  
+     ( SELECT TOP 1 School_Code FROM CANDIDATE_EDUCATION 
+      WHERE MARINE_CANDIDATE_ID = mc.MARINE_CANDIDATE_ID 
+      ORDER BY Educa.on_Level DESC, Update_Date DESC 
+     ) 
+   ) AS CollegeName 
+ 
+  , oc.CONTRACT_GPA 
+ 
+  , (SELECT Top 1 EXAM_SCORE FROM CANDIDATE_PROFESSED_EXAM  
+     WHERE MARINE_CANDIDATE_ID = mc.MARINE_CANDIDATE_ID 
+     AND PROFESSED_EXAM_TYPE='T' 
+     AND EXAM_DATE < DATEADD(day,1,oc.CONTRACT_BEGIN_DATE) 
+     ORDER BY EXAM_DATE DESC 
+    ) AS ACT 
+ 
+  , (SELECT Top 1 EXAM_SCORE FROM CANDIDATE_PROFESSED_EXAM  
+     WHERE MARINE_CANDIDATE_ID = mc.MARINE_CANDIDATE_ID 
+     AND PROFESSED_EXAM_TYPE='S' 
+     AND EXAM_DATE < DATEADD(day,1,oc.CONTRACT_BEGIN_DATE) 
+     ORDER BY EXAM_DATE DESC 
+    ) AS SAT  
+ 
+  , (SELECT Top 1 EXAM_SCORE FROM CANDIDATE_PROFESSED_EXAM  
+     WHERE MARINE_CANDIDATE_ID = mc.MARINE_CANDIDATE_ID 
+     AND PROFESSED_EXAM_TYPE='L' 
+     AND EXAM_DATE < DATEADD(day,1,oc.CONTRACT_BEGIN_DATE) 
+     ORDER BY EXAM_DATE DESC 
+    ) AS LSAT  
+     
+  , (SELECT Top 1 EXAM_SCORE FROM CANDIDATE_PROFESSED_EXAM  
+     WHERE MARINE_CANDIDATE_ID = mc.MARINE_CANDIDATE_ID 
+     AND PROFESSED_EXAM_TYPE='V' 
+     AND EXAM_DATE < DATEADD(day,1,oc.CONTRACT_BEGIN_DATE) 
+     ORDER BY EXAM_DATE DESC 
+    ) AS AQR 
+     
+  , (SELECT Top 1 EXAM_SCORE2 FROM CANDIDATE_PROFESSED_EXAM  
+     WHERE MARINE_CANDIDATE_ID = mc.MARINE_CANDIDATE_ID 
+     AND PROFESSED_EXAM_TYPE='V' 
+     AND EXAM_DATE < DATEADD(day,1,oc.CONTRACT_BEGIN_DATE) 
+     ORDER BY EXAM_DATE DESC 
+    ) AS PFAR 
+ 
+  , (SELECT Top 1 EXAM_SCORE3 FROM CANDIDATE_PROFESSED_EXAM  
+     WHERE MARINE_CANDIDATE_ID = mc.MARINE_CANDIDATE_ID 
+     AND PROFESSED_EXAM_TYPE='V' 
+     AND EXAM_DATE < DATEADD(day,1,oc.CONTRACT_BEGIN_DATE) 
+     ORDER BY EXAM_DATE DESC 
+    ) AS FOFAR 
+ 
+  , ( SELECT Top 1 AFQT_SCORE FROM CANDIDATE_ASVAB  
+   WHERE MARINE_CANDIDATE_ID = mc.MARINE_CANDIDATE_ID 
+   ORDER BY ASVAB_DATE DESC 
+    ) AS Afqt 
+ 
+  , ( SELECT Top 1 PFT_SCORE FROM PFT  
+   WHERE NWA_ID = n.NWA_ID 
+   AND PFT_DATE < DATEADD(day,1,oc.CONTRACT_BEGIN_DATE) 
+   ORDER BY PFT_DATE DESC 
+    ) AS P.CScore 
+     
+  , ( SELECT Top 1 PFT_SCORE FROM PFT  
+   WHERE NWA_ID = n.NWA_ID 
+   AND PFT_ID != ( SELECT Top 1 PFT_ID FROM PFT  
+       WHERE NWA_ID = n.NWA_ID 
+       AND PFT_DATE < DATEADD(day,1,oc.CONTRACT_BEGIN_DATE) 
+       ORDER BY PFT_DATE DESC 
+        ) 
+   AND PFT_DATE <= (SELECT Top 1 SCHEDULED_SHIP_DATE FROM OCS 
+        WHERE NWA_ID=n.NWA_ID 
+        AND SCHEDULED_SHIP_DATE >= oc.CONTRACT_BEGIN_DATE 
+        ORDER BY SCHEDULED_SHIP_DATE 
+       ) 
+   ORDER BY PFT_DATE DESC 
+    ) AS P.SScore 
+     
+  , DATEDIFF(day, n.NWA_DATE_STARTED_WORKING, oc.CONTRACT_BEGIN_DATE) AS CT  
+  , usmc.GetDis.nctWaiverCode(n.NWA_ID) AS WaiverCode 
+  , opp.InReserves AS Res 
+  , n.rowguid AS NwaGuid 
+   
+  ,( SELECT rowguid FROM HIGH_SCHOOL  
+     WHERE SCHOOL_CODE =  
+     ( SELECT TOP 1 School_Code FROM CANDIDATE_EDUCATION 
+      WHERE MARINE_CANDIDATE_ID = mc.MARINE_CANDIDATE_ID 
+      ORDER BY Educa.on_Level DESC, Update_Date DESC 
+     ) 
+   ) AS SchoolGuid 
+    
+   ,( SELECT SCHOOL_CODE FROM HIGH_SCHOOL  
+     WHERE SCHOOL_CODE =  
+     ( SELECT TOP 1 School_Code FROM CANDIDATE_EDUCATION 
+      WHERE MARINE_CANDIDATE_ID = mc.MARINE_CANDIDATE_ID 
+      ORDER BY Educa.on_Level DESC, Update_Date DESC 
+     ) 
+   ) AS SchoolCode 
+ 
+ FROM NWA n 
+  INNER JOIN OFFICER_CONTRACT oc ON n.NWA_ID = oc.NWA_ID 
+  INNER JOIN PERSON p ON p.PERSON_ID = n.MARINE_CANDIDATE_ID 
+  INNER JOIN MARINE_CANDIDATE mc ON n.MARINE_CANDIDATE_ID = mc.MARINE_CANDIDATE_ID 
+  LEFT OUTER JOIN PROSPECTING.USMC.PROSPECT pro ON n.rowguid = pro.NWAID 
+  LEFT OUTER JOIN PROSPECTING.USMC.OFFICERPROSPECTPAC opp ON pro.PROSPECTID = opp.PROSPECTID  
+ WHERE  N.NWA_ID in (SELECT NWA_ID FROM  #NWAIDs) 
+  AND N.NWA_ID not in (SELECT NWA_ID FROM #Withdrawals) 
+ ORDER BY CANDIDATENAME 
+  
+ drop table #NWAIDs 
+ drop table #Withdrawals 
+ 
+END]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

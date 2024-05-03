@@ -1,0 +1,44 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetProspectPriorService]" directorySegmentName="seg_14" id="EE755C18-3C0F-7BBE-4171-DAEC2CDD6F61">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@ProspectID uniqueiden..er = null, 
+ @ID uniqueiden..er = null 
+ 
+AS 
+BEGIN 
+  
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+ SELECT ID 
+      ,ProspectID 
+      ,Ac.veDutyStartDate 
+      ,Ac.veDutyEndDate 
+      ,ServiceID 
+      ,(SELECT Service FROM MCRISS.dbo.SERVICE WHERE Service_ID=ServiceID) As ServiceDesc   
+      ,IsCurrentlyInReserves 
+      ,EndObligatedServiceDate 
+      ,Separa.onCode 
+   ,(SELECT DISCHARGE_REASON FROM MCRISS.dbo.DISCHARGE_REASON 
+  WHERE DISCHARGE_CODE = Separa.onCode) AS Separa.onDesc 
+      ,ReenlistmentCode 
+   ,(SELECT REENLISTMENT_DESC FROM MCRISS.dbo.REENLISTMENT 
+  WHERE REENLISTMENT_CODE = ReenlistmentCode) AS ReenlistmentDesc 
+      ,ServiceCharacter 
+   ,(SELECT SERVICE_CHARACTER_SHORT FROM MCRISS.dbo.SERVICE_CHARACTER 
+     WHERE SERVICE_CHARACTER = ServiceCharacter) AS ServiceCharacterDesc 
+      ,RecordStatus 
+   ,(SELECT Descrip.on FROM USMC.Veri.ca.onStatus 
+  WHERE Code = RecordStatus) AS RecordStatusDesc 
+    FROM USMC.ProspectPriorService 
+ WHERE 
+ (@ProspectID IS NULL OR ProspectID = @ProspectID) AND 
+ (@ID IS NULL OR ID = @ID) 
+ ORDER BY EndObligatedServiceDate Desc  
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

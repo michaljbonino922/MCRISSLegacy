@@ -1,0 +1,22 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetCandidateStatusByNWAID]" directorySegmentName="seg_16" id="93614916-ED7E-5BBD-C193-182693A36976">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@NWAID int 
+AS 
+ 
+SELECT  
+ P.PERSON_ID, CS.STATUS_CODE, CS.DISPOSITION_CODE,  
+ CONVERT(VARCHAR(11), CS.STATUS_EFFECTIVE_DATE, 106) AS STATUS_EFFECTIVE_DATE 
+FROM   
+ PERSON P INNER JOIN NWA N ON  
+  (P.PERSON_ID = N.MARINE_CANDIDATE_ID AND 
+  N.NWA_ID = @NWAID) 
+ INNER JOIN CANDIDATE_STATUS CS ON 
+  (CS.NWA_ID = N.NWA_ID AND 
+  CS.CANDIDATE_STATUS_ID = dbo.GetMaxStatusID(CS.NWA_ID))]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

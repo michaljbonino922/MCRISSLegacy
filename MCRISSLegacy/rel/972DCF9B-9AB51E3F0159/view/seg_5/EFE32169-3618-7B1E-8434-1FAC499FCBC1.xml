@@ -1,0 +1,49 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_5" id="EFE32169-3618-7B1E-8434-1FAC499FCBC1" schemaObject="2A6D9360-3BB2-5CEA-6E99-790D76996FDF" name="USMC.vwDecendentRecrui.ngOrgs">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:24 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>1BDBE528-2456-150A-ED4A-3D29B990461D</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT ParentOrgUnit as Parent, PSROrgUnitId as Decendent 
+FROM [dbo].[PSROrgUnit] 
+UNION  
+SELECT parent.[ParentOrgUnit] AS Parent, child.[PSROrgUnitId] as Decendent 
+FROM [dbo].[PSROrgUnit] as parent 
+ INNER JOIN [dbo].[PSROrgUnit] AS child ON child.[ParentOrgUnit] = parent.[PSROrgUnitId] 
+UNION  
+SELECT parent.[ParentOrgUnit] AS Parent, child2.[PSROrgUnitId] as Decendent 
+FROM [dbo].[PSROrgUnit] as parent 
+    INNER JOIN [dbo].[PSROrgUnit] AS child1 ON child1.[ParentOrgUnit] = parent.[PSROrgUnitId] 
+ INNER JOIN [dbo].[PSROrgUnit] AS child2 ON child2.[ParentOrgUnit] = child1.[PSROrgUnitId]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="ParentOrgUnit" id="4A87E129-2B8D-B471-4F42-3925844D5130">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:25 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Parent</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>Parent</headerAlias>
+<expression>ParentOrgUnit</expression>
+<reference>false</reference>
+<viewID>EFE32169-3618-7B1E-8434-1FAC499FCBC1</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="PSROrgUnitId" id="55DE4340-78E5-1A84-A388-3D47511A807A">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:25 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Decendent</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>Decendent</headerAlias>
+<expression>PSROrgUnitId</expression>
+<reference>false</reference>
+<viewID>EFE32169-3618-7B1E-8434-1FAC499FCBC1</viewID>
+</viewElement>
+</viewElements>
+</TableView>

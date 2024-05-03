@@ -1,0 +1,940 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[CreateProspectFromNwa]" directorySegmentName="seg_12" id="74A0B3D0-39BC-58CF-C484-32FD8405C2C3">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@NwaRowGuid   uniqueiden..er, 
+ @LastUpdateUserID uniqueiden..er 
+ 
+AS 
+BEGIN 
+  
+ DECLARE @MarineCandidateID int 
+ DECLARE @NwaID int 
+ DECLARE @PersonID uniqueiden..er 
+ DECLARE @ProspectID uniqueiden..er 
+ 
+ SELECT  
+  @MarineCandidateID = MARINE_CANDIDATE_ID, 
+  @NwaID = NWA_ID 
+ FROM  
+  MCRISS.dbo.NWA 
+ WHERE  
+  rowguid = @NwaRowGuid 
+  
+ SELECT  
+  @PersonID = PersonId, 
+  @ProspectID = ProspectId  
+ FROM  
+  USMC.Prospect  
+ WHERE  
+  NwaId = @NwaRowGuid  
+  
+ IF @ProspectID IS NULL  --- No prospect data for exis.ng NWA 
+ BEGIN  
+  /************************************************************* 
+   Person 
+  *************************************************************/ 
+  
+  -- .nd whether the person already exist by searching SSN 
+  SELECT Top 1 @PersonID = PersonId FROM USMC.Person 
+  WHERE  
+  SocialSecurityNumber =  
+   (SELECT SOCIAL_SECURITY_NUMBER FROM MCRISS.dbo.PERSON WHERE PERSON_ID = @MarineCandidateID) 
+  Order BY LastUpdateDate Desc 
+ 
+  IF @PersonID IS NULL 
+  BEGIN  
+   SET @PersonID = NEWID() 
+  END 
+   
+  DECLARE @LastName varchar(75) 
+  DECLARE @FirstName varchar(75) 
+  DECLARE @MiddleName varchar(75) 
+  DECLARE @Su.x varchar(5) 
+  DECLARE @Gender char(1) 
+  DECLARE @DateOfBirth date.me 
+  DECLARE @BirthCountry varchar(3) 
+  DECLARE @SocialSecurityNumber char(9) 
+  DECLARE @AlienRegistra.onNumber char(10) 
+  DECLARE @ParentConsentReceived int 
+  DECLARE @Ci.zenshipStatus varchar(2) 
+  DECLARE @Religion varchar(2) 
+  DECLARE @Race varchar(1) 
+  DECLARE @Ethnicity varchar(1) 
+  DECLARE @MepcomRace varchar(1) 
+  DECLARE @MepcomEthnicity varchar(1) 
+ 
+  SELECT  
+   @LastName = [LAST_NAME],  
+   @FirstName = [FIRST_NAME], 
+   @MiddleName = [LEGAL_MIDDLE_NAME], 
+   @Su.x = [SUFFIX_CD], 
+   @Gender = [GENDER_CODE], 
+   @DateOfBirth = [DATE_OF_BIRTH], 
+   @BirthCountry = [COUNTRY_OF_ORIGIN], 
+   @SocialSecurityNumber = [SOCIAL_SECURITY_NUMBER],  
+   @AlienRegistra.onNumber = ARN, 
+   @ParentConsentReceived = CASE PARENTAL_CONSENT 
+     WHEN 'Y' THEN 2 
+     WHEN 'N' THEN 3 
+     ELSE NULL 
+     END,  
+   @Ci.zenshipStatus = [CITIZENSHIP], 
+   @Religion = [RELIGION_CODE], 
+   @Race = [RACE_CODE], 
+   @Ethnicity = [ETHNIC_CODE], 
+   @MepcomRace = [MEPCOM_RACE_CODE], 
+   @MepcomEthnicity = [MEPCOM_ETHNIC_CODE]  
+  FROM  
+   [MCRISS].[dbo].[PERSON] p 
+   INNER JOIN [MCRISS].[dbo].[MARINE_CANDIDATE] mc 
+   ON p.Person_ID = mc.MARINE_CANDIDATE_ID 
+   LEFT OUTER JOIN [MCRISS].dbo.ALIEN_REGISTRATION ar 
+   ON p.Person_ID = ar.MARINE_CANDIDATE_ID 
+   INNER JOIN [MCRISS].[dbo].[NWA] n 
+   ON p.Person_ID = n.MARINE_CANDIDATE_ID 
+  WHERE  
+   n.nwa_id = @NwaID 
+ 
+  EXECUTE [PROSPECTING].[USMC].[InsertUpdatePerson]  
+   @PersonID,@LastName ,@FirstName ,@MiddleName,@Su.x 
+   ,@SocialSecurityNumber,@AlienRegistra.onNumber 
+   ,@Gender,@DateOfBirth 
+   ,NULL --@PlaceOfBirth 
+   ,@LastUpdateUserId 
+   ,@ParentConsentReceived 
+   ,@Ci.zenshipStatus 
+   ,NULL --@OtherCountryCi.zen 
+   ,@Religion 
+   ,@Race 
+   ,@Ethnicity 
+   ,@MepcomRace 
+   ,@MepcomEthnicity 
+   ,@BirthCountry 
+   ,NULL --@BirthState 
+   ,NULL --@BirthCounty 
+   ,NULL --@BirthCity 
+   ,NULL --@SsnCard 
+ 
+  /************************************************************* 
+   Prospect 
+  *************************************************************/ 
+ 
+  SELECT @ProspectID = ProspectId FROM USMC.Prospect 
+  WHERE PersonId = @PersonID 
+   
+  IF @ProspectID IS NULL 
+  BEGIN  
+   SET @ProspectID = NEWID() 
+  END 
+ 
+  DECLARE @Recrui.ngOrganiza.onID uniqueiden..er 
+  DECLARE @Recrui.ngPersonID uniqueiden..er 
+  DECLARE @DriverLicenseNumber varchar(20) 
+  DECLARE @DriverLicenseState varchar(2) 
+  DECLARE @DriverLicenseExp date.me 
+  DECLARE @HasDriversLicense bit 
+  DECLARE @Ac.vity varchar(10) 
+  DECLARE @Source varchar(10)  
+  DECLARE @SourceDual varchar(10) 
+  DECLARE @PPC varchar(8) 
+  DECLARE @CategoryCode varchar(6) 
+  DECLARE @SubSta.onType char(1) 
+  DECLARE @ProspectDisposi.onID smallint 
+  DECLARE @PACCreateDate date.me 
+  DECLARE @HasMoralO.ense bit 
+  DECLARE @MonthWorkFor date.me 
+  DECLARE @ReferralSSN varchar(9) 
+  
+  SELECT 
+   @DriverLicenseNumber = DRIVER_LICENSE_NUM , 
+   @DriverLicenseState = DRIVER_LICENSE_STATE , 
+   @DriverLicenseExp = DRIVER_LICENSE_EXP,  
+   @HasDriversLicense =  
+    CASE  
+    WHEN DRIVER_LICENSE_NUM IS NOT NULL THEN 1 
+    ELSE 0 
+    END,  
+   @Recrui.ngPersonID = rp.rowguid , 
+   @Recrui.ngOrganiza.onID = ro.rowguid, 
+   @Ac.vity = ACTIVITY_CODE, 
+   @Source = SOURCE_CODE, 
+   @SourceDual = SOURCE_CODE_DUAL, 
+   @PPC = PPC, 
+   @CategoryCode = CATEGORY_CODE, 
+   @SubSta.onType = 'E',  
+   @ProspectDisposi.onID = 2, 
+   @PACCreateDate = NWA_DATE_STARTED_WORKING, 
+   @HasMoralO.ense = 
+    CASE  
+    WHEN ( SELECT COUNT(*) FROM MCRISS.USMC.CandidateLegalO.ense  
+      WHERE PersonId = n.MARINE_CANDIDATE_ID) > 0 THEN 1 
+    ELSE 0 
+    END, 
+   @MonthWorkFor =   
+    CASE WHEN 
+     MONTH(NWA_DATE_STARTED_WORKING) >= n.PROJECTED_SHIP_MONTH 
+     THEN CAST( CONVERT(varchar(4),(Year(NWA_DATE_STARTED_WORKING)+1)) + '-' + 
+          CONVERT(varchar(2), PROJECTED_SHIP_MONTH) +'-1'  
+          as Date.me)  
+     ELSE 
+      CAST( CONVERT(varchar(4),(Year(NWA_DATE_STARTED_WORKING))) + '-' + 
+          CONVERT(varchar(2), PROJECTED_SHIP_MONTH) +'-1'  
+          as Date.me)  
+    END, 
+   @ReferralSSN =  (SELECT SOCIAL_SECURITY_NUMBER  
+      FROM [MCRISS].[dbo].PERSON 
+      WHERE Person_ID = 
+    ( SELECT MARINE_ID  
+      FROM [MCRISS].[dbo].REFERRAL  
+      WHERE CONTRACT_ID =  
+     (SELECT CONTRACT_ID FROM MCRISS.dbo.CONTRACT WHERE NWA_ID = n.NWA_ID) 
+    ))  
+  FROM  
+   [MCRISS].[dbo].[MARINE_CANDIDATE] mc 
+   INNER JOIN [MCRISS].[dbo].[NWA] n 
+   ON mc.MARINE_CANDIDATE_ID = n.MARINE_CANDIDATE_ID 
+   LEFT OUTER JOIN [MCRISS].[dbo].RECRUITING_PERSON rp 
+   ON rp.RECRUITING_PERSON_ID = n.RECRUITER_OF_RECORD_ID 
+   LEFT OUTER JOIN [MCRISS].dbo.RECRUITING_ORGANIZATION ro 
+   ON ro.ORGANIZATION_ID = n.ORGANIZATION_OF_RECORD_ID 
+  WHERE  
+   n.nwa_id = @NwaID 
+ 
+  EXECUTE [PROSPECTING].[USMC].[InsertUpdateProspect]  
+   @ID = @ProspectID 
+   ,@PersonID = @PersonID 
+   ,@DriverLicenseNumber = @DriverLicenseNumber 
+   ,@DriverLicenseState = @DriverLicenseState 
+   ,@DriverLicenseExp = @DriverLicenseExp 
+   ,@HasDriversLicense = @HasDriversLicense 
+   ,@Recrui.ngOrganiza.onID = @Recrui.ngOrganiza.onID 
+   ,@Recrui.ngPersonID = @Recrui.ngPersonID 
+   ,@Ac.vity = @Ac.vity 
+   ,@Source = @Source 
+   ,@SourceDual = @SourceDual 
+   ,@PPC = @PPC 
+   ,@CategoryCode = @CategoryCode 
+   ,@SubSta.onType = @SubSta.onType 
+   ,@NWAId = @NwaRowGuid 
+   ,@ProspectDisposi.onID = @ProspectDisposi.onID 
+   ,@PACCreateDate = @PACCreateDate 
+   ,@HasMoralO.ense = @HasMoralO.ense  
+   ,@MonthWorkFor = @MonthWorkFor 
+   ,@ReferralSSN = @ReferralSSN 
+   ,@LastUpdateUserId = @LastUpdateUserId 
+ 
+ /************************************************************* 
+  Person Address 
+ *************************************************************/ 
+ 
+  DECLARE @PersonAddressTypeId smallint 
+  DECLARE @StreetAddress1 varchar(75) 
+  DECLARE @StreetAddress2 varchar(75) 
+  DECLARE @CITY_CODE varchar(4) 
+  DECLARE @COUNTY_CODE varchar(3) 
+  DECLARE @STATE_CODE varchar(2) 
+  DECLARE @ZipCode varchar(9) 
+ 
+  DECLARE address_cursor CURSOR FOR 
+   SELECT  
+   CASE WHEN ADDRESS_TYPE = 'C' THEN 1 
+     ELSE 2 
+   END 
+   ,[STREET_ADDRESS] 
+   ,[STREET_ADDRESS_2] 
+   ,[CITY_CODE] 
+   ,[COUNTY_CODE] 
+   ,[STATE_CODE] 
+   ,[ZIPCODE] 
+  FROM  
+   [MCRISS].[dbo].[CANDIDATE_ADDRESS] 
+  WHERE 
+   MARINE_CANDIDATE_ID = @MarineCandidateID 
+   AND ADDRESS_TYPE IN ( 'C', 'H' )  
+   
+  OPEN address_cursor; 
+ 
+  FETCH NEXT FROM address_cursor 
+  INTO 
+   @PersonAddressTypeId 
+   ,@StreetAddress1 
+   ,@StreetAddress2 
+   ,@CITY_CODE 
+   ,@COUNTY_CODE 
+   ,@STATE_CODE 
+   ,@ZipCode 
+ 
+  WHILE @@FETCH_STATUS = 0 
+  BEGIN 
+   DECLARE @PersonAddressId uniqueiden..er 
+    
+   SELECT Top 1 @PersonAddressId = PersonAddressId  
+   FROM USMC.PersonAddress  
+   WHERE  
+    PersonId = @PersonID  
+    AND PersonAddressTypeId = @PersonAddressTypeId 
+   ORDER BY LastUpdateDate DESC 
+    
+   IF @PersonAddressId IS NULL 
+   BEGIN 
+    SET @PersonAddressId = NEWID() 
+   END 
+    
+   EXECUTE [PROSPECTING].[USMC].[InsertUpdatePersonAddress]  
+    @ID = @PersonAddressId 
+    ,@PersonID = @PersonID 
+    ,@PersonAddressTypeId = @PersonAddressTypeId 
+    ,@StreetAddress1 = @StreetAddress1 
+    ,@StreetAddress2 = @StreetAddress2 
+    ,@ZipCode = @ZipCode 
+    ,@CITY_CODE = @CITY_CODE 
+    ,@COUNTY_CODE = @COUNTY_CODE 
+    ,@STATE_CODE = @STATE_CODE 
+    ,@LastUpdateUserId = @LastUpdateUserId 
+    
+   SET @PersonAddressId = NULL 
+ 
+   FETCH NEXT FROM address_cursor 
+   INTO 
+    @PersonAddressTypeId 
+    ,@StreetAddress1 
+    ,@StreetAddress2 
+    ,@CITY_CODE 
+    ,@COUNTY_CODE 
+    ,@STATE_CODE 
+    ,@ZipCode  
+  END 
+ 
+  CLOSE address_cursor; 
+  DEALLOCATE address_cursor; 
+ 
+ /************************************************************* 
+  Person Phone 
+ *************************************************************/  
+   
+  DECLARE @PersonPhoneTypeID smallint 
+  DECLARE @PhoneNumber varchar(25) 
+   
+  DECLARE phone_cursor CURSOR FOR 
+   SELECT  
+    CASE WHEN TELEPHONE_TYPE = 'C' THEN 1 
+      ELSE 2 
+    END 
+    ,[AREA_CODE] + [TELEPHONE_NUMBER] 
+   FROM  
+    [MCRISS].[dbo].[CANDIDATE_TELEPHONE] 
+   WHERE  
+    MARINE_CANDIDATE_ID = @MarineCandidateID 
+    AND TELEPHONE_TYPE IN ('C', 'H') 
+ 
+  OPEN phone_cursor; 
+ 
+  FETCH NEXT FROM phone_cursor 
+  INTO 
+   @PersonPhoneTypeID 
+   ,@PhoneNumber 
+ 
+  WHILE @@FETCH_STATUS = 0 
+  BEGIN 
+   DECLARE @PersonPhoneID uniqueiden..er 
+    
+   SELECT @PersonPhoneID = PersonPhoneId  
+   FROM USMC.PersonPhone  
+   WHERE 
+    PersonId = @PersonID  
+    AND PersonPhoneTypeId = @PersonPhoneTypeID 
+    
+   IF @PersonPhoneID IS NULL 
+    SET @PersonPhoneID = NEWID() 
+ 
+   EXECUTE [PROSPECTING].[USMC].[InsertUpdatePersonPhone]  
+    @ID = @PersonPhoneID 
+    ,@PersonID = @PersonID 
+    ,@PersonPhoneTypeID = @PersonPhoneTypeID 
+    ,@PhoneNumber = @PhoneNumber 
+    ,@LastUpdateUserID = @LastUpdateUserID 
+    
+   SET @PersonPhoneID = NULL 
+ 
+   FETCH NEXT FROM phone_cursor 
+   INTO 
+    @PersonPhoneTypeID 
+    ,@PhoneNumber  
+  END 
+ 
+  CLOSE phone_cursor; 
+  DEALLOCATE phone_cursor; 
+ 
+ /************************************************************* 
+  Person Email 
+ *************************************************************/       
+  DECLARE @EMail varchar(256) 
+   
+  SELECT  @EMail = EMAIL_ADDRESS FROM MCRISS.dbo.NWA WHERE NWA_ID = @NwaID 
+   
+  IF @EMail IS NOT NULL 
+  BEGIN  
+   INSERT INTO [PROSPECTING].[USMC].[PersonEmail] 
+        ([PersonEmailId],[PersonId],[PersonEmailTypeId] 
+        ,[EmailAddress] 
+        ,[LastUpdateDate] 
+        ,[LastUpdateUserId]) 
+   SELECT  NEWID(),@PersonID, 1 AS EmailTypeId 
+     ,EMAIL_ADDRESS 
+     ,GETDATE(),@LastUpdateUserID 
+   FROM MCRISS.dbo.NWA 
+   WHERE 
+    NWA_ID = @NwaID 
+  END 
+ 
+ /************************************************************* 
+  Prospect Educa.on 
+ *************************************************************/ 
+  DECLARE @SchoolCode int 
+  DECLARE @Educa.onLevel varchar(2) 
+  DECLARE @SchoolEndDate date.me 
+  DECLARE @Educa.onCode char(1) 
+  DECLARE @Veri.ca.on varchar(10) 
+  DECLARE @ProjectedTier int 
+ 
+  DECLARE educa.on_cursor CURSOR FOR 
+  SELECT  
+     [SCHOOL_CODE] 
+     ,[EDUCATION_LEVEL] 
+     ,[SCHOOL_END_DATE] 
+     ,[EDUCATION_CODE] 
+     ,[VERIFICATION] 
+     ,[PROJECTED_TIER] 
+  FROM  
+   [MCRISS].[dbo].[CANDIDATE_EDUCATION] 
+  WHERE 
+   [MARINE_CANDIDATE_ID] = @MarineCandidateID 
+ 
+  OPEN educa.on_cursor; 
+ 
+  FETCH NEXT FROM educa.on_cursor 
+  INTO 
+   @SchoolCode,   
+   @Educa.onLevel, 
+   @SchoolEndDate, 
+   @Educa.onCode, 
+   @Veri.ca.on,  
+   @ProjectedTier  
+ 
+  WHILE @@FETCH_STATUS = 0 
+  BEGIN 
+    
+   DECLARE @OldRecSchoolCode int 
+   DECLARE @OldRecEduca.onLevel varchar(2) 
+   SET @OldRecSchoolCode = NULL 
+   SET @OldRecEduca.onLevel = NULL 
+ 
+   EXECUTE [PROSPECTING].[USMC].[InsertUpdateProspectEduca.onFromMcriss]  
+    @MarineCandidateID 
+    ,@OldRecSchoolCode 
+    ,@OldRecEduca.onLevel 
+    ,@SchoolCode 
+    ,@Educa.onLevel 
+    ,@SchoolEndDate 
+    ,null 
+    ,@Educa.onCode 
+    ,@Veri.ca.on 
+    ,@ProjectedTier 
+    ,@LastUpdateUserID 
+ 
+   FETCH NEXT FROM educa.on_cursor 
+   INTO 
+    @SchoolCode,   
+    @Educa.onLevel, 
+    @SchoolEndDate, 
+    @Educa.onCode, 
+    @Veri.ca.on,  
+    @ProjectedTier  
+  END 
+ 
+  CLOSE educa.on_cursor; 
+  DEALLOCATE educa.on_cursor; 
+ 
+ /************************************************************* 
+  Prospect Asvab 
+ *************************************************************/ 
+ 
+  DECLARE @OldRecVersion varchar(3) 
+  DECLARE @OldRecAsvabDate date.me 
+  DECLARE @Version varchar(3) 
+  DECLARE @AsvabDate date.me 
+  DECLARE @GSSubTest varchar(2) 
+  DECLARE @ARSubTest varchar(2) 
+  DECLARE @WKSubTest varchar(2) 
+  DECLARE @PCSubTest varchar(2) 
+  DECLARE @NOSubTest varchar(2) 
+  DECLARE @CSSubTest varchar(2) 
+  DECLARE @ASSubTest varchar(2) 
+  DECLARE @MKSubTest varchar(2) 
+  DECLARE @MCSubTest varchar(2) 
+  DECLARE @EISubTest varchar(2) 
+  DECLARE @VESubTest varchar(2) 
+  DECLARE @AFQTScore int 
+  DECLARE @GTScore int 
+  DECLARE @ELScore int 
+  DECLARE @CLScore int 
+  DECLARE @MMScore int 
+  DECLARE @MepsOrganiza.onID int 
+  DECLARE @UserLogin varchar(50) 
+ 
+  DECLARE asvab_cursor CURSOR FOR 
+  SELECT  
+   [VERSION],[ASVAB_DATE] 
+   ,[GS_SUBTEST],[AR_SUBTEST],[WK_SUBTEST],[PC_SUBTEST] 
+   ,[NO_SUBTEST],[CS_SUBTEST],[AS_SUBTEST],[MK_SUBTEST] 
+   ,[MC_SUBTEST],[EI_SUBTEST],[VE_SUBTEST],[AFQT_SCORE] 
+   ,[GT_SCORE],[EL_SCORE],[CL_SCORE],[MM_SCORE] 
+   ,[MEPS_ORGANIZATION_ID] 
+  FROM  
+   [MCRISS].[dbo].[CANDIDATE_ASVAB] 
+  WHERE  
+   [MARINE_CANDIDATE_ID] = @MarineCandidateID 
+ 
+  OPEN asvab_cursor; 
+ 
+  FETCH NEXT FROM asvab_cursor 
+  INTO  
+   @Version,@AsvabDate 
+   ,@GSSubTest,@ARSubTest,@WKSubTest,@PCSubTest 
+   ,@NOSubTest,@CSSubTest,@ASSubTest,@MKSubTest 
+   ,@MCSubTest,@EISubTest,@VESubTest,@AFQTScore 
+   ,@GTScore,@ELScore,@CLScore,@MMScore 
+   ,@MepsOrganiza.onID 
+ 
+  WHILE @@FETCH_STATUS = 0 
+  BEGIN 
+   SET @OldRecVersion = NULL 
+   SET @OldRecAsvabDate = NULL 
+    
+   EXECUTE [PROSPECTING].[USMC].[InsertUpdateProspectAsvabFromMcriss]  
+    @MarineCandidateID 
+    ,@OldRecVersion,@OldRecAsvabDate 
+    ,@Version,@AsvabDate 
+    ,@GSSubTest,@ARSubTest,@WKSubTest,@PCSubTest 
+    ,@NOSubTest,@CSSubTest,@ASSubTest,@MKSubTest 
+    ,@MCSubTest,@EISubTest,@VESubTest,@AFQTScore 
+    ,@GTScore,@ELScore,@CLScore,@MMScore 
+    ,@MepsOrganiza.onID 
+    ,@LastUpdateUserID 
+    
+   FETCH NEXT FROM asvab_cursor 
+   INTO  
+    @Version,@AsvabDate 
+    ,@GSSubTest,@ARSubTest,@WKSubTest,@PCSubTest 
+    ,@NOSubTest,@CSSubTest,@ASSubTest,@MKSubTest 
+    ,@MCSubTest,@EISubTest,@VESubTest,@AFQTScore 
+    ,@GTScore,@ELScore,@CLScore,@MMScore 
+    ,@MepsOrganiza.onID 
+     
+  END 
+ 
+  CLOSE asvab_cursor; 
+  DEALLOCATE asvab_cursor; 
+ 
+ /************************************************************* 
+  Prospect Dependent 
+ *************************************************************/ 
+   
+  DECLARE @DepdntType varchar(2) 
+  DECLARE @DepdntIsVeri.ed char(1) 
+  DECLARE @DepdntFirstName varchar(30) 
+  DECLARE @DepdntLastName varchar(20) 
+  DECLARE @DepdntMiddleName varchar(20) 
+  DECLARE @DepdntSu.x varchar(5) 
+  DECLARE @DepdntDateOfBirth date.me 
+   
+  DECLARE dependent_cursor CURSOR FOR 
+   SELECT  
+    [FIRST_NAME] 
+    ,[LAST_NAME] 
+    ,[MIDDLE_NAME] 
+    ,[SUFFIX_CD] 
+    ,[DATE_OF_BIRTH] 
+    ,[DEPENDENT_TYPE] 
+    ,[VERIFICATION] 
+   FROM  
+    [MCRISS].[dbo].[CANDIDATE_DEPENDENT] 
+   WHERE  
+    MARINE_CANDIDATE_ID = @MarineCandidateID 
+ 
+  OPEN dependent_cursor; 
+ 
+  FETCH NEXT FROM dependent_cursor 
+  INTO 
+   @DepdntFirstName 
+   ,@DepdntLastName 
+   ,@DepdntMiddleName 
+   ,@DepdntSu.x 
+   ,@DepdntDateOfBirth 
+   ,@DepdntType 
+   ,@DepdntIsVeri.ed 
+    
+  WHILE @@FETCH_STATUS = 0 
+  BEGIN 
+   EXECUTE [PROSPECTING].[USMC].[InsertUpdateProspectDependentFromMcriss]  
+    @MarineCandidateID = @MarineCandidateID 
+    ,@OldRecDependentType = @DepdntType 
+    ,@OldRecFirstName = @DepdntFirstName 
+    ,@OldRecLastName = @DepdntLastName 
+    ,@OldRecMiddleName = @DepdntMiddleName 
+    ,@OldRecSu.x = @DepdntSu.x 
+    ,@OldRecDateOfBirth = @DepdntDateOfBirth 
+    ,@DependentType = @DepdntType 
+    ,@IsVeri.ed = @DepdntIsVeri.ed 
+    ,@FirstName = @DepdntFirstName 
+    ,@LastName = @DepdntLastName 
+    ,@MiddleName = @DepdntMiddleName 
+    ,@Su.x = @DepdntSu.x 
+    ,@DateOfBirth = @DepdntDateOfBirth  
+    ,@UserLogin = @LastUpdateUserID 
+ 
+   FETCH NEXT FROM dependent_cursor 
+   INTO 
+    @DepdntFirstName 
+    ,@DepdntLastName 
+    ,@DepdntMiddleName 
+    ,@DepdntSu.x 
+    ,@DepdntDateOfBirth 
+    ,@DepdntType 
+    ,@DepdntIsVeri.ed 
+  END 
+ 
+  CLOSE dependent_cursor; 
+  DEALLOCATE dependent_cursor; 
+ 
+ /************************************************************* 
+  Prospect Medical Exam 
+ *************************************************************/ 
+   
+  DECLARE @MedicalExamDate date.me 
+  DECLARE @MedicalExamType varchar(4) 
+  DECLARE @MedMepsOrganiza.onID int 
+  DECLARE @P_GeneralBodyBuild char(2) 
+  DECLARE @U_UpperBody char(2) 
+  DECLARE @L_LowerBody char(2) 
+  DECLARE @H_Hearing char(2) 
+  DECLARE @E_Eyes char(2) 
+  DECLARE @S_MentalPsychological char(2) 
+  DECLARE @VisualColor char(1) 
+  DECLARE @VisualColorDisposi.on char(1) 
+  DECLARE @Le.CorrectedVisualAcuity varchar(10) 
+  DECLARE @RightCorrectedVisualAcuity varchar(10) 
+  DECLARE @Le.UncorrectedVisualAcuity varchar(10) 
+  DECLARE @RightUncorrectedVisualAcuity varchar(10) 
+  DECLARE @Height decimal(4,2) 
+  DECLARE @Weight int 
+  DECLARE @MedicalDisposi.on char(1) 
+  DECLARE @Consulta.onType varchar(2) 
+  DECLARE @D_Drugs char(2) 
+ 
+  DECLARE medical_cursor CURSOR FOR 
+   SELECT  
+    [MEDICAL_EXAM_DATE] 
+    ,[MEDICAL_EXAM_TYPE] 
+    ,[MEPS_ORGANIZATION_ID] 
+    ,[P_GENERAL_BODY_BUILD] 
+    ,[U_UPPER_BODY] 
+    ,[L_LOWER_BODY] 
+    ,[H_HEARING] 
+    ,[E_EYES] 
+    ,[S_MENTAL_PSYCHOLOGICAL] 
+    ,[VISUAL_COLOR] 
+    ,[VISUAL_COLOR_DISPOSITION] 
+    ,[LEFT_CORR_VISUAL_ACUITY] 
+    ,[RIGHT_CORR_VISUAL_ACUITY] 
+    ,[LEFT_UNCORR_VISUAL_ACUITY] 
+    ,[RIGHT_UNCORR_VISUAL_ACUITY] 
+    ,[HEIGHT] 
+    ,[WEIGHT] 
+    ,[MEDICAL_DISPOSITION] 
+    ,[CONSULTATION_TYPE] 
+    ,[D_DRUGS] 
+   FROM  
+    [MCRISS].[dbo].[CANDIDATE_MEDICAL_EXAM]  
+   WHERE 
+    MARINE_CANDIDATE_ID = @MarineCandidateID 
+ 
+  OPEN medical_cursor; 
+ 
+  FETCH NEXT FROM medical_cursor 
+  INTO 
+   @MedicalExamDate 
+   ,@MedicalExamType 
+   ,@MedMepsOrganiza.onID 
+   ,@P_GeneralBodyBuild 
+   ,@U_UpperBody 
+   ,@L_LowerBody 
+   ,@H_Hearing 
+   ,@E_Eyes 
+   ,@S_MentalPsychological 
+   ,@VisualColor 
+   ,@VisualColorDisposi.on 
+   ,@Le.CorrectedVisualAcuity 
+   ,@RightCorrectedVisualAcuity 
+   ,@Le.UncorrectedVisualAcuity 
+   ,@RightUncorrectedVisualAcuity 
+   ,@Height 
+   ,@Weight 
+   ,@MedicalDisposi.on 
+   ,@Consulta.onType 
+   ,@D_Drugs 
+ 
+  WHILE @@FETCH_STATUS = 0 
+  BEGIN 
+   EXECUTE [PROSPECTING].[USMC].[InsertUpdateProspectMedicalFromMcriss]  
+    @MarineCandidateID =  @MarineCandidateID 
+    ,@OldRecMedicalExamDate = @MedicalExamDate 
+    ,@OldRecMedicalExamType = @MedicalExamType 
+    ,@MedicalExamDate = @MedicalExamDate 
+    ,@MedicalExamType = @MedicalExamType 
+    ,@MepsOrganiza.onID = @MedMepsOrganiza.onID 
+    ,@P_GeneralBodyBuild = @P_GeneralBodyBuild 
+    ,@U_UpperBody = @U_UpperBody 
+    ,@L_LowerBody = @L_LowerBody 
+    ,@H_Hearing = @H_Hearing 
+    ,@E_Eyes = @E_Eyes 
+    ,@S_MentalPsychological = @S_MentalPsychological 
+    ,@VisualColor = @VisualColor 
+    ,@VisualColorDisposi.on = @VisualColorDisposi.on 
+    ,@Le.CorrectedVisualAcuity = @Le.CorrectedVisualAcuity 
+    ,@RightCorrectedVisualAcuity = @RightCorrectedVisualAcuity 
+    ,@Le.UncorrectedVisualAcuity = @Le.UncorrectedVisualAcuity 
+    ,@RightUncorrectedVisualAcuity = @RightUncorrectedVisualAcuity 
+    ,@Height = @Height 
+    ,@Weight = @Weight 
+    ,@MedicalDisposi.on = @MedicalDisposi.on 
+    ,@Consulta.onType = @Consulta.onType 
+    ,@UserLogin = @LastUpdateUserID 
+    ,@D_Drugs = @D_Drugs 
+ 
+   FETCH NEXT FROM medical_cursor 
+   INTO 
+    @MedicalExamDate 
+    ,@MedicalExamType 
+    ,@MedMepsOrganiza.onID 
+    ,@P_GeneralBodyBuild 
+    ,@U_UpperBody 
+    ,@L_LowerBody 
+    ,@H_Hearing 
+    ,@E_Eyes 
+    ,@S_MentalPsychological 
+    ,@VisualColor 
+    ,@VisualColorDisposi.on 
+    ,@Le.CorrectedVisualAcuity 
+    ,@RightCorrectedVisualAcuity 
+    ,@Le.UncorrectedVisualAcuity 
+    ,@RightUncorrectedVisualAcuity 
+    ,@Height 
+    ,@Weight 
+    ,@MedicalDisposi.on 
+    ,@Consulta.onType 
+    ,@D_Drugs    
+  END 
+ 
+  CLOSE medical_cursor; 
+  DEALLOCATE medical_cursor; 
+ 
+ /************************************************************* 
+  Prospect Moral O.ense 
+ *************************************************************/ 
+   
+  DECLARE @O.enseDate date.me 
+  DECLARE @O.enseId int 
+  DECLARE @O.enseTypeId int 
+  DECLARE @O.enseDetail varchar(255) 
+  DECLARE @O.enseIsGuilty bit 
+  DECLARE @O.enseIsJuvenile bit  
+ 
+  DECLARE o.ense_cursor CURSOR FOR 
+   SELECT  
+    [SubmitDate] 
+    ,C.[LegalO.enseId] 
+    ,L.LegalO.enseTypeId 
+    ,[Detail] 
+    ,[IsGuilty] 
+    ,[IsJuvenile] 
+   FROM  
+    [MCRISS].[USMC].[CandidateLegalO.ense] C 
+    INNER JOIN [MCRISS].USMC.LegalO.ense L 
+    ON C.LegalO.enseId = L.LegalO.enseId 
+   WHERE 
+    PersonId = @MarineCandidateID 
+ 
+  OPEN o.ense_cursor; 
+ 
+  FETCH NEXT FROM o.ense_cursor 
+  INTO 
+   @O.enseDate 
+   ,@O.enseId 
+   ,@O.enseTypeId 
+   ,@O.enseDetail 
+   ,@O.enseIsGuilty 
+   ,@O.enseIsJuvenile 
+ 
+  WHILE @@FETCH_STATUS = 0 
+  BEGIN 
+   EXECUTE [PROSPECTING].[USMC].[InsertUpdateProspectMoralO.enseFromMcriss]  
+    @MarineCandidateID = @MarineCandidateID 
+    ,@OldRecSubmitDate = @O.enseDate 
+    ,@OldRecLegalO.enseId = @O.enseId 
+    ,@OldRecLegalO.enseTypeId = @O.enseTypeId  
+    ,@OldRecDetail = @O.enseDetail 
+    ,@OldRecIsGuilty = @O.enseIsGuilty 
+    ,@OldRecIsJuvenile = @O.enseIsJuvenile 
+    ,@SubmitDate = @O.enseDate 
+    ,@LegalO.enseId = @O.enseId 
+    ,@LegalO.enseTypeId = @O.enseTypeId 
+    ,@Detail = @O.enseDetail 
+    ,@IsGuilty = @O.enseIsGuilty 
+    ,@IsJuvenile = @O.enseIsJuvenile 
+    ,@UserLogin = @LastUpdateUserID 
+    
+   FETCH NEXT FROM o.ense_cursor 
+   INTO 
+    @O.enseDate 
+    ,@O.enseId 
+    ,@O.enseTypeId 
+    ,@O.enseDetail 
+    ,@O.enseIsGuilty 
+    ,@O.enseIsJuvenile 
+  END 
+ 
+  CLOSE o.ense_cursor; 
+  DEALLOCATE o.ense_cursor; 
+ 
+ /************************************************************* 
+  Prospect Professed Exam 
+ *************************************************************/ 
+  DECLARE @ExamType char(1) 
+  DECLARE @ExamDate date.me 
+  DECLARE @ExamEnteredDate date.me 
+  DECLARE @Score int 
+ 
+  DECLARE profess_cursor CURSOR FOR 
+   SELECT  
+    [PROFESSED_EXAM_TYPE] 
+    ,[EXAM_DATE] 
+    ,[EXAM_ENTERED_DATE] 
+    ,[EXAM_SCORE] 
+   FROM  
+    [MCRISS].[dbo].[CANDIDATE_PROFESSED_EXAM] 
+   WHERE 
+    [MARINE_CANDIDATE_ID] = @MarineCandidateID 
+ 
+  OPEN profess_cursor; 
+ 
+  FETCH NEXT FROM profess_cursor 
+  INTO 
+   @ExamType 
+   ,@ExamDate 
+   ,@ExamEnteredDate 
+   ,@Score 
+ 
+  WHILE @@FETCH_STATUS = 0 
+  BEGIN 
+   EXECUTE [PROSPECTING].[USMC].[InsertUpdateProspectProfessedExamFromMcriss]  
+    @MarineCandidateID = @MarineCandidateID 
+    ,@OldRecExamType = @ExamType 
+    ,@OldRecExamDate = @ExamDate 
+    ,@OldRecExamEnteredDate = @ExamEnteredDate 
+    ,@ExamType = @ExamType 
+    ,@ExamDate = @ExamDate 
+    ,@ExamEnteredDate = @ExamEnteredDate 
+    ,@Score = @Score 
+    ,@LastUpdateBy = @LastUpdateUserID 
+ 
+   FETCH NEXT FROM profess_cursor 
+   INTO 
+    @ExamType 
+    ,@ExamDate 
+    ,@ExamEnteredDate 
+    ,@Score 
+  END 
+ 
+  CLOSE profess_cursor; 
+  DEALLOCATE profess_cursor; 
+ 
+ /************************************************************* 
+  Prospect Physical IST 
+ *************************************************************/ 
+ 
+  DECLARE @ISTTestDate date.me 
+  DECLARE @ISTHeight decimal(4,2) 
+  DECLARE @ISTWeight int 
+  DECLARE @ISTRunTimeMinute int 
+  DECLARE @ISTRunTimeSecond int 
+  DECLARE @ISTPuHang int 
+  DECLARE @ISTCrunch int 
+ 
+  DECLARE IST_cursor CURSOR FOR 
+   SELECT Top 1  
+     [IST_DATE] 
+    ,COALESCE ( [IST_PULL_UPS],[IST_HANG]) 
+    ,[IST_CRUNCHES] 
+    ,[IST_MINUTES] 
+    ,[IST_SECONDS] 
+    ,[IST_HEIGHT] 
+    ,[IST_WEIGHT] 
+     
+   FROM  
+    [MCRISS].[dbo].[CONTRACT] 
+   WHERE  
+    [NWA_ID] = @NwaID 
+  OPEN IST_cursor; 
+ 
+  FETCH NEXT FROM IST_cursor 
+  INTO 
+   @ISTTestDate 
+   ,@ISTPuHang 
+   ,@ISTCrunch 
+   ,@ISTRunTimeMinute 
+   ,@ISTRunTimeSecond 
+   ,@ISTHeight 
+   ,@ISTWeight 
+   
+  WHILE @@FETCH_STATUS = 0 
+  BEGIN 
+   IF @ISTHeight IS NOT NULL AND @ISTWeight IS NOT NULL 
+   BEGIN 
+    EXECUTE [PROSPECTING].[USMC].[InsertUpdatePhysicalIstByMcriss]  
+       @NwaRowGuid = @NwaRowGuid 
+      ,@TestDate = @ISTTestDate 
+      ,@Height = @ISTHeight 
+      ,@Weight = @ISTWeight 
+      ,@RunTimeMinute = @ISTRunTimeMinute 
+      ,@RunTimeSecond = @ISTRunTimeSecond 
+      ,@PuHang = @ISTPuHang 
+      ,@Crunch = @ISTCrunch 
+      ,@LastUpdateBy = @LastUpdateUserID 
+   END 
+    
+   FETCH NEXT FROM IST_cursor 
+   INTO 
+    @ISTTestDate 
+    ,@ISTPuHang 
+    ,@ISTCrunch 
+    ,@ISTRunTimeMinute 
+    ,@ISTRunTimeSecond 
+    ,@ISTHeight 
+    ,@ISTWeight 
+  END 
+ 
+  CLOSE IST_cursor; 
+  DEALLOCATE IST_cursor;   
+ 
+ END --@ProspectID IS NULL 
+  
+ SELECT @ProspectID AS ProspectID 
+  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,72 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetDailyApptIntv]" directorySegmentName="seg_2" id="215E6EA9-D8BF-7C57-18A1-53EFF86BEAA5">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@TargetDate date.me, 
+ @Organiza.onId int,   
+    @RecruiterId uniqueidentifier = null 
+ 
+AS 
+BEGIN 
+  
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+      
+ SELECT 
+ pe.LastName + ', ' + pe.FirstName AS FullName,  
+ e.StartDate, 
+ p.Source, 
+ p.Ac.vity, 
+ p.ProspectID, 
+ e.Loca.on, 
+ ph1.PhoneNumber AS HomePhone, 
+ ph2.PhoneNumber AS CellPhone, 
+ a.Type AS ApptOutcome, 
+ i.Type AS IntvOutcome, 
+ CASE WHEN e.EventTypeId = 187 THEN '*' ELSE '' END AS EventTypePos.ix  
+ FROM  
+ USMC.Event e 
+ INNER JOIN USMC.EventSubject s 
+ ON s.EventID = e.ID 
+ LEFT OUTER JOIN USMC.EventOutcome oc 
+ ON e.ID = oc.EventId 
+ LEFT OUTER JOIN USMC.AppointmentOutcome a 
+ ON a.ID = oc.AppointmentOutcomeId 
+ LEFT OUTER JOIN USMC.InterviewOutcome i 
+ on i.ID = oc.InterviewOutcomeId 
+ LEFT OUTER JOIN Prospec.ng.USMC.Prospect p 
+ ON s.Subjec.d = p.ProspectId 
+ LEFT OUTER JOIN Prospec.ng.USMC.Person pe 
+ ON p.PersonId = pe.PersonId 
+ LEFT OUTER JOIN Prospec.ng.USMC.PersonPhone ph1  
+ ON p.PersonId = ph1.PersonId AND ph1.PersonPhoneTypeId = 1 
+ LEFT OUTER JOIN Prospec.ng.USMC.PersonPhone ph2  
+ ON p.PersonId = ph2.PersonId AND ph2.PersonPhoneTypeId = 3 
+ WHERE 
+ EventSourceId = 16  
+ AND EventTypeId IN (85, 187) 
+ AND EventPrecision = 1 
+    AND ( ( YEAR(e.StartDate) = YEAR(@TargetDate) 
+    AND MONTH(e.StartDate) = MONTH(@TargetDate) 
+    AND DAY(e.StartDate) = DAY(@TargetDate) 
+   )  
+   OR 
+   ( YEAR(e.EndDate) = YEAR(@TargetDate) 
+    AND MONTH(e.EndDate) = MONTH(@TargetDate) 
+    AND DAY(e.EndDate) = DAY(@TargetDate) 
+   ) 
+  ) 
+    AND e.Organiza.onId = @Organiza.onId 
+    AND ( @RecruiterId IS NULL  
+   OR   
+   EXISTS 
+    (SELECT ID FROM  USMC.EventOwners eo 
+     WHERE eo.EventId = e.ID AND  eo.OwnerID= @RecruiterId  
+    ) 
+        ) 
+    ORDER BY e.StartDate, pe.LastName, pe.FirstName 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,36 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[DeleteChangeRequestDisenrollmentLeter]" directorySegmentName="seg_0" id="ECF69D85-2FDF-1F03-828C-465C0EF6AE6A">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[(@ID uniqueiden..er) 
+ 
+AS 
+ 
+BEGIN TRANSACTION 
+ 
+DELETE FROM [USMC].[CHANGE_REQUEST_ATTACHMENT] WHERE [CHANGE_REQUEST_ID] = @ID; 
+ 
+IF (@@ERROR <> 0) GOTO on_error; 
+ 
+--NOTE: DISENROLLMENTS WILL NEVER HAVE LETTERS UPLOADED 
+ 
+DELETE FROM [USMC].[CHANGE_REQUEST_DISENROLLMENT] WHERE [CHANGE_REQUEST_ID] = @ID; 
+ 
+IF (@@ERROR <> 0) GOTO on_error; 
+ 
+DELETE FROM [USMC].[CHANGE_REQUEST] WHERE [ID] = @ID; 
+ 
+IF (@@ERROR <> 0) GOTO on_error; 
+ 
+COMMIT TRANSACTION 
+ 
+RETURN (0); 
+ 
+on_error: 
+ ROLLBACK TRANSACTION 
+ RETURN (1);]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

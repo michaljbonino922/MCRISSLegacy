@@ -1,0 +1,138 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<EntityView class="oracle.dbtools.crest.model.design.logical.EntityView" directorySegmentName="seg_0" id="36FF3895-21F4-DBAC-0DBD-1DA5039AA7BE" name="USMC.vwCi.es">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>ACF08AFE-5EA4-E677-44AF-842BA739F95F</generatorID>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  
+ '-1' AS ID,  
+ STATE_CODE AS StateCode,  
+ COUNTY_CODE AS CountyCode, 
+ CITY_CODE AS Code,  
+ CITY_TEXT AS [Name],  
+ COUNTY_TEXT As CountyName,  
+ STATE_TEXT As StateName 
+FROM [dbo].[GEO_LOCATION] WITH (NOLOCK) 
+WHERE  
+ STATE_CODE <> '00' AND COUNTY_CODE <> '000' AND (CITY_CODE NOT IN ('0000', '0'))]]></userDefinedSQL>
+<validSQL>false</validSQL>
+<viewType>EntityView</viewType>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="&apos;-1&apos;" id="918B7F8C-5276-B787-00E1-165F1A8CAA3B">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>748ABF05-4AAF-F59D-F92D-CDFFE044A524</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>ID</alias>
+<dataType>UNKNOWN</dataType>
+<expression>&apos;-1&apos;</expression>
+<reference>false</reference>
+<viewID>36FF3895-21F4-DBAC-0DBD-1DA5039AA7BE</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="STATE_CODE" id="83F6B77B-211A-7CAB-1C68-A37490132AC3">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>8753D6D2-97D1-14BE-1B98-B9744E8AF24D</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>StateCode</alias>
+<dataType>UNKNOWN</dataType>
+<expression>STATE_CODE</expression>
+<reference>false</reference>
+<viewID>36FF3895-21F4-DBAC-0DBD-1DA5039AA7BE</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="COUNTY_CODE" id="7F146837-0476-0BE2-C594-3D31CC90E51F">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>989F2F57-E4D1-8FD1-DBB8-2A080C8459A7</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>CountyCode</alias>
+<dataType>UNKNOWN</dataType>
+<expression>COUNTY_CODE</expression>
+<reference>false</reference>
+<viewID>36FF3895-21F4-DBAC-0DBD-1DA5039AA7BE</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="CITY_CODE" id="8638801C-72BB-0632-9F1A-C41469CAD9F2">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>B740D5F2-8AFE-F81B-5C11-F1C8BA515F65</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Code</alias>
+<dataType>UNKNOWN</dataType>
+<expression>CITY_CODE</expression>
+<reference>false</reference>
+<viewID>36FF3895-21F4-DBAC-0DBD-1DA5039AA7BE</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="CITY_TEXT" id="15C16B66-5E48-36BF-11B4-76D8D612E71B">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>828D6E90-0D3B-F8F0-B367-3AEC8AA672B1</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Name</alias>
+<dataType>UNKNOWN</dataType>
+<expression>CITY_TEXT</expression>
+<reference>false</reference>
+<viewID>36FF3895-21F4-DBAC-0DBD-1DA5039AA7BE</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="COUNTY_TEXT" id="8A094600-A2D8-9C8D-55BE-B6A37D982572">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>AE91636E-6EA7-F006-18BB-0089DD83E475</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>CountyName</alias>
+<dataType>UNKNOWN</dataType>
+<expression>COUNTY_TEXT</expression>
+<reference>false</reference>
+<viewID>36FF3895-21F4-DBAC-0DBD-1DA5039AA7BE</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="STATE_TEXT" id="2561DAA2-CD97-AC7A-38BF-54932C2E81A8">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>AC265CAC-8056-8A5E-D9BC-F8C895ADCB26</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>StateName</alias>
+<dataType>UNKNOWN</dataType>
+<expression>STATE_TEXT</expression>
+<reference>false</reference>
+<viewID>36FF3895-21F4-DBAC-0DBD-1DA5039AA7BE</viewID>
+</viewElement>
+</viewElements>
+</EntityView>

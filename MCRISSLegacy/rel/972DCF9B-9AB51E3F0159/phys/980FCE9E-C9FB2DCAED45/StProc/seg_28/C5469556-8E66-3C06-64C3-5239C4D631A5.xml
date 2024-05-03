@@ -1,0 +1,74 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="Proc67" directorySegmentName="seg_28" id="C5469556-8E66-3C06-64C3-5239C4D631A5">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@ProcName sysname = NULL, 
+ @Owner  sysname = NULL, 
+ @NewOwner sysname = NULL, 
+ @PrintFlag char(1) = NULL 
+AS 
+ 
+--- default new owner to dbo 
+SET @NewOwner = COALESCE(@NewOwner, 'dbo') 
+ 
+--- default print .ag to N 
+SET @PrintFlag = COALESCE(@PrintFlag, 'N') 
+ 
+DECLARE @SQLString varchar(2500) 
+DECLARE @WarningMessage varchar(250) 
+ 
+--- IF NO PROCEDURE NAME IS PASSED IN, LOOP THROUGH AND CHANGE THE OWNER OF ALL  
+--- STORED PROCEDURES AND USER-DEFINED FUNCTIONS THAT MEET THE SEARCH CRITERIA 
+IF @ProcName IS NULL 
+BEGIN 
+ DECLARE sproc_Cursor CURSOR FOR 
+ SELECT O.NAME, U.NAME FROM SYSOBJECTS O INNER JOIN SYSUSERS U ON  
+  (O.UID = U.UID AND  
+  O.XTYPE IN ('P', 'FN') AND 
+  U.NAME = COALESCE(@Owner, U.NAME) AND 
+  U.NAME NOT IN ('dbo', @NewOwner)) 
+ 
+ OPEN sproc_Cursor 
+ 
+ FETCH NEXT FROM sproc_Cursor INTO @ProcName, @Owner 
+ 
+ WHILE @@FETCH_STATUS = 0 
+ BEGIN  
+  --- CHANGE THE OBJECT OWNER 
+  SET @SQLString = 'EXEC sp_ChangeObjectOwner @objname = ''' + @Owner + '.' + @ProcName + ''', @newowner = ''' + @NewOwner + '''' 
+   
+  IF @PrintFlag = 'Y' 
+   PRINT @SQLString 
+  ELSE 
+   EXEC (@SQLString) 
+ 
+  
+  FETCH NEXT FROM sproc_Cursor INTO @ProcName, @Owner 
+ END 
+ 
+ CLOSE sproc_Cursor 
+ DEALLOCATE sproc_Cursor 
+END 
+ELSE 
+BEGIN 
+ --- CHANGE THE OBJECT OWNER 
+ SET @SQLString = 'EXEC sp_ChangeObjectOwner @objname = ''' + @Owner + '.' + @ProcName + ''', @newowner = ''' + @NewOwner + '''' 
+ 
+ IF @PrintFlag = 'Y' 
+  PRINT @SQLString 
+ ELSE 
+  EXEC (@SQLString) 
+END 
+ 
+--- DISPLAY THE PERMISSIONS WARNING MESSAGE 
+SET @WarningMessage = CASE @PrintFlag 
+   WHEN 'Y' THEN 'IF YOU CHANGE THE OWNER OF ANY STORED PROCEDURES AND/OR USER-DEFINED FUNCTIONS, PLEASE REMEMBER TO REGRANT PERMISSIONS IF NECESSARY.' 
+   ELSE 'PLEASE REMEMBER TO REGRANT PERMISSIONS IF NECESSARY AFTER CHANGING THE OWNER OF STORED PROCEDURES AND/OR USER-DEFINED FUNCTIONS.' 
+   END 
+PRINT CHAR(13) 
+PRINT @WarningMessage]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,45 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_dbaDetermineWaiverID]" directorySegmentName="seg_14" id="F1097341-676F-4746-7972-06B0D7DE88D8">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@waiver_category_code char(1), 
+@waiver_type_code char(1), 
+@waiver_level_code char(1) 
+ 
+ AS 
+ 
+DECLARE @waiver_category_id int, 
+ @waiver_type_id int, 
+ @waiver_level_id int 
+ 
+DECLARE Waiver_Cursor CURSOR FOR 
+select  wc.waiver_category_id, 
+ wt.waiver_type_id, 
+ wl.waiver_level_id 
+from  waiver_category wc, 
+ waiver_type wt, 
+ waiver_level wl, 
+ waiver_category_type wct  
+where  wc.waiver_category_code=@waiver_category_code and 
+ wt.waiver_type_code=@waiver_type_code and 
+ wl.waiver_level_code=@waiver_level_code and 
+ wct.waiver_type_descrip.on=wt.waiver_type_desc and 
+ wct.waiver_category_code=wc.waiver_category_code 
+ 
+OPEN Waiver_Cursor 
+ 
+FETCH NEXT FROM Waiver_Cursor 
+INTO @waiver_category_id,@waiver_type_id,@waiver_level_id 
+ 
+select waiver_id from waiver 
+where  waiver_category_id=@waiver_category_id and 
+ waiver_type_id=@waiver_type_id and 
+ waiver_level_id=@waiver_level_id 
+ 
+CLOSE Waiver_Cursor 
+DEALLOCATE Waiver_Cursor]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

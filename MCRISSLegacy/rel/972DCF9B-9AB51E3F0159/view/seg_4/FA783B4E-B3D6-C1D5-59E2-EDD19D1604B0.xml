@@ -1,0 +1,65 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_4" id="FA783B4E-B3D6-C1D5-59E2-EDD19D1604B0" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="_dta_mv_365">
+<sourceDDLFile>create Prospecting script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:27 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>E6376687-DA72-7CD7-4E26-5576ADD8A273</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  [USMC].[PersonAddress].[PersonAddressId] as _col_1,  [USMC].[PersonAddress].[PersonAddressTypeId] as _col_2,  [USMC].[PersonAddress].[PersonId] as _col_3,  [USMC].[PersonAddress].[ZipCode] as _col_4 FROM  [USMC].[Person],  [USMC].[PersonAddress]   WHERE  [USMC].[Person].[PersonId] = [USMC].[PersonAddress].[PersonId]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[PersonAddressId]" id="26D49DC0-DEA0-DC7E-E613-D3B5832F86D8">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:27 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_1</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_1</headerAlias>
+<expression>[PersonAddressId]</expression>
+<reference>false</reference>
+<viewID>FA783B4E-B3D6-C1D5-59E2-EDD19D1604B0</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[PersonAddressTypeId]" id="861427CF-0C96-8F7E-C768-9951956AC131">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:27 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_2</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_2</headerAlias>
+<expression>[PersonAddressTypeId]</expression>
+<reference>false</reference>
+<viewID>FA783B4E-B3D6-C1D5-59E2-EDD19D1604B0</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[PersonId]" id="9C2D0D38-D7F6-1B83-AB0F-FB9074429286">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:27 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_3</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_3</headerAlias>
+<expression>[PersonId]</expression>
+<reference>false</reference>
+<viewID>FA783B4E-B3D6-C1D5-59E2-EDD19D1604B0</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[ZipCode]" id="C7184EB1-3051-7AB2-1C84-0522E3A0FBEB">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:27 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_4</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_4</headerAlias>
+<expression>[ZipCode]</expression>
+<reference>false</reference>
+<viewID>FA783B4E-B3D6-C1D5-59E2-EDD19D1604B0</viewID>
+</viewElement>
+</viewElements>
+</TableView>

@@ -1,0 +1,75 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_MigrateZipCode]" directorySegmentName="seg_22" id="A1A54695-BADC-58AF-4B62-9F7A257A5E54">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[as 
+ 
+declare 
+ 
+@mcc_code varchar(6), 
+@rec_id  int, 
+@zip_code varchar(9), 
+@user_login varchar(15), 
+@update_date date.me, 
+@e.ec.ve_date date.me, 
+@deleted char(1) 
+ 
+ 
+declare zip cursor for 
+ 
+select substring(RS,3,3), ZIP from arms..ZipCode 
+ 
+open zip 
+ 
+fetch zip into 
+@mcc_code, @zip_code 
+ 
+while (@@fetch_status) = 0 
+ 
+begin 
+ 
+ set @user_login = 'migra.on' 
+ set @update_date = getdate() 
+ set @e.ec.ve_date = getdate() 
+ set @deleted = 'N' 
+ 
+   set @rec_id = (select ORGANIZATION_ID from RECRUITING_ORGANIZATION where 
+  MCC_CODE = @mcc_code and ORGANIZATION_TYPE = 'RS') 
+ 
+ if @rec_id is not null 
+  begin 
+   
+  if not exists (select 1 from ZIP_CODE_ASSIGNMENT where ZIP_CODE = @zip_code) 
+  begin 
+   insert ZIP_CODE_ASSIGNMENT 
+   (ZIP_CODE, ORGANIZATION_ID, DELETED,USER_LOGIN, UPDATE_DATE, EFFECTIVE_DATE)  
+   values 
+   (@zip_code, @rec_id, @deleted, @user_login, @update_date, @e.ec.ve_date)  
+    
+  print 'Inserted zip' + '  ' + @zip_code + 'For Organiza.on' +  '  ' + @mcc_code 
+  end 
+ 
+  else begin 
+   
+   print 'Iden.cal Record already exists in table' 
+ 
+  end 
+ 
+ 
+  end 
+ 
+  else begin 
+  print @mcc_code + '  ' + 'Is not a valid Organiza.on in Mcriss' 
+  end 
+ 
+ fetch zip into 
+ @mcc_code, @zip_code 
+ end 
+ 
+ close zip 
+ deallocate zip]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

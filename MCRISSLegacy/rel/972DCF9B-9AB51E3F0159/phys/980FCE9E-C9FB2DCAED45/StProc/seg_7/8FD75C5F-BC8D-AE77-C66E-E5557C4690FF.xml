@@ -1,0 +1,23 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetNROTCBoost]" directorySegmentName="seg_7" id="8FD75C5F-BC8D-AE77-C66E-E5557C4690FF">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+  @NwaID int 
+ ) 
+AS 
+ 
+SELECT  
+ @NwaID AS ID 
+ ,PROGRAM_BEGIN_DATE AS ProgramBeginDate 
+ ,PROGRAM_GRAD_DATE AS ProgramGradDate 
+ ,ADVANCED_PROGRAM AS AdvancedProgram 
+FROM 
+ dbo.NROTC_BOOST WITH (NOLOCK) 
+WHERE 
+ dbo.NROTC_BOOST.NWA_ID = @NwaID]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

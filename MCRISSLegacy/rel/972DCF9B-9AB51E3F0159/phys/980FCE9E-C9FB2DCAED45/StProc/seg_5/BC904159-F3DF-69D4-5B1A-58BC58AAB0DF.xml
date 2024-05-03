@@ -1,0 +1,70 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetJPASExportLogData]" directorySegmentName="seg_5" id="BC904159-F3DF-69D4-5B1A-58BC58AAB0DF">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @SF86FormId uniqueiden..er = null, 
+ @SF86Transac.onID int = -1, 
+ @BIQID uniqueiden..er = null 
+) 
+AS 
+ 
+BEGIN 
+ IF @SF86Transac.onID <> -1 
+ BEGIN 
+  SELECT  
+   [JPAS_LOG_ID] 
+   ,[SF86Transac.onID] 
+   ,[DATA_FILE] 
+   ,[RESPONSE_FILE] 
+   ,[PDF_FILE] 
+   ,[SUCCESSFUL_TRANSMISSION] 
+   ,[USER_LOGIN] 
+   ,[UPDATE_DATE] 
+   ,'' as [FIPC_CODE] 
+   ,'' as [FIPC_DESCRIPTION] 
+  FROM [MCRISS].[dbo].[JPAS_EXPORT_LOG] jl WITH (NOLOCK) 
+  WHERE [SF86Transac.onId] = @SF86Transac.onId 
+ END 
+ ELSE IF @SF86FormId IS NOT NULL 
+ BEGIN 
+  SELECT  
+   [JPAS_LOG_ID] 
+   ,[AEP_SF86_FORM_ID] 
+   ,[DATA_FILE] 
+   ,[RESPONSE_FILE] 
+   ,[PDF_FILE] 
+   ,[SUCCESSFUL_TRANSMISSION] 
+   ,[USER_LOGIN] 
+   ,[UPDATE_DATE] 
+   ,'' as [FIPC_CODE] 
+   ,'' as [FIPC_DESCRIPTION] 
+  FROM [MCRISS].[dbo].[JPAS_EXPORT_LOG] jl WITH (NOLOCK) 
+  WHERE [AEP_SF86_FORM_ID] = @SF86FormId 
+ END 
+ ELSE IF @BIQID IS NOT NULL 
+ BEGIN 
+  SELECT 
+   [JPAS_LOG_ID] 
+   ,[BIQ_ID] 
+   ,[DATA_FILE] 
+   ,[RESPONSE_FILE] 
+   ,[PDF_FILE] 
+   ,[SUCCESSFUL_TRANSMISSION] 
+   ,[USER_LOGIN] 
+   ,[UPDATE_DATE] 
+   ,jl.[FIPC_CODE] 
+   ,fc.[FIPC_DESCRIPTION] 
+  FROM [MCRISS].[dbo].[JPAS_EXPORT_LOG] jl WITH (NOLOCK) 
+  INNER JOIN 
+    [MCRISS].[USMC].[FIPC_CODE] as fc 
+  ON 
+    jl.FIPC_CODE = fc.FIPC_CODE 
+  WHERE [BIQ_ID] = @BIQID 
+ END 
+END]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

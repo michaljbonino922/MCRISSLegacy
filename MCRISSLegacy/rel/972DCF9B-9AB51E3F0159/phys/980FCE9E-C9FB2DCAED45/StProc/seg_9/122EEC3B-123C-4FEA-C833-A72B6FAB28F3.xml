@@ -1,0 +1,24 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetSF86SignatureSeparatePage]" directorySegmentName="seg_9" id="122EEC3B-123C-4FEA-C833-A72B6FAB28F3">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@FormID uniqueiden..er, 
+ @PageType varchar(3) 
+AS 
+BEGIN 
+ 
+SELECT ID, 
+       FormID, 
+    PageType, 
+       FileName, 
+       IsCurrent, 
+       LastUpdateDate 
+FROM [USMC].[SF86SignatureSeparatePage] WITH (NOLOCK) 
+WHERE FormID = @FormID and PageType = @PageType and IsCurrent = 1 
+ 
+END]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

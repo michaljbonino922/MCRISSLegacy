@@ -1,0 +1,49 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetCareerFairEvent]" directorySegmentName="seg_4" id="EED16EC3-796D-4D3C-BEBB-A4B1ABA0B2C2">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[--@PointOfContactID integer, 
+       --@En.tyTypeID integer 
+AS 
+SET NOCOUNT ON 
+BEGIN 
+   --ContactName is a generalize name for any person or place 
+ SELECT  
+  
+ --These columns may be needed by the data contracts for insert/update 
+    oe.[FiscalYear], e.[EventID], e.[EventType], e.[EventName] AS CareerFairName,  
+             
+ ec.[Coordina.onBeginDate] AS Registra.onDeadline,  
+  
+ -- Will refer to mul.ple date entries 
+ cfe.[EventDateID], 
+  
+ eco.[Cost], 
+  
+ -- As per analyst at present make it  free format text 200 
+ eco.[Adver.singInfo], 
+  
+ RTRIM (pc.POCLastName) + ',' + RTRIM(pc.POCFirstName) + '.' + IsNull(substring(pc.POCLegalMiddleName,1,1),'') +  
+    '.' AS POCName, 
+    [POCLastName], [POCLegalMiddleName], [POCFirstName], 
+    [TelephoneNumber],[FaxNumber] 
+   
+     
+   FROM  
+  [MCRISS].[USMC].[GetCareerFairEvent] cfe 
+  inner join [MCRISS].[USMC].[Organiza.onEvent] oe ON  cfe.Organiza.onEventID = oe.Organiza.onEventID  
+  inner join [MCRISS].[USMC].[Event] e ON  e.EventID = oe.EventID 
+  le.  join [MCRISS].[USMC].[EventCoordina.on] ec ON  ec.Coordina.onEventID = oe.Coordina.onEventID 
+    le. outer join [MCRISS].[USMC].[PointOfContact] pc ON  pc.PointOfContactID = oe.PointOfContactID  
+  le. outer join [MCRISS].[USMC].[EventCost] eco ON  oe.EventCostID = oe.EventCostID 
+     le. outer join [MCRISS].[USMC].[EventDate] ed ON  oe.EventDateID = oe.EventDateID 
+    
+END 
+  
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

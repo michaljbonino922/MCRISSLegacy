@@ -1,0 +1,77 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="Note" directorySegmentName="seg_4" id="CE83ABC8-A8D2-CB29-1097-5AD12C6E984E">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<schemaObject>2A6D9360-3BB2-5CEA-6E99-790D76996FDF</schemaObject>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="IsDeleted" id="75D14C47-772C-3A56-2018-DBAFDCF90EF7">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:04 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="NoteTypeID" id="7B35F1A1-9110-BD9E-2B03-4EEAF5BEE2D8">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:03 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="NoteID" id="9CBB10BB-C67B-6F96-4398-B02A0A3FBF64">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:03 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="Text" id="A600E494-26CC-A453-24A2-A34E69E526D1">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:04 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="Date" id="B2D40A7E-B630-6425-513A-0B5C9CA46765">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:04 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="LeadID" id="D70E61B9-1D6D-6166-F4E6-3099727B9AD2">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:03 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="UserID" id="EAE17105-EB57-2C8D-672E-84562E493991">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:04 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+</columnProxies>
+<indexProxies>
+<IndexProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.IndexProxySqlServerv2k12" name="IX_LEADID_ISDELETED" id="8F2A0E01-DF6A-CFB6-0849-051DD1E25848">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:04 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<fillFactor>90</fillFactor>
+<recomputeStatistics>ON</recomputeStatistics>
+</IndexProxy>
+</indexProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="._Note_LeadID" id="4E08E49F-E1C5-2046-463A-7920BE07F1F0">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:25 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="._Note_NoteTypeID" id="B1EAC2BB-0D3B-1FEF-7F5C-51E26798CEE7">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:25 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="pk_Note" id="60F6F3F8-3680-E338-FDC9-708850B2F8AF">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:04 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<clustered>true</clustered>
+<fillFactor>90</fillFactor>
+<partitioningColumn>9CBB10BB-C67B-6F96-4398-B02A0A3FBF64</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+</TableProxySqlServerv2k5>

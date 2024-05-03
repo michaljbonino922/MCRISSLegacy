@@ -1,0 +1,32 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[DeleteSMCRReserveUnitFromCollegePro.le]" directorySegmentName="seg_1" id="A3326BAC-0B9E-82B8-BA6A-1577840E244B">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@SMCRReserveUnitID uniqueiden..er, 
+       @CollegePro.leID uniqueiden..er 
+        
+                  
+AS 
+SET NOCOUNT ON 
+ 
+  IF EXISTS (SELECT '1' from [MCRISS].[USMC].[CollegePro.leSMCRReserveUnit]  
+          where SMCRReserveUnitID = @SMCRReserveUnitID 
+          and @SMCRReserveUnitID IS NOT NULL 
+          and CollegePro.leID = @CollegePro.leID 
+          and @CollegePro.leID IS NOT NULL) 
+            
+           
+  BEGIN 
+     
+   DELETE [MCRISS].[USMC].[CollegePro.leSMCRReserveUnit]  
+   WHERE SMCRReserveUnitID = @SMCRReserveUnitID 
+   AND CollegePro.leID = @CollegePro.leID 
+  END  
+   
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

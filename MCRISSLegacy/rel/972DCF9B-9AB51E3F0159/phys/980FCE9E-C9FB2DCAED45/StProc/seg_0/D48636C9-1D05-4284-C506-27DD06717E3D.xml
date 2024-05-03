@@ -1,0 +1,231 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_Delete_Old4KRecords]" directorySegmentName="seg_0" id="D48636C9-1D05-4284-C506-27DD06717E3D">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:09 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[AS 
+ 
+/* 
+ * Create the temp tables first. 
+ */ 
+CREATE TABLE #TEMP_DELETE_ERRORDB ( 
+ SSN   varchar(9), 
+ MAX_REQUIRED_DATE datetime, 
+ DELETE_CODE  char(1) 
+); 
+ 
+CREATE TABLE #TEMP_ERROR_LOG ( 
+ ERROR_LOG_ID int, 
+ DELETE_CODE char(1) 
+); 
+ 
+CREATE TABLE #TEMP_MIRS_IMPORT_LOG ( 
+ MIRS_IMPORT_ID int, 
+ DELETE_CODE char(1) 
+); 
+ 
+/* 
+ * Rules that do not require delete action. 
+ * 
+ * Rule: Applicant is an NWA/Working (Keep Data) 
+ * Rule: Applicant is a Contract/Poolee/Pending Discharge (Keep Data) 
+ */ 
+ 
+/*  
+ * Rule: Applicant is an NWA/DQ (Delete 120 days after DQ date) 
+ * 
+ * NWA/DQ (Status_code = A, Disposition_code = G, H, I, J) 
+ * DQ Date = Candidate_status.Status_effective_date 
+ */ 
+INSERT INTO #TEMP_DELETE_ERRORDB (SSN, MAX_REQUIRED_DATE, DELETE_CODE) 
+SELECT p.SOCIAL_SECURITY_NUMBER, DATEADD(day, +120, cs.STATUS_EFFECTIVE_DATE), 'Q' 
+FROM MCRISS.dbo.CANDIDATE_STATUS cs  
+INNER JOIN MCRISS.dbo.NWA n on cs.NWA_ID = n.NWA_ID 
+INNER JOIN MCRISS.dbo.PERSON p on n.MARINE_CANDIDATE_ID = p.PERSON_ID 
+WHERE cs.STATUS_CODE = 'A' AND cs.DISPOSITION_CODE IN ('G', 'H', 'I', 'J') 
+AND cs.CANDIDATE_STATUS_ID =  
+(SELECT MAX(cs1.CANDIDATE_STATUS_ID)  
+FROM MCRISS.dbo.CANDIDATE_STATUS cs1  
+INNER JOIN MCRISS.dbo.NWA n1 on cs1.NWA_ID = n1.NWA_ID  
+where n1.MARINE_CANDIDATE_ID = p.PERSON_ID) 
+ 
+/* 
+ * Rule: Applicant is a Contract/DEP Discharge(Delete 45 days after discharge date) 
+ * 
+ * Contract/DEP Discharge (Status_code = B, Disposition_code = L) 
+ * DEP Discharge Date = Candidate_status.Status_effective_date 
+ */ 
+INSERT INTO #TEMP_DELETE_ERRORDB (SSN, MAX_REQUIRED_DATE, DELETE_CODE) 
+SELECT p.SOCIAL_SECURITY_NUMBER, DATEADD(day, +45, cs.STATUS_EFFECTIVE_DATE), 'C' 
+FROM MCRISS.dbo.CANDIDATE_STATUS cs  
+INNER JOIN MCRISS.dbo.NWA n on cs.NWA_ID = n.NWA_ID 
+INNER JOIN MCRISS.dbo.PERSON p on n.MARINE_CANDIDATE_ID = p.PERSON_ID 
+WHERE cs.STATUS_CODE = 'B' AND DISPOSITION_CODE = 'L' 
+AND cs.CANDIDATE_STATUS_ID =  
+(SELECT MAX(cs1.CANDIDATE_STATUS_ID)  
+FROM MCRISS.dbo.CANDIDATE_STATUS cs1  
+INNER JOIN MCRISS.dbo.NWA n1 on cs1.NWA_ID = n1.NWA_ID  
+where n1.MARINE_CANDIDATE_ID = p.PERSON_ID) 
+ 
+/* 
+ * Rule: Applicant is a shipper/recruit (Delete 120 days after ship date) 
+ * 
+ * Shipper/recruit (Status_code = C, Disposition_code = N) 
+ * The ship_date in the recruit_training table is the same as the  
+ * ship_date in the shipper table and status_effective_date in the candidate_status 
+ * table.  The status_effective_date will be used for date comparison. 
+ */ 
+INSERT INTO #TEMP_DELETE_ERRORDB (SSN, MAX_REQUIRED_DATE, DELETE_CODE) 
+SELECT p.SOCIAL_SECURITY_NUMBER, DATEADD(day, +120, cs.STATUS_EFFECTIVE_DATE), 'S' 
+FROM MCRISS.dbo.CANDIDATE_STATUS cs  
+INNER JOIN MCRISS.dbo.NWA n on cs.NWA_ID = n.NWA_ID 
+INNER JOIN MCRISS.dbo.PERSON p on n.MARINE_CANDIDATE_ID = p.PERSON_ID 
+WHERE cs.STATUS_CODE = 'C' AND DISPOSITION_CODE = 'N' 
+AND cs.CANDIDATE_STATUS_ID =  
+(SELECT MAX(cs1.CANDIDATE_STATUS_ID)  
+FROM MCRISS.dbo.CANDIDATE_STATUS cs1  
+INNER JOIN MCRISS.dbo.NWA n1 on cs1.NWA_ID = n1.NWA_ID  
+where n1.MARINE_CANDIDATE_ID = p.PERSON_ID) 
+ 
+/* 
+ * Rule: Applicant is a shipper/MCRD Discharge (Delete 120 days after discharge date) 
+ * 
+ * The drop_date in the recruit_training table is the same as the  
+ * status_effective_date in the candidate_status table.   
+ * The status_effective_date will be used for date comparison. 
+ */ 
+INSERT INTO #TEMP_DELETE_ERRORDB (SSN, MAX_REQUIRED_DATE, DELETE_CODE) 
+SELECT p.SOCIAL_SECURITY_NUMBER, DATEADD(day, +120, cs.STATUS_EFFECTIVE_DATE), 'M' 
+FROM MCRISS.dbo.CANDIDATE_STATUS cs  
+INNER JOIN MCRISS.dbo.NWA n on cs.NWA_ID = n.NWA_ID 
+INNER JOIN MCRISS.dbo.PERSON p on n.MARINE_CANDIDATE_ID = p.PERSON_ID 
+WHERE cs.STATUS_CODE = 'C' AND DISPOSITION_CODE = 'O' 
+AND cs.CANDIDATE_STATUS_ID =  
+(SELECT MAX(cs1.CANDIDATE_STATUS_ID)  
+FROM MCRISS.dbo.CANDIDATE_STATUS cs1  
+INNER JOIN MCRISS.dbo.NWA n1 on cs1.NWA_ID = n1.NWA_ID  
+where n1.MARINE_CANDIDATE_ID = p.PERSON_ID) 
+ 
+/* 
+ * Rule: Applicant is a shipper/MCRD Graduate (Delete on graduation date) 
+ * 
+ * Shipper/recruit (Status_code = C, Disposition_code = P) 
+ * Recruit_Training.Graduation_date is not the same as status_effective_date 
+ */ 
+INSERT INTO #TEMP_DELETE_ERRORDB (SSN, MAX_REQUIRED_DATE, DELETE_CODE) 
+SELECT p.SOCIAL_SECURITY_NUMBER, cs.STATUS_EFFECTIVE_DATE, 'G' 
+FROM MCRISS.dbo.CANDIDATE_STATUS cs  
+INNER JOIN MCRISS.dbo.NWA n on cs.NWA_ID = n.NWA_ID 
+INNER JOIN MCRISS.dbo.PERSON p on n.MARINE_CANDIDATE_ID = p.PERSON_ID 
+WHERE cs.STATUS_CODE = 'C' AND DISPOSITION_CODE = 'P' 
+AND cs.CANDIDATE_STATUS_ID =  
+(SELECT MAX(cs1.CANDIDATE_STATUS_ID)  
+FROM MCRISS.dbo.CANDIDATE_STATUS cs1  
+INNER JOIN MCRISS.dbo.NWA n1 on cs1.NWA_ID = n1.NWA_ID  
+where n1.MARINE_CANDIDATE_ID = p.PERSON_ID) 
+ 
+/* 
+* Now, save MIRS_IMPORT_IDs associated the SSNs to be deleted based on Candidate Status rules. 
+*/ 
+INSERT INTO #TEMP_MIRS_IMPORT_LOG (MIRS_IMPORT_ID, DELETE_CODE) 
+SELECT MIRS_IMPORT_ID, 'S' 
+FROM MIRS_IMPORT_LOG mil 
+INNER JOIN #TEMP_DELETE_ERRORDB t 
+ON mil.SSN = t.SSN 
+WHERE  
+--mil.UPDATE_DATE <= t.MAX_REQUIRED_DATE and 
+t.MAX_REQUIRED_DATE < GETDATE() 
+ 
+/**/ 
+ 
+/* 
+* Get MIRS_IMPORT_IDs for records with SPF_CODE = 'DMZ'. 
+* These records will be deleted later. 
+ */ 
+INSERT INTO #TEMP_MIRS_IMPORT_LOG (MIRS_IMPORT_ID, DELETE_CODE) 
+SELECT MIRS_IMPORT_ID, 'D' 
+FROM MIRS_IMPORT_LOG mil 
+WHERE SPF_CODE = 'DMZ' 
+ 
+/* 
+* Get MIRS_IMPORT_IDs for records older than 120 days and no matching SSN 
+* in the PERSON table.  These records will be deleted later. 
+ */ 
+INSERT INTO #TEMP_MIRS_IMPORT_LOG (MIRS_IMPORT_ID, DELETE_CODE) 
+SELECT MIRS_IMPORT_ID, 'O' 
+FROM MIRS_IMPORT_LOG mil 
+LEFT OUTER JOIN MCRISS.dbo.PERSON p 
+ON MIL.SSN = P.SOCIAL_SECURITY_NUMBER 
+WHERE p.SOCIAL_SECURITY_NUMBER is null 
+AND DATEDIFF(DD, mil.UPDATE_DATE, GETDATE()) > 120 
+ 
+/* 
+ * Rule: Unresolved errors (Delete after 120 days) 
+ */ 
+ 
+INSERT INTO #TEMP_MIRS_IMPORT_LOG (MIRS_IMPORT_ID) 
+SELECT distinct mil.MIRS_IMPORT_ID 
+FROM MIRS_IMPORT_LOG mil 
+INNER JOIN MIRS_IMPORT_ERROR mir 
+ON mil.MIRS_IMPORT_ID = mir.MIRS_IMPORT_ID 
+INNER JOIN ERROR_LOG el 
+ON mir.ERROR_LOG_ID = el.ERROR_LOG_ID 
+WHERE el.STATUS = 'UNRESOLVED' 
+AND DATEDIFF(day, el.UPDATE_DATE, GETDATE()) > 120 
+ 
+/*  
+* Save the ERROR_LOG_IDs associated with the MIRS_IMPORT_IDs to be deleted. 
+*/ 
+INSERT INTO #TEMP_ERROR_LOG (ERROR_LOG_ID) 
+SELECT ERROR_LOG_ID 
+FROM MIRS_IMPORT_ERROR mie 
+INNER JOIN #TEMP_MIRS_IMPORT_LOG t on mie.MIRS_IMPORT_ID = t.MIRS_IMPORT_ID 
+ 
+/*  
+ * Delete from MIRS_IMPORT_Error 
+ */ 
+DELETE MIRS_IMPORT_ERROR 
+FROM MIRS_IMPORT_ERROR mie 
+INNER JOIN #TEMP_MIRS_IMPORT_LOG t on mie.MIRS_IMPORT_ID = t.MIRS_IMPORT_ID 
+ 
+/* 
+ * Delete from ERROR_LOG 
+ */ 
+DELETE ERROR_LOG 
+FROM ERROR_LOG el 
+INNER JOIN #TEMP_ERROR_LOG tel on el.ERROR_LOG_ID = tel.ERROR_LOG_ID 
+ 
+/******************************************************************/ 
+ 
+/* 
+ * Delete from ROLLBACK_LOG 
+ */ 
+DELETE ROLLBACK_LOG 
+FROM ROLLBACK_LOG r 
+INNER JOIN #TEMP_MIRS_IMPORT_LOG t on r.MIRS_IMPORT_ID = t.MIRS_IMPORT_ID 
+ 
+/* 
+ * Delete from SHIPPER_OVERRIDE 
+ */ 
+DELETE SHIPPER_OVERRIDE 
+FROM SHIPPER_OVERRIDE s 
+INNER JOIN #TEMP_MIRS_IMPORT_LOG t on s.MIRS_IMPORT_ID = t.MIRS_IMPORT_ID 
+ 
+/* 
+ * Delete from MIRS_IMPORT_LOG 
+ */ 
+DELETE MIRS_IMPORT_LOG 
+FROM MIRS_IMPORT_LOG m 
+INNER JOIN #TEMP_MIRS_IMPORT_LOG t on m.MIRS_IMPORT_ID = t.MIRS_IMPORT_ID 
+ 
+ 
+/* 
+ * Clean up. 
+ */ 
+DROP TABLE #TEMP_DELETE_ERRORDB 
+DROP TABLE #TEMP_ERROR_LOG 
+DROP TABLE #TEMP_MIRS_IMPORT_LOG]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>24B9F7BA-5DD4-EAB5-4EB1-35B911743E85</database>
+</StoredProcedureSqlServerv2k5>

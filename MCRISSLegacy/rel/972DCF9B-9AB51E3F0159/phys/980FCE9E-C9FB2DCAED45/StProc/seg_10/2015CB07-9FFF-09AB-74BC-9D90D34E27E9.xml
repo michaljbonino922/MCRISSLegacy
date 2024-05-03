@@ -1,0 +1,56 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetSMCRReserveUnitByCollegePro.leId]" directorySegmentName="seg_10" id="2015CB07-9FFF-09AB-74BC-9D90D34E27E9">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@CollegePro.leID uniqueiden..er, 
+      @Organiza.onID int, 
+      @FiscalYear int 
+   
+AS 
+SET NOCOUNT ON 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+  
+  SELECT  
+   
+   cpsmcr.SMCRReserveUnitID, 
+   cpsmcr.CollegePro.leID, 
+   cpsmcr.UserLogin, 
+   cpsmcr.UpdateDate, 
+   sr.Organiza.onID, 
+   sr.FiscalYear, 
+   sr.[Remarks], 
+   sr.SMCRReserveUnitName, 
+   sr.[E1ThruE5Popula.on], 
+    
+   -- POC Informa.on 
+   pc.[PointOfContactID], 
+   RTRIM (pc.POCLastName) AS POCLastName,  
+   RTRIM(pc.POCFirstName) AS POCFirstName,  
+   pc.POCLegalMiddleName, 
+   pc.[Street1],  
+   pc.[Street2], 
+   pc.[City], 
+   pc.[State], 
+   pc.[ZipCode], 
+         pc.[TelephoneNumber], 
+   pc.[CellPhoneNumber], 
+   pc.[FaxNumber], 
+   pc.[EmailAddress] 
+    
+  FROM [MCRISS].[USMC].[CollegePro.leSMCRReserveUnit] cpsmcr 
+  INNER JOIN [MCRISS].[USMC].[SMCRReserveUnit] sr ON sr.SMCRReserveUnitID = cpsmcr.SMCRReserveUnitID 
+   LEFT OUTER JOIN [MCRISS].[USMC].[PointOfContact] pc ON  pc.PointOfContactID = sr.PointOfContactID 
+  
+  WHERE cpsmcr.CollegePro.leID = @CollegePro.leID 
+    AND sr.Organiza.onID = @Organiza.onID  
+    AND sr.FiscalYear = @FiscalYear 
+           
+   
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

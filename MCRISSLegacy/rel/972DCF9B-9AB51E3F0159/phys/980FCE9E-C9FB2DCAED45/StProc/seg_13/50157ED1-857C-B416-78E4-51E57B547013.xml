@@ -1,0 +1,38 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_CheckProgramQSNAssignment]" directorySegmentName="seg_13" id="50157ED1-857C-B416-78E4-51E57B547013">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@ContractID   int, 
+ @ContractBeginDate date.me  OUTPUT, 
+ @ComponentCode   varchar(4)  OUTPUT, 
+ @Gender   char(1)  OUTPUT, 
+ @ProgramQSNAssigned int   OUTPUT 
+AS 
+ 
+IF EXISTS (SELECT 1 FROM CONTRACT WHERE CONTRACT_ID = @ContractID) 
+BEGIN 
+ --- GET CONTRACT SPECIFIC DATA 
+ SELECT  
+  @ContractBeginDate  = C.CONTRACT_BEGIN_DATE, 
+  @ComponentCode   = C.COMPONENT_CODE, 
+  @Gender   = MC.GENDER_CODE 
+ FROM   
+  CONTRACT C INNER JOIN NWA N ON  
+   (C.CONTRACT_ID = @ContractID AND 
+   C.NWA_ID = N.NWA_ID AND 
+   N.NWA_ID = dbo.GetMaxNWAID(N.MARINE_CANDIDATE_ID)) 
+  INNER JOIN MARINE_CANDIDATE MC ON N.MARINE_CANDIDATE_ID = MC.MARINE_CANDIDATE_ID 
+  
+ --- SET THE @ProgramQSNAssigned FLAG 
+ SELECT @ProgramQSNAssigned = CASE  
+     WHEN (@ComponentCode IN ('K4', 'K8', 'K9', 'B5') AND EXISTS (SELECT 1 FROM QSN WHERE CONTRACT_ID = @ContractID)) OR 
+      (@ComponentCode NOT IN ('K4', 'K8', 'K9', 'B5') AND EXISTS (SELECT 1 FROM PROGRAM_AVAILABILITY WHERE CONTRACT_ID = @ContractID))      
+     THEN 1 
+     ELSE 0 
+     END 
+END]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

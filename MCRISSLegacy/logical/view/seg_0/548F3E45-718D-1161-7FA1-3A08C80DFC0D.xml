@@ -1,0 +1,49 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<EntityView class="oracle.dbtools.crest.model.design.logical.EntityView" directorySegmentName="seg_0" id="548F3E45-718D-1161-7FA1-3A08C80DFC0D" name="CHECK TABLE NOW">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>3C3C32E5-56A3-10D0-632F-9AB9E634432D</generatorID>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[select name as TBL_NAME, crdate as UPDATE_DATE FROM sysobjects  
+where type = 'U' and status > 1]]></userDefinedSQL>
+<validSQL>false</validSQL>
+<viewType>EntityView</viewType>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="name" id="51680EA9-BA68-FAA0-CCC6-72CC1FC0A459">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>2E28F7D8-0AF9-1E31-05A7-BA8E172F9408</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>TBL_NAME</alias>
+<dataType>UNKNOWN</dataType>
+<expression>name</expression>
+<reference>false</reference>
+<viewID>548F3E45-718D-1161-7FA1-3A08C80DFC0D</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="crdate" id="C12EC1CD-C252-76D9-271F-2912A1EBAFF0">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>545AD026-0D2E-2ADB-5C53-48141469C917</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>UPDATE_DATE</alias>
+<dataType>UNKNOWN</dataType>
+<expression>crdate</expression>
+<reference>false</reference>
+<viewID>548F3E45-718D-1161-7FA1-3A08C80DFC0D</viewID>
+</viewElement>
+</viewElements>
+</EntityView>

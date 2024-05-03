@@ -1,0 +1,144 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetO.cerPreShipView]" directorySegmentName="seg_7" id="A7BE2977-BEF8-8B65-26A4-764D03C61A28">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @FromDate date.me, 
+ @ToDate date.me, 
+ @OrgID int, 
+ @SortBy nvarchar(50), 
+ @StartRow int, 
+ @PageSize int 
+) 
+AS 
+ 
+CREATE TABLE #O.cerPreShipPreSortTable 
+ (PersonId int 
+ ,NwaId int 
+ ,ContractId int 
+ ,ApplicantName varchar(62) 
+ ,Ssn varchar(9) 
+ ,OssId int 
+ ,OssName varchar(45) 
+ ,Gender char(1) 
+ ,ContractBeginDate date.me 
+ ,Class varchar(7) 
+ ,Increment int 
+ ,ComponentCode varchar(2) 
+ ,Program varchar(50) 
+ ,P.Date date.me 
+ ,P.RunMinutes int 
+ ,P.RunSeconds int 
+ ,P.PullupsHang int 
+ ,P.Pullups int 
+ ,P.Pushups int 
+ ,P.Crunches int 
+ ,P.PlankMinutes int 
+ ,P.PlankSeconds int 
+ ,P.Score int 
+ ,StatusDisposi.on varchar(255)) 
+ 
+INSERT INTO #O.cerPreShipPreSortTable 
+ 
+SELECT 
+ P.PERSON_ID AS PersonId, 
+ N.NWA_ID AS NwaId, 
+ C.CONTRACT_ID AS ContractId,  
+ P.LAST_NAME + ', ' + P.FIRST_NAME + COALESCE(SPACE(1) + P.LEGAL_MIDDLE_NAME, SPACE(0)) AS ApplicantName, 
+ P.SOCIAL_SECURITY_NUMBER AS Ssn, 
+ OSS.ORGANIZATION_ID AS OssId, 
+ OSS.NAME AS OssName, 
+ COALESCE(MC.GENDER_CODE, SPACE(0)) AS Gender, 
+ C.CONTRACT_BEGIN_DATE AS ContractBeginDate, 
+ OC.TRAINING_TYPE_CODE AS Class, 
+ OC.CLASS_NUMBER AS Increment, 
+ CC.COMPONENT_CODE AS ComponentCode, 
+ COALESCE(CC.COMPONENT_DESCRIPTION, SPACE(0)) AS Program, 
+ PFT.PFT_DATE AS P.Date, 
+ COALESCE(PFT.PFT_RUN_MINUTES, SPACE(0)) AS P.RunMinutes,  
+ COALESCE(PFT.PFT_RUN_SECONDS, SPACE(0)) AS P.RunSeconds, 
+ COALESCE(CASE MC.GENDER_CODE  
+    WHEN 'M' THEN PFT.PFT_PULLUPS  
+    WHEN 'F' THEN PFT.PFT_HANG  
+   END, SPACE(0))  
+ AS P.PullupsHang, 
+ COALESCE(PFT.PFT_PULLUPS, SPACE(0)) AS P.Pullups, 
+ COALESCE(PFT.PFT_PUSHUPS, SPACE(0)) AS P.Pushups, 
+ COALESCE(PFT.PFT_CRUNCHES, SPACE(0)) AS P.Crunches, 
+ COALESCE(CONVERT(VARCHAR(2), PFT.PFT_PLANK_MINUTES), SPACE(0)) AS PFT_PLANK_MINUTES,  
+ COALESCE(CONVERT(VARCHAR(2), PFT.PFT_PLANK_SECONDS), SPACE(0)) AS PFT_PLANK_SECONDS, 
+ COALESCE(PFT.PFT_SCORE, SPACE(0)) AS P.Score, 
+ SD.STATUS_DESCRIPTION + '/' + SD.DISPOSITION_DESCRIPTION AS StatusDisposi.on  
+FROM OFFICER_CONTRACT C WITH (NOLOCK) 
+ INNER JOIN NWA N  ON (C.NWA_ID = N.NWA_ID AND C.CONTRACT_BEGIN_DATE BETWEEN @FromDate AND @ToDate) 
+ INNER JOIN [USMC].[vwRecrui.ngOrgIDs] vw ON n.ORGANIZATION_OF_RECORD_ID = vw.root 
+ INNER JOIN MARINE_CANDIDATE MC ON N.MARINE_CANDIDATE_ID = MC.MARINE_CANDIDATE_ID 
+ INNER JOIN PERSON P  ON MC.MARINE_CANDIDATE_ID = P.PERSON_ID 
+ INNER JOIN CANDIDATE_STATUS CS  ON (N.NWA_ID = CS.NWA_ID AND CS.STATUS_TYPE = 'O' AND CS.STATUS_CODE = 'B' AND CS.CANDIDATE_STATUS_ID = usmc.GetMaxStatusID(CS.NWA_ID)) 
+ INNER JOIN STATUS_DISPOSITION SD  ON (CS.STATUS_TYPE = SD.STATUS_TYPE AND CS.STATUS_CODE = SD.STATUS_CODE AND CS.DISPOSITION_CODE = SD.DISPOSITION_CODE) 
+ INNER JOIN RECRUITING_ORGANIZATION OSS  ON N.ORGANIZATION_OF_RECORD_ID = OSS.ORGANIZATION_ID 
+ LEFT JOIN PFT  ON (N.NWA_ID = PFT.NWA_ID AND PFT.PFT_ID = usmc.GetMaxPFTID(N.NWA_ID)) 
+ LEFT JOIN OCS  ON (C.NWA_ID = OCS.NWA_ID AND OCS.OCS_ID = usmc.GetMaxOCSID(OCS.NWA_ID, NULL)) 
+ LEFT JOIN OCS_CLASS OC ON OCS.OCS_CLASS_ID = OC.CLASS_ID 
+ LEFT JOIN COMPONENT_CODE CC ON OCS.COMPONENT_CODE = CC.COMPONENT_CODE 
+WHERE 
+ (vw.RS = @OrgID OR vw.RSS = @OrgID  OR vw.OSS = @OrgID OR vw.District = @OrgID OR vw.Region = @OrgID OR vw.HQ = @OrgID) 
+ 
+  
+DECLARE @Query nvarchar(4000) 
+SET @Query = N'SELECT ROW_NUMBER() OVER (Order By ' + @SortBy + ') AS RowNumber, * FROM #O.cerPreShipPreSortTable ORDER BY ' + @SortBy 
+  
+DECLARE @SortTable TABLE  
+ (RowNumber int 
+ ,PersonId int 
+ ,NwaId int 
+ ,ContractId int 
+ ,ApplicantName varchar(62) 
+ ,Ssn varchar(9) 
+ ,OssId int 
+ ,OssName varchar(45) 
+ ,Gender char(1) 
+ ,ContractBeginDate date.me 
+ ,Class varchar(7) 
+ ,Increment int 
+ ,ComponentCode varchar(2) 
+ ,Program varchar(50) 
+ ,P.Date date.me 
+ ,P.RunMinutes int 
+ ,P.RunSeconds int 
+ ,P.PullupsHang int 
+ ,P.Pullups int 
+ ,P.Pushups int 
+ ,P.Crunches int 
+ ,P.PlankMinutes int 
+ ,P.PlankSeconds int 
+ ,P.Score int 
+ ,StatusDisposi.on varchar(255)) 
+  
+INSERT INTO @SortTable 
+ EXECUTE sp_executesql @Query--, N'@FromDate date.me, @ToDate date.me, @OSS int', @FromDate, @ToDate, @OSS 
+ 
+DECLARE @LastRow int 
+SET @LastRow = @StartRow + @PageSize 
+ 
+SELECT  
+ *  
+FROM  
+ @SortTable 
+WHERE  
+ RowNumber >= @StartRow AND  
+ RowNumber <= @LastRow 
+  
+SELECT 
+ (SELECT COUNT(*) FROM @SortTable) AS Total, 
+ (SELECT COUNT(*) FROM @SortTable WHERE ComponentCode IN ('0A', '0B', '0C', '0E', 'AD') AND Gender = 'M') AS PlcMales, 
+ (SELECT COUNT(*) FROM @SortTable WHERE ComponentCode IN ('0A', '0B', '0C', '0E', 'AD') AND Gender = 'F') AS PlcFemales, 
+ (SELECT COUNT(*) FROM @SortTable WHERE ComponentCode IN ('1A', '1B', '1C', '1E', '1H') AND Gender = 'M') AS OccMales, 
+ (SELECT COUNT(*) FROM @SortTable WHERE ComponentCode IN ('1A', '1B', '1C', '1E', '1H') AND Gender = 'F') AS OccFemales 
+ 
+DROP TABLE #O.cerPreShipPreSortTable]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

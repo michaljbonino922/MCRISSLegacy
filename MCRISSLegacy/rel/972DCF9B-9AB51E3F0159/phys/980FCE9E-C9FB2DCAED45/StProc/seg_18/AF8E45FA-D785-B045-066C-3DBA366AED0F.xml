@@ -1,0 +1,37 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetMOSE.ec.veDates]" directorySegmentName="seg_18" id="AF8E45FA-D785-B045-066C-3DBA366AED0F">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@MOSCode varchar(4) 
+AS 
+ 
+SELECT  
+ MOS.MOS_CODE, MOS.SHORT_DESCRIPTION,  
+ MC.MOS_CRITERIA_ED_DATE, MC.GENDER, 
+ CASE  
+  WHEN MC.STATUS IS NOT NULL THEN MC.STATUS 
+  ELSE 'A' 
+ END AS STATUS 
+FROM  
+ MOS INNER JOIN MOS_CRITERIA MC ON MOS.MOS_CODE = MC.MOS 
+WHERE   
+ MOS.MOS_CODE = @MOSCode 
+ORDER BY  
+ MC.MOS_CRITERIA_ED_DATE DESC 
+ 
+/* 
+Select MOS.MOS_CODE, 
+ MOS.SHORT_DESCRIPTION, 
+ MC.MOS_CRITERIA_ED_DATE 
+From MOS, MOS_CRITERIA MC 
+Where  
+ MOS.MOS_CODE *= MC.MOS 
+ and MOS.MOS_CODE = @MOSCode 
+Order By  
+ MC.MOS_CRITERIA_ED_DATE DESC 
+*/]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

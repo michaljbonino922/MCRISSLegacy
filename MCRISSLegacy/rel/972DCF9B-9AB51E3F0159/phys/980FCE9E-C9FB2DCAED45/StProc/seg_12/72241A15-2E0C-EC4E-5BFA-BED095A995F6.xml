@@ -1,0 +1,64 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUpdateSelec.onBoardVoterWorksheet]" directorySegmentName="seg_12" id="72241A15-2E0C-EC4E-5BFA-BED095A995F6">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+  @NWAID int, 
+  @BoardID int, 
+  @VoterID uniqueiden..er, 
+  @AcademicNotes varchar(500), 
+  @AcademicScore int, 
+  @PhysicalNotes varchar(500), 
+  @PhysicalScore int, 
+  @LeadershipNotes varchar(500), 
+  @LeadershipScore int, 
+  @AddtlPhysFitnessInfo varchar(500) 
+ ) 
+ 
+AS 
+ 
+IF EXISTS (SELECT 1 FROM [mcriss].[dbo].[SELECTION_BOARD_VOTER_WORKSHEET] WHERE 
+  NWA_ID = @NWAID AND BOARD_ID = @BoardID AND VOTER_ID = @VoterID) 
+ BEGIN 
+  UPDATE [mcriss].[dbo].[SELECTION_BOARD_VOTER_WORKSHEET] SET 
+    [ACADEMIC_NOTES] = @AcademicNotes 
+   ,[ACADEMIC_SCORE] = @AcademicScore 
+   ,[PHYSICAL_NOTES] = @PhysicalNotes 
+   ,[PHYSICAL_SCORE] = @PhysicalScore 
+   ,[LEADERSHIP_NOTES] = @LeadershipNotes 
+   ,[LEADERSHIP_SCORE] = @LeadershipScore 
+   ,[ADDITIONAL_PHYS_FITNESS_INFO] = @AddtlPhysFitnessInfo 
+  WHERE NWA_ID = @NWAID AND BOARD_ID = @BoardID AND VOTER_ID = @VoterID 
+ END 
+ELSE 
+ BEGIN 
+  INSERT INTO [mcriss].[dbo].[SELECTION_BOARD_VOTER_WORKSHEET] 
+   ([WORKSHEET_ID] 
+   ,[NWA_ID] 
+   ,[BOARD_ID] 
+   ,[VOTER_ID] 
+   ,[ACADEMIC_NOTES] 
+   ,[ACADEMIC_SCORE] 
+   ,[PHYSICAL_NOTES] 
+   ,[PHYSICAL_SCORE] 
+   ,[LEADERSHIP_NOTES] 
+   ,[LEADERSHIP_SCORE] 
+   ,[ADDITIONAL_PHYS_FITNESS_INFO]) 
+  VALUES 
+   (NEWID() 
+   ,@NWAID 
+   ,@BoardID 
+   ,@VoterID 
+   ,@AcademicNotes 
+   ,@AcademicScore 
+   ,@PhysicalNotes 
+   ,@PhysicalScore 
+   ,@LeadershipNotes 
+   ,@LeadershipScore 
+   ,@AddtlPhysFitnessInfo) 
+ END]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

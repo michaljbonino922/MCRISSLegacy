@@ -1,0 +1,34 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetRecruiterDataBySSN]" directorySegmentName="seg_9" id="3915FC92-6233-0BC6-23E2-3073E0B67B8C">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @SSN char(9) 
+) 
+AS 
+SELECT 
+ P.Person_ID, 
+ P.Social_security_Number AS SSN, 
+ COALESCE(P.LAST_NAME, '') AS Name_Last,  
+ COALESCE(P.FIRST_NAME, '') AS Name_First,  
+ COALESCE(P.LEGAL_MIDDLE_NAME, '') AS Name_Middle,  
+ COALESCE(P.SUFFIX_CD, '') AS Su.x, 
+ COALESCE(M.BILLET_MOS, '') As MOS, 
+ COALESCE(PG.RANK_CODE, '') AS RankCode, 
+ CASE WHEN PG.RANK_CODE IS NULL OR PG.RANK_CODE = '' THEN '' ELSE PG.RANK_CODE + ' - ' + PG.SHORT_DESC END AS RankDescr, 
+ RP.TOUR_BEGIN_DATE, 
+ RP.ORGANIZATION_ID, 
+ RP.RECRUITING_ROLE_ID, 
+ RP.[RowGuid] 
+FROM 
+ PERSON P WITH (NOLOCK) 
+ INNER JOIN MARINE M ON P.PERSON_ID = M.MARINE_ID 
+ LEFT OUTER JOIN PAY_GRADE PG ON dbo.ODSE_GetPayGradeCode(M.PRESENT_GRADE_CODE, M.PRIMARY_MOS) = PG.PAY_GRADE_CODE 
+ LEFT OUTER JOIN RECRUITING_PERSON RP on P.PERSON_ID = RP.RECRUITING_PERSON_ID 
+WHERE  
+ P.SOCIAL_SECURITY_NUMBER = @SSN]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

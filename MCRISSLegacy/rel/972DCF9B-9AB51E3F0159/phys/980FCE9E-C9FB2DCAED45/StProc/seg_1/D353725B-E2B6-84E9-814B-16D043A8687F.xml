@@ -1,0 +1,30 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[DeleteCurrentFyVisitRecap]" directorySegmentName="seg_1" id="D353725B-E2B6-84E9-814B-16D043A8687F">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@CurrentFyVisitRecapId uniqueiden..er 
+        
+                  
+AS 
+SET NOCOUNT ON 
+ 
+  -- informa.on for an exisi.ng record can be inserted. 
+  IF EXISTS (SELECT '1' from [MCRISS].[USMC].[CurrentFYVisitRecap]  
+          where CurrentFyVisitRecapId = @CurrentFyVisitRecapId 
+          and @CurrentFyVisitRecapId IS NOT NULL) 
+            
+           
+  -- then update the exisi.ng record 
+  BEGIN 
+     
+   DELETE [MCRISS].[USMC].[CurrentFYVisitRecap]  
+   WHERE CurrentFyVisitRecapId = @CurrentFyVisitRecapId 
+  END  
+   
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

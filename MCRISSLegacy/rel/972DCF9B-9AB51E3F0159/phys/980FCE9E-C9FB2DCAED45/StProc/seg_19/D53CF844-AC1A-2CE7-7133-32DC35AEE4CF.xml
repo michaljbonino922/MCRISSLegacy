@@ -1,0 +1,25 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetProcessingStatuses]" directorySegmentName="seg_19" id="D53CF844-AC1A-2CE7-7133-32DC35AEE4CF">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[AS 
+ 
+SELECT  
+ PROC_STATUS_ID = CASE  
+    WHEN PROCESSING_STATUS_CODE = 'P' THEN 1 
+    WHEN PROCESSING_STATUS_CODE = 'M' THEN 2 
+    WHEN PROCESSING_STATUS_CODE = 'S' THEN 3 
+    WHEN PROCESSING_STATUS_CODE = 'N' THEN 4 
+    END, 
+ PROCESSING_STATUS_CODE, PROCESSING_STATUS_DESCRIPTION 
+FROM 
+ PROCESSING_STATUS 
+WHERE 
+ PROCESSING_STATUS_CODE <> 'L' 
+ORDER BY 
+ PROC_STATUS_ID]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

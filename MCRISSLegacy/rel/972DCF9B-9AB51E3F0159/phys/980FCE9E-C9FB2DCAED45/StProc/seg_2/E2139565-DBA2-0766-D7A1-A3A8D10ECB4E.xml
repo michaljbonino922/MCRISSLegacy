@@ -1,0 +1,58 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetEventPlanSubjects]" directorySegmentName="seg_2" id="E2139565-DBA2-0766-D7A1-A3A8D10ECB4E">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@EventId uniqueidentifier 
+AS 
+BEGIN 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+  
+ SELECT  
+  p.LastName + ' ' + p.FirstName + ' ' + CAST(ISNULL(p.MiddleName, '') AS VARCHAR) AS PersonName 
+  , pr.ProspectId 
+ INTO #PROSPECTING_PERSON 
+ FROM PROSPECTING.USMC.Person p  
+ INNER JOIN PROSPECTING.USMC.Prospect pr ON p.PersonId = pr.PersonId 
+ INNER JOIN [RSSOSS].[USMC].[EventPlanSubject] es ON es.SubjectId = pr.ProspectId 
+ WHERE es.EventId = @EventId 
+  
+ SELECT  
+  p.LAST_NAME + ' ' + p.FIRST_NAME + ' ' + CAST(ISNULL(p.LEGAL_MIDDLE_NAME, '') AS VARCHAR) AS PersonName 
+  ,n.rowguid 
+ INTO #NWA_PERSON 
+ FROM MCRISS.dbo.NWA n 
+ INNER JOIN MCRISS.dbo.Person p ON p.PERSON_ID = n.MARINE_CANDIDATE_ID 
+ INNER JOIN [RSSOSS].[USMC].[EventPlanSubject] es ON es.SubjectId = n.rowguid 
+ WHERE es.EventId = @EventId  
+ 
+ SELECT [Id] 
+      ,[EventId] 
+      ,[SubjectId] 
+      ,[SubjectName] 
+      --,'WA' [WorkingArea]   
+      ,wk.SectorDesignator  + cast(isnull(wk.DESIGNATOR, '') as varchar)  [WorkingArea] 
+      ,COALESCE(nwa.PersonName,prsp.PersonName) AS PersonName 
+ FROM [RSSOSS].[USMC].[EventPlanSubject] es 
+ Le. Join  
+  ( Select hsp.rowguid, SectorDesignator, DESIGNATOR  
+   from  
+    [MCRISS].[DBO].[HIGH_SCHOOL_PROFILE] hsp 
+    Inner Join [MCRISS].[DBO].[HIGH_SCHOOL] hs on hs.SCHOOL_CODE=hsp.SCHOOL_CODE 
+    Inner join [MCRISS].[DBO].[RECRUITING_ORGANIZATION] ro on ro.ORGANIZATION_ID=hs.ORGANIZATION_ID 
+    Inner Join [RSSOSS].[USMC].[MapsSector] ms on ms.Recrui.ngOrganiza.onId=ro.rowguid 
+    Inner Join [RSSOSS].[USMC].[MapsSectorZip] mz on mz.SectorID = ms.SectorID 
+    and mz.Zip = le.(hs.ZIP_CODE, 5) 
+  ) wk on wk.rowguid = es.SubjectId 
+ LEFT OUTER JOIN #PROSPECTING_PERSON prsp ON prsp.ProspectId = es.SubjectId 
+ LEFT OUTER JOIN #NWA_PERSON nwa ON nwa.rowguid = es.SubjectId 
+ WHERE EventId=@EventId 
+  
+ DROP TABLE #PROSPECTING_PERSON 
+ DROP TABLE #NWA_PERSON 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

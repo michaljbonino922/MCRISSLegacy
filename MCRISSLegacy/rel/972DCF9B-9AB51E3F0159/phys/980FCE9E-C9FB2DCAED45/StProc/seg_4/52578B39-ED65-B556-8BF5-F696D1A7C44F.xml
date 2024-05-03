@@ -1,0 +1,40 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetCountries_orig]" directorySegmentName="seg_4" id="52578B39-ED65-B556-8BF5-F696D1A7C44F">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[AS 
+ 
+--create a table variable to hold the countries 
+DECLARE @countries table 
+ (ID int 
+ ,code varchar(2) 
+ ,[Name] varchar(80)) 
+--Insert country code us .rst so it defaults to this. 
+insert into @countries 
+ SELECT 
+  -1 AS ID 
+  ,Code 
+  ,[Name] 
+ FROM 
+  [USMC].[vwCountries] 
+ WHERE 
+  Code = 'US' 
+--Insert the other countries in alphabe.cal order 
+insert into @countries 
+ SELECT 
+  -1 AS ID 
+  ,Code 
+  ,[Name] 
+ FROM 
+  [USMC].[vwCountries] 
+ WHERE 
+  Code <> 'US' 
+ORDER BY 
+ [Name] 
+--return the table variable 
+select * from @countries]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,151 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_6" id="9F839240-C33F-C4B9-3F89-CE947D02C8C5" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="vwPendingRequests">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>08775398-8744-BBFB-7970-C2DDE07510CB</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT R.RequestID, 
+       R.OriginatorUserId, 
+       R.OriginatorOrgId, 
+       R.RequestXml, 
+       R.Person_ID, 
+       RT.RequestTypeId, 
+       RT.RequestType, 
+       R.RequestDate, 
+       RA.RequestApprovalId, 
+       RA.RequestApprovalStepId CurrentStepId 
+FROM  USMC.Request R 
+ JOIN USMC.RequestType RT ON RT.RequestTypeId = R.RequestTypeId 
+ JOIN USMC.RequestApproval RA ON RA.RequestId = R.RequestId and RA.RequestApprovalStepId =  
+        (select min(RequestApprovalStepId) from USMC.RequestApproval  
+   where RequestId = R.RequestId and RequestApprovalStatusId = 3) 
+WHERE 
+    R.IsCleared = 0 AND 
+    R.IsValid = 1]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="RequestID" id="D7A063BC-5251-3EC9-4850-4BAB2DD681A5">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>RequestID</alias>
+<dataType>UNKNOWN</dataType>
+<expression>RequestID</expression>
+<reference>false</reference>
+<viewID>9F839240-C33F-C4B9-3F89-CE947D02C8C5</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="OriginatorUserId" id="63C19293-FDBD-46BB-732A-86318327138A">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>OriginatorUserId</alias>
+<dataType>UNKNOWN</dataType>
+<expression>OriginatorUserId</expression>
+<reference>false</reference>
+<viewID>9F839240-C33F-C4B9-3F89-CE947D02C8C5</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="OriginatorOrgId" id="341643BB-2128-6339-7A23-65F7007FBAFE">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>OriginatorOrgId</alias>
+<dataType>UNKNOWN</dataType>
+<expression>OriginatorOrgId</expression>
+<reference>false</reference>
+<viewID>9F839240-C33F-C4B9-3F89-CE947D02C8C5</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="RequestXml" id="617D0821-26D0-FCA1-7788-52879741B183">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>RequestXml</alias>
+<dataType>UNKNOWN</dataType>
+<expression>RequestXml</expression>
+<reference>false</reference>
+<viewID>9F839240-C33F-C4B9-3F89-CE947D02C8C5</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="Person_ID" id="F40324EF-BEB7-DFCC-6BCC-9E8F1B24AC46">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Person_ID</alias>
+<dataType>UNKNOWN</dataType>
+<expression>Person_ID</expression>
+<reference>false</reference>
+<viewID>9F839240-C33F-C4B9-3F89-CE947D02C8C5</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="RequestTypeId" id="736322B6-A2AB-30D7-711A-93B6AFAF9DD9">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>RequestTypeId</alias>
+<dataType>UNKNOWN</dataType>
+<expression>RequestTypeId</expression>
+<reference>false</reference>
+<viewID>9F839240-C33F-C4B9-3F89-CE947D02C8C5</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="RequestType" id="6F369FEB-A450-E0EF-3DDA-AB4A94F2CEE2">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>RequestType</alias>
+<dataType>UNKNOWN</dataType>
+<expression>RequestType</expression>
+<reference>false</reference>
+<viewID>9F839240-C33F-C4B9-3F89-CE947D02C8C5</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="RequestDate" id="1958739C-5685-2375-EA59-89EF11A4BA18">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>RequestDate</alias>
+<dataType>UNKNOWN</dataType>
+<expression>RequestDate</expression>
+<reference>false</reference>
+<viewID>9F839240-C33F-C4B9-3F89-CE947D02C8C5</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="RequestApprovalId" id="B88C016F-FECE-2FDB-F714-D80C01EC4037">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>RequestApprovalId</alias>
+<dataType>UNKNOWN</dataType>
+<expression>RequestApprovalId</expression>
+<reference>false</reference>
+<viewID>9F839240-C33F-C4B9-3F89-CE947D02C8C5</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="RequestApprovalStepId" id="B71CE5AC-A359-21F9-7291-58BC675E7B18">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>CurrentStepId</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>CurrentStepId</headerAlias>
+<expression>RequestApprovalStepId</expression>
+<reference>false</reference>
+<viewID>9F839240-C33F-C4B9-3F89-CE947D02C8C5</viewID>
+</viewElement>
+</viewElements>
+</TableView>

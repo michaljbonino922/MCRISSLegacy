@@ -1,0 +1,53 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<DataBaseSqlServerv2k12 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.DataBaseSqlServerv2k12" name="MCRISS_ERROR" directorySegmentName="seg_0" id="24B9F7BA-5DD4-EAB5-4EB1-35B911743E85">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:09 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<ansiPadding>OFF</ansiPadding>
+<ansiWarnings>OFF</ansiWarnings>
+<arithabort>OFF</arithabort>
+<autoClose>OFF</autoClose>
+<autoShrink>OFF</autoShrink>
+<concatNullYieldsNull>OFF</concatNullYieldsNull>
+<cursorCloseOnCommit>OFF</cursorCloseOnCommit>
+<numericRoundabort>OFF</numericRoundabort>
+<recovery>SIMPLE</recovery>
+<recursiveTriggers>OFF</recursiveTriggers>
+<disableBroker>true</disableBroker>
+<readWrite>true</readWrite>
+<fileGroups>
+<FileGroup class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FileGroupSqlServerv2k5" name="PRIMARY" id="6EF6AD68-7C89-30FD-7736-12FD3299A741">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:27:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<dataFiles>
+<DataFile class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.DataFileSqlServerv2k5" name="Mcriss_Error_Data" id="D7A1D4F9-BD10-2C01-F0BA-76132BE0584A">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:27:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<fileName>C:\Program Files\Microsoft SQL Server\MSSQL16.MSSQLSERVER\MSSQL\DATA\MCRISS_ERROR.mdf</fileName>
+<growthMethod>In KiloBytes</growthMethod>
+<growthValue>512000</growthValue>
+<initialSize>9216000</initialSize>
+<initialSizeInUnit>In KiloBytes</initialSizeInUnit>
+</DataFile>
+</dataFiles>
+</FileGroup>
+</fileGroups>
+<transactionLogs>
+<TransactionLog class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.DataFileSqlServerv2k5" name="Mcriss_Error_log" id="0EE0F839-8421-610E-89A2-1520D134AC13">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:27:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<fileName>C:\Program Files\Microsoft SQL Server\MSSQL16.MSSQLSERVER\MSSQL\DATA\MCRISS_ERROR_1.LDF</fileName>
+<growthMethod>In KiloBytes</growthMethod>
+<growthValue>102400</growthValue>
+<initialSize>104704</initialSize>
+<initialSizeInUnit>In KiloBytes</initialSizeInUnit>
+</TransactionLog>
+</transactionLogs>
+</DataBaseSqlServerv2k12>

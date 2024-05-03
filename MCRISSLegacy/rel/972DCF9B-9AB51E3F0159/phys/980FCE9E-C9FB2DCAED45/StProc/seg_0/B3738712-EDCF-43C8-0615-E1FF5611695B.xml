@@ -1,0 +1,36 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[DeleteChangeRequestReten.onLeter]" directorySegmentName="seg_0" id="B3738712-EDCF-43C8-0615-E1FF5611695B">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[(@ID uniqueiden..er) 
+ 
+AS 
+ 
+BEGIN TRANSACTION 
+ 
+DELETE FROM [USMC].[CHANGE_REQUEST_ATTACHMENT] WHERE [CHANGE_REQUEST_ID] = @ID; 
+ 
+IF (@@ERROR <> 0) GOTO on_error; 
+ 
+--NOTE: RETENTIONS WILL NEVER HAVE LETTERS UPLOADED 
+ 
+DELETE FROM [USMC].[CHANGE_REQUEST_RETENTION] WHERE [CHANGE_REQUEST_ID] = @ID; 
+ 
+IF (@@ERROR <> 0) GOTO on_error; 
+ 
+DELETE FROM [USMC].[CHANGE_REQUEST] WHERE [ID] = @ID; 
+ 
+IF (@@ERROR <> 0) GOTO on_error; 
+ 
+COMMIT TRANSACTION 
+ 
+RETURN (0); 
+ 
+on_error: 
+ ROLLBACK TRANSACTION 
+ RETURN (1);]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,227 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[spIsDataDependantOnRollbackTransac.on]" directorySegmentName="seg_26" id="E4A13354-9B72-8D33-BEC1-C982AB53B331">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@SSN  varchar(9), 
+@TRAN_TYPE varchar(2) 
+as 
+ 
+declare @CONTRACT_ID int, @COMPONENT_CODE varchar (2), @GENDER_CODE varchar(1) 
+ 
+ 
+ 
+/** 
+If Person or Entnac Transac.on Type 
+Then simply return false. Though there 
+may be data dependencies, the rollback  
+does not delete Personal or Entnac Data 
+*/ 
+if (@TRAN_TYPE in ('P','E')) begin 
+ select 'FALSE' 
+ return 
+end 
+ 
+ 
+select @CONTRACT_ID = c.contract_id, @COMPONENT_CODE = c.component_code, @GENDER_CODE = mc.gender_code 
+from person p le. outer join nwa n on p.person_id = n.marine_candidate_id and n.nwa_id = (select max(nwa_id) from nwa where marine_candidate_id = p.person_id) 
+le. outer join contract c on n.nwa_id = c.nwa_id, 
+marine_candidate mc 
+where p.person_id = mc.marine_candidate_Id and 
+p.social_security_number = @SSN 
+ 
+ 
+/** 
+If the applicant does not have a contract than no important 
+depencies were made through the applica.on. 
+That is, if there is not contract than a program or qsn  
+could not have been assigned 
+*/ 
+if (@CONTRACT_ID is null) begin 
+ print 'The respec.ve applicant does not have a contract' 
+ select 'FALSE' 
+ return 
+end 
+ 
+declare @SQLString as NVARCHAR(1024) 
+ 
+if (@COMPONENT_CODE = 'K5') begin 
+ /**See if Program Assigned to Contract*/ 
+ if (not exists(select 1 from program_availability where contract_id = @CONTRACT_ID)) begin 
+  print 'Regular Contract: No Program Assigned' 
+  select 'FALSE' 
+  return 
+ end 
+ 
+  
+ set @SQLString = 'if (exists(select pc.* ' 
+ set @SQLString = @SQLString + 'from program_availability pa, program_criteria pc ' 
+ set @SQLString = @SQLString + 'where pa.contract_id = ' + convert(varchar(10),@CONTRACT_ID) + ' and ' 
+ set @SQLString = @SQLString + 'pa.program_id = pc.program_id and ' 
+ set @SQLString = @SQLString + 'pc.program_criteria_ed_date = (select max(program_criteria_ed_date) ' 
+ set @SQLString = @SQLString + 'from program_criteria ' 
+        set @SQLString = @SQLString + 'where program_id = pc.program_id) ' 
+ 
+ print 'Regular Contract: Program Assigned' 
+ 
+ if (@TRAN_TYPE = 'A') begin 
+  set @SQLString = @SQLString + 'and pc.AFQT is null ' 
+  set @SQLString = @SQLString + 'and pc.GT is null ' 
+  set @SQLString = @SQLString + 'and pc.EL is null ' 
+  set @SQLString = @SQLString + 'and pc.MM is null ' 
+  set @SQLString = @SQLString + 'and pc.CL is null)) begin ' 
+  set @SQLString = @SQLString + 'select ''FALSE'' ' 
+  set @SQLString = @SQLString + 'end else begin ' 
+  set @SQLString = @SQLString + 'select ''TRUE'' ' 
+  set @SQLString = @SQLString + 'end' 
+  EXEC sp_executesql @SQLString 
+  return 
+ end 
+ 
+ if (@TRAN_TYPE in ('IM', 'CM')) begin 
+  set @SQLString = @SQLString + 'and pc.HEIGHT_MINIMUM is null ' 
+  set @SQLString = @SQLString + 'and pc.HEIGHT_MINIMUM is null)) begin ' 
+  set @SQLString = @SQLString + 'select ''FALSE'' ' 
+  set @SQLString = @SQLString + 'end else begin ' 
+  set @SQLString = @SQLString + 'select ''TRUE'' ' 
+  set @SQLString = @SQLString + 'end' 
+  EXEC sp_executesql @SQLString 
+  return 
+ end 
+ 
+ if (@TRAN_TYPE in ('FM')) begin 
+  set @SQLString = @SQLString + 'and pc.VISION_LEFT_UNCORRECTED is null ' 
+  set @SQLString = @SQLString + 'and pc.VISION_LEFT_UNCORRECTED is null ' 
+  set @SQLString = @SQLString + 'and pc.VISION_RIGHT_UNCORRECTED is null ' 
+  set @SQLString = @SQLString + 'and pc.VISION_LEFT_CORRECTED is null ' 
+  set @SQLString = @SQLString + 'and pc.VISION_RIGHT_CORRECTED is null ' 
+  set @SQLString = @SQLString + 'and pc.COLOR_PERCEPTION is null ' 
+  set @SQLString = @SQLString + 'and pc.HEIGHT_MINIMUM is null ' 
+  set @SQLString = @SQLString + 'and pc.HEIGHT_MINIMUM is null)) begin ' 
+  set @SQLString = @SQLString + 'select ''FALSE'' ' 
+  set @SQLString = @SQLString + 'end else begin ' 
+  set @SQLString = @SQLString + 'select ''TRUE'' ' 
+  set @SQLString = @SQLString + 'end' 
+  EXEC sp_executesql @SQLString 
+  return 
+ end 
+ 
+ if (@TRAN_TYPE in ('ST')) begin 
+  set @SQLString = @SQLString + 'and pc.APT is null ' 
+  set @SQLString = @SQLString + 'and pc.EDPT is null ' 
+  set @SQLString = @SQLString + 'and pc.DLAB is null)) begin ' 
+  set @SQLString = @SQLString + 'select ''FALSE'' ' 
+  set @SQLString = @SQLString + 'end else begin ' 
+  set @SQLString = @SQLString + 'select ''TRUE'' ' 
+  set @SQLString = @SQLString + 'end' 
+  EXEC sp_executesql @SQLString 
+  return 
+ end 
+ 
+ if (@TRAN_TYPE in ('C','S','CS')) begin 
+  set @SQLString = @SQLString + 'and pc.TERM_OF_ENLISTMENT is null)) begin ' 
+  set @SQLString = @SQLString + 'select ''FALSE'' ' 
+  set @SQLString = @SQLString + 'end else begin ' 
+  set @SQLString = @SQLString + 'select ''TRUE'' ' 
+  set @SQLString = @SQLString + 'end' 
+  EXEC sp_executesql @SQLString 
+  return 
+ end 
+ 
+ select 'FALSE'   
+ return 
+end else begin 
+ print 'Need to Check QSN' 
+ /**See if QSN Assigned to Contract*/ 
+ if (not exists(select 1 from qsn where contract_id = @CONTRACT_ID)) begin 
+  print 'Reserve Contract: No QSN Assigned' 
+  select 'FALSE' 
+  return 
+ end 
+ 
+ set @SQLString = 'if (exists(select q.qsn_id, mc.* ' 
+ set @SQLString = @SQLString + 'from qsn q, mos_criteria mc ' 
+ set @SQLString = @SQLString + 'where q.contract_id = ' + convert(varchar(10),@CONTRACT_ID) + ' and ' 
+ set @SQLString = @SQLString + 'q.mos = mc.mos and ' 
+ set @SQLString = @SQLString + 'mc.mos_criteria_ed_date = (select max(mos_criteria_ed_date) ' 
+ set @SQLString = @SQLString + 'from mos_criteria ' 
+ set @SQLString = @SQLString + 'where mos = mc.mos and gender = ' + char(39) + @GENDER_CODE + char(39) + ') ' 
+ set @SQLString = @SQLString + 'and mc.gender = ' + char(39) + @GENDER_CODE + char(39) + ' ' 
+ 
+ 
+ print 'Reserve Contract: QSN Assigned' 
+ 
+ if (@TRAN_TYPE = 'A') begin 
+  set @SQLString = @SQLString + 'and mc.AFQT is null ' 
+  set @SQLString = @SQLString + 'and mc.GT is null ' 
+  set @SQLString = @SQLString + 'and mc.EL is null ' 
+  set @SQLString = @SQLString + 'and mc.MM is null ' 
+  set @SQLString = @SQLString + 'and mc.CL is null)) begin ' 
+  set @SQLString = @SQLString + 'select ''FALSE'' ' 
+  set @SQLString = @SQLString + 'end else begin ' 
+  set @SQLString = @SQLString + 'select ''TRUE'' ' 
+  set @SQLString = @SQLString + 'end' 
+  EXEC sp_executesql @SQLString 
+  return 
+ end 
+ 
+ if (@TRAN_TYPE in ('IM', 'CM')) begin 
+  set @SQLString = @SQLString + 'and mc.HEIGHT_MINIMUM is null ' 
+  set @SQLString = @SQLString + 'and mc.HEIGHT_MINIMUM is null)) begin ' 
+  set @SQLString = @SQLString + 'select ''FALSE'' ' 
+  set @SQLString = @SQLString + 'end else begin ' 
+  set @SQLString = @SQLString + 'select ''TRUE'' ' 
+  set @SQLString = @SQLString + 'end' 
+  EXEC sp_executesql @SQLString 
+  return 
+ end 
+ 
+ if (@TRAN_TYPE in ('FM')) begin 
+  set @SQLString = @SQLString + 'and mc.VISION_LEFT_UNCORRECTED is null ' 
+  set @SQLString = @SQLString + 'and mc.VISION_LEFT_UNCORRECTED is null ' 
+  set @SQLString = @SQLString + 'and mc.VISION_RIGHT_UNCORRECTED is null ' 
+  set @SQLString = @SQLString + 'and mc.VISION_LEFT_CORRECTED is null ' 
+  set @SQLString = @SQLString + 'and mc.VISION_RIGHT_CORRECTED is null ' 
+  set @SQLString = @SQLString + 'and mc.COLOR_PERCEPTION is null ' 
+  set @SQLString = @SQLString + 'and mc.HEIGHT_MINIMUM is null ' 
+  set @SQLString = @SQLString + 'and mc.HEIGHT_MINIMUM is null)) begin ' 
+  set @SQLString = @SQLString + 'select ''FALSE'' ' 
+  set @SQLString = @SQLString + 'end else begin ' 
+  set @SQLString = @SQLString + 'select ''TRUE'' ' 
+  set @SQLString = @SQLString + 'end' 
+  
+  EXEC sp_executesql @SQLString 
+  return 
+ end 
+ 
+ if (@TRAN_TYPE in ('ST')) begin 
+  set @SQLString = @SQLString + 'and mc.APT is null ' 
+  set @SQLString = @SQLString + 'and mc.EDPT is null ' 
+  set @SQLString = @SQLString + 'and mc.DLAB is null)) begin ' 
+  set @SQLString = @SQLString + 'select ''FALSE'' ' 
+  set @SQLString = @SQLString + 'end else begin ' 
+  set @SQLString = @SQLString + 'select ''TRUE'' ' 
+  set @SQLString = @SQLString + 'end' 
+  EXEC sp_executesql @SQLString 
+  return 
+ end 
+ 
+ if (@TRAN_TYPE in ('C','S','CS')) begin 
+  set @SQLString = @SQLString + 'and mc.TERM_OF_ENLISTMENT is null)) begin ' 
+  set @SQLString = @SQLString + 'select ''FALSE'' ' 
+  set @SQLString = @SQLString + 'end else begin ' 
+  set @SQLString = @SQLString + 'select ''TRUE'' ' 
+  set @SQLString = @SQLString + 'end' 
+  EXEC sp_executesql @SQLString 
+  return 
+ end 
+ 
+ select 'FALSE'   
+ return 
+ 
+ 
+end]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

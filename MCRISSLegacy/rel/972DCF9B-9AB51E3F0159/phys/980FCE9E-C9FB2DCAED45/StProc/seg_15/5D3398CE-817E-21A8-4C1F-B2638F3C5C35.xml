@@ -1,0 +1,148 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUpdateProspectAsvab]" directorySegmentName="seg_15" id="5D3398CE-817E-21A8-4C1F-B2638F3C5C35">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:56 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@ID uniqueiden..er, 
+ @ProspectID uniqueiden..er, 
+ @ExamDate date.me, 
+ @GS_Score int, 
+ @AR_Score int, 
+ @WK_Score int, 
+ @PC_Score int, 
+ @NO_Score int, 
+ @CS_Score int, 
+ @AS_Score int, 
+ @MK_Score int, 
+ @MC_Score int, 
+ @EI_Score int, 
+ @VE_Score int, 
+ @GT_Score int, 
+ @EL_Score int, 
+ @CL_Score int, 
+ @MM_Score int, 
+ @AFQT int, 
+ @MepsOrgID int, 
+ @Version char(3), 
+ @LastUpdateBy uniqueiden..er 
+    
+AS 
+BEGIN 
+ 
+ -- STEP 1: Start the transac.on 
+ BEGIN TRANSACTION 
+ 
+ -- STEP 2 & 3: Issue the data change statement(s), checking @@ERROR a.er each statement 
+ IF EXISTS(SELECT ID FROM USMC.ProspectAsvab WHERE ID = @ID) 
+ BEGIN 
+  -- if already exists.  UPDATE. 
+  UPDATE USMC.ProspectAsvab 
+  SET  
+     ExamDate = @ExamDate 
+    ,GS_Score = @GS_Score 
+    ,AR_Score = @AR_Score 
+    ,WK_Score = @WK_Score 
+    ,PC_Score = @PC_Score 
+    ,NO_Score = @NO_Score 
+    ,CS_Score = @CS_Score 
+    ,AS_Score = @AS_Score 
+    ,MK_Score = @MK_Score 
+    ,MC_Score = @MC_Score 
+    ,EI_Score = @EI_Score 
+    ,VE_Score = @VE_Score 
+    ,GT_Score = @GT_Score 
+    ,EL_Score = @EL_Score 
+    ,CL_Score = @CL_Score 
+    ,MM_Score = @MM_Score 
+    ,AFQT = @AFQT 
+    ,MepsOrgID = @MepsOrgID 
+    ,Version = @Version 
+    ,LastUpdateDate = GETDATE() 
+    ,LastUpdateBy = @LastUpdateBy 
+  WHERE ID = @ID 
+    
+ END 
+ ELSE 
+ BEGIN 
+  -- if does not exist.  INSERT. 
+  INSERT INTO USMC.ProspectAsvab 
+           (ID 
+           ,ProspectID 
+           ,ExamDate 
+           ,GS_Score 
+           ,AR_Score 
+           ,WK_Score 
+           ,PC_Score 
+           ,NO_Score 
+           ,CS_Score 
+           ,AS_Score 
+           ,MK_Score 
+           ,MC_Score 
+           ,EI_Score 
+           ,VE_Score 
+           ,GT_Score 
+           ,EL_Score 
+           ,CL_Score 
+           ,MM_Score 
+           ,AFQT 
+           ,MepsOrgID 
+           ,Version 
+           ,LastUpdateDate 
+           ,LastUpdateBy) 
+  VALUES 
+   (@ID 
+   ,@ProspectID 
+   ,@ExamDate 
+   ,@GS_Score 
+   ,@AR_Score 
+   ,@WK_Score 
+   ,@PC_Score 
+   ,@NO_Score 
+   ,@CS_Score 
+   ,@AS_Score 
+   ,@MK_Score 
+   ,@MC_Score 
+   ,@EI_Score 
+   ,@VE_Score 
+   ,@GT_Score 
+   ,@EL_Score 
+   ,@CL_Score 
+   ,@MM_Score 
+   ,@AFQT 
+   ,@MepsOrgID 
+   ,@Version 
+   ,GETDATE() 
+   ,@LastUpdateBy) 
+ END 
+ 
+ -- Rollback the transac.on if there were any errors 
+ IF @@ERROR <> 0 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+ 
+  -- Raise an error and return 
+  RAISERROR ('Error occurred while performing the change.', 16, 1) 
+  RETURN 
+ END 
+ 
+ -- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+ IF @@ROWCOUNT > 1 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+ 
+  -- Raise an error and return 
+  RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+  RETURN 
+ END 
+  
+ -- STEP 4: If we reach this point, the commands completed successfully 
+ --         Commit the transac.on.... 
+ COMMIT TRANSACTION 
+  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

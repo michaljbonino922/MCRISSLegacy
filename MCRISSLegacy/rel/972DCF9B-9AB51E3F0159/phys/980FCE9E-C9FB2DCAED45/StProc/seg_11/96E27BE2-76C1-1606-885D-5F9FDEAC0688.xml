@@ -1,0 +1,53 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertOrUpdateCandidateTelephone]" directorySegmentName="seg_11" id="96E27BE2-76C1-1606-885D-5F9FDEAC0688">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @PersonId int, 
+ @Type varchar(1), 
+ @AreaCode varchar(4), 
+ @Number varchar(10), 
+ @LastEditBy varchar(15) 
+) 
+AS 
+ 
+-- This stored procedure's behavior depends upon the type of phone number being provided. 
+--  For "Current" and "Home Of Record" phone numbers, it must only update the phone numbers. 
+--  For all other phone numbers, which are considered to be "Addi.onal Phone Numbers", 
+--     we must delete all addi.onal numbers to ensure that only the provided "addi.onal phone number" 
+--     is the only one stored. 
+ 
+ -- Is a "Current" OR "House Of Record" phone number 
+ IF EXISTS (SELECT 1 FROM [mcriss].[dbo].[CANDIDATE_TELEPHONE] WHERE [MARINE_CANDIDATE_ID] = @PersonId AND [TELEPHONE_TYPE] = @Type) 
+  BEGIN 
+   UPDATE [mcriss].[dbo].[CANDIDATE_TELEPHONE] SET  
+    [AREA_CODE] = @AreaCode 
+    ,[TELEPHONE_NUMBER] = @Number 
+    ,[USER_LOGIN] = @LastEditBy 
+    ,[UPDATE_DATE] = GetDate() 
+    WHERE [MARINE_CANDIDATE_ID] = @PersonId AND [TELEPHONE_TYPE] = @Type 
+  END 
+ ELSE 
+  BEGIN 
+   INSERT INTO [mcriss].[dbo].[CANDIDATE_TELEPHONE] 
+    ([MARINE_CANDIDATE_ID] 
+    ,[TELEPHONE_TYPE] 
+    ,[AREA_CODE] 
+    ,[TELEPHONE_NUMBER] 
+    ,[USER_LOGIN] 
+    ,[UPDATE_DATE] 
+    ,[rowguid]) 
+   VALUES 
+    (@PersonId 
+    ,@Type 
+    ,@AreaCode 
+    ,@Number 
+    ,@LastEditBy 
+    ,GetDate() 
+    ,NEWID()) 
+  END]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

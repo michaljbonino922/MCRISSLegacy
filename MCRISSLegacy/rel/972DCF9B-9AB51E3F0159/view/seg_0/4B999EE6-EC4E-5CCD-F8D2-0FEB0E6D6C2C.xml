@@ -1,0 +1,58 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_0" id="4B999EE6-EC4E-5CCD-F8D2-0FEB0E6D6C2C" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="vwCountries">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>EAABF9DE-2D59-881D-FFF6-FB2A461D3919</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT      
+ '-1' AS ID,  
+ STATE_CODE AS Code,  
+ COUNTRY_DESCRIPTION AS Name 
+FROM [dbo].[GEO_LOCATION] WITH (NOLOCK) 
+WHERE   
+ (ISNUMERIC(STATE_CODE) = 0) AND (COUNTRY_DESCRIPTION IS NOT NULL) AND (LTRIM(COUNTRY_DESCRIPTION) <> '') AND (CAST(CITY_CODE AS int) = 0) AND (CAST(COUNTY_CODE AS int) = 0)]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="&apos;-1&apos;" id="0434106B-0C5D-3C6B-E4C3-341829D4E3AD">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>ID</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>ID</headerAlias>
+<expression>&apos;-1&apos;</expression>
+<reference>false</reference>
+<viewID>4B999EE6-EC4E-5CCD-F8D2-0FEB0E6D6C2C</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="STATE_CODE" id="BE795150-E0AC-1E58-D4CC-AEF2BA2BE5EF">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Code</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>Code</headerAlias>
+<expression>STATE_CODE</expression>
+<reference>false</reference>
+<viewID>4B999EE6-EC4E-5CCD-F8D2-0FEB0E6D6C2C</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COUNTRY_DESCRIPTION" id="69A5D457-D886-6A4E-0167-982A6ED5BF1B">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Name</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>Name</headerAlias>
+<expression>COUNTRY_DESCRIPTION</expression>
+<reference>false</reference>
+<viewID>4B999EE6-EC4E-5CCD-F8D2-0FEB0E6D6C2C</viewID>
+</viewElement>
+</viewElements>
+</TableView>

@@ -1,0 +1,20 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetMEPCOMRaceCategories]" directorySegmentName="seg_17" id="35051472-99D7-97A1-CEEA-517D8C5812C1">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[AS 
+ 
+SELECT  
+ MRC.RACE_CATEGORY_CODE,  
+ MRC.RACE_CATEGORY_CODE + ' - ' + MRC.RACE_CATEGORY_DESC AS RACE_CATEGORY_DESC 
+FROM  
+ MEPCOM_RACE_CATEGORY MRC 
+WHERE 
+ RACE_CATEGORY_CODE != 'F' 
+ORDER BY  
+ ISNUMERIC(MRC.RACE_CATEGORY_CODE), MRC.RACE_CATEGORY_DESC]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

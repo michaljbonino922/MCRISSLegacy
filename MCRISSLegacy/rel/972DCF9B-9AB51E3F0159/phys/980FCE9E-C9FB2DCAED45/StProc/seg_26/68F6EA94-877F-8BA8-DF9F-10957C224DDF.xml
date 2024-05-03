@@ -1,0 +1,45 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateSMCR]" directorySegmentName="seg_26" id="68F6EA94-877F-8BA8-DF9F-10957C224DDF">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@SMCRID   int   = 0, 
+ @ContractID  int, 
+ @Ac.vated  char(1), 
+ @Ac.vatedDate  date.me, 
+ @Deac.vatedDate date.me  = NULL, 
+ @UserLogin  varchar(15), 
+ @ID   int   = 0 OUTPUT 
+AS 
+ 
+IF EXISTS (SELECT 1 FROM SMCR WHERE SMCR_ID = @SMCRID) 
+BEGIN 
+ UPDATE 
+  SMCR 
+ SET 
+  CONTRACT_ID   = @ContractID, 
+  ACTIVATED  = @Ac.vated, 
+  ACTIVATED_DATE  = @Ac.vatedDate, 
+  DEACTIVATED_DATE = @Deac.vatedDate, 
+  USER_LOGIN  = @UserLogin, 
+  UPDATE_DATE  = GETDATE() 
+ WHERE 
+  SMCR_ID   = @SMCRID 
+ 
+ --- RETURN THE SMCR ID 
+ SET @ID = @SMCRID 
+END 
+ELSE 
+BEGIN 
+ INSERT INTO SMCR  
+  (CONTRACT_ID, ACTIVATED, ACTIVATED_DATE, DEACTIVATED_DATE, USER_LOGIN, UPDATE_DATE) 
+ VALUES 
+  (@ContractID, @Ac.vated, @Ac.vatedDate, @Deac.vatedDate, @UserLogin, GETDATE()) 
+ 
+ --- RETURN THE SMCR ID 
+ SET @ID = @@IDENTITY 
+END]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

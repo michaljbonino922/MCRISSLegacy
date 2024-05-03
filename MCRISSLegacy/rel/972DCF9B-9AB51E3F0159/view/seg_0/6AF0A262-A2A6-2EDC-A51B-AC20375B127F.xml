@@ -1,0 +1,65 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_0" id="6AF0A262-A2A6-2EDC-A51B-AC20375B127F" schemaObject="2A6D9360-3BB2-5CEA-6E99-790D76996FDF" name="USNA_Persons">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>61E4E6B2-F3D2-16DC-5EAE-7F22D762CB28</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT     Working_USNA.[Last Name], Working_USNA.[First Name], Working_USNA.CSSN, PERSON.PERSON_ID 
+FROM         PERSON INNER JOIN 
+                      Working_USNA ON PERSON.SOCIAL_SECURITY_NUMBER = Working_USNA.CSSN LEFT OUTER JOIN 
+                      MARINE_CANDIDATE ON PERSON.PERSON_ID = MARINE_CANDIDATE.MARINE_CANDIDATE_ID 
+where MARINE_CANDIDATE.MARINE_CANDIDATE_ID is null]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[Last Name]" id="30DA49EB-2763-888A-78CF-BC96D8FF1D79">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>[Last Name]</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[Last Name]</expression>
+<reference>false</reference>
+<viewID>6AF0A262-A2A6-2EDC-A51B-AC20375B127F</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[First Name]" id="9D275CE7-9747-FA55-A5D5-44176B4BA81D">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>[First Name]</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[First Name]</expression>
+<reference>false</reference>
+<viewID>6AF0A262-A2A6-2EDC-A51B-AC20375B127F</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="CSSN" id="055546BA-1B4D-6A63-5029-6995C49DC169">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>CSSN</alias>
+<dataType>UNKNOWN</dataType>
+<expression>CSSN</expression>
+<reference>false</reference>
+<viewID>6AF0A262-A2A6-2EDC-A51B-AC20375B127F</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="PERSON_ID" id="E99E6BCC-753F-C918-5135-B310B9412A2B">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>PERSON_ID</alias>
+<dataType>UNKNOWN</dataType>
+<expression>PERSON_ID</expression>
+<reference>false</reference>
+<viewID>6AF0A262-A2A6-2EDC-A51B-AC20375B127F</viewID>
+</viewElement>
+</viewElements>
+</TableView>

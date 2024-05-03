@@ -1,0 +1,91 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_7" id="4B760FF2-3447-8887-DB2B-3684DE5DB47D" schemaObject="919CA76E-6240-AB01-8CF7-447F18F001B7" name="leDataMCRISS">
+<sourceDDLFile>create UserMgmt script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>7C8A8E20-307E-BC70-BAC3-28F85954CFA4</importedID>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="UserID" id="9F39A110-CBBE-6CBF-44C3-12EA71D22216">
+<sourceDDLFile>create UserMgmt script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>765FA753-ABED-894B-BFCF-D5B423D3290F</importedID>
+<use>0</use>
+<domain>8C77819C-1B2F-24A0-C36D-F924235A9668</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="976ADE43-6954-F607-A780-8D196B483059" referredColumn="EFC1C3A0-E2D3-374A-ACA3-B322F3BEB012"/>
+</associations>
+</Column>
+<Column name="Pro.leProp1" id="FA494741-C76D-1441-3A07-2F71BE4E2513">
+<sourceDDLFile>create UserMgmt script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>4B6BD6DF-846B-B426-CF25-C8388E708048</importedID>
+<use>0</use>
+<domain>2E8EE7FC-99CE-D4AE-132C-50F4AADCC1F4</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="Pro.leProp2" id="A0538CE3-7510-ECD1-EDC3-622A195DE483">
+<sourceDDLFile>create UserMgmt script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>5A39A291-B291-D3B0-F185-E1535D206913</importedID>
+<use>0</use>
+<domain>2E8EE7FC-99CE-D4AE-132C-50F4AADCC1F4</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="725A82BD-3E0B-9599-4C36-4DC79256EF71" name="PK_MCRISSPro.leData">
+<sourceDDLFile>create UserMgmt script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>D3120FFA-809C-884F-583D-9C7E8E13A576</importedID>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="9F39A110-CBBE-6CBF-44C3-12EA71D22216"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="11451762-CC9C-C31D-5A10-4A0432819204" name="FK_Pro.leDataMCRISS_User">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:51 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="9F39A110-CBBE-6CBF-44C3-12EA71D22216"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+<tableCheckConstraints itemClass="oracle.dbtools.crest.model.design.constraint.TableLevelConstraint">
+<tableCheckConstraint name="[dbo].[Pro.leDataMCRISS]" directorySegmentName="seg_4" id="905502EC-13A4-54AE-8253-C2994259F95C">
+<sourceDDLFile>create UserMgmt script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:50 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>5AD253F1-1F50-29A6-EA07-31D501601B33</importedID>
+<rule><![CDATA[CONSTRAINT [FK_Pro.leDataMCRISS_User]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITH" directorySegmentName="seg_4" id="25550097-3733-C498-53DB-CD919ED30384">
+<sourceDDLFile>create UserMgmt script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:50 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>4F944813-2B14-7FBF-63DA-B4DC6BC65D2D</importedID>
+</tableCheckConstraint>
+</tableCheckConstraints>
+</Table>

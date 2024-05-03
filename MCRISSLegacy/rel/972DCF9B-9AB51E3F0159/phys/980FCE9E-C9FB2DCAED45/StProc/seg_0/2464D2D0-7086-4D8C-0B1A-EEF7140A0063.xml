@@ -1,0 +1,70 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[DeleteCandidateEduca.onFromPac]" directorySegmentName="seg_0" id="2464D2D0-7086-4D8C-0B1A-EEF7140A0063">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@NWAId      uniqueiden..er, 
+ @SchoolCode     int, 
+ @Educa.onLevel    varchar(2) 
+   
+AS 
+BEGIN 
+  
+ -- STEP 1: Start the transac.on 
+ BEGIN TRANSACTION 
+  
+ DECLARE @PersonID int; 
+ DECLARE @Educa.onID uniqueiden..er; 
+  
+ SELECT @PersonID = MARINE_CANDIDATE_ID  
+ FROM dbo.NWA  
+ WHERE rowguid = @NWAId 
+  
+ SELECT TOP 1 @Educa.onID = rowguid 
+ FROM dbo.CANDIDATE_EDUCATION 
+ WHERE  
+  [MARINE_CANDIDATE_ID] = @PersonID  
+  AND SCHOOL_CODE = @SchoolCode 
+  AND EDUCATION_LEVEL = @Educa.onLevel 
+ 
+ -- STEP 2 & 3: Issue the data change statement(s), checking @@ERROR a.er each statement 
+ IF @Educa.onID IS NOT NULL 
+ BEGIN 
+  DELETE FROM  dbo.CANDIDATE_EDUCATION 
+  WHERE 
+   rowguid = @Educa.onID  
+    
+ END 
+  
+ 
+ -- Rollback the transac.on if there were any errors 
+ IF @@ERROR <> 0 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+ 
+  -- Raise an error and return 
+  RAISERROR ('Error occurred while performing the change.', 16, 1) 
+  RETURN 
+ END 
+ 
+ -- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+ IF @@ROWCOUNT > 1 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+ 
+  -- Raise an error and return 
+  RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+  RETURN 
+ END 
+  
+ -- STEP 4: If we reach this point, the commands completed successfully 
+ --         Commit the transac.on.... 
+ COMMIT TRANSACTION 
+  
+END]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

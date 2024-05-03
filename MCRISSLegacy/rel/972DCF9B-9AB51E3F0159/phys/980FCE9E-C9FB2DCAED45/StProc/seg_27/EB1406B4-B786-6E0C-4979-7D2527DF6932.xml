@@ -1,0 +1,96 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateO.cerReferral]" directorySegmentName="seg_27" id="EB1406B4-B786-6E0C-4979-7D2527DF6932">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@NWAID   int = 0, 
+ @ReferralType  varchar(3),  
+ @ReferrerSSN char(9), 
+ @UserLogin  varchar(15)  
+AS 
+ 
+DECLARE @DBID   int 
+DECLARE @DBNAME  sysname 
+DECLARE @ReferralTypeID int 
+DECLARE @ReferrerID int 
+DECLARE @DeleteFlag bit 
+ 
+SELECT  
+ @DBID   = DB_ID(),  
+ @DBNAME  = DB_NAME() 
+ 
+ 
+--- GET REFERRAL TYPE  
+SELECT @ReferralTypeID = REFERRAL_TYPE_ID FROM OFFICER_REFERRAL_TYPE WHERE REFERRAL_TYPE = @ReferralType 
+SELECT @ReferrerID = dbo.GetReferrerID(@ReferrerSSN, @ReferralType, 'O') 
+ 
+--- SET THE DELETE FLAG SO THAT AN EXISTING REFERRAL CAN BE DELETED IF NECESSARY 
+SET @DeleteFlag = CASE  
+   WHEN @ReferralType IS NULL OR @ReferralTypeID IS NULL OR @ReferrerID IS NULL THEN 1 
+   ELSE 0 
+   END 
+ 
+ 
+IF EXISTS (SELECT 1 FROM OFFICER_REFERRAL WHERE NWA_ID = @NWAID) 
+BEGIN 
+ IF @DeleteFlag = 1 
+ BEGIN 
+  --- REMOVE THE OFFICER REFERRAL RECORD 
+  DELETE FROM OFFICER_REFERRAL WHERE NWA_ID = @NWAID 
+ END  
+ ELSE 
+ BEGIN 
+  --- IF A REFERRAL EXISTS FOR THIS CONTRACT UPDATE IT 
+  --- FOR CDR REFERRALS SET MARINE_ID TO THE REFERALS MARINE ID, FOR DEP REFERRALS SET MARINE_ID = NULL 
+  --- FOR DEP REFERRALS SET DEP_CONTRACT_ID TO THE REFERALS CONTRACT ID, FOR CDR REFERRALS SET DEP_CONTRACT_ID = NULL 
+  UPDATE  
+   OFFICER_REFERRAL 
+  SET  
+   REFERRAL_TYPE_ID  = @ReferralTypeID, 
+   ENLISTED_REFERRER_CONTRACT_ID  = NULL,--CASE @ReferralType WHEN 'ERR' THEN @ReferrerID ELSE NULL END, 
+   REFERRER_CONTRACT_ID    = CASE @ReferralType WHEN 'DEP' THEN @ReferrerID ELSE NULL END,  
+   MARINE_ID    = CASE WHEN @ReferralType IN ('REF','ERR') THEN @ReferrerID ELSE NULL END,  
+   USER_LOGIN    = @UserLogin, 
+   UPDATE_DATE    = GETDATE() 
+  WHERE  
+   NWA_ID     = @NWAID 
+ END 
+ 
+END   
+ELSE 
+BEGIN   
+ --- IF THE NWA DOES NOT HAVE A REFERRAL RECORD, MAKE SURE THE DELETE FLAG IS NOT SET BEFORE PROCEEDING 
+ --- IF THE DELETE FLAG IS SET FOR AN NWA WITHOUT A REFERRAL RECORD, NO ACTION IS NECESSARY 
+ IF @DeleteFlag = 0 
+ BEGIN 
+  IF @ReferralType IS NULL OR @ReferralTypeID IS NULL 
+  BEGIN 
+   RAISERROR ('The referral type is not valid.', 16, 1, @DBID, @DBNAME) 
+   RETURN 
+  END 
+   
+  --- GET REFERRER ID FROM THE ReferrerSSN, ReferralType AND StatusType  
+  --- SET StatusType = 'O' FOR OFFICER REFERRALS 
+  IF @ReferrerID IS NULL 
+  BEGIN 
+   RAISERROR ('The referral is not valid.', 16, 2, @DBID, @DBNAME) 
+   RETURN 
+  END 
+ 
+  --- IF A REFERRAL DOES NOT EXIST FOR THIS CONTRACT, INSERT IT 
+  --- FOR CDR REFERRALS INSERT THE REFERALS MARINE ID, FOR DEP REFERRALS INSERT NULL 
+  --- FOR DEP REFERRALS INSERT THE REFERALS CONTRACT ID, FOR CDR REFERRALS INSERT NULL 
+  INSERT INTO  
+   OFFICER_REFERRAL (REFERRAL_TYPE_ID, NWA_ID, ENLISTED_REFERRER_CONTRACT_ID, REFERRER_CONTRACT_ID, MARINE_ID, USER_LOGIN, UPDATE_DATE) 
+  VALUES  
+   (@ReferralTypeID, @NWAID,  
+   NULL,--CASE @ReferralType WHEN 'ERR' THEN @ReferrerID ELSE NULL END, 
+   CASE @ReferralType WHEN 'DEP' THEN @ReferrerID ELSE NULL END,  
+   CASE WHEN @ReferralType IN ('REF','ERR') THEN @ReferrerID ELSE NULL END,  
+   @UserLogin, GETDATE()) 
+ END 
+END]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,179 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_rptRecruiterHistoryReportB]" directorySegmentName="seg_23" id="15F2A22F-86A7-A698-AE0C-5C96F5454B99">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@personid int 
+AS 
+ 
+ 
+set nocount on 
+ 
+create table #tempJ 
+( 
+personid int, 
+tablename varchar(10), 
+ddate date.me, 
+rowguid uniqueiden..er 
+) 
+ 
+insert into #TEMPJ 
+ 
+select person_id,'tProd' as tablename,cast(cast(month_code as char(2)) + '/1/' + cast(calendar_year as char(4)) as date.me), rowguid from produc.on_status_history where person_id=@personid 
+union 
+select recrui.ng_person_id,'tRecruiter' as tablename, billet_begin_date,rowguid from recruiter_history where recrui.ng_person_id = @personid 
+union 
+select recrui.ng_person_id,'tRecruiter' as tablename, billet_end_date, rowguid from recruiter_history where recrui.ng_person_id=@personid 
+ 
+ 
+ 
+ 
+--select * from #TEMPJ 
+ 
+ 
+ 
+SELECT dis.nct a.ddate as startdate, 
+(select top 1 ddate from #tempj b where b.ddate > a.ddate order by b.ddate asc) as enddate, 
+(select top 1 on_produc.on from produc.on_status_history where person_id=a.personid and cast(cast(month_code as char(2)) + '/1/' + cast(calendar_year as char(4)) as date.me) <= a.ddate order by cast(cast(month_code as char(2)) + '/1/' + cast(calendar_year as char(4)) as date.me) desc) as ONOFFPROD, 
+(select top 1 billet_desc from recruiter_history where recrui.ng_person_id=a.personid and billet_begin_date = a.ddate) as billet, 
+(select top 1 rowguid from recruiter_history where recrui.ng_person_id=a.personid and billet_begin_date = a.ddate) as rowguid , 
+(select top 1 rowguid from produc.on_status_history where person_id=a.personid and cast(cast(month_code as char(2)) + '/1/' + cast(calendar_year as char(4)) as date.me) = a.ddate) as Prowguid 
+ 
+ 
+into #tempJK 
+ 
+FROM #TEMPJ a 
+order by ddate 
+ 
+ 
+ 
+ 
+ 
+select startdate,enddate,billet,--rowguid,prowguid, 
+ 
+case ono.prod 
+ when 1 then 'ON' 
+ when 0 then 'OFF' 
+end as ono.prod, 
+ 
+case  
+ when billet is null then 
+   ( 
+    SELECT     R.SHORT_NAME 
+                           
+    FROM         RECRUITING_ORGANIZATION R RIGHT OUTER JOIN 
+                         ORGANIZATION_MAP INNER JOIN 
+                         PRODUCTION_STATUS_HISTORY S ON  
+                         ORGANIZATION_MAP.CHILD_ORGANIZATION_ID = S.ORGANIZATION_ID ON  
+                         R.ORGANIZATION_ID = ORGANIZATION_MAP.PARENT_ORGANIZATION_ID 
+    WHERE     S.rowguid = c.prowguid 
+   
+   ) 
+  
+ else (select RS_NAME from recruiter_history where rowguid = c.rowguid) 
+ 
+end as RS, 
+case  
+ when billet is null then 
+   (   
+ 
+    SELECT     RECRUITING_ORGANIZATION.SHORT_NAME 
+                           
+    FROM         RECRUITING_ORGANIZATION RECRUITING_ORGANIZATION_1 RIGHT OUTER JOIN 
+                          ORGANIZATION_MAP INNER JOIN 
+                          PRODUCTION_STATUS_HISTORY ON  
+                          ORGANIZATION_MAP.CHILD_ORGANIZATION_ID = PRODUCTION_STATUS_HISTORY.ORGANIZATION_ID LEFT OUTER JOIN 
+                          RECRUITING_ORGANIZATION ON ORGANIZATION_MAP.CHILD_ORGANIZATION_ID = RECRUITING_ORGANIZATION.ORGANIZATION_ID ON  
+                          RECRUITING_ORGANIZATION_1.ORGANIZATION_ID = ORGANIZATION_MAP.PARENT_ORGANIZATION_ID 
+    WHERE     PRODUCTION_STATUS_HISTORY.rowguid = c.prowguid 
+    
+   ) 
+  
+ else (select RSS_NAME from recruiter_history where rowguid = c.rowguid) 
+end as RSS 
+ 
+into #tempBeforeUpdateLastBillet 
+from #tempJK c 
+order by startdate desc 
+/*------*/ 
+declare @org_id int -- to .nd the org is base on personid 
+ 
+set @org_id =  (SELECT     top 1 ORGANIZATION_ID 
+  FROM         RECRUITING_PERSON 
+  WHERE     RECRUITING_PERSON_ID = @personid) 
+/*------*/ 
+ 
+/*-- update the billet using recrui.ng_person --*/ 
+update #tempBeforeUpdateLastBillet  
+set billet=( 
+ select top 1 r.SHORT_DESCRIPTION  
+ from recrui.ng_person p le. outer join recrui.ng_role r on 
+ p.RECRUITING_ROLE_ID =r.RECRUITING_ROLE_ID 
+ where p.recrui.ng_person_id=@personID 
+) 
+where enddate is null 
+ 
+/*-- update the RS using recrui.ng_person and organiza.on--*/ 
+ 
+ 
+ 
+ 
+update #tempBeforeUpdateLastBillet  
+set RS=( 
+ select   
+ case organiza.on_type 
+  when 'RS' then short_name  
+  when 'RSS' then 
+  (SELECT     top 1 R.SHORT_NAME 
+  FROM         RECRUITING_ORGANIZATION R INNER JOIN ORGANIZATION_MAP  
+   ON R.ORGANIZATION_ID = dbo.ORGANIZATION_MAP.PARENT_ORGANIZATION_ID 
+  WHERE     ORGANIZATION_MAP.CHILD_ORGANIZATION_ID = @org_id 
+  ) 
+  end as RS 
+ from recrui.ng_organiza.on 
+ where organiza.on_id=@org_id 
+/* 
+    SELECT    top 1 R.short_name 
+                           
+    FROM         RECRUITING_ORGANIZATION R RIGHT OUTER JOIN 
+                         ORGANIZATION_MAP INNER JOIN 
+                         PRODUCTION_STATUS_HISTORY S ON  
+                         ORGANIZATION_MAP.CHILD_ORGANIZATION_ID = S.ORGANIZATION_ID ON  
+                         R.ORGANIZATION_ID = ORGANIZATION_MAP.PARENT_ORGANIZATION_ID 
+    where r.organiza.on_id=@org_id 
+*/ 
+) 
+where enddate is null 
+/*-- update the RSS using recrui.ng_person and organiza.on--*/ 
+ 
+update #tempBeforeUpdateLastBillet  
+set RSS=( 
+ 
+ select   
+ case organiza.on_type 
+  when 'RSS' then short_name  
+  ELSE NULL 
+  end as RSS 
+ from recrui.ng_organiza.on 
+ where organiza.on_id=@org_id 
+/*     
+SELECT     TOP 1 dbo.RECRUITING_ORGANIZATION.SHORT_NAME 
+FROM         dbo.RECRUITING_ORGANIZATION RECRUITING_ORGANIZATION_1 RIGHT OUTER JOIN 
+                      dbo.ORGANIZATION_MAP LEFT OUTER JOIN 
+                      dbo.RECRUITING_ORGANIZATION ON dbo.ORGANIZATION_MAP.CHILD_ORGANIZATION_ID = dbo.RECRUITING_ORGANIZATION.ORGANIZATION_ID ON  
+                      RECRUITING_ORGANIZATION_1.ORGANIZATION_ID = dbo.ORGANIZATION_MAP.PARENT_ORGANIZATION_ID 
+WHERE     RECRUITING_ORGANIZATION_1.organiza.on_id=@org_id*/ 
+) 
+where enddate is null 
+ 
+set nocount o. 
+select dis.nct * from #tempBeforeUpdateLastBillet 
+order by startdate desc 
+ 
+drop table #tempBeforeUpdateLastBillet 
+drop table #tempJK 
+DROP TABLE #TEMPJ]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

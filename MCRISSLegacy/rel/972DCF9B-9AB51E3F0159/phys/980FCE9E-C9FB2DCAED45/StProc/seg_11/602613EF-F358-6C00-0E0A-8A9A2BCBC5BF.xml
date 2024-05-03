@@ -1,0 +1,211 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SaveQSN]" directorySegmentName="seg_11" id="602613EF-F358-6C00-0E0A-8A9A2BCBC5BF">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:37 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @UserID uniqueiden..er, 
+ 
+ @QSNID uniqueiden..er, 
+ @SerialNumber varchar(10), 
+ @FiscalYear int, 
+ @ApplicantPackageTypeID int, 
+ @MOSID int, 
+ @UnitLoca.on varchar(25), 
+ @BIC varchar(15), 
+ @BCN varchar(25), 
+ @BonusAmount int, 
+ @RankID int, 
+ @PayGradeID int, 
+ @PayGradeType char(1), 
+ @IsRetrainingAllowed bit, 
+ @Ini.alMOSID int, 
+ @Ini.alRankID int, 
+ @MOSChangeDate date.me, 
+ @RankChangeDate date.me, 
+ @Remark varchar(500), 
+ @AssignedOrgUnitID int, 
+ @PlatoonCode varchar(10), 
+ @RUCReserveUnitID uniqueiden..er, 
+ @RUCReserveUnitChangeDate date.me, 
+ @Ini.alRUCReserveUnitID uniqueiden..er 
+) 
+AS 
+BEGIN 
+ DECLARE @OldOrgUnitID int 
+ DECLARE @OldRUCReserveUnitID uniqueiden..er 
+ DECLARE @OldMosID int 
+ DECLARE @OldRankID int 
+ DECLARE @OldBCN varchar(25) 
+ DECLARE @OldBonusAmount int 
+ DECLARE @NewQSNHistoryID uniqueiden..er 
+  
+ BEGIN TRANSACTION 
+  
+ IF EXISTS(SELECT QSNID FROM [dbo].[QSN] WHERE [QSNID] = @QSNID) 
+ BEGIN 
+  SELECT @OldOrgUnitID = AssignedOrgUnitID, 
+      @OldRUCReserveUnitID = RUCReserveUnitID,  
+      @OldMosID = MOSID,  
+      @OldRankID = RankID,  
+         @OldBCN = BCN,  
+      @OldBonusAmount = BonusAmount 
+  FROM QSN 
+  WHERE QSNID = @QSNID 
+  
+  UPDATE 
+   [dbo].[QSN] 
+  SET  
+   [QSNID] = @QSNID, 
+   [SerialNumber] = @SerialNumber, 
+   [FiscalYear] = @FiscalYear, 
+   [ApplicantPackageTypeID] = ApplicantPackageTypeID, 
+   [MOSID] = @MOSID, 
+   [UnitLoca.on] = @UnitLoca.on, 
+   [BIC] = @BIC, 
+   [BCN] = @BCN, 
+   [BonusAmount] = @BonusAmount, 
+   [RankID] = @RankID, 
+   [PayGradeID] = @PayGradeID, 
+   [PayGradeType] = @PayGradeType, 
+   [IsRetrainingAllowed] = @IsRetrainingAllowed, 
+   [Ini.alMOSID] = @Ini.alMOSID, 
+   [Ini.alRankID] = @Ini.alRankID, 
+   [MOSChangeDate] = @MOSChangeDate, 
+   [RankChangeDate] = @RankChangeDate, 
+   [Remark] = @Remark, 
+   [AssignedOrgUnitID] = @AssignedOrgUnitID, 
+   [PlatoonCode] = @PlatoonCode, 
+   [RUCReserveUnitID] = @RUCReserveUnitID, 
+   [RUCReserveUnitChangeDate] = @RUCReserveUnitChangeDate, 
+   [Ini.alRUCReserveUnitID] = @Ini.alRUCReserveUnitID 
+  WHERE  
+   [QSNID] = @QSNID 
+ 
+  --INSERT History if any changes (use NULLIF pairs to determine dis.nct nullable values) 
+  --Syntax of each compare is: NULLIF(OldValue, NewValue) IS NOT NULL OR NULLIF(NewValue, OldValue) IS NOT NULL 
+  --This is because T-SQL doesn't have a compare for nullable values: htp://sqlblog.com/blogs/hugo_kornelis/archive/2007/09/30/what-if-null-if-null-is-null-null-null-is-null.aspx 
+ 
+  IF  (NULLIF(@OldOrgUnitID,@AssignedOrgUnitID) IS NOT NULL OR NULLIF(@AssignedOrgUnitID,@OldOrgUnitID) IS NOT NULL) OR  
+   (NULLIF(@OldRUCReserveUnitID,@RUCReserveUnitID) IS NOT NULL OR NULLIF(@RUCReserveUnitID,@OldRUCReserveUnitID) IS NOT NULL) OR  
+   (NULLIF(@OldMosID,@MOSID) IS NOT NULL OR NULLIF(@MOSID,@OldMosID) IS NOT NULL) OR  
+   (NULLIF(@OldRankID,@RankID) IS NOT NULL OR NULLIF(@RankID,@OldRankID) IS NOT NULL) OR  
+   (NULLIF(@OldBCN,@BCN) IS NOT NULL OR NULLIF(@BCN,@OldBCN) IS NOT NULL) OR  
+   (NULLIF(@OldBonusAmount,@BonusAmount) IS NOT NULL OR NULLIF(@BonusAmount,@OldBonusAmount) IS NOT NULL) 
+  BEGIN 
+   SELECT @NewQSNHistoryID = newid() 
+   INSERT INTO QSNHistory(QSNHistoryID, UserID, ChangeDate, QSNID) 
+   VALUES(@NewQSNHistoryID, @UserID, GetDate(), @QSNID) 
+   
+   IF (NULLIF(@OldOrgUnitID,@AssignedOrgUnitID) IS NOT NULL OR NULLIF(@AssignedOrgUnitID,@OldOrgUnitID) IS NOT NULL) 
+    INSERT INTO QSNHistoryLineItem(QSNHistoryLineItemID, ChangedField, OldValue, NewValue, QSNHistoryID) 
+    VALUES(NEWID(), 'OrgUnitID', @OldOrgUnitID, @AssignedOrgUnitID, @NewQSNHistoryID ) 
+ 
+   IF (NULLIF(@OldRUCReserveUnitID,@RUCReserveUnitID) IS NOT NULL OR NULLIF(@RUCReserveUnitID,@OldRUCReserveUnitID) IS NOT NULL) 
+    INSERT INTO QSNHistoryLineItem(QSNHistoryLineItemID, ChangedField, OldValue, NewValue, QSNHistoryID) 
+    VALUES(NEWID(), 'RUCReserveUnitID', @OldRUCReserveUnitID, @RUCReserveUnitID, @NewQSNHistoryID ) 
+ 
+   IF (NULLIF(@OldMosID,@MOSID) IS NOT NULL OR NULLIF(@MOSID,@OldMosID) IS NOT NULL) 
+    INSERT INTO QSNHistoryLineItem(QSNHistoryLineItemID, ChangedField, OldValue, NewValue, QSNHistoryID) 
+    VALUES(NEWID(), 'MOSID', @OldMosID, @MOSID, @NewQSNHistoryID ) 
+  
+   IF (NULLIF(@OldRankID,@RankID) IS NOT NULL OR NULLIF(@RankID,@OldRankID) IS NOT NULL) 
+    INSERT INTO QSNHistoryLineItem(QSNHistoryLineItemID, ChangedField, OldValue, NewValue, QSNHistoryID) 
+    VALUES(NEWID(), 'RankID', @OldRankID, @RankID, @NewQSNHistoryID ) 
+ 
+   IF (NULLIF(@OldBCN,@BCN) IS NOT NULL OR NULLIF(@BCN,@OldBCN) IS NOT NULL) 
+    INSERT INTO QSNHistoryLineItem(QSNHistoryLineItemID, ChangedField, OldValue, NewValue, QSNHistoryID) 
+    VALUES(NEWID(), 'BCN', @OldBCN, @BCN, @NewQSNHistoryID ) 
+ 
+   IF (NULLIF(@OldBonusAmount,@BonusAmount) IS NOT NULL OR NULLIF(@BonusAmount,@OldBonusAmount) IS NOT NULL) 
+    INSERT INTO QSNHistoryLineItem(QSNHistoryLineItemID, ChangedField, OldValue, NewValue, QSNHistoryID) 
+    VALUES(NEWID(), 'BonusAmount', @OldBonusAmount, @BonusAmount, @NewQSNHistoryID ) 
+  END  
+ 
+ END 
+ ELSE 
+ BEGIN 
+  INSERT INTO [dbo].[QSN]  
+  ( 
+   [QSNID], 
+   [SerialNumber], 
+   [FiscalYear], 
+   [ApplicantPackageTypeID], 
+   [MOSID], 
+   [UnitLoca.on], 
+   [BIC], 
+   [BCN], 
+   [BonusAmount], 
+   [RankID], 
+   [PayGradeID], 
+   [PayGradeType], 
+   [IsRetrainingAllowed], 
+   [Ini.alMOSID], 
+   [Ini.alRankID], 
+   [MOSChangeDate], 
+   [RankChangeDate], 
+   [Remark], 
+   [AssignedOrgUnitID], 
+   [PlatoonCode], 
+   [RUCReserveUnitID], 
+   [RUCReserveUnitChangeDate], 
+   [Ini.alRUCReserveUnitID] 
+  ) 
+  VALUES  
+  (  
+   @QSNID, 
+   @SerialNumber, 
+   @FiscalYear, 
+   @ApplicantPackageTypeID, 
+   @MOSID, 
+   @UnitLoca.on, 
+   @BIC, 
+   @BCN, 
+   @BonusAmount, 
+   @RankID, 
+   @PayGradeID, 
+   @PayGradeType, 
+   @IsRetrainingAllowed, 
+   @Ini.alMOSID, 
+   @Ini.alRankID, 
+   @MOSChangeDate, 
+   @RankChangeDate, 
+   @Remark, 
+   @AssignedOrgUnitID, 
+   @PlatoonCode, 
+   @RUCReserveUnitID, 
+   @RUCReserveUnitChangeDate, 
+   @Ini.alRUCReserveUnitID 
+  ) 
+  
+ END 
+  
+ -- Rollback the transac.on if there were any errors 
+ IF @@ERROR <> 0 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+  
+  -- Raise an error and return 
+  RAISERROR ('Error occurred while performing the change.', 16, 1) 
+  RETURN 
+ END 
+  
+ -- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+ IF @@ROWCOUNT > 1 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+  
+  -- Raise an error and return 
+  RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+  RETURN 
+ END 
+  
+ -- If we reach this point, the commands completed successfully. 
+ COMMIT TRANSACTION 
+END]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+</StoredProcedureSqlServerv2k5>

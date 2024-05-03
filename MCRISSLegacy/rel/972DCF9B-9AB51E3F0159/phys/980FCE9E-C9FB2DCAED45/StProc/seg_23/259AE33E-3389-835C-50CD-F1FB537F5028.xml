@@ -1,0 +1,67 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_ToolboxUpdateNWA]" directorySegmentName="seg_23" id="259AE33E-3389-835C-50CD-F1FB537F5028">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@NWAID int, 
+ @NWADeclaredDate date.me, 
+ @NWADateStartedWorking date.me, 
+ @ParentalConsent char(1) = null, 
+ @ProjectedShipMonth int = null,  
+ @NWALogNotes varchar(20) = null, 
+ @ProjectProgramChoice1 varchar(4) = null, 
+        @ProjectProgramChoice2 varchar(4) = null, 
+        @ProjectProgramChoice3 varchar(4) = null, 
+ @Ac.vityCode varchar(2) = null, 
+ @SourceCode varchar(10) = null, 
+ @SourceCodeDual varchar(10) = null, 
+ @RecruiterofRecordID int = null, 
+ @Organiza.onofRecordID int = null, 
+ @WorkingRecruiterID int = null, 
+ @CategoryCode varchar(6) = null, 
+ @Educa.onLevel varchar(2) = null, 
+ @Educa.onCode char(1) = null, 
+ @PPC varchar(8) = null, 
+ @CompChangeFlag char(1) = null, 
+ @BachGradYear int = null, 
+ @O.cerComponentCode varchar(2) = null, 
+ @ShipMission int = null, 
+ @UserLogin varchar(15) 
+ 
+AS 
+ 
+IF EXISTS (SELECT 1 FROM NWA WHERE NWA_ID = @NWAID) 
+ BEGIN 
+  
+ UPDATE  NWA  
+ SET  NWA_DECLARED_DATE = @NWADeclaredDate, 
+  NWA_DATE_STARTED_WORKING = @NWADateStartedWorking, 
+  PARENTAL_CONSENT = @ParentalConsent, 
+  PROJECTED_SHIP_MONTH = @ProjectedShipMonth, 
+  NWA_LOG_NOTES = @NWALogNotes, 
+  PROJECTED_PROG_CHOICE1 = @ProjectProgramChoice1, 
+  PROJECTED_PROG_CHOICE2 = @ProjectProgramChoice2, 
+  PROJECTED_PROG_CHOICE3 = @ProjectProgramChoice3, 
+  ACTIVITY_CODE = @Ac.vityCode, 
+  SOURCE_CODE = @SourceCode, 
+  SOURCE_CODE_DUAL = @SourceCodeDual, 
+  RECRUITER_OF_RECORD_ID = @RecruiterofRecordID, 
+  ORGANIZATION_OF_RECORD_ID = @Organiza.onofRecordID, 
+  WORKING_RECRUITER_ID = @WorkingRecruiterID, 
+  CATEGORY_CODE = @CategoryCode, 
+  EDUCATION_LEVEL = @Educa.onLevel, 
+  EDUCATION_CODE = @Educa.onCode, 
+  PPC = @PPC, 
+  COMP_CHANGE_FLAG = @CompChangeFlag, 
+  BACH_GRAD_YEAR = @BachGradYear, 
+  OFFICER_COMPONENT_CODE = @O.cerComponentCode, 
+  SHIP_MISSION = @ShipMission, 
+  USER_LOGIN = @UserLogin, 
+  UPDATE_DATE = GETDATE() 
+ WHERE  NWA_ID = @NWAID 
+  
+ END]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

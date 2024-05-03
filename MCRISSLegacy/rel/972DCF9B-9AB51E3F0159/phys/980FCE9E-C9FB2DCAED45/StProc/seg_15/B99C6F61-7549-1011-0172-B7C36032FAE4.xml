@@ -1,0 +1,61 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_DeleteQSNAssignment]" directorySegmentName="seg_15" id="B99C6F61-7549-1011-0172-B7C36032FAE4">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@QSNID   char(9), 
+ @ContractID int,  
+ @UserLogin  varchar(15) 
+AS 
+ 
+DECLARE @DBID   int 
+DECLARE @DBNAME  nvarchar(128) 
+DECLARE @ErrMsg  varchar(100) 
+ 
+SET @DBID = DB_ID()  
+SET @DBNAME = DB_NAME() 
+ 
+ 
+UPDATE  
+ QSN 
+SET  
+ CONTRACT_ID = null, 
+ BONUS_AMOUNT  = null, 
+ BONUS_CONTROL_NUMBER = null, 
+ KICKER_CONTROL  = null,  
+ PROGRAM_ASSIGNMENT_DATE = null, 
+ USER_LOGIN = @UserLogin,  
+ UPDATE_DATE = GETDATE() 
+WHERE  
+ QSN_ID = @QSNID 
+ 
+ 
+IF @@ERROR != 0  
+BEGIN 
+ SET @ErrMsg = 'An error occurred removing the QSN assignment.' 
+ RAISERROR (@ErrMsg, 16, 1, @DBID, @DBNAME) 
+ RETURN 
+END 
+ 
+ 
+--- IF A CRITERIA CONFIRMATION RECORD EXISTS, THEN DELETE IT 
+IF EXISTS (SELECT 1 FROM CANDIDATE_CRITERIA_CONFIRMATION  
+  WHERE CONTRACT_ID = @ContractID AND  
+  QSN = @QSNID) 
+BEGIN 
+ --- DELETE THE CANDIDATE_CRITERIA_CONFIRMATION RECORD 
+ EXEC sp_DeleteCandidateCriteriaCon.rma.on  
+  @ContractID = @ContractID,  
+  @QSN = @QSNID 
+ 
+ IF @@ERROR != 0  
+ BEGIN 
+  SET @ErrMsg = 'An error occurred removing the criteria con.rma.on record.' 
+  RAISERROR (@ErrMsg, 16, 2, @DBID, @DBNAME) 
+  RETURN 
+ END 
+END]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

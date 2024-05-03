@@ -1,0 +1,140 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SPGEN_CANDADDRESS]" directorySegmentName="seg_26" id="29AF290E-EC9E-B2B9-6A44-42225AF24E19">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[as  
+SET ARITHABORT OFF 
+set arithignore on 
+set ansi_warnings o. 
+ 
+declare @ssn    varchar(9), 
+ @marine_candidate_id  int, 
+ @person_id   int, 
+ @city_code  varchar(2), 
+ @county_code  varchar(3), 
+ @state_code  varchar(2), 
+ @street_address  varchar(50), 
+ @street_address2 varchar(50), 
+ @curr_str  varchar(24), 
+ @curr_cnty  varchar(3), 
+ @curr_city  varchar(18), 
+ @curr_st  varchar(2), 
+ @curr_zip  varchar(9), 
+ @hor_str  varchar(24), 
+ @hor_cnty  varchar(3), 
+ @hor_city  varchar(18), 
+ @hor_st   varchar(2), 
+ @hor_zip  varchar(9), 
+ @user_login  varchar(15), 
+ @update_date  date.me 
+ 
+declare address cursor for 
+ 
+select   SSN,  
+  CURR_STR, 
+  CURR_CNTY, 
+  CURR_CITY, 
+  CURR_ST, 
+  CURR_ZIP, 
+  HOR_CNTY, 
+  HOR_CITY, 
+  HOR_ST, 
+  HOR_ZIP 
+from arms..ARMS179 
+ 
+open address 
+ 
+fetch address  
+    into @ssn, @curr_str, @curr_cnty, @curr_city, @curr_st, 
+      @curr_zip, @hor_cnty, @hor_city, @hor_st, @hor_zip 
+ 
+select @user_login = 'migra.on' 
+select @update_date = getdate() 
+select @hor_str = NULL 
+select @street_address2 = NULL 
+ 
+while (@@FETCH_STATUS = 0)  
+begin 
+ select @person_id = PERSON_ID from PERSON  
+  where SOCIAL_SECURITY_NUMBER = @ssn  
+ 
+  if @person_id is not NULL 
+ begin  
+  select @city_code = (select CITY_CODE from mcriss..GEO_LOCATION 
+     where CITY_TEXT = @hor_city and COUNTY_CODE = @hor_cnty) 
+ 
+  print @ssn 
+          
+  if (not exists(select 1 from mcriss..CANDIDATE_ADDRESS 
+              where MARINE_CANDIDATE_ID = @person_id)) 
+       begin 
+ 
+   insert CANDIDATE_ADDRESS 
+   (MARINE_CANDIDATE_ID, ADDRESS_TYPE, STREET_ADDRESS,STREET_ADDRESS_2, 
+   CITY_CODE, COUNTY_CODE,STATE_CODE,ZIPCODE,USER_LOGIN,UPDATE_DATE) 
+ 
+   values(@person_id, 'C', @curr_str, @street_address2, 
+   @city_code, @curr_cnty, @curr_st, @curr_zip,@user_login,@update_date) 
+       
+    insert CANDIDATE_ADDRESS 
+    (MARINE_CANDIDATE_ID, ADDRESS_TYPE, STREET_ADDRESS,STREET_ADDRESS_2, 
+    CITY_CODE, COUNTY_CODE,STATE_CODE,ZIPCODE,USER_LOGIN,UPDATE_DATE) 
+ 
+   values(@person_id, 'H', @curr_str, @street_address2, 
+   @city_code, @hor_cnty, @hor_st,@hor_zip,@user_login,@update_date) 
+    
+   print 'Candidate_Address Added' 
+           end 
+        else 
+         begin 
+           update CANDIDATE_ADDRESS 
+  set STREET_ADDRESS = @curr_str, 
+  STREET_ADDRESS_2 = @street_address2, 
+  CITY_CODE = @city_code,  
+  COUNTY_CODE = @curr_cnty, 
+  STATE_CODE = @curr_st, 
+  ZIPCODE = @curr_zip, 
+  USER_LOGIN = @user_login, 
+  UPDATE_DATE = @update_date 
+  where MARINE_CANDIDATE_ID = @person_id and 
+   ADDRESS_TYPE = 'C' and 
+  USER_LOGIN = 'migra.on' -- Makes sure we don't overwrite user entered data 
+    
+           update CANDIDATE_ADDRESS 
+  set STREET_ADDRESS = @curr_str, 
+  STREET_ADDRESS_2 = @street_address2, 
+  CITY_CODE = @city_code,  
+  COUNTY_CODE = @hor_cnty, 
+  STATE_CODE = @hor_st, 
+  ZIPCODE = @hor_zip, 
+  USER_LOGIN = @user_login, 
+  UPDATE_DATE = @update_date 
+  where MARINE_CANDIDATE_ID = @person_id and 
+   ADDRESS_TYPE = 'H' and 
+  USER_LOGIN = 'migra.on' -- Makes sure we don't overwrite user entered data 
+   
+  print 'Update Candidate Address Record' 
+ 
+  
+ end 
+      end 
+   else 
+      print @ssn+ 'Not in person' 
+ 
+   fetch address  
+    into @ssn, @curr_str, @curr_cnty, @curr_city, @curr_st, 
+      @curr_zip, @hor_cnty, @hor_city, @hor_st, @hor_zip 
+ 
+ 
+end 
+ 
+close address 
+ 
+deallocate  address 
+ 
+return]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

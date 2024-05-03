@@ -1,0 +1,91 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SPGEN_CANDTELEPHONE]" directorySegmentName="seg_26" id="E20645C3-22BB-2787-7C43-BFEECD1AA972">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[as  
+SET ARITHABORT OFF 
+set arithignore on 
+set ansi_warnings o. 
+ 
+declare @SSN     varchar(9), 
+ @person_id    int, 
+ @MARINE_CANDIDATE_ID  int, 
+ @AREA_CODE    varchar(4), 
+ @TELEPHONE    varchar(10), 
+ @TELEPHONE_TYPE   varchar(10), 
+ @USER_LOGIN  varchar(15), 
+ @UPDATE_DATE  date.me 
+ 
+declare TELEPHONE cursor for 
+ 
+select  SSN,  
+ substring(HOME_PHONE,1,3),  
+ substring(HOME_PHONE,4,7) 
+from arms..ARMS179 
+ 
+set @TELEPHONE_TYPE = 'H' 
+set @USER_LOGIN = 'migra.on' 
+set @UPDATE_DATE = getdate() 
+ 
+open TELEPHONE 
+ 
+fetch TELEPHONE  
+    into @SSN, @AREA_CODE, @TELEPHONE 
+ 
+while (@@FETCH_STATUS = 0) 
+begin 
+ 
+if @TELEPHONE != ' ' 
+begin 
+ 
+ select @person_id = PERSON_ID from PERSON  
+     where SOCIAL_SECURITY_NUMBER = @SSN 
+ 
+      if @person_id is not NULL  
+        begin  
+ 
+     print @SSN 
+  
+         if not exists(select 1 from CANDIDATE_TELEPHONE 
+                 where MARINE_CANDIDATE_ID = @person_id) 
+  begin 
+         insert into CANDIDATE_TELEPHONE 
+   (MARINE_CANDIDATE_ID, TELEPHONE_TYPE, AREA_CODE, 
+   TELEPHONE_NUMBER,USER_LOGIN,UPDATE_DATE) 
+ 
+               values (@person_id, @TELEPHONE_TYPE, @AREA_CODE, @TELEPHONE, 
+     @USER_LOGIN,@UPDATE_DATE) 
+              end 
+ 
+          else 
+           begin 
+                   update CANDIDATE_TELEPHONE 
+                   set TELEPHONE_TYPE = @TELEPHONE_TYPE, 
+        AREA_CODE       = @AREA_CODE, 
+        TELEPHONE_NUMBER = @TELEPHONE, 
+        USER_LOGIN = @USER_LOGIN, 
+        UPDATE_DATE = @UPDATE_DATE 
+                where  MARINE_CANDIDATE_ID = @person_id and  
+   USER_LOGIN = @user_login 
+              end 
+         
+       end 
+ else 
+            print @SSN+' Not in PERSON' 
+end 
+   fetch TELEPHONE  
+            into @SSN, @AREA_CODE, @TELEPHONE 
+ 
+end 
+ 
+ 
+close TELEPHONE 
+ 
+deallocate TELEPHONE 
+ 
+return]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

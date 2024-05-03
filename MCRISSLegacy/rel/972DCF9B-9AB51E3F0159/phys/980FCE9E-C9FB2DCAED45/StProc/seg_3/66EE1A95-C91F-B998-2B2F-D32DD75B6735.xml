@@ -1,0 +1,212 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetMonthlyAc.vityReportContractRow_Orig]" directorySegmentName="seg_3" id="66EE1A95-C91F-B998-2B2F-D32DD75B6735">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@YEAR int, 
+ @MONTH int, 
+ @ORG_ID int, 
+ @MISSION_FISCAL_YEAR int 
+AS 
+BEGIN 
+ 
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+Declare @MISSION_FY1_START_DATE date.me 
+Declare @MISSION_FY1_END_DATE date.me 
+Declare @MISSION_FY2_START_DATE date.me 
+Declare @MISSION_FY2_END_DATE date.me 
+Declare @MISSION_FY3_START_DATE date.me 
+Declare @MISSION_FY3_END_DATE date.me 
+Declare @PLC_NFO varchar(2) 
+Declare @PLC_GROUND varchar(2) 
+Declare @PLC_NA varchar(2) 
+Declare @PLC_LAW varchar(2) 
+Declare @OCC_NFO varchar(2) 
+Declare @OCC_GROUND varchar(2) 
+Declare @OCC_NA varchar(2) 
+Declare @OCCR_GROUND varchar(2) 
+Declare @OCC_LAW varchar(2) 
+ 
+Declare @MISSION_FISCAL_YEAR_PLUS1 int 
+Declare @MISSION_FISCAL_YEAR_PLUS2 int 
+Declare @MISSION_FISCAL_YEAR_PLUS3 int 
+ 
+Declare @OCC_FIRST_CLASS_NUMBER int 
+Declare @OCC_SECOND_CLASS_NUMBER int 
+Declare @OCC_THIRD_CLASS_NUMBER int 
+ 
+set @MISSION_FISCAL_YEAR_PLUS1 = @MISSION_FISCAL_YEAR + 1; 
+set @MISSION_FISCAL_YEAR_PLUS2 = @MISSION_FISCAL_YEAR + 2; 
+set @MISSION_FISCAL_YEAR_PLUS3 = @MISSION_FISCAL_YEAR + 3; 
+ 
+set @PLC_NFO = '0A'; 
+set @PLC_GROUND = '0B'; 
+set @PLC_NA = '0C'; 
+set @PLC_LAW = '0E'; 
+set @OCC_LAW = '1A'; 
+set @OCC_GROUND = '1B'; 
+set @OCC_NA = '1C'; 
+set @OCCR_GROUND = '1E'; 
+set @OCC_NFO = '1H';    
+ 
+ 
+select @OCC_FIRST_CLASS_NUMBER = ( 
+ select min(CLASS_NUMBER) from MCRISS.dbo.OCS_CLASS  
+ where FISCAL_YEAR = @MISSION_FISCAL_YEAR and  
+    TRAINING_TYPE_CODE = 'OCC'); 
+     
+select  @OCC_SECOND_CLASS_NUMBER = @OCC_FIRST_CLASS_NUMBER +1; 
+select @OCC_THIRD_CLASS_NUMBER = @OCC_FIRST_CLASS_NUMBER +2; 
+ 
+select PLC1_NFO_ALL, 
+    PLC1_NFO_NON_WHITE_MALE, 
+    PLC1_GROUND_ALL, 
+       PLC1_GROUND_NON_WHITE_MALE, 
+    PLC1_AIR_ALL, 
+       PLC1_AIR_NON_WHITE_MALE, 
+    PLC1_LAW_ALL, 
+       PLC1_LAW_NON_WHITE_MALE, 
+    PLC2_NFO_ALL, 
+    PLC2_NFO_NON_WHITE_MALE, 
+    PLC2_GROUND_ALL, 
+       PLC2_GROUND_NON_WHITE_MALE, 
+    PLC2_AIR_ALL, 
+       PLC2_AIR_NON_WHITE_MALE, 
+    PLC2_LAW_ALL, 
+       PLC2_LAW_NON_WHITE_MALE, 
+       PLC3_NFO_ALL, 
+    PLC3_NFO_NON_WHITE_MALE, 
+    PLC3_GROUND_ALL, 
+       PLC3_GROUND_NON_WHITE_MALE, 
+    PLC3_AIR_ALL, 
+       PLC3_AIR_NON_WHITE_MALE, 
+    PLC3_LAW_ALL, 
+       PLC3_LAW_NON_WHITE_MALE, 
+    OCC1_NFO_ALL, 
+    OCC1_NFO_NON_WHITE_MALE, 
+       OCCR1_GROUND_ALL, 
+       OCCR1_GROUND_NON_WHITE_MALE, 
+    OCC1_GROUND_ALL, 
+       OCC1_GROUND_NON_WHITE_MALE, 
+    OCC1_AIR_ALL, 
+       OCC1_AIR_NON_WHITE_MALE, 
+    OCC1_LAW_ALL, 
+       OCC1_LAW_NON_WHITE_MALE, 
+    OCC2_NFO_ALL, 
+    OCC2_NFO_NON_WHITE_MALE, 
+       OCCR2_GROUND_ALL, 
+       OCCR2_GROUND_NON_WHITE_MALE, 
+    OCC2_GROUND_ALL, 
+       OCC2_GROUND_NON_WHITE_MALE, 
+    OCC2_AIR_ALL, 
+       OCC2_AIR_NON_WHITE_MALE, 
+    OCC2_LAW_ALL, 
+       OCC2_LAW_NON_WHITE_MALE, 
+       OCC3_NFO_ALL, 
+    OCC3_NFO_NON_WHITE_MALE, 
+       OCCR3_GROUND_ALL, 
+       OCCR3_GROUND_NON_WHITE_MALE, 
+    OCC3_GROUND_ALL, 
+       OCC3_GROUND_NON_WHITE_MALE, 
+    OCC3_AIR_ALL, 
+       OCC3_AIR_NON_WHITE_MALE, 
+    OCC3_LAW_ALL, 
+       OCC3_LAW_NON_WHITE_MALE 
+from  
+-----------------------------PLC 1--------------------------------------- 
+(select PLC1_NFO_ALL = usmc.GetMonthlyAc.vityCountForAllPLCContracts(@YEAR, @MONTH, @MISSION_FISCAL_YEAR_PLUS1, @PLC_NFO, @ORG_ID, 'PLCCOMB')) as PLC1_NFO_ALL, 
+(select PLC1_NFO_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMalePLCContracts(@YEAR, @MONTH, @MISSION_FISCAL_YEAR_PLUS1, @PLC_NFO, @ORG_ID, 'PLCCOMB')) as PLC1_NFO_NON_WHITE_MALE, 
+ 
+(select PLC1_GROUND_ALL = usmc.GetMonthlyAc.vityCountForAllPLCContracts(@YEAR, @MONTH, @MISSION_FISCAL_YEAR_PLUS1, @PLC_GROUND, @ORG_ID, 'PLCCOMB')) as PLC1_GROUND_ALL, 
+(select PLC1_GROUND_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMalePLCContracts(@YEAR, @MONTH, @MISSION_FISCAL_YEAR_PLUS1, @PLC_GROUND, @ORG_ID, 'PLCCOMB')) as PLC1_GROUND_NON_WHITE_MALE, 
+ 
+(select PLC1_AIR_ALL = usmc.GetMonthlyAc.vityCountForAllPLCContracts(@YEAR, @MONTH, @MISSION_FISCAL_YEAR_PLUS1, @PLC_NA, @ORG_ID, 'PLCCOMB')) as PLC1_AIR_ALL, 
+(select PLC1_AIR_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMalePLCContracts(@YEAR, @MONTH, @MISSION_FISCAL_YEAR_PLUS1, @PLC_NA, @ORG_ID, 'PLCCOMB')) as PLC1_AIR_NON_WHITE_MALE, 
+ 
+(select PLC1_LAW_ALL = usmc.GetMonthlyAc.vityCountForAllPLCContracts(@YEAR, @MONTH, @MISSION_FISCAL_YEAR_PLUS1, @PLC_LAW, @ORG_ID, 'PLCCOMB')) as PLC1_LAW_ALL, 
+(select PLC1_LAW_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMalePLCContracts(@YEAR, @MONTH, @MISSION_FISCAL_YEAR_PLUS1, @PLC_LAW, @ORG_ID, 'PLCCOMB')) as PLC1_LAW_NON_WHITE_MALE, 
+ 
+-----------------------------PLC 2--------------------------------------- 
+ 
+(select PLC2_NFO_ALL = usmc.GetMonthlyAc.vityCountForAllPLCContracts(@YEAR, @MONTH, @MISSION_FISCAL_YEAR_PLUS2, @PLC_NFO, @ORG_ID, 'PLCJR')) as PLC2_NFO_ALL, 
+(select PLC2_NFO_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMalePLCContracts(@YEAR, @MONTH, @MISSION_FISCAL_YEAR_PLUS2, @PLC_NFO, @ORG_ID, 'PLCJR')) as PLC2_NFO_NON_WHITE_MALE, 
+ 
+(select PLC2_GROUND_ALL = usmc.GetMonthlyAc.vityCountForAllPLCContracts(@YEAR, @MONTH,  @MISSION_FISCAL_YEAR_PLUS2, @PLC_GROUND, @ORG_ID, 'PLCJR')) as PLC2_GROUND_ALL, 
+(select PLC2_GROUND_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMalePLCContracts(@YEAR, @MONTH,  @MISSION_FISCAL_YEAR_PLUS2, @PLC_GROUND, @ORG_ID, 'PLCJR')) as PLC2_GROUND_NON_WHITE_MALE, 
+ 
+(select PLC2_AIR_ALL = usmc.GetMonthlyAc.vityCountForAllPLCContracts(@YEAR, @MONTH,  @MISSION_FISCAL_YEAR_PLUS2, @PLC_NA, @ORG_ID, 'PLCJR')) as PLC2_AIR_ALL, 
+(select PLC2_AIR_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMalePLCContracts(@YEAR, @MONTH,  @MISSION_FISCAL_YEAR_PLUS2, @PLC_NA, @ORG_ID, 'PLCJR')) as PLC2_AIR_NON_WHITE_MALE, 
+ 
+(select PLC2_LAW_ALL = usmc.GetMonthlyAc.vityCountForAllPLCContracts(@YEAR, @MONTH,@MISSION_FISCAL_YEAR_PLUS2, @PLC_LAW, @ORG_ID, 'PLCJR')) as PLC2_LAW_ALL, 
+(select PLC2_LAW_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMalePLCContracts(@YEAR, @MONTH, @MISSION_FISCAL_YEAR_PLUS2, @PLC_LAW, @ORG_ID, 'PLCJR')) as PLC2_LAW_NON_WHITE_MALE, 
+ 
+-----------------------------PLC 3--------------------------------------- 
+ 
+(select PLC3_NFO_ALL = usmc.GetMonthlyAc.vityCountForAllPLCContracts(@YEAR, @MONTH, @MISSION_FISCAL_YEAR_PLUS3, @PLC_NFO, @ORG_ID, 'PLCJR')) as PLC3_NFO_ALL, 
+(select PLC3_NFO_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMalePLCContracts(@YEAR, @MONTH, @MISSION_FISCAL_YEAR_PLUS3, @PLC_NFO, @ORG_ID, 'PLCJR')) as PLC3_NFO_NON_WHITE_MALE, 
+ 
+(select PLC3_GROUND_ALL = usmc.GetMonthlyAc.vityCountForAllPLCContracts(@YEAR, @MONTH, @MISSION_FISCAL_YEAR_PLUS3, @PLC_GROUND, @ORG_ID, 'PLCJR')) as PLC3_GROUND_ALL, 
+(select PLC3_GROUND_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMalePLCContracts(@YEAR, @MONTH, @MISSION_FISCAL_YEAR_PLUS3, @PLC_GROUND, @ORG_ID, 'PLCJR')) as PLC3_GROUND_NON_WHITE_MALE, 
+ 
+(select PLC3_AIR_ALL = usmc.GetMonthlyAc.vityCountForAllPLCContracts(@YEAR, @MONTH, @MISSION_FISCAL_YEAR_PLUS3, @PLC_NA, @ORG_ID, 'PLCJR')) as PLC3_AIR_ALL, 
+(select PLC3_AIR_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMalePLCContracts(@YEAR, @MONTH, @MISSION_FISCAL_YEAR_PLUS3, @PLC_NA, @ORG_ID, 'PLCJR')) as PLC3_AIR_NON_WHITE_MALE, 
+ 
+(select PLC3_LAW_ALL = usmc.GetMonthlyAc.vityCountForAllPLCContracts(@YEAR, @MONTH, @MISSION_FISCAL_YEAR_PLUS3, @PLC_LAW, @ORG_ID, 'PLCJR')) as PLC3_LAW_ALL, 
+(select PLC3_LAW_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMalePLCContracts(@YEAR, @MONTH, @MISSION_FISCAL_YEAR_PLUS3, @PLC_LAW, @ORG_ID, 'PLCJR')) as PLC3_LAW_NON_WHITE_MALE, 
+ 
+-----------------------------OCC 1--------------------------------------- 
+(select OCC1_NFO_ALL = usmc.GetMonthlyAc.vityCountForAllOCCContracts(@YEAR, @MONTH,@OCC_NFO, @ORG_ID, @OCC_FIRST_CLASS_NUMBER)) as OCC1_NFO_ALL, 
+(select OCC1_NFO_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleOCCContracts(@YEAR, @MONTH, @OCC_NFO, @ORG_ID, @OCC_FIRST_CLASS_NUMBER)) as OCC1_NFO_NON_WHITE_MALE, 
+ 
+(select OCCR1_GROUND_ALL = usmc.GetMonthlyAc.vityCountForAllOCCContracts(@YEAR, @MONTH, @OCCR_GROUND, @ORG_ID, @OCC_FIRST_CLASS_NUMBER)) as OCCR1_GROUND_ALL, 
+(select OCCR1_GROUND_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleOCCContracts(@YEAR, @MONTH, @OCCR_GROUND, @ORG_ID, @OCC_FIRST_CLASS_NUMBER)) as OCCR1_GROUND_NON_WHITE_MALE, 
+ 
+(select OCC1_GROUND_ALL = usmc.GetMonthlyAc.vityCountForAllOCCContracts(@YEAR, @MONTH, @OCC_GROUND, @ORG_ID, @OCC_FIRST_CLASS_NUMBER)) as OCC1_GROUND_ALL, 
+(select OCC1_GROUND_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleOCCContracts(@YEAR, @MONTH, @OCC_GROUND, @ORG_ID, @OCC_FIRST_CLASS_NUMBER)) as OCC1_GROUND_NON_WHITE_MALE, 
+ 
+(select OCC1_AIR_ALL = usmc.GetMonthlyAc.vityCountForAllOCCContracts(@YEAR, @MONTH, @OCC_NA, @ORG_ID, @OCC_FIRST_CLASS_NUMBER)) as OCC1_AIR_ALL, 
+(select OCC1_AIR_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleOCCContracts(@YEAR, @MONTH, @OCC_NA, @ORG_ID, @OCC_FIRST_CLASS_NUMBER)) as OCC1_AIR_NON_WHITE_MALE, 
+ 
+(select OCC1_LAW_ALL = usmc.GetMonthlyAc.vityCountForAllOCCContracts(@YEAR, @MONTH, @OCC_LAW, @ORG_ID, @OCC_FIRST_CLASS_NUMBER)) as OCC1_LAW_ALL, 
+(select OCC1_LAW_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleOCCContracts(@YEAR, @MONTH, @OCC_LAW, @ORG_ID, @OCC_FIRST_CLASS_NUMBER)) as OCC1_LAW_NON_WHITE_MALE, 
+ 
+-----------------------------OCC 2--------------------------------------- 
+ 
+(select OCC2_NFO_ALL = usmc.GetMonthlyAc.vityCountForAllOCCContracts(@YEAR, @MONTH, @OCC_NFO,@ORG_ID, @OCC_SECOND_CLASS_NUMBER)) as OCC2_NFO_ALL, 
+(select OCC2_NFO_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleOCCContracts(@YEAR, @MONTH, @OCC_NFO, @ORG_ID, @OCC_SECOND_CLASS_NUMBER)) as OCC2_NFO_NON_WHITE_MALE, 
+ 
+(select OCCR2_GROUND_ALL = usmc.GetMonthlyAc.vityCountForAllOCCContracts(@YEAR, @MONTH, @OCCR_GROUND, @ORG_ID, @OCC_SECOND_CLASS_NUMBER)) as OCCR2_GROUND_ALL, 
+(select OCCR2_GROUND_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleOCCContracts(@YEAR, @MONTH,@OCCR_GROUND, @ORG_ID, @OCC_SECOND_CLASS_NUMBER)) as OCCR2_GROUND_NON_WHITE_MALE, 
+ 
+(select OCC2_GROUND_ALL = usmc.GetMonthlyAc.vityCountForAllOCCContracts(@YEAR, @MONTH, @OCC_GROUND, @ORG_ID, @OCC_SECOND_CLASS_NUMBER)) as OCC2_GROUND_ALL, 
+(select OCC2_GROUND_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleOCCContracts(@YEAR, @MONTH, @OCC_GROUND, @ORG_ID, @OCC_SECOND_CLASS_NUMBER)) as OCC2_GROUND_NON_WHITE_MALE, 
+ 
+(select OCC2_AIR_ALL = usmc.GetMonthlyAc.vityCountForAllOCCContracts(@YEAR, @MONTH,@OCC_NA, @ORG_ID, @OCC_SECOND_CLASS_NUMBER)) as OCC2_AIR_ALL, 
+(select OCC2_AIR_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleOCCContracts(@YEAR, @MONTH,@OCC_NA, @ORG_ID, @OCC_SECOND_CLASS_NUMBER)) as OCC2_AIR_NON_WHITE_MALE, 
+ 
+(select OCC2_LAW_ALL = usmc.GetMonthlyAc.vityCountForAllOCCContracts(@YEAR, @MONTH, @OCC_LAW, @ORG_ID, @OCC_SECOND_CLASS_NUMBER)) as OCC2_LAW_ALL, 
+(select OCC2_LAW_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleOCCContracts(@YEAR, @MONTH,@OCC_LAW, @ORG_ID, @OCC_SECOND_CLASS_NUMBER)) as OCC2_LAW_NON_WHITE_MALE, 
+ 
+-----------------------------OCC 3--------------------------------------- 
+ 
+(select OCC3_NFO_ALL = usmc.GetMonthlyAc.vityCountForAllOCCContracts(@YEAR, @MONTH, @OCC_NFO, @ORG_ID, @OCC_THIRD_CLASS_NUMBER)) as OCC3_NFO_ALL, 
+(select OCC3_NFO_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleOCCContracts(@YEAR, @MONTH, @OCC_NFO, @ORG_ID, @OCC_THIRD_CLASS_NUMBER)) as OCC3_NFO_NON_WHITE_MALE, 
+ 
+(select OCCR3_GROUND_ALL = usmc.GetMonthlyAc.vityCountForAllOCCContracts(@YEAR, @MONTH,@OCCR_GROUND, @ORG_ID, @OCC_THIRD_CLASS_NUMBER)) as OCCR3_GROUND_ALL, 
+(select OCCR3_GROUND_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleOCCContracts(@YEAR, @MONTH, @OCCR_GROUND, @ORG_ID, @OCC_THIRD_CLASS_NUMBER)) as OCCR3_GROUND_NON_WHITE_MALE, 
+ 
+(select OCC3_GROUND_ALL = usmc.GetMonthlyAc.vityCountForAllOCCContracts(@YEAR, @MONTH, @OCC_GROUND, @ORG_ID, @OCC_THIRD_CLASS_NUMBER)) as OCC3_GROUND_ALL, 
+(select OCC3_GROUND_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleOCCContracts(@YEAR, @MONTH, @OCC_GROUND,@ORG_ID, @OCC_THIRD_CLASS_NUMBER)) as OCC3_GROUND_NON_WHITE_MALE, 
+ 
+(select OCC3_AIR_ALL = usmc.GetMonthlyAc.vityCountForAllOCCContracts(@YEAR, @MONTH,@OCC_NA, @ORG_ID, @OCC_THIRD_CLASS_NUMBER)) as OCC3_AIR_ALL, 
+(select OCC3_AIR_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleOCCContracts(@YEAR, @MONTH, @OCC_NA, @ORG_ID, @OCC_THIRD_CLASS_NUMBER)) as OCC3_AIR_NON_WHITE_MALE, 
+ 
+(select OCC3_LAW_ALL = usmc.GetMonthlyAc.vityCountForAllOCCContracts(@YEAR, @MONTH,@OCC_LAW,@ORG_ID, @OCC_THIRD_CLASS_NUMBER)) as OCC3_LAW_ALL, 
+(select OCC3_LAW_NON_WHITE_MALE = usmc.GetMonthlyAc.vityCountForNonWhiteMaleOCCContracts(@YEAR, @MONTH, @OCC_LAW, @ORG_ID, @OCC_THIRD_CLASS_NUMBER)) as OCC3_LAW_NON_WHITE_MALE  
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

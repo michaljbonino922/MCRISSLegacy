@@ -1,0 +1,54 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_ToolboxUpdateMarineCandidate]" directorySegmentName="seg_23" id="668D78C9-08E3-2F3E-B540-26B94CD10240">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@PersonID int, 
+ @MaritalStatusCode char(1) = null, 
+ @RaceCode char(1) = null, 
+ @EthnicCode varchar(2) = null, 
+ @GenderCode char(1) = null, 
+ @ReligionCode varchar(2) = null, 
+ @Popula.onGroupCode varchar(2) = null, 
+ @DateOfBirth date.me = null, 
+ @Ci.zenship varchar(2) = null, 
+ @BirthCity varchar(17) = null, 
+ @BirthCounty varchar(10) = null, 
+ @BirthState varchar(10) = null, 
+ @CountryOfOrigin varchar(3) = null, 
+ @DriverLicenseState varchar(2) = null, 
+ @DriverLicenseNum varchar(20) = null, 
+ @DriverLicenseExp date.me = null, 
+ @InterviewDate date.me = null, 
+ @UserLogin varchar(15) 
+ 
+AS 
+ 
+IF EXISTS(SELECT 1 FROM MARINE_CANDIDATE WHERE MARINE_CANDIDATE_ID = @PersonID) 
+ BEGIN  
+ 
+ UPDATE  MARINE_CANDIDATE  
+ SET  MARITAL_STATUS_CODE = @MaritalStatusCode, 
+  RACE_CODE = @RaceCode, 
+  ETHNIC_CODE = @EthnicCode, 
+  GENDER_CODE = @GenderCode, 
+  RELIGION_CODE = @ReligionCode, 
+  POPULATION_GROUP_CODE = @Popula.onGroupCode, 
+  DATE_OF_BIRTH = @DateOfBirth, 
+  CITIZENSHIP = @Ci.zenship, 
+  COUNTRY_OF_ORIGIN = @CountryOfOrigin, 
+  BIRTH_CITY = @BirthCity, 
+  BIRTH_COUNTY = @BirthCounty, 
+  BIRTH_STATE = @BirthState, 
+  DRIVER_LICENSE_STATE = @DriverLicenseState, 
+  DRIVER_LICENSE_NUM = @DriverLicenseNum, 
+  DRIVER_LICENSE_EXP = @DriverLicenseExp, 
+  USER_LOGIN = @UserLogin, 
+  UPDATE_DATE = GETDATE() 
+ WHERE MARINE_CANDIDATE_ID = @PersonID 
+ 
+ END]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,121 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetMonthlyApptRpt]" directorySegmentName="seg_3" id="AAE72AEC-A903-C9C9-8773-323B26F66EDA">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@Year varchar(4), 
+ @Month  varchar(2), 
+ @RecruiterId uniqueidentifier =null, 
+ @OrgId int 
+AS 
+BEGIN 
+ 
+--Get all the Graduate Prospects 
+SELECT 
+ p.ProspectId, 
+ p.Ac.vity, 
+ p.PersonId, 
+ p.Recrui.ngPersonId, 
+ p.Source, 
+ p.NwaId, 
+ pe.Educa.onCode 
+INTO #GraduateProspect  
+FROM Prospec.ng.USMC.Prospect p  
+INNER JOIN Prospec.ng.USMC.ProspectEduca.on pe ON pe.ProspectId = p.ProspectId 
+WHERE pe.Educa.onCode NOT IN ('H','M','S') 
+and pe.LastUpdateDate = (SELECT max(pe2.LastUpdateDate)  
+       FROM  Prospec.ng.USMC.ProspectEduca.on pe2 
+       WHERE pe2.ProspectId = pe.ProspectId 
+       )  
+-- ERR *NOT THIS RELEASE - following what we already have* IN ('5','7','8','B','C','D','E','F','G','J','K','L','N','R','U','W','X') 
+AND Ac.vity IN ('TC','OT','AC','HV','DC') 
+ 
+--Get all the Senior Prospects 
+SELECT 
+ p.ProspectId, 
+ p.Ac.vity, 
+ p.PersonId, 
+ p.Recrui.ngPersonId, 
+ p.Source, 
+ p.NwaId, 
+ pe.Educa.onCode 
+INTO #SeniorProspect  
+FROM Prospec.ng.USMC.Prospect p  
+INNER JOIN Prospec.ng.USMC.ProspectEduca.on pe ON pe.ProspectId = p.ProspectId 
+WHERE pe.Educa.onCode IN ('H','M','S') 
+AND pe.Educa.onLevel = '11' 
+and pe.LastUpdateDate = (SELECT max(pe2.LastUpdateDate)  
+       FROM  Prospec.ng.USMC.ProspectEduca.on pe2 
+       WHERE pe2.ProspectId = pe.ProspectId 
+       )  
+-- ERR *NOT THIS RELEASE - following what we already have* IN ('1','2','H','M','S') 
+AND Ac.vity IN ('TC','OT','AC','HV','DC') 
+ 
+-- Select graduates 
+SELECT CONVERT(VARCHAR(11), e.StartDate, 106) [Date],  
+ pr.LastName + ',' + pr.FirstName [Name], 
+ 'GR' [Educa.on Level],  
+ pp.PhoneNumber [Telephone],  
+ hs.HighSchool_Name [School],  
+ rp.Rank_Code + ' ' + mp.Last_Name [Recruiter], 
+ p.Source,  
+ p.Ac.vity,p.ProspectId,  
+ p.NWAID 
+FROM RSSOSS.USMC.Event e 
+ INNER JOIN RSSOSS.USMC.EventSubject s ON e.ID = s.EventId  
+ INNER JOIN RSSOSS.USMC.EventOwners eo ON e.ID = eo.EventId  
+ INNER JOIN RSSOSS.USMC.EventType et ON e.EventTypeId = et.ID 
+ INNER JOIN #GraduateProspect p ON s.subjectId = p.ProspectId 
+ INNER JOIN Prospec.ng.USMC.Person pr ON pr.PersonId = p.PersonId 
+ INNER JOIN Prospec.ng.USMC.PersonPhone pp ON pr.PersonId = pp.PersonId and pp.PersonPhoneTypeId = 1 
+ INNER JOIN Prospec.ng.USMC.ProspectSchool ps ON ps.ProspectId = p.ProspectId 
+ INNER JOIN Prospec.ng.USMC.vwMcrissHighSchool hs ON hs.rowguid = ps.SchoolId 
+ INNER JOIN Prospec.ng.USMC.vwMcrissRecrui.ngPerson rp ON rp.rowguid = p.Recrui.ngPersonId 
+ INNER JOIN Prospec.ng.USMC.vwMcrissPerson mp ON mp.Person_id = rp.Recrui.ng_Person_Id 
+WHERE  e.EventSourceId = 16  
+    AND e.EventTypeId = 85 
+    AND e.IsApproved = 1 
+   AND (@RecruiterID IS NULL OR @RecruiterID = eo.CreatorId) 
+   AND (@OrgID IS NULL OR e.Organiza.onId = @OrgID)    
+   AND YEAR(StartDate) = @Year 
+   AND MONTH(StartDate) = @Month 
+ 
+UNION 
+ 
+-- Select seniors 
+SELECT CONVERT(VARCHAR(11), e.StartDate, 106) [Date],  
+ pr.LastName + ',' + pr.FirstName [Name], 
+ 'SR' [Educa.on Level],  
+ pp.PhoneNumber [Telephone],  
+ hs.HighSchool_Name [School],  
+ rp.Rank_Code + ' ' + mp.Last_Name [Recruiter], 
+ p.Source,  
+ p.Ac.vity,p.ProspectId,  
+ p.NWAID 
+FROM RSSOSS.USMC.Event e 
+ INNER JOIN RSSOSS.USMC.EventSubject s ON e.ID = s.EventId  
+ INNER JOIN RSSOSS.USMC.EventOwners eo ON e.ID = eo.EventId  
+ INNER JOIN RSSOSS.USMC.EventType et ON e.EventTypeId = et.ID 
+ INNER JOIN #SeniorProspect p ON s.subjectId = p.ProspectId 
+ INNER JOIN Prospec.ng.USMC.Person pr ON pr.PersonId = p.PersonId 
+ INNER JOIN Prospec.ng.USMC.PersonPhone pp ON pr.PersonId = pp.PersonId and pp.PersonPhoneTypeId = 1 
+ INNER JOIN Prospec.ng.USMC.ProspectSchool ps ON ps.ProspectId = p.ProspectId 
+ INNER JOIN Prospec.ng.USMC.vwMcrissHighSchool hs ON hs.rowguid = ps.SchoolId 
+ INNER JOIN Prospec.ng.USMC.vwMcrissRecrui.ngPerson rp ON rp.rowguid = p.Recrui.ngPersonId 
+ INNER JOIN Prospec.ng.USMC.vwMcrissPerson mp ON mp.Person_id = rp.Recrui.ng_Person_Id 
+WHERE  e.EventSourceId = 16  
+    AND e.EventTypeId = 85 
+    AND e.IsApproved = 1 
+   AND (@RecruiterID IS NULL OR @RecruiterID = eo.CreatorId) 
+   AND (@OrgID IS NULL OR e.Organiza.onId = @OrgID)    
+   AND YEAR(StartDate) = @Year 
+   AND MONTH(StartDate) = @Month 
+           
+DROP TABLE #GraduateProspect 
+DROP TABLE #SeniorProspect 
+ 
+End]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

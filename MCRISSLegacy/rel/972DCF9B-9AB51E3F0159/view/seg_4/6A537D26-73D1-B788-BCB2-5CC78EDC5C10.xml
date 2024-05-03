@@ -1,0 +1,91 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_4" id="6A537D26-73D1-B788-BCB2-5CC78EDC5C10" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="_dta_mv_353">
+<sourceDDLFile>create Prospecting script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>48BC59F3-D03D-300D-74C6-1DD5C42891F0</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  [USMC].[Person].[LastName] as _col_1,  [USMC].[Person].[FirstName] as _col_2,  [USMC].[PersonPhone].[PhoneNumber] as _col_3,  [USMC].[PersonPhone].[PersonId] as _col_4,  [USMC].[PersonPhone].[PersonPhoneId] as _col_5,  [USMC].[Prospect].[ProspectId] as _col_6 FROM  [USMC].[Person],  [USMC].[PersonPhone],  [USMC].[Prospect]   WHERE  [USMC].[Person].[PersonId] = [USMC].[PersonPhone].[PersonId]  AND  [USMC].[PersonPhone].[PersonId] = [USMC].[Prospect].[PersonId]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[LastName]" id="BA30DF54-AFE4-FBF4-A7D3-3CCB9256A74B">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_1</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_1</headerAlias>
+<expression>[LastName]</expression>
+<reference>false</reference>
+<viewID>6A537D26-73D1-B788-BCB2-5CC78EDC5C10</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[FirstName]" id="D83E3BBA-FB15-754A-EB3E-A74EB7C38615">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_2</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_2</headerAlias>
+<expression>[FirstName]</expression>
+<reference>false</reference>
+<viewID>6A537D26-73D1-B788-BCB2-5CC78EDC5C10</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[PhoneNumber]" id="3D39DDC3-7F00-4A53-02AB-0C4E2A5C999B">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_3</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_3</headerAlias>
+<expression>[PhoneNumber]</expression>
+<reference>false</reference>
+<viewID>6A537D26-73D1-B788-BCB2-5CC78EDC5C10</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[PersonId]" id="E7DFFB8B-0D45-4C1B-FBC9-1918F2D77F44">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_4</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_4</headerAlias>
+<expression>[PersonId]</expression>
+<reference>false</reference>
+<viewID>6A537D26-73D1-B788-BCB2-5CC78EDC5C10</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[PersonPhoneId]" id="9A453E4E-FBC3-8BF1-832F-797BD4BF8665">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_5</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_5</headerAlias>
+<expression>[PersonPhoneId]</expression>
+<reference>false</reference>
+<viewID>6A537D26-73D1-B788-BCB2-5CC78EDC5C10</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[ProspectId]" id="8DB3B047-3C17-EA23-33C8-F103C2B0CC54">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_6</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_6</headerAlias>
+<expression>[ProspectId]</expression>
+<reference>false</reference>
+<viewID>6A537D26-73D1-B788-BCB2-5CC78EDC5C10</viewID>
+</viewElement>
+</viewElements>
+</TableView>

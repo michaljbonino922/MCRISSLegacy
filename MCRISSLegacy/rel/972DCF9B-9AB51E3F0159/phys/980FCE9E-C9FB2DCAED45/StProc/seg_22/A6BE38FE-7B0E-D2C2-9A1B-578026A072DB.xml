@@ -1,0 +1,40 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_MIGetTrainingOrgIDFromNWAId]" directorySegmentName="seg_22" id="A6BE38FE-7B0E-D2C2-9A1B-578026A072DB">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@NWAId    int, 
+ @TrainingOrgID   int OUTPUT 
+AS 
+ 
+ 
+SET NOCOUNT ON  
+ 
+DECLARE 
+@REG_ORG_ID  int, 
+@DIST_ORG_ID  int, 
+@RS_ORG_ID  int, 
+@RSS_ORG_ID  int 
+ 
+SET @REG_ORG_ID = (SELECT ORGANIZATION_OF_RECORD_ID FROM NWA 
+   WHERE NWA_ID = @NWAId) 
+SET @RS_ORG_ID = (SELECT PARENT_ORGANIZATION_ID FROM ORGANIZATION_MAP 
+ WHERE CHILD_ORGANIZATION_ID = @REG_ORG_ID) 
+SET @DIST_ORG_ID = (SELECT PARENT_ORGANIZATION_ID FROM ORGANIZATION_MAP 
+ WHERE CHILD_ORGANIZATION_ID = @RS_ORG_ID) 
+SET @REG_ORG_ID = (SELECT PARENT_ORGANIZATION_ID FROM ORGANIZATION_MAP 
+ WHERE CHILD_ORGANIZATION_ID = @DIST_ORG_ID) 
+ 
+IF @REG_ORG_ID = 901 -- Eastern Region 
+ SET @TrainingOrgID = 1 
+ELSE IF @REG_ORG_ID = 902 -- Western Region 
+ SET @TrainingOrgID = 2 
+ELSE 
+ RAISERROR('sp_MIGetTrainingOrgIDFromOrgID failed to determine training org', 16, 1) 
+ 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

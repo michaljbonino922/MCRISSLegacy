@@ -1,0 +1,50 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetMepsScheduleLogForNwa]" directorySegmentName="seg_6" id="1251EE65-1EB3-9D78-8504-56893CC368F5">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( @NwaID INT ) 
+AS 
+    SELECT 
+ [MEPS_SCHEDULE_LOG_ID], 
+        [SCHEDULE_ID], 
+        [NWA_ID], 
+        [MEPS_ORGANIZATION_ID], 
+        [PROCESSING_DATE], 
+        [ARRIVAL_DATE], 
+  [UPDATE_DATE], 
+        [ASVAB], 
+        [SPECIAL_EXAM], 
+        [COMPLETE_PHYSICAL], 
+        [INSPECTION_PHYSICAL], 
+        [CONSULTATION_PHYSICAL], 
+        [CONSULTATION_TYPE], 
+        [CONTRACT], 
+        [DEP_HOLD], 
+        [SHIP], 
+        [OTHER_PROCESSING], 
+        [PROCESSING_STATUS], 
+        [LODGING_REQUIRED], 
+        [TRANSPORTATION_REQUIRED], 
+        [SPECIAL_EXAM_TYPE], 
+        [LAST_PROCESSED_FOR], 
+        [PROCESSING_NOTES], 
+        [DELETED], 
+        s.PROJECTION_TYPE_ID, 
+        t.[DESCRIPTION], 
+        s.ASVAB_TEST_TYPE, 
+        s.MEDICAL_SPECIAL_EXAM_TYPE, 
+        s.REEXAMINATION, 
+        s.MET_SITE, 
+  UPDATE_TYPE, 
+  USER_LOGIN 
+    FROM 
+        MCRISS.[dbo].[MEPS_SCHEDULE_LOG] s 
+        LEFT JOIN MCRISS.dbo.MEPS_PROJECTION_TYPE t ON s.PROJECTION_TYPE_ID = t.ID 
+    WHERE 
+        NWA_ID = @NwaID 
+ ORDER BY UPDATE_DATE DESC;]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

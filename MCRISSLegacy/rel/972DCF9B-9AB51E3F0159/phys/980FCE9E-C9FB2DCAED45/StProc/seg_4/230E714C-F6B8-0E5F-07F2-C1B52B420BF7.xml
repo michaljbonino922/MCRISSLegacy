@@ -1,0 +1,73 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetPoolDischargeList]" directorySegmentName="seg_4" id="230E714C-F6B8-0E5F-07F2-C1B52B420BF7">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@TrainingFileId uniqueidentifier, 
+ @Year int, 
+    @Month int 
+  
+AS 
+ 
+BEGIN 
+    
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+     
+ DECLARE @BeginDate nvarchar(10); 
+    DECLARE @EndDate nvarchar(10); 
+     
+    IF @Month < 1 OR @Month > 12 -- whole Fiscal Year 
+    BEGIN 
+      SET @BeginDate = CONVERT(nvarchar(4), @Year-1) + '-10-1'; 
+      SET @EndDate = CONVERT(nvarchar(4), @Year) + '-9-30'; 
+    END 
+    ELSE -- just one month 
+    BEGIN 
+      SET @BeginDate =  CONVERT(nvarchar(4), @Year)+ '-' + CONVERT(nvarchar(2), @Month) + '-1'; 
+       
+      IF @Month = 1 OR @Month = 3 OR @Month = 5 OR @Month = 7 OR @Month = 8 OR @Month = 10 OR @Month = 12 
+         SET @EndDate = CONVERT(nvarchar(4), @Year)+ '-' + CONVERT(nvarchar(2), @Month) + '-31'; 
+      ELSE IF @Month = 2 
+         BEGIN 
+           IF (@Year % 4 = 0 AND @Year % 100 != 0) OR 
+              (@Year % 4 = 0 AND @Year % 100 = 0 AND @Year % 400 = 0)  
+        SET @EndDate = CONVERT(nvarchar(4), @Year)+ '-' + CONVERT(nvarchar(2), @Month) + '-29'; 
+           ELSE 
+              SET @EndDate = CONVERT(nvarchar(4), @Year)+ '-' + CONVERT(nvarchar(2), @Month) + '-28';  
+         END 
+      ELSE 
+         SET @EndDate = CONVERT(nvarchar(4), @Year)+ '-' + CONVERT(nvarchar(2), @Month) + '-30'; 
+    END 
+   
+ SELECT  
+  RecruiterId 
+ INTO #TrainingFile 
+ FROM USMC.TrainingFile  
+ WHERE ID = @TrainingFileId  
+  
+ SELECT RTrim(p.Last_Name) + ', ' + RTrim(p.First_Name) AS Name, c.Discharge_Date, dr.Discharge_Reason 
+ FROM          
+ MCRISS.dbo.Person AS p  
+ INNER JOIN MCRISS.dbo.MARINE_CANDIDATE AS mc ON p.PERSON_ID = mc.MARINE_CANDIDATE_ID  
+ INNER JOIN MCRISS.dbo.NWA n ON mc.MARINE_CANDIDATE_ID = n.MARINE_CANDIDATE_ID  
+ INNER JOIN MCRISS.dbo.CONTRACT AS c ON n.NWA_ID = c.NWA_ID  
+ INNER JOIN MCRISS.dbo.DISCHARGE_REASON dr on dr.DISCHARGE_CODE = c.DISCHARGE_CODE  
+ INNER JOIN MCRISS.dbo.CANDIDATE_STATUS cs on n.NWA_ID = cs.NWA_ID  
+ INNER JOIN MCRISS.dbo.Status_Disposi.on AS sd on sd.Disposi.on_Code = cs.Disposi.on_Code  
+             AND sd.Status_Code = cs.Status_Code  
+             AND sd.Status_Type = cs.Status_Type  
+             AND sd.Status_Type = cs.Status_Type 
+ INNER JOIN MCRISS.dbo.MARINE AS m ON n.RECRUITER_OF_RECORD_ID=m.MARINE_ID  
+ INNER JOIN #TrainingFile . ON m.rowguid=..RecruiterID     
+ WHERE c.Discharge_Date BETWEEN @BeginDate AND @EndDate 
+ AND sd.DISPOSITION_DESCRIPTION='DEP DISCHARGE'  
+  
+ ORDER BY p.Last_Name, p.First_Name 
+ 
+ DROP TABLE #TrainingFile 
+  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,45 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_dbaUpdateCandidateStatusE.ec.veDateCN]" directorySegmentName="seg_14" id="BE896883-AF94-677C-C9A0-5B5EAE8B449F">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@nwa_id int, 
+@status_e._date date.me, 
+@user_login varchar(15) 
+ 
+ AS 
+ 
+declare @candidate_status_id int 
+ 
+if (SELECT count(candidate_status_id) FROM CANDIDATE_STATUS 
+ WHERE NWA_ID = @nwa_id AND  STATUS_CODE='C' AND DISPOSITION_CODE='N') > 1 
+ begin 
+  print '-------------------------------DATA--------------------------------------' 
+  print 'NWA_ID: ' + convert(varchar(10),@nwa_id) 
+  print '------------------------------OUTPUT----------------------------------' 
+  print 'More than one SHIPPER/RECRUIT record exists!' 
+  print 'Record NOT UPDATED!' 
+  print 'Please analyze CANDIDATE_STATUS entries before upda.ng!' 
+  print '------------------------------END-----------------------------------------' 
+ end 
+else 
+ begin 
+  set @candidate_status_id=(SELECT candidate_status_id FROM CANDIDATE_STATUS 
+  WHERE NWA_ID = @nwa_id AND  STATUS_CODE='C' AND DISPOSITION_CODE='N') 
+  print '-------------------------------DATA--------------------------------------' 
+  print 'NWA_ID: ' + convert(varchar(15),@nwa_id) 
+  print 'CAND_STATUS_ID: ' + convert(varchar(15),@candidate_status_id) 
+  print '------------------------------OUTPUT----------------------------------' 
+  print 'Only one SHIPPER/RECRUIT record exists!' 
+  print 'Record UPDATED!' 
+  print '------------------------------END-----------------------------------------' 
+ 
+  update candidate_status 
+   set user_login=@user_login, update_date=getdate(), status_e.ec.ve_date=@status_e._date 
+  where candidate_status_id = @candidate_status_id 
+ 
+ end]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

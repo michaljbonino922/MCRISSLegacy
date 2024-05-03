@@ -1,0 +1,201 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUpdateProspectMedicalFromMcriss]" directorySegmentName="seg_15" id="D1C06FF5-7FA0-9702-A047-3564A2D77D10">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:56 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@MarineCandidateID    int 
+ ,@OldRecMedicalExamDate   date.me 
+ ,@OldRecMedicalExamType   varchar(4) 
+ ,@MedicalExamDate    date.me 
+ ,@MedicalExamType    varchar(4) 
+ ,@MepsOrganiza.onID   int 
+ ,@P_GeneralBodyBuild   char(2) 
+ ,@U_UpperBody     char(2) 
+ ,@L_LowerBody     char(2) 
+ ,@H_Hearing      char(2) 
+ ,@E_Eyes      char(2) 
+ ,@S_MentalPsychological   char(2) 
+ ,@VisualColor     char(1) 
+ ,@VisualColorDisposi.on  char(1) 
+ ,@Le.CorrectedVisualAcuity  varchar(10) 
+ ,@RightCorrectedVisualAcuity varchar(10) 
+ ,@Le.UncorrectedVisualAcuity varchar(10) 
+ ,@RightUncorrectedVisualAcuity varchar(10) 
+ ,@Height      decimal(4,2) 
+ ,@Weight      int 
+ ,@MedicalDisposi.on   char(1) 
+ ,@Consulta.onType    varchar(2) 
+ ,@UserLogin      varchar(50) 
+ ,@D_Drugs      char(2) 
+    
+AS 
+BEGIN 
+ 
+ -- STEP 1: Start the transac.on 
+ BEGIN TRANSACTION 
+  
+ DECLARE @ProspectID uniqueiden..er 
+  
+ SELECT Top 1 
+  @ProspectID = ProspectId 
+ FROM USMC.Prospect 
+ WHERE 
+  NwaId IN (SELECT Top 1 rowguid FROM MCRISS.dbo.NWA  
+      WHERE  
+      MARINE_CANDIDATE_ID = @MarineCandidateID order by NWA_ID desc) 
+  
+ IF @ProspectID IS NOT NULL 
+ BEGIN 
+  DECLARE @ID uniqueiden..er 
+   
+  IF @MedicalDisposi.on = 'Q' 
+   SET @MedicalDisposi.on = '1' 
+  ELSE IF @MedicalDisposi.on = 'D' 
+   SET @MedicalDisposi.on = '2' 
+  ELSE IF @MedicalDisposi.on = 'C' 
+   SET @MedicalDisposi.on = '3'  
+   
+  SELECT Top 1 @ID = ProspectMedicalExamID FROM USMC.ProspectMedicalExam 
+  WHERE 
+   ProspectID = @ProspectID 
+   AND YEAR(MedicalExamDate) = YEAR(@OldRecMedicalExamDate) 
+   AND MONTH(MedicalExamDate) = MONTH(@OldRecMedicalExamDate) 
+   AND DAY(MedicalExamDate) = DAY(@OldRecMedicalExamDate) 
+   AND MedicalExamType = @OldRecMedicalExamType 
+    
+  -- STEP 2 & 3: Issue the data change statement(s), checking @@ERROR a.er each statement 
+  IF @ID IS NOT NULL 
+  BEGIN 
+   -- if already exists.  UPDATE. 
+   UPDATE [PROSPECTING].[USMC].[ProspectMedicalExam] 
+   SET  
+     [MedicalExamDate] = @MedicalExamDate 
+     ,[MedicalExamType] = @MedicalExamType 
+     ,[MepsOrganiza.onID] = @MepsOrganiza.onID 
+     ,[P_GeneralBodyBuild] = @P_GeneralBodyBuild 
+     ,[U_UpperBody] = @U_UpperBody 
+     ,[L_LowerBody] = @L_LowerBody 
+     ,[H_Hearing] = @H_Hearing 
+     ,[E_Eyes] = @E_Eyes 
+     ,[S_MentalPsychological] = @S_MentalPsychological 
+     ,[VisualColor] = @VisualColor 
+     ,[VisualColorDisposi.on] = @VisualColorDisposi.on 
+     ,[Le.CorrVisualAcuity] = @Le.CorrectedVisualAcuity 
+     ,[RightCorrVisualAcuity] = @RightCorrectedVisualAcuity 
+     ,[Le.UncorrVisualAcuity] = @Le.UncorrectedVisualAcuity 
+     ,[RightUncorrVisualAcuity] = @RightUncorrectedVisualAcuity 
+     ,[Height] = @Height 
+     ,[Weight] = @Weight 
+     ,[MedicalDisposi.on] = @MedicalDisposi.on 
+     ,[Consulta.onType] = @Consulta.onType 
+     ,[LastUpdateDate] = GETDATE() 
+     ,[LastUpdateUserID] = @UserLogin 
+     ,[D_Drugs] = @D_Drugs 
+   WHERE  
+    [ProspectMedicalExamID] = @ID 
+  END 
+  ELSE 
+  BEGIN 
+   -- if does not exist.  INSERT. 
+   INSERT INTO [PROSPECTING].[USMC].[ProspectMedicalExam] 
+           ([ProspectMedicalExamID] 
+           ,[ProspectID] 
+           ,[MedicalExamDate] 
+           ,[MedicalExamType] 
+           ,[MepsOrganiza.onID] 
+           ,[P_GeneralBodyBuild] 
+           ,[U_UpperBody] 
+           ,[L_LowerBody] 
+           ,[H_Hearing] 
+           ,[E_Eyes] 
+           ,[S_MentalPsychological] 
+           ,[VisualColor] 
+           ,[VisualColorDisposi.on] 
+           ,[Le.CorrVisualAcuity] 
+           ,[RightCorrVisualAcuity] 
+           ,[Le.UncorrVisualAcuity] 
+           ,[RightUncorrVisualAcuity] 
+           ,[Height] 
+           ,[Weight] 
+           ,[MedicalDisposi.on] 
+           ,[Consulta.onType] 
+           ,[LastUpdateDate] 
+           ,[LastUpdateUserID] 
+     ,[D_Drugs]) 
+     VALUES 
+           (NEWID() 
+           ,@ProspectID 
+           ,@MedicalExamDate 
+           ,@MedicalExamType 
+           ,@MepsOrganiza.onID 
+           ,@P_GeneralBodyBuild 
+           ,@U_UpperBody 
+           ,@L_LowerBody 
+           ,@H_Hearing 
+           ,@E_Eyes 
+           ,@S_MentalPsychological 
+           ,@VisualColor 
+           ,@VisualColorDisposi.on 
+           ,@Le.CorrectedVisualAcuity 
+           ,@RightCorrectedVisualAcuity 
+           ,@Le.UncorrectedVisualAcuity 
+           ,@RightUncorrectedVisualAcuity 
+           ,@Height 
+           ,@Weight 
+           ,@MedicalDisposi.on 
+           ,@Consulta.onType 
+           ,GETDATE() 
+           ,@UserLogin 
+     ,@D_Drugs) 
+  END 
+ END 
+ -- Rollback the transac.on if there were any errors 
+ IF @@ERROR <> 0 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+ 
+  -- Raise an error and return 
+  RAISERROR ('Error occurred while performing the change.', 16, 1) 
+  RETURN 
+ END 
+ 
+ -- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+ IF @@ROWCOUNT > 1 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+ 
+  -- Raise an error and return 
+  RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+  RETURN 
+ END 
+  
+ -- STEP 4: If we reach this point, the commands completed successfully 
+ --         Commit the transac.on.... 
+ COMMIT TRANSACTION 
+  
+ --sync IST Height to Medical Height  
+ IF @Height IS NOT NULL AND @ProspectID IS NOT NULL 
+ BEGIN 
+   
+  SELECT TOP 1 @Height = Height 
+  FROM  
+   PROSPECTING.USMC.ProspectMedicalExam 
+  WHERE 
+   ProspectID = @ProspectID 
+   AND Height IS NOT NULL 
+  ORDER BY  
+   MedicalExamDate DESC, LastUpdateDate DESC 
+   
+  UPDATE PROSPECTING.USMC.ProspectPhysicalIst 
+  SET Height = @Height 
+  WHERE ProspectID = @ProspectID AND Height IS NOT NULL 
+ 
+ END 
+  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

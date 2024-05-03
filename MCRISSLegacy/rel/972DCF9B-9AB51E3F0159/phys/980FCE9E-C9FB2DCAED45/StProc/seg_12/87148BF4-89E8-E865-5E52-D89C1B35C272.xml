@@ -1,0 +1,33 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUpdateProgramMOSCode]" directorySegmentName="seg_12" id="87148BF4-89E8-E865-5E52-D89C1B35C272">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @ContractID int, 
+ @ProgramMOSCode varchar(25), 
+ @LastEditBy varchar(50) 
+) 
+ 
+ 
+AS  
+ 
+IF EXISTS(SELECT 1 FROM [MCRISS].[dbo].[PROGRAM_MOS_CODES] WHERE [CONTRACT_ID] = @ContractID) 
+ BEGIN 
+  UPDATE [MCRISS].[dbo].[PROGRAM_MOS_CODES] SET  
+   [PROGRAM_MOS_CODE] = @ProgramMOSCode 
+   ,[USER_LOGIN] = @LastEditBy 
+   ,[UPDATE_DATE] = GetDate() 
+  WHERE [CONTRACT_ID] = @ContractID 
+ END 
+ELSE 
+ BEGIN 
+  INSERT INTO [MCRISS].[dbo].[PROGRAM_MOS_CODES]  
+   ([CONTRACT_ID],[PROGRAM_MOS_CODE],[USER_LOGIN],[UPDATE_DATE]) 
+  VALUES 
+   (@ContractID,@ProgramMOSCode,@LastEditBy,GetDate()) 
+ END]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

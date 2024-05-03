@@ -1,0 +1,19 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetDependentTypeByCode]" directorySegmentName="seg_4" id="1C5A26FB-E715-1C05-DBEC-D94D02B00094">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[(@Code varchar(2)) 
+AS 
+ 
+SELECT 
+  [DEPENDENT_TYPE] AS Code 
+ ,[DEPENDENT_TYPE_DESCRIPTION] AS Descrip.on 
+FROM 
+ [dbo].[DEPENDENT] WITH (NOLOCK) 
+WHERE 
+ DEPENDENT_TYPE = @Code]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

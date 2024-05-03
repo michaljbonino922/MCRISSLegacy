@@ -1,0 +1,119 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SaveContact]" directorySegmentName="seg_11" id="1F659E53-3E6B-85BB-81E4-CAB5F24A51F8">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:37 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @ContactID uniqueiden..er, 
+ @LeadID uniqueiden..er, 
+ @RecruiterID uniqueiden..er, 
+ @Date date.me, 
+ @TimeFrameID int, 
+ @ContactTypeID int, 
+ @ContactSourceID int, 
+ @DualContactSourceID int, 
+ @ContactSourceOther varchar(30), 
+ @ContactOutcomeID int, 
+ @Circumstances text, 
+ @Features text, 
+ @Bene.ts text, 
+ @IsDeleted bit, 
+ @Ac.vityProspectResponseTypeID int = null 
+) 
+AS 
+BEGIN 
+ 
+ BEGIN TRANSACTION 
+  
+ IF EXISTS(SELECT ContactID FROM [dbo].[Contact] WHERE [ContactID] = @ContactID) 
+ BEGIN 
+  UPDATE 
+   [dbo].[Contact] 
+  SET  
+   [LeadID] = @LeadID, 
+   [RecruiterID] = @RecruiterID, 
+   [Date] = @Date, 
+   [TimeFrameID] = @TimeFrameID, 
+   [ContactTypeID] = @ContactTypeID, 
+   [ContactSourceID] = @ContactSourceID, 
+   [DualContactSourceID] = @DualContactSourceID, 
+   [ContactSourceOther] = @ContactSourceOther, 
+   [ContactOutcomeID] = @ContactOutcomeID, 
+   [Circumstances] = @Circumstances, 
+   [Features] = @Features, 
+   [Bene.ts] = @Bene.ts, 
+   [IsDeleted] = @IsDeleted, 
+   [Ac.vityProspectResponseTypeID] = @Ac.vityProspectResponseTypeID 
+  WHERE  
+   [ContactID] = @ContactID 
+ END 
+ ELSE 
+ BEGIN 
+  INSERT INTO [dbo].[Contact]  
+  ( 
+   [ContactID], 
+   [LeadID], 
+   [RecruiterID], 
+   [Date], 
+   [TimeFrameID], 
+   [ContactTypeID], 
+   [ContactSourceID], 
+   [DualContactSourceID], 
+   [ContactSourceOther], 
+   [ContactOutcomeID], 
+   [Circumstances], 
+   [Features], 
+   [Bene.ts], 
+   [IsDeleted], 
+   [Ac.vityProspectResponseTypeID] 
+  ) 
+  VALUES  
+  ( 
+   @ContactID, 
+   @LeadID, 
+   @RecruiterID, 
+   @Date, 
+   @TimeFrameID, 
+   @ContactTypeID, 
+   @ContactSourceID, 
+   @DualContactSourceID, 
+   @ContactSourceOther, 
+   @ContactOutcomeID, 
+   @Circumstances, 
+   @Features, 
+   @Bene.ts, 
+   @IsDeleted, 
+   @Ac.vityProspectResponseTypeID 
+  ) 
+  
+ END 
+  
+ -- Rollback the transac.on if there were any errors 
+ IF @@ERROR <> 0 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+  
+  -- Raise an error and return 
+  RAISERROR ('Error occurred while performing the change.', 16, 1) 
+  RETURN 
+ END 
+  
+ -- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+ IF @@ROWCOUNT > 1 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+  
+  -- Raise an error and return 
+  RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+  RETURN 
+ END 
+  
+ -- If we reach this point, the commands completed successfully. 
+ COMMIT TRANSACTION 
+END]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+</StoredProcedureSqlServerv2k5>

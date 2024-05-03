@@ -1,0 +1,70 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<EntityView class="oracle.dbtools.crest.model.design.logical.EntityView" directorySegmentName="seg_0" id="A159B08B-0674-7434-9561-F600D2CCCEB7" name="vwCountries">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>4B999EE6-EC4E-5CCD-F8D2-0FEB0E6D6C2C</generatorID>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT      
+ '-1' AS ID,  
+ STATE_CODE AS Code,  
+ COUNTRY_DESCRIPTION AS Name 
+FROM [dbo].[GEO_LOCATION] WITH (NOLOCK) 
+WHERE   
+ (ISNUMERIC(STATE_CODE) = 0) AND (COUNTRY_DESCRIPTION IS NOT NULL) AND (LTRIM(COUNTRY_DESCRIPTION) <> '') AND (CAST(CITY_CODE AS int) = 0) AND (CAST(COUNTY_CODE AS int) = 0)]]></userDefinedSQL>
+<validSQL>false</validSQL>
+<viewType>EntityView</viewType>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="&apos;-1&apos;" id="A4205668-6F72-B6C9-8C2A-B44DF595A4DE">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>0434106B-0C5D-3C6B-E4C3-341829D4E3AD</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>ID</alias>
+<dataType>UNKNOWN</dataType>
+<expression>&apos;-1&apos;</expression>
+<reference>false</reference>
+<viewID>A159B08B-0674-7434-9561-F600D2CCCEB7</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="STATE_CODE" id="A9EA8E46-2357-D422-8996-FA7EBB8DE7DA">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>BE795150-E0AC-1E58-D4CC-AEF2BA2BE5EF</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Code</alias>
+<dataType>UNKNOWN</dataType>
+<expression>STATE_CODE</expression>
+<reference>false</reference>
+<viewID>A159B08B-0674-7434-9561-F600D2CCCEB7</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="COUNTRY_DESCRIPTION" id="DF6B8457-8666-BB24-5E6D-A252892290A5">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>69A5D457-D886-6A4E-0167-982A6ED5BF1B</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Name</alias>
+<dataType>UNKNOWN</dataType>
+<expression>COUNTRY_DESCRIPTION</expression>
+<reference>false</reference>
+<viewID>A159B08B-0674-7434-9561-F600D2CCCEB7</viewID>
+</viewElement>
+</viewElements>
+</EntityView>

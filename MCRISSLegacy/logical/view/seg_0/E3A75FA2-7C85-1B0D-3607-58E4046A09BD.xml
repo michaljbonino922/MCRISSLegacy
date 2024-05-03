@@ -1,0 +1,194 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<EntityView class="oracle.dbtools.crest.model.design.logical.EntityView" directorySegmentName="seg_0" id="E3A75FA2-7C85-1B0D-3607-58E4046A09BD" name="MCORG VIEW">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>D5DA58DE-61FA-7477-4662-907412BA4346</generatorID>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT h.organiza.on_id hq_org_id, h.short_name hq_name,  
+    reg.organiza.on_id reg_org_id, reg.short_name reg_name,  
+    dist.organiza.on_id dist_org_id, dist.short_name dist_name,  
+    rs.organiza.on_id rs_org_id, rs.short_name rs_name,  
+    rss.organiza.on_id rss_org_id,  
+    rss.short_name rss_name 
+FROM recrui.ng_organiza.on h, organiza.on_map h2r,  
+    recrui.ng_organiza.on reg, organiza.on_map r2d,  
+    recrui.ng_organiza.on dist, recrui.ng_organiza.on rs,  
+    organiza.on_map d2rs, recrui.ng_organiza.on rss,  
+    organiza.on_map rs2rss 
+WHERE h.organiza.on_id = h2r.parent_organiza.on_id AND  
+    reg.organiza.on_id = h2r.child_organiza.on_id AND  
+    reg.organiza.on_id = r2d.parent_organiza.on_id AND  
+    dist.organiza.on_id = r2d.child_organiza.on_id AND  
+    dist.organiza.on_id = d2rs.parent_organiza.on_id AND  
+    rs.organiza.on_id = d2rs.child_organiza.on_id AND  
+    rs.organiza.on_id = rs2rss.parent_organiza.on_id AND  
+    rss.organiza.on_id = rs2rss.child_organiza.on_id]]></userDefinedSQL>
+<validSQL>false</validSQL>
+<viewType>EntityView</viewType>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="on_id" id="A7A44444-36A8-8C0E-68C4-BF81D9AF84B5">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>AF151A53-FD5B-73A4-BF27-9704891D081B</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>hq_org_id</alias>
+<dataType>UNKNOWN</dataType>
+<expression>on_id</expression>
+<reference>false</reference>
+<viewID>E3A75FA2-7C85-1B0D-3607-58E4046A09BD</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="short_name" id="4CC3D6F4-AD2C-FAFA-81D4-AF96B0163ED2">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>C3DD070B-CB93-5EFF-C6F6-60B41DFCFE39</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>hq_name</alias>
+<dataType>UNKNOWN</dataType>
+<expression>short_name</expression>
+<reference>false</reference>
+<viewID>E3A75FA2-7C85-1B0D-3607-58E4046A09BD</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="Attribute_518" id="53F6F1DA-FB56-00E2-6720-E80C3CEFBE83">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>A47E31FA-17EF-6C43-89CD-9B0F1F50DA9E</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>reg_org_id</alias>
+<dataType>UNKNOWN</dataType>
+<expression>on_id</expression>
+<reference>false</reference>
+<viewID>E3A75FA2-7C85-1B0D-3607-58E4046A09BD</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="Attribute_519" id="82841564-C5B6-0737-716C-23A33F5BB4F4">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>61C0102E-BC3E-B7D3-E1DE-EB0FD8CF8EEC</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>reg_name</alias>
+<dataType>UNKNOWN</dataType>
+<expression>short_name</expression>
+<reference>false</reference>
+<viewID>E3A75FA2-7C85-1B0D-3607-58E4046A09BD</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="Attribute_520" id="3D4DE9C2-B923-C52D-1995-349B91A29CDF">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>22AEACC1-C4E6-579A-9816-EA165A7C0801</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>dist_org_id</alias>
+<dataType>UNKNOWN</dataType>
+<expression>on_id</expression>
+<reference>false</reference>
+<viewID>E3A75FA2-7C85-1B0D-3607-58E4046A09BD</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="Attribute_521" id="88BD7021-E077-9D68-DD37-63824A9170EE">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>BCCA42A9-6360-5212-D238-AF81F7B57089</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>dist_name</alias>
+<dataType>UNKNOWN</dataType>
+<expression>short_name</expression>
+<reference>false</reference>
+<viewID>E3A75FA2-7C85-1B0D-3607-58E4046A09BD</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="Attribute_522" id="2B06B7D0-C307-0B4B-CE11-46B9C3B417C0">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>7276AA0F-9B78-AAFD-C320-10C1CC62DC26</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>rs_org_id</alias>
+<dataType>UNKNOWN</dataType>
+<expression>on_id</expression>
+<reference>false</reference>
+<viewID>E3A75FA2-7C85-1B0D-3607-58E4046A09BD</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="Attribute_523" id="8DA64393-4EDE-406D-0A0C-11CC0E82C57D">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>01C27614-16B0-BDAD-2344-CEC405AFB7A5</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>rs_name</alias>
+<dataType>UNKNOWN</dataType>
+<expression>short_name</expression>
+<reference>false</reference>
+<viewID>E3A75FA2-7C85-1B0D-3607-58E4046A09BD</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="Attribute_524" id="823A6029-E7BF-ADC2-C9DA-E70411B89C50">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>11DF29F9-3FE5-03A7-AEA5-907500422818</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>rss_org_id</alias>
+<dataType>UNKNOWN</dataType>
+<expression>on_id</expression>
+<reference>false</reference>
+<viewID>E3A75FA2-7C85-1B0D-3607-58E4046A09BD</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="Attribute_525" id="4A2E2D68-868D-CA1E-ADDE-ED39C0CEEF4C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>0E42DD66-42E7-4684-0EEC-2EC60C3F9177</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>rss_name</alias>
+<dataType>UNKNOWN</dataType>
+<expression>short_name</expression>
+<reference>false</reference>
+<viewID>E3A75FA2-7C85-1B0D-3607-58E4046A09BD</viewID>
+</viewElement>
+</viewElements>
+</EntityView>

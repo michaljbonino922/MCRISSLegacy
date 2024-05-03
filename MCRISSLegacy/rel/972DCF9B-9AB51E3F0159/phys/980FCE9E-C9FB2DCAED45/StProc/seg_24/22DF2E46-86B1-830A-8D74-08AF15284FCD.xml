@@ -1,0 +1,96 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateCandidateMedicalExam]" directorySegmentName="seg_24" id="22DF2E46-86B1-830A-8D74-08AF15284FCD">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@MarineCandidateID  int, 
+ @MedicalExamDate  date.me, 
+ @MedicalExamType  varchar(4), 
+ @PreviousMedicalExamDate  date.me,  
+ @PreviousMedicalExamType  varchar(4),  
+ @MEPS     int,  
+ @Height    int,  
+ @Weight    int,   
+ @GeneralBody    char(1),  
+ @UpperBody    char(1),  
+ @LowerBody    char(1),  
+ @Hearing    char(1),  
+ @Eyes     char(1),  
+ @Mental    char(1),  
+ @MedicalDisposi.on   char(1),  
+ @Consulta.onType   varchar(2),  
+ @RightUncorrectedVision  varchar(10), 
+ @Le.UncorrectedVision  varchar(10), 
+ @RightCorrectedVision  varchar(10), 
+ @Le.CorrectedVision  varchar(10), 
+ @ColorDisposi.on   char(1),  
+ @VisualColor   char(1), 
+ @UserLogin   varchar(15) 
+AS 
+ 
+--- ENLISTED MEDICAL RECORDS STORE THE MEDICAL_DISPOSITION_CODE 
+--- GET THE CODE BASED ON THE @MedicalDisposi.on PASSED IN 
+--- USE 'D' FOR DISQUALIFIED RECORDS SINCE THE ENLISTED MEDICAL  
+--- RECORDS HAVE BEEN USING 'D' RATHER THAN 'DQ' LIKE THE OFFICERS 
+DECLARE @MedicalDisposi.onCode varchar(2) 
+SELECT  
+ @MedicalDisposi.onCode = CASE MEDICAL_DISPOSITION_CODE 
+     WHEN 'DQ' THEN  'D' 
+     ELSE MEDICAL_DISPOSITION_CODE 
+     END   
+FROM  
+ MEDICAL_DISPOSITION  
+WHERE  
+ MEDICAL_DISPOSITION_ID = @MedicalDisposi.on 
+ 
+IF EXISTS (SELECT 1 FROM CANDIDATE_MEDICAL_EXAM WHERE MARINE_CANDIDATE_ID = @MarineCandidateID AND MEDICAL_EXAM_DATE = @PreviousMedicalExamDate AND MEDICAL_EXAM_TYPE = @PreviousMedicalExamType) 
+BEGIN 
+ --- UPDATE THE MEDICAL EXAM 
+ UPDATE  
+  CANDIDATE_MEDICAL_EXAM  
+ SET  
+  MEDICAL_EXAM_DATE   = @MedicalExamDate,  
+  MEDICAL_EXAM_TYPE   = @MedicalExamType, 
+  MEPS_ORGANIZATION_ID            = @MEPS, 
+  P_GENERAL_BODY_BUILD            = @GeneralBody, 
+  U_UPPER_BODY                    = @UpperBody, 
+  L_LOWER_BODY                    = @LowerBody, 
+  H_HEARING                       = @Hearing, 
+  E_EYES                          = @Eyes, 
+  S_MENTAL_PSYCHOLOGICAL          = @Mental, 
+  HEIGHT                          = @Height, 
+  WEIGHT                          = @Weight, 
+  MEDICAL_DISPOSITION             = @MedicalDisposi.onCode, 
+  CONSULTATION_TYPE               = @Consulta.onType, 
+  LEFT_CORR_VISUAL_ACUITY         = @Le.CorrectedVision, 
+  RIGHT_CORR_VISUAL_ACUITY        = @RightCorrectedVision, 
+  LEFT_UNCORR_VISUAL_ACUITY  = @Le.UncorrectedVision, 
+  RIGHT_UNCORR_VISUAL_ACUITY  = @RightUncorrectedVision, 
+  VISUAL_COLOR_DISPOSITION = @ColorDisposi.on,  
+  VISUAL_COLOR    = @VisualColor, 
+  USER_LOGIN    = @UserLogin, 
+  UPDATE_DATE    = GETDATE() 
+  --- X                               = , 
+ WHERE 
+  MARINE_CANDIDATE_ID   = @MarineCandidateID AND  
+  MEDICAL_EXAM_DATE   = @PreviousMedicalExamDate AND  
+  MEDICAL_EXAM_TYPE   = @PreviousMedicalExamType 
+END 
+ELSE 
+BEGIN 
+ --- INSERT THE MEDICAL EXAM 
+ INSERT INTO CANDIDATE_MEDICAL_EXAM  
+  (MARINE_CANDIDATE_ID, MEDICAL_EXAM_DATE, MEDICAL_EXAM_TYPE, MEPS_ORGANIZATION_ID, P_GENERAL_BODY_BUILD,  
+  U_UPPER_BODY, L_LOWER_BODY, H_HEARING, E_EYES, S_MENTAL_PSYCHOLOGICAL, VISUAL_COLOR, VISUAL_COLOR_DISPOSITION,  
+  LEFT_CORR_VISUAL_ACUITY, RIGHT_CORR_VISUAL_ACUITY, LEFT_UNCORR_VISUAL_ACUITY, RIGHT_UNCORR_VISUAL_ACUITY,  
+  HEIGHT, WEIGHT, MEDICAL_DISPOSITION, CONSULTATION_TYPE, USER_LOGIN, UPDATE_DATE) 
+ VALUES 
+  (@MarineCandidateID, @MedicalExamDate, @MedicalExamType, @MEPS, @GeneralBody,  
+  @UpperBody, @LowerBody, @Hearing, @Eyes, @Mental, @VisualColor, @ColorDisposi.on,  
+  @Le.CorrectedVision, @RightCorrectedVision, @Le.UncorrectedVision, @RightUncorrectedVision, 
+  @Height, @Weight, @MedicalDisposi.onCode, @Consulta.onType, @UserLogin, GETDATE()) 
+END]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

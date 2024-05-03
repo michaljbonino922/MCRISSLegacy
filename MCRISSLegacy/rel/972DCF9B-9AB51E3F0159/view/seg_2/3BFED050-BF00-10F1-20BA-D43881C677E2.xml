@@ -1,0 +1,52 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_2" id="3BFED050-BF00-10F1-20BA-D43881C677E2" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="_dta_mv_245">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>DA852CCF-8868-9732-E061-3C27639AFBE6</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  [USMC].[MapsSector].[SectorID] as _col_1,  [USMC].[MapsSector].[SectorDesignator] as _col_2,  count_big(*) as _col_3 FROM  [USMC].[MapsSector],  [USMC].[MapsSectorRecruiter]   WHERE  [USMC].[MapsSector].[SectorID] = [USMC].[MapsSectorRecruiter].[SectorID]  GROUP BY  [USMC].[MapsSector].[SectorID],  [USMC].[MapsSector].[SectorDesignator]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[SectorID]" id="870D201A-55F3-CFD7-78F9-1D817AAC23E6">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_1</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_1</headerAlias>
+<expression>[SectorID]</expression>
+<reference>false</reference>
+<viewID>3BFED050-BF00-10F1-20BA-D43881C677E2</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[SectorDesignator]" id="936E7836-2F84-2646-E94D-6163E220D479">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_2</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_2</headerAlias>
+<expression>[SectorDesignator]</expression>
+<reference>false</reference>
+<viewID>3BFED050-BF00-10F1-20BA-D43881C677E2</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="count_big(*)" id="070A10AB-FBEE-7DF5-8609-E4D78E8B3DBC">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_3</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_3</headerAlias>
+<expression>count_big(*)</expression>
+<reference>false</reference>
+<viewID>3BFED050-BF00-10F1-20BA-D43881C677E2</viewID>
+</viewElement>
+</viewElements>
+</TableView>

@@ -1,0 +1,28 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateCommandRecruiter]" directorySegmentName="seg_26" id="12AFFA3D-45C8-9A71-E2F9-0F68905C8C31">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[(@CommandRecruiterId int 
+ ,@CurrentRankCode varchar(10) 
+ ,@CategoryId int 
+ ,@DateDueHome date.me 
+ ,@DepartureDate date.me 
+ ) 
+ 
+AS 
+ 
+UPDATE  
+ [dbo].[SHIPPER] 
+SET 
+  [CurrentRankCode] = @CurrentRankCode 
+ ,[CommandRecruiterCategoryId] = @CategoryId 
+ ,[DateDueHome] = @DateDueHome 
+ ,[DepartureDate] = @DepartureDate 
+  
+WHERE 
+ [SHIP_ID] = @CommandRecruiterId]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

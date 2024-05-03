@@ -1,0 +1,92 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SetUserStatus_Step_3]" directorySegmentName="seg_0" id="6B9DB5CD-A720-6D02-B7BE-B49CA3159285">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:44 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[AS 
+ 
+ 
+/* 
+ 
+EMAIL STATUS 
+0 Ac.vity present in the past 23 days 
+1 No ac.vity for 23 days / email warning about DEACTIVATION in 7 days 
+2 No ac.vity for 30 days / user account deac.vated / record isAc.ve set to 0 
+3 No ac.vity for 90 days / .rst email warning about DELETION in 90 days 
+4 No ac.vity for 173 days / second email warning about DELETION in 7 days 
+5 No ac.vity for 180 days / user record deleted 
+ 
+JOB STEP 3: 
+Handle users with no ac.vity for 30 to 90 days 
+ 
+BASIC LOGIC 
+Get all users from the UserStatus view that have no ac.vity for 30 days to 90 days. 
+If the user's current email status is 2, then do nothing. 
+If the user's current email status is NULL or not 2, then insert a new status record with email status of 2 and set isAc.ve to 0. 
+ 
+SQL LOGIC 
+Temp table of users from the UserStatus view 
+where DATEDIFF(day,LastAc.vityDate,GETDATE()) > 30 
+and DATEDIFF(day,LastAc.vityDate,GETDATE()) <= 90 
+and (UDD_EmailStatus is NULL or UDD_EmailStatus <> 2) 
+ 
+For those users set user record isAc.ve to 0. 
+For those users insert a new status record with email status of 2. 
+ 
+*/ 
+ 
+ 
+SELECT * 
+INTO #temp_UserStatus 
+FROM [UserMgmt].[dbo].[vwUserStatus] 
+where DATEDIFF(day,LastAc.vityDate,GETDATE()) > 30 
+and DATEDIFF(day,LastAc.vityDate,GETDATE()) <= 90 
+and (UDD_EmailStatus is NULL or UDD_EmailStatus <> 2) 
+ 
+ 
+UPDATE UserMgmt.dbo.[User] 
+Set isac.ve = 0 
+where ID in (SELECT ID FROM #temp_UserStatus) 
+ 
+ 
+Insert Into Usermgmt.dbo.UserDeac.va.on_Dele.on ( 
+ UserID, 
+ Username ,  
+ [Last_Log_On_Date ([LastAc.vityDate]])],  
+ Title ,  
+ FirstName ,  
+ LastName ,  
+ MiddleName ,  
+ Email , 
+ Phone,  
+ UserTypeID ,  
+ IsAc.ve ,  
+ LastEditBy ,  
+ LastEditDate ,  
+ UserGuid, 
+ EmailStatus 
+ ) 
+SELECT   
+ U.id, 
+ U.Username ,  
+ U.LastAc.vityDate ,  
+ U.Title ,  
+ U.FirstName ,  
+ U.LastName ,  
+ U.MiddleName ,  
+ U.Email ,  
+ U.Phone ,  
+ U.UserTypeID ,  
+ U.IsAc.ve ,  
+ U.LastEditBy ,  
+ U.LastEditDate ,  
+ U.UserID, 
+ 2 
+ FROM #temp_UserStatus AS U  
+ 
+ 
+DROP TABLE #temp_UserStatus]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>30378C7E-748C-F803-F9A3-93DBFA86C9A7</database>
+</StoredProcedureSqlServerv2k5>

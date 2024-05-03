@@ -1,0 +1,26 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_4" id="21F70B3C-5EBD-09C7-61D1-32CA9F45D2F2" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="_dta_mv_350">
+<sourceDDLFile>create Prospecting script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>7B729164-4775-30BA-B715-8405E80F4F21</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  count_big(*) as _col_1 FROM  [USMC].[ImportPerson],  [USMC].[Person],  [USMC].[PersonPhone],  [USMC].[Prospect]   WHERE  [USMC].[Person].[PersonId] = [USMC].[PersonPhone].[PersonId]  AND  [USMC].[ImportPerson].[PersonId] = [USMC].[PersonPhone].[PersonId]  AND  [USMC].[PersonPhone].[PersonId] = [USMC].[Prospect].[PersonId]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="count_big(*)" id="EA27AF01-71F7-0879-DA83-2A2C054A8E44">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_1</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_1</headerAlias>
+<expression>count_big(*)</expression>
+<reference>false</reference>
+<viewID>21F70B3C-5EBD-09C7-61D1-32CA9F45D2F2</viewID>
+</viewElement>
+</viewElements>
+</TableView>

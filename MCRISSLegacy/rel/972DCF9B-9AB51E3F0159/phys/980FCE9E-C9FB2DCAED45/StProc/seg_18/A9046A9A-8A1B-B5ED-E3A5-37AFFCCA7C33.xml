@@ -1,0 +1,61 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetMUDDeletedZips]" directorySegmentName="seg_18" id="A9046A9A-8A1B-B5ED-E3A5-37AFFCCA7C33">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[AS 
+ 
+ 
+SET NOCOUNT ON 
+ 
+--- SELECT WHICH ZIPCODES ARE NOT IN THE QUARTERLY UPDATE THEREFORE SHOULD BE DELETED 
+DECLARE @RecordsToDelete int 
+ 
+SET @RecordsToDelete = (SELECT COUNT(*) FROM MUD_FILE MF WHERE NOT EXISTS (SELECT 1 FROM MUD_STAGING MS WHERE MS.ZIP = MF.ZIP)) 
+ 
+IF @RecordsToDelete > 0 
+ BEGIN 
+  
+ --- STORE ZIPCODES TO BE ARCHIVED 
+ INSERT INTO MUD_ARCHIVED_ZIPCODES(ZIP,FIPS,STATE,COUNTY,LAT,LONG,NOTIFY_FLAG,USER_LOGIN,UPDATE_DATE) 
+ SELECT  
+  MF.ZIP, 
+  MF.FIPS, 
+  MF.STATE, 
+  MF.COUNTY, 
+  MF.LAT, 
+  MF.LONG, 
+  0 AS NOTIFY_FLAG, 
+  'SA' AS USER_LOGIN, 
+  GETDATE() AS UPDATE_DATE 
+ FROM  
+  MUD_FILE MF WHERE NOT EXISTS (SELECT 1 FROM MUD_STAGING MS WHERE MS.ZIP = MF.ZIP) AND 
+  NOT EXISTS (SELECT 1 FROM MUD_ARCHIVED_ZIPCODES MA WHERE MF.ZIP = MA.ZIP) 
+ --- select * from mud_archived_zipcodes  
+  
+ 
+ END 
+ --- RETURN DATA 
+/* 
+ SELECT  
+  MF.ZIP, 
+  MF.FIPS, 
+  MF.STATE, 
+  MF.COUNTY, 
+  MF.LAT, 
+  MF.LONG, 
+  'SA' AS USER_LOGIN, 
+  GETDATE() AS UPDATE_DATE 
+ FROM MUD_FILE MF WHERE NOT EXISTS (SELECT 1 FROM MUD_STAGING MS WHERE MS.ZIP = MF.ZIP) 
+ END 
+ ELSE 
+ BEGIN 
+  PRINT 'NO DELETED ENTRIES EXISTS' 
+ END 
+*/ 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

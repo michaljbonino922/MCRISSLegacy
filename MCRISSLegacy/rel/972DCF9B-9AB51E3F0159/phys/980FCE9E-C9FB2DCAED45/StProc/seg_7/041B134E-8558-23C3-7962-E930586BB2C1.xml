@@ -1,0 +1,23 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetO.cerProjectedCommissionDateHistory]" directorySegmentName="seg_7" id="041B134E-8558-23C3-7962-E930586BB2C1">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@ContractID int 
+AS 
+ 
+SELECT 
+ H.OFFICER_PROJECTED_COMMISSION_DATE_HISTORY_ID,  
+ CONVERT(CHAR(11), H.PROJECTED_COMMISSION_DATE, 106) AS PROJECTED_COMMISSION_DATE,  
+ CONVERT(CHAR(11), H.PROJECTED_COMMISSION_DATE_CHANGED_DATE, 106) AS PROJECTED_COMMISSION_DATE_CHANGED_DATE 
+FROM 
+ OFFICER_PROJECTED_COMMISSION_DATE_HISTORY H WITH (NOLOCK) 
+WHERE 
+ H.CONTRACT_ID = @ContractID 
+ORDER BY 
+ H.PROJECTED_COMMISSION_DATE_CHANGED_DATE DESC,  
+ H.OFFICER_PROJECTED_COMMISSION_DATE_HISTORY_ID DESC]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

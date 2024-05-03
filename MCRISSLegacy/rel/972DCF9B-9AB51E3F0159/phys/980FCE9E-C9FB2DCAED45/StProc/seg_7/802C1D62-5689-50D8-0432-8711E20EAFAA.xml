@@ -1,0 +1,23 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetNROTCCandidateByNwaID]" directorySegmentName="seg_7" id="802C1D62-5689-50D8-0432-8711E20EAFAA">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@NwaID int 
+AS 
+ 
+ SELECT  
+   NROTC_CANDIDATE_ID AS ID 
+  ,NWA_ID AS NwaID 
+  ,CONTRACT_ID AS ContractID 
+  ,COLLEGE_ACCEPTANCE_LETTER AS CollegeAcceptanceLeter 
+  ,MEDICAL_DISPOSITION AS NROTCMedicalDisposi.onID 
+  ,CONSULTATION_TYPE AS Consulta.onTypeID 
+ FROM 
+  dbo.NROTC_CANDIDATE WITH (NOLOCK) 
+ WHERE 
+  dbo.NROTC_CANDIDATE.NWA_ID = @NwaID]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,51 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[CopyMediaCardtoNextFY]" directorySegmentName="seg_12" id="C14AC739-9A4C-D6E4-1269-2DB1304315BE">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@MediaCardID uniqueiden..er, 
+ @UpdateUserId uniqueiden..er  
+AS 
+BEGIN 
+ 
+ INSERT INTO RSSOSS.USMC.MediaCard( 
+   MediaCardId,  
+   MediaName, 
+   MediaTypeId, 
+   DatePrepared,  
+   FY,  
+   Street, 
+   City_Code, 
+   County_Code, 
+   State_Code, 
+   Zip_code, 
+   EmailAddress, 
+   POC, 
+   PhoneNumber, 
+   LastUpdateDate, 
+   LastUpdateUserId, 
+   Comments  
+   ) select  
+   newid(), 
+   MediaName, 
+   MediaTypeId, 
+   getdate(), 
+   FY + 1,  
+   Street, 
+   City_Code, 
+   County_Code, 
+   State_Code, 
+   Zip_code, 
+   EmailAddress, 
+   POC, 
+   PhoneNumber, 
+   getdate(), 
+   @UpdateUserId, 
+   Comments 
+   from RSSOSS.USMC.MediaCard 
+   where MediaCardId = @MediaCardID    
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,63 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateCandidateInfo]" directorySegmentName="seg_26" id="A5087C09-60A6-5429-99D3-B709F43C19A3">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[(@NWARowId uniqueiden..er 
+ ,@BootsIssuedDate date.me = null 
+ ,@TravelVoucherCompletedDate date.me = null 
+ ,@RFOSubmitedDate date.me = null 
+ ,@RFASubmitedDate date.me = null 
+ ,@Notes varchar(200) = null) 
+    
+AS 
+ 
+SET NOCOUNT ON 
+ 
+DECLARE @NwaId int 
+SELECT @NwaId = n.NWA_ID FROM [dbo].[NWA] n WHERE n.[rowguid] = @NWARowId 
+ 
+IF EXISTS (SELECT NULL FROM [USMC].[CandidatePoolCardInfo] cpf WHERE cpf.NWA_ID = @NwaId) 
+ BEGIN 
+  UPDATE  
+   [USMC].[CandidatePoolCardInfo]   
+  SET  
+    [BootsIssuedDate] = @BootsIssuedDate 
+   ,[TravelVoucherCompletedDate] = @TravelVoucherCompletedDate 
+   ,[RFOSubmitedDate] = @RFOSubmitedDate  
+   ,[RFAOSubmitedDate] = @RFASubmitedDate 
+   ,[LastUpdateUserId] = newid() 
+   ,[LastUpdateDate] = GetDate() 
+   ,[Notes] = @Notes 
+  WHERE   
+   [NWA_ID] = @NwaId 
+ 
+ END 
+ELSE   
+ BEGIN  
+  INSERT INTO [USMC].[CandidatePoolCardInfo] 
+   ([NWA_ID] 
+   ,[BootsIssuedDate] 
+   ,[TravelVoucherCompletedDate] 
+   ,[RFOSubmitedDate] 
+   ,[RFAOSubmitedDate] 
+   ,[LastUpdateUserId] 
+   ,[LastUpdateDate] 
+   ,[Notes]) 
+  VALUES 
+   (@NwaId 
+   ,@BootsIssuedDate 
+   ,@TravelVoucherCompletedDate 
+   ,@RFOSubmitedDate 
+   ,@RFASubmitedDate 
+   ,newid() 
+   ,GetDate() 
+   ,@Notes) 
+ END 
+ 
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

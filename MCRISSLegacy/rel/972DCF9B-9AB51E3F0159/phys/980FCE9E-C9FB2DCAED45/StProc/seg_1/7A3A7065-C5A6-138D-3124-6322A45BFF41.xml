@@ -1,0 +1,26 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetAllDistricts]" directorySegmentName="seg_1" id="7A3A7065-C5A6-138D-3124-6322A45BFF41">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[AS 
+ 
+-- from sp_GetChildOrgs 
+SELECT  
+ ORGANIZATION_ID, 
+ SHORT_NAME, 
+ NAME,  
+ ORGANIZATION_TYPE 
+FROM  
+ RECRUITING_ORGANIZATION WITH (NOLOCK) 
+WHERE  
+ ORGANIZATION_TYPE = 'D' 
+ -- return '1MCD' with list of districts 
+ AND (ISOPEN = 'Y' OR SHORT_NAME = '1MCD') 
+ AND DELETED != 'Y' 
+ORDER BY  
+ ORGANIZATION_ID]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

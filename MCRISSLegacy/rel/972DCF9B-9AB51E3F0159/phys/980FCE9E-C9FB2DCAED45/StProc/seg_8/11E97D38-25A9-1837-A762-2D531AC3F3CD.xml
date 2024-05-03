@@ -1,0 +1,212 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetPersonView]" directorySegmentName="seg_8" id="11E97D38-25A9-1837-A762-2D531AC3F3CD">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @star.ngRow int = 1, 
+ @PageSize int = 15, 
+ @FirstName varchar(20) = null, 
+ @LastName varchar(20) = null, 
+ @SSN varchar(9) = null 
+) 
+ 
+AS 
+ 
+IF (@FirstName = '%' 
+ AND @LastName = '%' 
+ AND @SSN = '%') 
+BEGIN 
+  
+  SELECT  
+   NULL AS RowNumber,  
+   NULL AS NWA_ID,  
+   NULL AS Original_NWA_ID, 
+   NULL AS FIRST_NAME, 
+   NULL AS MIDDLE_NAME, 
+   NULL AS LAST_NAME, 
+   NULL AS SUFFIX,  
+   NULL AS SSN, 
+   NULL AS RS, 
+   NULL AS RSS, 
+   NULL AS Status, 
+   NULL AS Disposi.on,  
+   NULL AS [Date], 
+   NULL AS [Type] 
+  WHERE 1 = 2 
+  
+  
+END 
+ELSE 
+BEGIN 
+ --This will return one more row that they asked for so that they know if there is another page of data. 
+ DECLARE @LastRow int 
+ SET @LastRow = @star.ngRow + @PageSize 
+ 
+ 
+ DECLARE @Sor.ngTable TABLE ( 
+  RowNumber int not null, 
+  NWA_ID INT NOT NULL,  
+  Original_NWA_ID INT NULL,  
+  ORGANIZATION_OF_RECORD_ID INT NULL,  
+  SSN CHAR(9) NULL,  
+  RS varchar(100) NULL,  
+  RSS varchar(100) NULL,  
+  FIRST_NAME VARCHAR(40) NULL,  
+  MIDDLE_NAME VARCHAR(40) NULL,  
+  LAST_NAME VARCHAR(40) NULL,  
+  SUFFIX VARCHAR(5) NULL, 
+  Status VARCHAR(40) NULL,  
+  Disposi.on VARCHAR(40) NULL, 
+  [Date] DateTime, 
+  [Type] char(1), 
+  Contract_id INT NULL, 
+  Contract_Begin_Date DateTime, 
+  Ship_Date DateTime, 
+  Discharge_Date DateTime, 
+  Gradua.on_Date DateTime, 
+  MCRD_Discharge_Date DateTime, 
+  NWA_Declared_Date DateTime) 
+ 
+ DECLARE @Grid TABLE ( 
+  RowNumber int not null, 
+  NWA_ID INT NOT NULL,  
+  Original_NWA_ID INT NULL,  
+  ORGANIZATION_OF_RECORD_ID INT NULL,  
+  SSN CHAR(9) NULL,  
+  RS varchar(100) NULL,  
+  RSS varchar(100) NULL,  
+  FIRST_NAME VARCHAR(40) NULL,  
+  MIDDLE_NAME VARCHAR(40) NULL,  
+  LAST_NAME VARCHAR(40) NULL,  
+  SUFFIX VARCHAR(5) NULL, 
+  Status VARCHAR(40) NULL,  
+  Disposi.on VARCHAR(40) NULL, 
+  [Date] DateTime, 
+  [Type] char(1), 
+  Contract_id INT NULL, 
+  Contract_Begin_Date DateTime, 
+  Ship_Date DateTime, 
+  Discharge_Date DateTime, 
+  Gradua.on_Date DateTime, 
+  MCRD_Discharge_Date DateTime, 
+  NWA_Declared_Date DateTime) 
+ 
+ INSERT INTO @Sor.ngTable (RowNumber, NWA_ID, Original_NWA_ID, ORGANIZATION_OF_RECORD_ID, SSN, RS, RSS, FIRST_NAME, MIDDLE_NAME, LAST_NAME) 
+ SELECT  
+  ROW_NUMBER() OVER(Order By LAST_NAME, FIRST_NAME, LEGAL_MIDDLE_NAME),  
+  NWA_ID,  
+  Original_NWA_ID, 
+  ORGANIZATION_OF_RECORD_ID,  
+  SOCIAL_SECURITY_NUMBER,  
+  null,  
+  null,  
+  FIRST_NAME,  
+  LEGAL_MIDDLE_NAME,  
+  LAST_NAME 
+ FROM dbo.PERSON p WITH (NOLOCK) 
+ INNER JOIN NWA n on p.Person_ID = n.Marine_Candidate_ID 
+ WHERE  
+  (@FirstName is null OR FIRST_NAME like @FirstName) AND 
+  (@LastName is null OR LAST_NAME like @LastName) AND 
+  (@SSN is null OR SOCIAL_SECURITY_NUMBER like @SSN)  
+ 
+ INSERT INTO @Grid 
+ SELECT *  
+ FROM @Sor.ngTable 
+ WHERE RowNumber >= @star.ngRow AND RowNumber <= @LastRow 
+ 
+ UPDATE @Grid SET  
+  n.[Type] = cns.STATUS_Type, 
+  n.Status = cns.STATUS_DESCRIPTION,  
+  n.Disposi.on = cns.DISPOSITION_DESCRIPTION,  
+  n.Date = cns.Status_e.ec.ve_date 
+ FROM @Grid n 
+  INNER JOIN vwCurrentNwaStatus cns on n.NWA_ID = cns.NWA_ID 
+ 
+ 
+ UPDATE @Grid SET  
+  n.RS = case 
+    when n.ORGANIZATION_OF_RECORD_ID != 910 then rs.[name] 
+    when n.ORGANIZATION_OF_RECORD_ID = 910 then rss.[short_name] 
+  end 
+  , n.RSS = rss.[Name] 
+ FROM @Grid n 
+  INNER JOIN Recrui.ng_Organiza.on rss on n.ORGANIZATION_OF_RECORD_ID = rss.ORGANIZATION_ID 
+  LEFT JOIN ORGANIZATION_MAP om ON rss.ORGANIZATION_ID = om.CHILD_ORGANIZATION_ID  
+  LEFT JOIN RECRUITING_ORGANIZATION rs ON om.PARENT_ORGANIZATION_ID = rs.ORGANIZATION_ID 
+ 
+ UPDATE @Grid SET 
+  n.Contract_Begin_Date = c.Contract_Begin_Date, 
+  n.Contract_id = c.Contract_id 
+ FROM @Grid n 
+  INNER JOIN [Contract] c on n.NWA_ID = c.NWA_ID 
+ 
+ UPDATE @Grid SET 
+  n.Ship_Date = s.Ship_Date 
+ FROM @Grid n 
+  INNER JOIN [Shipper] s on n.Contract_id = s.Contract_id 
+ 
+ UPDATE @Grid SET 
+  n.Discharge_Date = c.Discharge_Date 
+ FROM @Grid n 
+  INNER JOIN [Contract] c on n.NWA_ID = c.NWA_ID 
+ 
+ UPDATE @Grid SET 
+  n.Gradua.on_Date = r.Gradua.on_Date 
+ FROM @Grid n 
+ INNER JOIN Contract c on c.Contract_id = n.Contract_id 
+ INNER JOIN Shipper s on s.Contract_id = n.contract_id 
+ INNER JOIN [RECRUIT_TRAINING] r on r.ship_id = s.ship_id 
+ 
+ UPDATE @Grid SET 
+  n.MCRD_Discharge_Date = r.Drop_Date 
+ FROM @Grid n 
+ INNER JOIN Contract c on c.Contract_id = n.Contract_id 
+ INNER JOIN Shipper s on s.Contract_id = n.contract_id 
+ INNER JOIN [RECRUIT_TRAINING] r on r.ship_id = s.ship_id 
+ 
+ UPDATE @Grid SET 
+ n.NWA_Declared_Date = a.NWA_Declared_Date 
+ FROM @Grid n 
+ INNER JOIN NWA a on a.NWA_ID = n.NWA_ID 
+ 
+ SELECT  
+  RowNumber,  
+  NWA_ID,  
+  Original_NWA_ID, 
+  ISNULL(FIRST_NAME, '') as FIRST_NAME, 
+  ISNULL(MIDDLE_NAME, '') as MIDDLE_NAME, 
+  ISNULL(LAST_NAME, '') as LAST_NAME, 
+  ISNULL(SUFFIX, '') as SUFFIX,  
+  ISNULL(SSN, '') as SSN, 
+  ISNULL(RS, '') as RS, 
+  ISNULL(RSS, '') as RSS, 
+  ISNULL(Status, '') as Status, 
+  ISNULL(Disposi.on, '') as Disposi.on,  
+  [Date] = CASE Status 
+   WHEN ltrim('Contract') THEN  
+    CASE Disposi.on  
+     WHEN ltrim('DEP DISCHARGE') then Discharge_Date 
+    ELSE 
+     Contract_Begin_Date 
+    END 
+   WHEN ltrim('Shipper') THEN  
+    CASE Disposi.on 
+     WHEN ltrim('Graduate') THEN Gradua.on_Date 
+     WHEN ltrim('MCRD Discharge') THEN MCRD_Discharge_Date 
+    ELSE 
+     Ship_Date 
+    END 
+   ELSE NWA_Declared_Date 
+  END, 
+  [Type] 
+ FROM @Grid 
+ WHERE  
+ NOT (Status = 'NWA' AND Disposi.on = 'PENDING APPROVAL') 
+ 
+END]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

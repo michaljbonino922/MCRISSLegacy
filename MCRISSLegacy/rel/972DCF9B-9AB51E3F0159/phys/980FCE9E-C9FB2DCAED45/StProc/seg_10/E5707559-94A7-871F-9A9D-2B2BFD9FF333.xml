@@ -1,0 +1,49 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetQSNChangeRequest]" directorySegmentName="seg_10" id="E5707559-94A7-871F-9A9D-2B2BFD9FF333">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:37 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @ChangeRequestID uniqueiden..er 
+) 
+AS 
+ 
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+SELECT qsn.QSNChangeRequestID, 
+       qsn.QSNID, 
+       qsn.QSNChangeRequestStatusID, 
+       qsn.RUCReserveUnitID, 
+       qsn.MOSID, 
+       qsn.RANKID, 
+       qsn.Remarks, 
+      recr.QSNChangeRequestReviewId as RecReviewId, 
+   recr.ReviewerID as RecReviewerId, 
+   recr.ReviewDate as RecReviewDate, 
+   recr.ReviewAc.onID as RecAc.onId, 
+   rssr.QSNChangeRequestReviewId as RssReviewId, 
+   rssr.ReviewerID as RssReviewerId, 
+   rssr.ReviewDate as RssReviewDate, 
+   rssr.ReviewAc.onID as RssAc.onId, 
+    rsr.QSNChangeRequestReviewId as RsReviewId, 
+    rsr.ReviewerID as RsReviewerId, 
+    rsr.ReviewDate as RsReviewDate, 
+    rsr.ReviewAc.onID as RsAc.onId, 
+  mcrcr.QSNChangeRequestReviewId as McrcReviewId, 
+  mcrcr.ReviewerID as McrcReviewerId, 
+  mcrcr.ReviewDate as McrcReviewDate, 
+  mcrcr.ReviewAc.onID as McrcAc.onId, 
+       qsn.RequestedBy_UserID, 
+       qsn.RequestDate 
+  FROM  
+ [dbo].[QSNChangeRequest] qsn 
+ LEFT OUTER JOIN dbo.[QSNChangeRequestReview] recr on recr.QSNChangeRequestReviewId = qsn.RecruiterReviewID 
+ LEFT OUTER JOIN dbo.[QSNChangeRequestReview] rssr on rssr.QSNChangeRequestReviewId = qsn.SNCOICReviewID 
+ LEFT OUTER JOIN dbo.[QSNChangeRequestReview] rsr on rsr.QSNChangeRequestReviewId = qsn.RsReviewID 
+ LEFT OUTER JOIN dbo.[QSNChangeRequestReview] mcrcr on mcrcr.QSNChangeRequestReviewId = qsn.McrcReviewID 
+WHERE  
+ QSNChangeRequestID = @ChangeRequestID]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+</StoredProcedureSqlServerv2k5>

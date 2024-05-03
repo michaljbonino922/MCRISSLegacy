@@ -1,0 +1,73 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_dbaContract]" directorySegmentName="seg_14" id="F70352B0-79A7-5070-1900-5E579275C984">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@nwaid int, 
+@CBDate date.me, 
+@PADD date.me, 
+@component varchar(2) 
+ 
+ 
+AS 
+declare 
+@user_login varchar(15) 
+set @user_login = (select le.(current_user,15)) 
+ 
+ 
+/* 
+print @contrac.d  
+print @nwaid 
+print @date 
+print @user_login 
+ 
+ 
+--Gets current user 
+set @user_login = (select current_user) 
+--Gets component code 
+set @component = (select top 1 component_code from contract where contract_id=@contrac.d) 
+-- order by CONTRACT_ID desc) 
+--Gets training organiza.on 
+set @trainingorg = (select top 1 projected_training_org_id from contract where contract_id=@contrac.d) 
+-- order by CONTRACT_ID desc) 
+ 
+print @contrac.d  
+print @nwaid  
+print @date  
+print @component  
+print @trainingorg  
+print @user_login  
+*/ 
+ 
+if exists (select 1 from Contract where nwa_id = @nwaid) 
+ 
+ update Contract 
+ set NWA_ID=@NWAID, 
+ Contract_Begin_Date=@CBDate, 
+ Projected_ship_date=@PADD, 
+ COMPONENT_CODE=@component 
+ where NWA_id = @nwaid 
+ 
+else 
+ 
+ insert contract 
+ (NWA_ID,CONTRACT_BEGIN_DATE,COMPONENT_CODE,TERM_OF_ENLISTMENT,PROJECTED_SHIP_DATE,PROJECTED_TRAINING_ORG_ID,USER_LOGIN,UPDATE_DATE) 
+ values 
+ (@nwaID,@CBDate,@component,'4',@PADD,'1',@USER_LOGIN, getdate()) 
+ 
+print 'The Contract Was added. Please Check the applica.on to con.rm' 
+ 
+ 
+if not exists(select 1 from CANDIDATE_STATUS  
+  where NWA_ID = @NWAID and STATUS_CODE='B' AND DISPOSITION_CODE= 'K' ) 
+ 
+ insert CANDIDATE_STATUS 
+ (nwa_id, STATUS_EFFECTIVE_DATE, STATUS_TYPE, STATUS_CODE, DISPOSITION_CODE, USER_LOGIN, UPDATE_DATE) 
+ values 
+ (@NWAID,@CBDATE,'E', 'B', 'K', @USER_LOGIN, getdate()) 
+ 
+print 'TheContract STATUS Was added. Please Check the applica.on to con.rm']]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

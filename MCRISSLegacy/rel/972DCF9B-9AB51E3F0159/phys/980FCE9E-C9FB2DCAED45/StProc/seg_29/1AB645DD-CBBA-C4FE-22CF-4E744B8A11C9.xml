@@ -1,0 +1,69 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertRequestDecision]" directorySegmentName="seg_29" id="1AB645DD-CBBA-C4FE-22CF-4E744B8A11C9">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:39 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @ID uniqueiden..er, 
+ @RequestID uniqueiden..er, 
+ @DecisionLevelID int, 
+ @DecisionDate date.me, 
+ @DecisionID int, 
+ @CheckSum varchar(500), 
+ @UserID uniqueiden..er, 
+ @EndorsementLeterID uniqueiden..er, 
+ @IsFinalDecission bit 
+) 
+AS 
+BEGIN TRANSACTION 
+ 
+INSERT INTO [ACP].[ACP].[RequestDecision] 
+ ( 
+  [ID], 
+  [RequestID], 
+  [DecisionLevelID], 
+  [DecisionDate], 
+  [DecisionID], 
+  [CheckSum], 
+  [UserID], 
+  [EndorsementLeterID] 
+ ) 
+VALUES 
+ ( 
+  @ID, 
+  @RequestID, 
+  @DecisionLevelID, 
+  @DecisionDate, 
+  @DecisionID, 
+  @CheckSum, 
+  @UserID, 
+  @EndorsementLeterID 
+ ) 
+  
+IF (@DecisionID = 4)  -- Submited 
+BEGIN 
+ UPDATE [ACP].[ACP].[Request] SET RequestStatusID = 3 WHERE ID = @RequestID 
+END 
+ELSE IF (@IsFinalDecission = 1 AND @DecisionID IN (1,2))  -- Approved or Denied 
+BEGIN 
+ UPDATE [ACP].[ACP].[Request] SET RequestStatusID = @DecisionID WHERE ID = @RequestID 
+END 
+ 
+ 
+ 
+-- Rollback the transac.on if there were any errors 
+IF @@ERROR <> 0 
+BEGIN 
+ -- Rollback the transac.on 
+ ROLLBACK TRANSACTION 
+ -- Raise an error and return 
+ RAISERROR ('Error occurred while performing the change.', 16, 1) 
+ RETURN 
+END 
+ 
+-- If we reach this point, the commands completed successfully, commit the transac.on 
+COMMIT TRANSACTION]]></body>
+<schema>569A41D8-8F40-0619-141C-F4C9436AAF46</schema>
+<database>2D7ED536-DF8E-3523-7DC3-4228EBAF5F66</database>
+</StoredProcedureSqlServerv2k5>

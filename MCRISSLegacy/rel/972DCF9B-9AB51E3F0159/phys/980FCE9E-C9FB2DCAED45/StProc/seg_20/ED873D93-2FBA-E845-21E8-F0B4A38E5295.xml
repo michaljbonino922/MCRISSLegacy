@@ -1,0 +1,252 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetQSNs]" directorySegmentName="seg_20" id="ED873D93-2FBA-E845-21E8-F0B4A38E5295">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@OrgID   int = NULL, 
+ @RUC   varchar(5) = NULL, 
+ @MOSCode  varchar(4), 
+ @FromDate  date.me, 
+ @ToDate   date.me, 
+ @QSNnumber  char(9) = NULL, 
+ @Status   char(1) = NULL, 
+ @Contract  int, 
+ @SortBy   int = NULL, 
+ @MSCCode  varchar(4) = NULL 
+AS 
+ 
+SET NOCOUNT ON 
+ 
+IF (@QSNNumber IS NULL or @QSNNumber = 0) 
+BEGIN 
+ 
+ -- If @OrgID is NULL, set to MCRC (900) 
+ Set @OrgID = COALESCE(@OrgID, 900) 
+ 
+ ------------------------------------------------------------------------------ 
+ --- Create Temp Tables --- 
+ ------------------------------------------------------------------------------ 
+ Create table #tempRUC(RUC varchar(5)) 
+ Create table #tempStatus(Status char(1)) 
+ Create table #tempMOS(MOSCode varchar(4)) 
+ -- MSD 7/17/07 
+ Create table #tempMSC(MSCCode varchar(4)) 
+ 
+ IF(@RUC IS NULL or @RUC = '') 
+ BEGIN 
+  INSERT INTO #tempRUC 
+  SELECT DISTINCT RUC  
+  FROM QSN 
+ END 
+ ELSE 
+ BEGIN 
+  INSERT INTO #tempRUC(RUC) 
+  VALUES(@RUC) 
+ END 
+  
+ IF(@MOSCode IS NULL or @MOSCode = '') 
+ BEGIN 
+  INSERT INTO #tempMOS 
+  SELECT DISTINCT MOS_CODE  
+  FROM MOS 
+ END 
+ ELSE 
+ BEGIN 
+  INSERT INTO #tempMOS(MOSCode) 
+  VALUES(@MOSCode) 
+ END 
+  
+ -- MSD 7/17/07 
+ IF(@MSCCode IS NULL or @MSCCode = '') 
+ BEGIN 
+  INSERT INTO #tempMSC 
+  SELECT DISTINCT [CODE]  
+  FROM MSC 
+ END 
+ ELSE 
+ BEGIN 
+  INSERT INTO #tempMSC(MSCCode) 
+  VALUES(@MSCCode) 
+ END 
+  
+ IF(@Status IS NULL or @Status = '') 
+ BEGIN 
+  INSERT INTO #tempStatus 
+  VALUES('A') 
+  
+  INSERT INTO #tempStatus 
+  VALUES('I') 
+  
+  INSERT INTO #tempStatus 
+  VALUES('C') 
+ END 
+ ELSE 
+ BEGIN 
+  INSERT INTO #tempStatus(Status) 
+  VALUES(@Status) 
+ END 
+  
+ /*  
+ The #SUBORGS table will be populated with all OrgIDs that are in the child hierarchy 
+ of the input @OrgID.  USED is a bit that is necessary for popula.ng the data 
+ to .ag whether an OrgID's children have been joined yet.  This is to make 
+ sure the direct children of an OrgID are only inserted once. 
+  
+ The #IDS table is used only to temporarily store the OrgIDs that children are being 
+ retrieved for.  Because it is an itera.ve process, this table is necessary so that 
+ we know which OrgIDs to toggle the USED .ag on in the #SUBORGS table. 
+ ------------------------------------------------------------------------------ 
+ */ 
+ CREATE TABLE #SUBORGS (ORG_ID int NOT NULL, ORG_TYPE varchar(3), USED bit NOT NULL) 
+ CREATE TABLE #IDS (ORG_ID int NOT NULL) 
+  
+ -- Seed the temp table with the input OrgID 
+ INSERT INTO #SUBORGS 
+ SELECT ORGANIZATION_ID, 
+  ORGANIZATION_TYPE, 
+  0 
+ FROM RECRUITING_ORGANIZATION 
+ WHERE ORGANIZATION_ID = @OrgID 
+  
+ -- Con.nue processing un.l we have goten to the RS level 
+ WHILE (SELECT COUNT(1) FROM #SUBORGS WHERE USED = 0 AND ORG_TYPE = 'RS') = 0 
+ BEGIN 
+  
+ -- Save all OrgIDs in the #SUBORGS table that we haven't goten children for yet. 
+ INSERT INTO #IDS 
+ SELECT ORG_ID 
+ FROM #SUBORGS 
+ WHERE USED = 0 
+  
+ -- Insert new children (with Used .ag = 0) into the #SUBORGS table. 
+ INSERT INTO #SUBORGS 
+ SELECT OM.CHILD_ORGANIZATION_ID, RO.ORGANIZATION_TYPE, 0 
+ FROM ORGANIZATION_MAP OM INNER JOIN #SUBORGS SO ON OM.PARENT_ORGANIZATION_ID = SO.ORG_ID AND SO.USED = 0 
+  INNER JOIN RECRUITING_ORGANIZATION RO ON OM.CHILD_ORGANIZATION_ID = RO.ORGANIZATION_ID 
+  
+ -- Set the USED .ag to 1 for the OrgIDs that we just processed. 
+ UPDATE #SUBORGS 
+ SET USED = 1 
+ WHERE ORG_ID IN (SELECT * FROM #IDS) 
+  
+ -- No need to save the OrgIDs that we just got children for.  They will remain in the #SUBORGS table 
+ -- and are now marked as used/processed. 
+ DELETE FROM #IDS 
+  
+ END 
+ 
+  
+ SELECT  
+  RO.NAME, QSN.QSN_ID, 
+  'RUC' = MO.UNIT_NAME + ' ' + MO.PRESENT_RUC, 
+  'MOS' = MOS.MOS_CODE + ' - ' + MOS.SHORT_DESCRIPTION, 
+  MSC.AIR_GROUND, QSN.GENDER, QSN.SPLIT_INCREMENT, MSC.DESCRIPTION,  
+  QSN.QSN_PIVOT_DATE, 
+  'SORT_BY' = CASE WHEN @SortBy = 1 THEN QSN.QSN_ID 
+     WHEN @SortBy = 2 THEN RO.NAME 
+     WHEN @SortBy = 3 THEN MO.UNIT_NAME + ' ' + MO.PRESENT_RUC 
+     WHEN @SortBy = 4 THEN MOS.SHORT_DESCRIPTION 
+     WHEN @SortBy = 5 THEN MSC.DESCRIPTION 
+     WHEN @SortBy = 6 THEN CONVERT(VARCHAR,QSN.QSN_PIVOT_DATE,102) 
+     ELSE QSN.QSN_ID 
+       END, 
+  CASE when QSN.CONTRACT_ID > 0 THEN ( SELECT RTRIM(RO.NAME)  
+       FROM RECRUITING_ORGANIZATION RO INNER JOIN NWA N ON 
+        N.ORGANIZATION_OF_RECORD_ID = RO.ORGANIZATION_ID 
+        INNER JOIN CONTRACT C ON N.NWA_ID = C.NWA_ID AND  
+        C.CONTRACT_ID = QSN.CONTRACT_ID) 
+   ELSE '' 
+   
+  END 
+  AS RSS, 
+   CASE when QSN.CONTRACT_ID > 0 THEN ( SELECT RTRIM(P.LAST_NAME) + ', ' + RTRIM(P.FIRST_NAME) + ' ' + COALESCE(RTRIM(P.LEGAL_MIDDLE_NAME), SPACE(0))  
+       FROM CONTRACT C INNER JOIN NWA N ON C.NWA_ID = N.NWA_ID  
+        INNER JOIN PERSON P ON P.PERSON_ID = N.MARINE_CANDIDATE_ID AND C.CONTRACT_ID = QSN.CONTRACT_ID) 
+   ELSE '' 
+   
+  END 
+  AS POOLEE 
+ FROM  
+  MOS, QSN, MARINE_ORGANIZATION MO, MSC, 
+  RECRUITING_ORGANIZATION RO 
+ WHERE  
+  MOS.MOS_CODE = QSN.MOS 
+  and MO.PRESENT_RUC = QSN.RUC 
+  and MO.PRESENT_MCC = QSN.MCC_CODE 
+  and MSC.CODE = QSN.MSC 
+  and RO.ORGANIZATION_ID = QSN.RECRUITING_ORGANIZATION_ID 
+  --SCR #499 - Steven Mar.n 
+  --and QSN.QSN_PIVOT_DATE BETWEEN @FromDate and @ToDate 
+  and DATEDIFF(MONTH, QSN.QSN_PIVOT_DATE, @FromDate) <= 0 
+  and DATEDIFF(MONTH, QSN.QSN_PIVOT_DATE, @ToDate) >= 0 
+  and QSN.RECRUITING_ORGANIZATION_ID in (select ORG_ID from #SUBORGS where ORG_TYPE = 'RS') 
+  and QSN.RUC IN (SELECT * FROM #tempRUC) 
+  and MOS.MOS_CODE in (SELECT * FROM #tempMOS) 
+  and MSC.CODE in (SELECT * FROM #tempMSC) 
+  and QSN.STATUS IN (SELECT * FROM #tempStatus) 
+  and 0 < CASE WHEN @Contract = 1 THEN ISNULL(CONTRACT_ID, 1) 
+    WHEN @Contract = 2 THEN CONTRACT_ID 
+    WHEN @Contract = 3 THEN ISNULL(CONTRACT_ID * -1, 1) 
+   END 
+ ORDER BY  
+  'SORT_BY', 'PERSON_NAME' 
+END 
+ELSE 
+BEGIN 
+ SELECT  
+  RO.NAME, QSN.QSN_ID,  
+  'RUC' = MO.UNIT_NAME + ' ' + MO.PRESENT_RUC, 
+  'MOS' = MOS.MOS_CODE + ' - ' + MOS.SHORT_DESCRIPTION, 
+  MSC.AIR_GROUND, QSN.GENDER, QSN.SPLIT_INCREMENT, MSC.DESCRIPTION, 
+  QSN.QSN_PIVOT_DATE,  
+  'SORT_BY' = CASE WHEN @SortBy = 1 THEN QSN.QSN_ID 
+     WHEN @SortBy = 2 THEN RO.NAME 
+     WHEN @SortBy = 3 THEN MO.UNIT_NAME + ' ' + MO.PRESENT_RUC 
+     WHEN @SortBy = 4 THEN MOS.SHORT_DESCRIPTION 
+     WHEN @SortBy = 5 THEN MSC.DESCRIPTION 
+     WHEN @SortBy = 6 THEN CONVERT(VARCHAR,QSN.QSN_PIVOT_DATE,102) 
+     ELSE QSN.QSN_ID 
+       END, 
+  CASE when QSN.CONTRACT_ID > 0 THEN ( SELECT RTRIM(RO.NAME)  
+       FROM RECRUITING_ORGANIZATION RO INNER JOIN NWA N ON 
+        N.ORGANIZATION_OF_RECORD_ID = RO.ORGANIZATION_ID 
+        INNER JOIN CONTRACT C ON N.NWA_ID = C.NWA_ID AND  
+        C.CONTRACT_ID = QSN.CONTRACT_ID) 
+   ELSE '' 
+   
+  END 
+  AS RSS, 
+   CASE when QSN.CONTRACT_ID > 0 THEN ( SELECT RTRIM(P.LAST_NAME) + ', ' + RTRIM(P.FIRST_NAME) + ' ' + COALESCE(RTRIM(P.LEGAL_MIDDLE_NAME), SPACE(0))  
+       FROM CONTRACT C INNER JOIN NWA N ON C.NWA_ID = N.NWA_ID  
+        INNER JOIN PERSON P ON P.PERSON_ID = N.MARINE_CANDIDATE_ID AND C.CONTRACT_ID = QSN.CONTRACT_ID) 
+   ELSE '' 
+   
+  END 
+  AS POOLEE 
+ FROM  
+  MOS, QSN, MARINE_ORGANIZATION MO, MSC, 
+  RECRUITING_ORGANIZATION RO, ORGANIZATION_MAP OM 
+ WHERE  
+  MOS.MOS_CODE = QSN.MOS 
+  and MO.PRESENT_RUC = QSN.RUC 
+  and MO.PRESENT_MCC = QSN.MCC_CODE 
+  and MSC.CODE = QSN.MSC 
+  and QSN.RECRUITING_ORGANIZATION_ID = OM.CHILD_ORGANIZATION_ID 
+  and RO.ORGANIZATION_ID = QSN.RECRUITING_ORGANIZATION_ID 
+  and QSN.QSN_ID = @QSNNumber 
+ ORDER BY  
+  'SORT_BY', 'PERSON_NAME' 
+END 
+ 
+ 
+SET NOCOUNT OFF 
+ 
+ 
+DROP TABLE #tempRUC 
+DROP TABLE #tempStatus 
+DROP TABLE #tempMOS 
+DROP TABLE #tempMSC]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

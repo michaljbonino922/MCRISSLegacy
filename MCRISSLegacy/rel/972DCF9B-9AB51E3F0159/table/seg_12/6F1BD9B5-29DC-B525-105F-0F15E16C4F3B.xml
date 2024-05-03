@@ -1,0 +1,223 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_12" id="6F1BD9B5-29DC-B525-105F-0F15E16C4F3B" schemaObject="B106B664-0C0B-E788-08ED-5CF8E449BE22" name="Address">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<usedAsRemoteObject>true</usedAsRemoteObject>
+<importedID>8489353B-11C3-6C42-E7A0-42F2A9C7850B</importedID>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="AddressId" id="BC810BCF-CCDC-A010-98C8-692B8B6D3A52">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:57 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>8A8F0076-4EE9-5CD0-1EEC-3B20473879F1</importedID>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="PersonId" id="C812D602-8C24-9F2A-FACA-5C2FFEFAC5A2">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:57 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>815D8939-38D6-9167-27CE-A74DA1344F82</importedID>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="C6B4D90E-ABF7-5934-0641-78F29DE08078" referredColumn="C202E241-6807-3149-C8B3-59C820CEE6DB"/>
+</associations>
+</Column>
+<Column name="CountryCode" id="F6732FCA-9AD0-F631-247A-2E436F31ED1D">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:57 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>4214B60B-F1D7-47CC-F4BB-406F2A08EFC8</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>4BA8B867-00F7-CF11-D790-B4F46B17454C</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="StateCode" id="020859EA-CE8D-5E87-5F50-8FD2DF748999">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:57 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>7572D046-1E31-D269-B558-AE72374831B0</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>DDD71162-0EA2-844B-152B-4D9789FE6835</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="CountyCode" id="2601142A-F89E-CBA3-0693-439743C3C419">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:57 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>8BBEE0A5-D816-4E65-1953-4255148BD904</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>DDD71162-0EA2-844B-152B-4D9789FE6835</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="CityCode" id="0292594E-2DBE-B92C-E714-6A9041F91401">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:57 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>C7FBED5E-10D3-83AF-C6BB-EB1EA42C6A68</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>DDD71162-0EA2-844B-152B-4D9789FE6835</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="Street1" id="CE72C91A-79E6-497E-B0D6-CC3E11428386">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:57 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>75CCC60E-70F0-B170-F001-B1DFC0EB7F88</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>27508766-BB8A-7C66-5C01-9D4029B8962D</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="Street2" id="E14CCE66-10C4-6E2B-5502-B5EAAC63CB2B">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:57 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>1FA09FA0-19BB-2A56-F51E-33972BF8E289</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>27508766-BB8A-7C66-5C01-9D4029B8962D</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="ZipCode" id="FFECA0D2-FA1A-8A29-D016-C142B913C1F2">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:57 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>2B79ECA1-0FEB-74D7-2C6C-6404713088E3</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>91B18A5D-8DCD-AD24-CFA3-A9FECD6DB739</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="FromDate" id="E66EA843-21E7-CAD3-3C1A-5D882938AF34">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:57 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>3407B083-113E-EB7C-17E7-E0A8B364F356</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="ToDate" id="A41C95CF-73A2-A2D9-05A5-BDF9861D7CB4">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:57 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>57311473-1A7A-EA1F-8EA8-1157DBB65937</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="Type" id="BD95E1A8-6891-975F-09BA-98123FA6802D">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:57 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>66176F47-BBE3-99B5-020E-6B3BC472FF45</importedID>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="6228A2B7-C38A-B94E-273A-FA518F308FCB" referredColumn="519C01C7-2354-474B-17A7-1E1FA3B37A0E"/>
+</associations>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="F81BB842-9421-AAC9-2041-FF74C1752CFB" name="Address_PK">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:57 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>126B4864-94F6-6C63-34B9-726896A5FB86</importedID>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="BC810BCF-CCDC-A010-98C8-692B8B6D3A52"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="20AB2F9B-276E-0ACE-74A1-D3E102F9CAB2" name="Address_Applicant_FK1">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="C812D602-8C24-9F2A-FACA-5C2FFEFAC5A2"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="C103F1CF-2216-C9D0-C191-01B321172402" name="FK_Address_AddressType">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:02 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="BD95E1A8-6891-975F-09BA-98123FA6802D"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+<tableCheckConstraints itemClass="oracle.dbtools.crest.model.design.constraint.TableLevelConstraint">
+<tableCheckConstraint name="[ACP].[Address]" directorySegmentName="seg_9" id="339FB6EF-06B2-A83A-6867-0CABC9F320B6">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:57 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>EC50C385-BA47-CCF2-AFA5-25CAD2F5F045</importedID>
+<rule><![CDATA[CONSTRAINT [Address_Applicant_FK1]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="[ACP].[Address]v1" directorySegmentName="seg_9" id="2C0863BA-44FE-5E0F-F904-904A008C6CF5">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:57 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>64F72FCB-3CF7-39CB-3DAE-919B83A48B53</importedID>
+<rule><![CDATA[CONSTRAINT [FK_Address_AddressType]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITH" directorySegmentName="seg_9" id="D6A95057-0E94-4352-D1E7-6FC4E2C2AF9A">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:57 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>29CFD8E1-C0B5-7D00-5CA3-4BE3ECBF13D1</importedID>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITHv1" directorySegmentName="seg_9" id="DE9B9437-3FDA-8AA3-5DE6-7492AA011BA3">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:57 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>6B115ECF-6F26-0545-EF60-94E1A3941B48</importedID>
+</tableCheckConstraint>
+</tableCheckConstraints>
+</Table>

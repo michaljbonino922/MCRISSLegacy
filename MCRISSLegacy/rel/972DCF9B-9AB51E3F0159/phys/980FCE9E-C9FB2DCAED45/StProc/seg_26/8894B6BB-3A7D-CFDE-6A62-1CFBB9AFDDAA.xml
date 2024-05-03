@@ -1,0 +1,120 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SPGEN_CANDLANGUAGE]" directorySegmentName="seg_26" id="8894B6BB-3A7D-CFDE-6A62-1CFBB9AFDDAA">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[as  
+SET ARITHABORT OFF 
+set arithignore on 
+set ansi_warnings o. 
+declare  
+ @ssn     varchar(9), 
+ @marine_candidate_id   int, 
+ @person_id    int, 
+ @forgn_lang_code_1   varchar(2), 
+ @forgn_lang_code_2   varchar(2), 
+ @forgn_lang_code_3   varchar(2), 
+ @user_login   varchar(15), 
+ @update_date   date.me 
+ 
+ 
+declare language cursor for 
+ 
+select   SSN,  
+  FORGN_LANG_CODE_1,  
+  FORGN_LANG_CODE_2,  
+  FORGN_LANG_CODE_3 
+ 
+from arms..ARMS179 
+ 
+ 
+open language 
+ 
+fetch language  
+    into @ssn, @forgn_lang_code_1, @forgn_lang_code_2, @forgn_lang_code_3 
+ 
+while (@@FETCH_STATUS = 0) 
+begin 
+ 
+select @user_login = 'migra.on' 
+select @update_date = getdate() 
+ 
+     select @person_id =  PERSON_ID from PERSON  
+     where PERSON.SOCIAL_SECURITY_NUMBER = @ssn  
+ 
+     if @person_id is not NULL 
+       begin  
+ 
+    print @ssn 
+ 
+       if (not exists(select 1 from mcriss..CANDIDATE_LANGUAGE 
+                 where MARINE_CANDIDATE_ID = @person_id)) 
+      begin 
+     if @forgn_lang_code_1 not like '' 
+      begin 
+    insert into mcriss..CANDIDATE_LANGUAGE 
+    (MARINE_CANDIDATE_ID,LANGUAGE_CODE,USER_LOGIN,UPDATE_DATE) 
+     
+ 
+    values(@person_id, @forgn_lang_code_1,@user_login,@update_date) 
+   print @ssn +'File1 added to Candidate_language' 
+   end 
+     if @forgn_lang_code_2 not like '' 
+      begin 
+    insert into mcriss..CANDIDATE_LANGUAGE 
+    (MARINE_CANDIDATE_ID,LANGUAGE_CODE,USER_LOGIN,UPDATE_DATE) 
+ 
+    values(@person_id, @forgn_lang_code_2,@user_login,@update_date) 
+   print @ssn +'File2 added to Candidate_language' 
+   end 
+     if @forgn_lang_code_3 not like '' 
+      begin 
+    insert into mcriss..CANDIDATE_LANGUAGE 
+    (MARINE_CANDIDATE_ID,LANGUAGE_CODE,USER_LOGIN,UPDATE_DATE) 
+ 
+    values(@person_id, @forgn_lang_code_3,@user_login,@update_date) 
+   print @ssn +'File3 added to Candidate_language' 
+   end 
+         end 
+       else 
+         begin 
+     if @forgn_lang_code_1 not like '' 
+      begin 
+    update mcriss..CANDIDATE_LANGUAGE 
+     set LANGUAGE_CODE = @forgn_lang_code_1 
+    where MARINE_CANDIDATE_ID = @person_id 
+   print @ssn +'File1 updated to Candidate_language' 
+   end 
+     if @forgn_lang_code_2 not like '' 
+      begin 
+    update mcriss..CANDIDATE_LANGUAGE 
+     set LANGUAGE_CODE = @forgn_lang_code_2 
+    where MARINE_CANDIDATE_ID = @person_id 
+   print @ssn +'File2 updated to Candidate_language' 
+   end 
+     if @forgn_lang_code_3 not like '' 
+      begin 
+    update mcriss..CANDIDATE_LANGUAGE 
+     set LANGUAGE_CODE = @forgn_lang_code_3 
+    where MARINE_CANDIDATE_ID = @person_id 
+   print @ssn +'File3 updated to Candidate_language' 
+   end 
+        end 
+   
+   print @ssn+' Does not have a Language' 
+      end 
+      else 
+        print @ssn+' Not in person' 
+ 
+   fetch language  
+    into @ssn, @forgn_lang_code_1, @forgn_lang_code_2, @forgn_lang_code_3 
+ 
+end 
+ 
+close language 
+ 
+deallocate language]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

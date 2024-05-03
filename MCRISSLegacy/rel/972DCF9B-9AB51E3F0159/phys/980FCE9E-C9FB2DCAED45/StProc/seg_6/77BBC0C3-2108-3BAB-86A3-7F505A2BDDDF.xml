@@ -1,0 +1,29 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetNROTCContract]" directorySegmentName="seg_6" id="77BBC0C3-2108-3BAB-86A3-7F505A2BDDDF">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+  @ContractID int 
+ ) 
+AS 
+ 
+SELECT  
+ CONTRACT_ID AS ContractID 
+ ,NWA_ID as NwaID 
+ ,PROGRAM_TYPE AS ProgramType 
+ ,NROTC_UNIT_ROWGUID AS NROTCUnitID 
+ ,I_AND_I_STATE AS IIState 
+ ,I_AND_I_CITY AS IICity 
+ ,LEAVE_OF_ABSENCE_REASON AS LeaveOfAbsenceReasonID 
+ ,LEAVE_OF_ABSENCE_DATE AS LeaveOfAbsenceDate 
+ ,USER_LOGIN AS UserLogin 
+ ,UPDATE_DATE AS UpdateDate 
+FROM 
+ dbo.NROTC_CONTRACT WITH (NOLOCK) 
+WHERE 
+ dbo.NROTC_CONTRACT.CONTRACT_ID = @ContractID]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

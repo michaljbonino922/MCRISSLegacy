@@ -1,0 +1,174 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<EntityView class="oracle.dbtools.crest.model.design.logical.EntityView" directorySegmentName="seg_0" id="F0B8B371-07A6-E4C8-61DA-D88581940E87" name="USMC.vwRecrui.ngOrgIDs">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>63452EBA-F251-E016-D71B-62E5E82DE16A</generatorID>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT roRegion.ORGANIZATION_ID AS root, roHQ.ORGANIZATION_ID AS HQ, roRegion.ORGANIZATION_ID AS Region, null AS District, null AS RS, null AS RSS, null AS OSS 
+FROM dbo.RECRUITING_ORGANIZATION AS roRegion WITH (NOLOCK) 
+ INNER JOIN dbo.ORGANIZATION_MAP AS om ON roRegion.ORGANIZATION_ID = om.CHILD_ORGANIZATION_ID  
+ INNER JOIN dbo.RECRUITING_ORGANIZATION AS roHQ ON om.PARENT_ORGANIZATION_ID = roHQ.ORGANIZATION_ID 
+WHERE roRegion.Organiza.on_Type = 'R' 
+UNION 
+SELECT roDistrict.ORGANIZATION_ID AS root, roHQ.ORGANIZATION_ID AS HQ, roRegion.ORGANIZATION_ID AS Region, roDistrict.ORGANIZATION_ID AS District, null AS RS, null AS RSS, null AS OSS 
+FROM dbo.ORGANIZATION_MAP AS om WITH (NOLOCK) 
+ INNER JOIN dbo.ORGANIZATION_MAP AS om2 ON om.CHILD_ORGANIZATION_ID = om2.PARENT_ORGANIZATION_ID  
+ INNER JOIN dbo.RECRUITING_ORGANIZATION AS roDistrict ON om2.CHILD_ORGANIZATION_ID = roDistrict.ORGANIZATION_ID  
+ INNER JOIN dbo.RECRUITING_ORGANIZATION AS roRegion ON om2.PARENT_ORGANIZATION_ID = roRegion.ORGANIZATION_ID  
+ INNER JOIN dbo.RECRUITING_ORGANIZATION AS roHQ ON om.PARENT_ORGANIZATION_ID = roHQ.ORGANIZATION_ID 
+WHERE roDistrict.Organiza.on_Type = 'D' 
+UNION 
+SELECT roRs.ORGANIZATION_ID AS root, roHQ.ORGANIZATION_ID AS HQ, roRegion.ORGANIZATION_ID AS Region, roDistrict.ORGANIZATION_ID AS District, roRs.ORGANIZATION_ID AS RS, null AS RSS, null AS OSS 
+FROM dbo.ORGANIZATION_MAP AS om WITH (NOLOCK) 
+ INNER JOIN dbo.ORGANIZATION_MAP AS om2 ON om.CHILD_ORGANIZATION_ID = om2.PARENT_ORGANIZATION_ID  
+ INNER JOIN dbo.ORGANIZATION_MAP AS om3 ON om2.CHILD_ORGANIZATION_ID = om3.PARENT_ORGANIZATION_ID  
+ INNER JOIN dbo.RECRUITING_ORGANIZATION AS roRs ON om3.CHILD_ORGANIZATION_ID = roRs.ORGANIZATION_ID  
+ INNER JOIN dbo.RECRUITING_ORGANIZATION AS roDistrict ON om3.PARENT_ORGANIZATION_ID = roDistrict.ORGANIZATION_ID  
+ INNER JOIN dbo.RECRUITING_ORGANIZATION AS roRegion ON om2.PARENT_ORGANIZATION_ID = roRegion.ORGANIZATION_ID  
+ INNER JOIN dbo.RECRUITING_ORGANIZATION AS roHQ ON om.PARENT_ORGANIZATION_ID = roHQ.ORGANIZATION_ID 
+WHERE roRs.Organiza.on_Type = 'RS' 
+UNION 
+SELECT roRss.ORGANIZATION_ID AS root, roHQ.ORGANIZATION_ID AS HQ, roRegion.ORGANIZATION_ID AS Region, roDistrict.ORGANIZATION_ID AS District, roRs.ORGANIZATION_ID AS RS, roRss.ORGANIZATION_ID AS RSS, null AS OSS 
+FROM dbo.ORGANIZATION_MAP AS om WITH (NOLOCK) 
+ INNER JOIN dbo.ORGANIZATION_MAP AS om2 ON om.CHILD_ORGANIZATION_ID = om2.PARENT_ORGANIZATION_ID  
+ INNER JOIN dbo.ORGANIZATION_MAP AS om3 ON om2.CHILD_ORGANIZATION_ID = om3.PARENT_ORGANIZATION_ID  
+ INNER JOIN dbo.ORGANIZATION_MAP AS om4 ON om3.CHILD_ORGANIZATION_ID = om4.PARENT_ORGANIZATION_ID  
+ INNER JOIN dbo.RECRUITING_ORGANIZATION AS roRss ON om4.CHILD_ORGANIZATION_ID = roRss.ORGANIZATION_ID  
+ INNER JOIN dbo.RECRUITING_ORGANIZATION AS roRs ON om3.CHILD_ORGANIZATION_ID = roRs.ORGANIZATION_ID  
+ INNER JOIN dbo.RECRUITING_ORGANIZATION AS roDistrict ON om3.PARENT_ORGANIZATION_ID = roDistrict.ORGANIZATION_ID  
+ INNER JOIN dbo.RECRUITING_ORGANIZATION AS roRegion ON om2.PARENT_ORGANIZATION_ID = roRegion.ORGANIZATION_ID  
+ INNER JOIN dbo.RECRUITING_ORGANIZATION AS roHQ ON om.PARENT_ORGANIZATION_ID = roHQ.ORGANIZATION_ID 
+WHERE roRss.Organiza.on_Type = 'RSS' 
+UNION 
+SELECT roRss.ORGANIZATION_ID AS root, roHQ.ORGANIZATION_ID AS HQ, roRegion.ORGANIZATION_ID AS Region, roDistrict.ORGANIZATION_ID AS District, roRs.ORGANIZATION_ID AS RS, null AS RSS, roRss.ORGANIZATION_ID AS OSS 
+FROM dbo.ORGANIZATION_MAP AS om WITH (NOLOCK) 
+ INNER JOIN dbo.ORGANIZATION_MAP AS om2 ON om.CHILD_ORGANIZATION_ID = om2.PARENT_ORGANIZATION_ID  
+ INNER JOIN dbo.ORGANIZATION_MAP AS om3 ON om2.CHILD_ORGANIZATION_ID = om3.PARENT_ORGANIZATION_ID  
+ INNER JOIN dbo.ORGANIZATION_MAP AS om4 ON om3.CHILD_ORGANIZATION_ID = om4.PARENT_ORGANIZATION_ID  
+ INNER JOIN dbo.RECRUITING_ORGANIZATION AS roRss ON om4.CHILD_ORGANIZATION_ID = roRss.ORGANIZATION_ID  
+ INNER JOIN dbo.RECRUITING_ORGANIZATION AS roRs ON om3.CHILD_ORGANIZATION_ID = roRs.ORGANIZATION_ID  
+ INNER JOIN dbo.RECRUITING_ORGANIZATION AS roDistrict ON om3.PARENT_ORGANIZATION_ID = roDistrict.ORGANIZATION_ID  
+ INNER JOIN dbo.RECRUITING_ORGANIZATION AS roRegion ON om2.PARENT_ORGANIZATION_ID = roRegion.ORGANIZATION_ID  
+ INNER JOIN dbo.RECRUITING_ORGANIZATION AS roHQ ON om.PARENT_ORGANIZATION_ID = roHQ.ORGANIZATION_ID 
+WHERE roRss.Organiza.on_Type = 'OSS']]></userDefinedSQL>
+<validSQL>false</validSQL>
+<viewType>EntityView</viewType>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="ORGANIZATION_ID" id="49DB41B0-D015-F4A7-7C78-0E6434927605">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>6D793241-3D9E-A209-E3C7-F47D40C05E17</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>root</alias>
+<dataType>UNKNOWN</dataType>
+<expression>ORGANIZATION_ID</expression>
+<reference>false</reference>
+<viewID>F0B8B371-07A6-E4C8-61DA-D88581940E87</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="Attribute_596" id="4EF54E5C-81A2-EC28-85D9-8AF6CC45CC75">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>B1C70A10-40F2-B0BB-A833-5381592638E2</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>HQ</alias>
+<dataType>UNKNOWN</dataType>
+<expression>ORGANIZATION_ID</expression>
+<reference>false</reference>
+<viewID>F0B8B371-07A6-E4C8-61DA-D88581940E87</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="Attribute_597" id="1CCD0FEF-B5DB-4E26-5792-B8BE8DEDC5E9">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>927EC95D-27C6-7BC4-0406-061CDAC20FB2</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Region</alias>
+<dataType>UNKNOWN</dataType>
+<expression>ORGANIZATION_ID</expression>
+<reference>false</reference>
+<viewID>F0B8B371-07A6-E4C8-61DA-D88581940E87</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="null" id="676D5365-B0DF-BDF6-C81B-90D1B006D0E5">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>73225579-3D5F-DF02-0B2D-808AB2B64BBE</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>District</alias>
+<dataType>UNKNOWN</dataType>
+<expression>null</expression>
+<reference>false</reference>
+<viewID>F0B8B371-07A6-E4C8-61DA-D88581940E87</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="Attribute_599" id="99A43B42-964F-7F9C-38CF-7ECF593C2218">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>DAAAFFF5-4E34-9DB6-8AF8-1891165E8FBE</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>RS</alias>
+<dataType>UNKNOWN</dataType>
+<expression>null</expression>
+<reference>false</reference>
+<viewID>F0B8B371-07A6-E4C8-61DA-D88581940E87</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="Attribute_600" id="2D48C125-3EE6-BDDB-472D-E97F649DACC6">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>D65198E4-889D-7FC7-6C52-4EAB6B0723C4</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>RSS</alias>
+<dataType>UNKNOWN</dataType>
+<expression>null</expression>
+<reference>false</reference>
+<viewID>F0B8B371-07A6-E4C8-61DA-D88581940E87</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="Attribute_601" id="B4B89CA0-8350-1120-25D3-84A505E8D536">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>3CACDAA9-BF78-CD43-0F75-FD6502882C41</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>OSS</alias>
+<dataType>UNKNOWN</dataType>
+<expression>null</expression>
+<reference>false</reference>
+<viewID>F0B8B371-07A6-E4C8-61DA-D88581940E87</viewID>
+</viewElement>
+</viewElements>
+</EntityView>

@@ -1,0 +1,172 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_11" id="F8494195-FB65-C745-6508-20A2E3BBD0C8" schemaObject="2A6D9360-3BB2-5CEA-6E99-790D76996FDF" name="RUCReserveUnit">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:53 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>B5007060-103E-FD2F-30C7-26AD3CA048A2</importedID>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="RUCReserveUnitID" id="31B64012-474A-4A76-B6F9-94914EDD38B4">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>556BC180-2DCF-A30D-5E27-FC6221DD5F0B</importedID>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="RUCID" id="E164DBF7-6073-1A9A-6F25-3825AAC22279">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>0E470B5C-90DD-2774-90AA-E7AFA43E5C1A</importedID>
+<use>0</use>
+<domain>8C77819C-1B2F-24A0-C36D-F924235A9668</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="5C2FE39D-5360-032A-A2F3-7D0133B2D69C" referredColumn="ABD62043-2D0B-A846-3F2C-C1DC4D1A9B5B"/>
+</associations>
+</Column>
+<Column name="ReserveUnitID" id="BE0D1B47-9245-FD08-6511-DCA93E766945">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>4CF83C07-CB7F-5770-60F7-52A9F2E1A4EE</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>8C77819C-1B2F-24A0-C36D-F924235A9668</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="2FE984BB-D1E3-9D7A-9131-32A6F0F0D887" referredColumn="84207732-1578-33B0-9371-989194E26C11"/>
+</associations>
+</Column>
+<Column name="MSCID" id="0B8A92F4-2F19-9C16-22FF-F725EE029019">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>A6EF19EC-947A-EC9A-2BB2-96AAC285DB23</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>8C77819C-1B2F-24A0-C36D-F924235A9668</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="B5B18158-756C-98C2-6C29-FCEC9FCFCAC5" referredColumn="62B8D1EF-5552-EE95-8863-91F4746DFB5A"/>
+</associations>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="D04F0FA7-A023-90C9-1BBE-EB5DC3F4DFC2" name="pk_RUCReserveUnit">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:15 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>858D28BC-44D9-1532-D4D4-B09A6B3DD434</importedID>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="31B64012-474A-4A76-B6F9-94914EDD38B4"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="4D4DE1AE-8DFF-A036-3E1C-83AD61BCE4E8" name="uk_RUCReserveUnit">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:15 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>8DB0245E-DC54-F831-11DD-2378388E7D24</importedID>
+<indexState>Unique Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="E164DBF7-6073-1A9A-6F25-3825AAC22279"/>
+<colUsage columnID="BE0D1B47-9245-FD08-6511-DCA93E766945"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="D6B22FA3-6F91-2A67-9C74-932F13D11CE9" name="._RUCReserveUnit_MSC">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:25 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="0B8A92F4-2F19-9C16-22FF-F725EE029019"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="A3673AC7-6858-3733-1D1A-6C976CECFB81" name="._RUCReserveUnit_ReserveUnit">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:25 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="BE0D1B47-9245-FD08-6511-DCA93E766945"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="B27E8FB2-323F-6155-CCD7-68DB5320D7FE" name="._RUCReserveUnit_RUC">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:25 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="E164DBF7-6073-1A9A-6F25-3825AAC22279"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+<tableCheckConstraints itemClass="oracle.dbtools.crest.model.design.constraint.TableLevelConstraint">
+<tableCheckConstraint name="[dbo].[RUCReserveUnit]" directorySegmentName="seg_8" id="C1DE49A4-EE8B-04F0-DC10-D2F3D0491CA0">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:15 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>CBA272C8-5BB5-347E-0E36-A3E90B2F090B</importedID>
+<rule><![CDATA[CONSTRAINT [._RUCReserveUnit_MSC]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="[dbo].[RUCReserveUnit]v1" directorySegmentName="seg_8" id="37886B2F-2CB1-FB65-F15D-084F8C0F0D07">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:15 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>94CC7FA1-EACD-72A9-A09D-6A63E692ADED</importedID>
+<rule><![CDATA[CONSTRAINT [._RUCReserveUnit_ReserveUnit]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="[dbo].[RUCReserveUnit]v2" directorySegmentName="seg_8" id="993298ED-B2CF-0606-F66E-2457BAD68E01">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:15 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>35E838FF-55CC-2FC3-03C4-290398490F87</importedID>
+<rule><![CDATA[CONSTRAINT [._RUCReserveUnit_RUC]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITH" directorySegmentName="seg_8" id="A25EADB3-8DFB-2BE0-6951-088556B4E6C1">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:15 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>624FB1A0-6BB3-C528-73C0-47EB73E2DF3D</importedID>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITHv1" directorySegmentName="seg_8" id="7ACBC5BC-5988-2A77-B041-390842D5C0BA">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:15 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>5BBEAADA-47AA-58FC-FDD1-1C15642E88A5</importedID>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITHv2" directorySegmentName="seg_8" id="F1B4EE1C-A861-328A-B45A-95CEBDD5A08A">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:15 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>6BC2BAF0-F39F-CE05-D5B5-CEA19A1A959C</importedID>
+</tableCheckConstraint>
+</tableCheckConstraints>
+</Table>

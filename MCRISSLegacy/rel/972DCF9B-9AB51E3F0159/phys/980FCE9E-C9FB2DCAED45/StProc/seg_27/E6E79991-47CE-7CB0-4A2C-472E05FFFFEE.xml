@@ -1,0 +1,116 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdatePersonnelBilletWithFillInGap]" directorySegmentName="seg_27" id="E6E79991-47CE-7CB0-4A2C-472E05FFFFEE">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@PersonID int, 
+ @Organiza.onID int, 
+ @Recrui.ngRoleID varchar(2), 
+ @BilletBeginDate date.me,  
+ @UserLogin varchar(15), 
+ @result varchar(200) OUTPUT 
+AS 
+ 
+SET NOCOUNT ON 
+ 
+ 
+DECLARE  
+ 
+@MaxRecruiterHistoryBilletEndDate date.me 
+ 
+SET @result='' 
+ 
+SELECT @MaxRecruiterHistoryBilletEndDate = MAX(BILLET_END_DATE)    
+FROM Recruiter_History  
+WHERE Recrui.ng_Person_Id = @PersonId 
+ 
+-- Billets overlop 
+IF (DATEDIFF(DAY,@MaxRecruiterHistoryBilletEndDate, @BilletBeginDate) <= 0) 
+ BEGIN 
+  SET @result = 'Billets cannnot overlap.  Please change the Begin date.' 
+ END 
+-- Fill in Non-Recrui.ng Assignments for gap 
+ELSE IF (DATEDIFF(DAY,@MaxRecruiterHistoryBilletEndDate, @BilletBeginDate) > 1) 
+ BEGIN   
+  Insert Into Recruiter_History( 
+     Recrui.ng_Person_Id, 
+     E.ec.ve_Date, 
+     Billet_Begin_Date, 
+     Billet_End_Date, 
+     Billet_Desc, 
+     HQ_Name, 
+     Region_Name, 
+     District_Name, 
+     RS_Name, 
+     RSS_Name, 
+     Organiza.on_Type, 
+     User_Login, 
+     Update_Date 
+     ) 
+ 
+  SELECT  TOP 1 Recrui.ng_Person_Id,  
+    DATEADD(day,1,@MaxRecruiterHistoryBilletEndDate),  
+    DATEADD(day,1,@MaxRecruiterHistoryBilletEndDate),  
+    DATEADD(day,-1,@BilletBeginDate),  
+    'Other', 
+    HQ_Name, 
+    Region_Name, 
+    District_Name, 
+    RS_Name, 
+    RSS_Name, 
+    Organiza.on_Type, 
+    User_Login, 
+    getdate() 
+  FROM dbo.RECRUITER_HISTORY  
+  WHERE RECRUITING_PERSON_ID=@PersonID 
+  ORDER BY BILLET_BEGIN_DATE DESC 
+ END 
+IF @result = '' 
+ BEGIN 
+  UPDATE RECRUITING_PERSON  
+  SET  
+   ORGANIZATION_ID = @Organiza.onID,  
+   RECRUITING_ROLE_ID = @Recrui.ngRoleID,  
+   BILLET_BEGIN_DATE = @BilletBeginDate,  
+   USER_LOGIN = @UserLogin,  
+   UPDATE_DATE = GETDATE()  
+  WHERE RECRUITING_PERSON_ID = @PersonID 
+ 
+  ---------------------------------------------------------------------------------------- 
+  -- Remove this recruiter from sector assignments 
+  ---------------------------------------------------------------------------------------- 
+  DECLARE @RECRUITING_PERSON_GUID uniqueiden..er 
+ 
+  SELECT @RECRUITING_PERSON_GUID = rowguid 
+  FROM [MCRISS].[dbo].[RECRUITING_PERSON] 
+  WHERE RECRUITING_PERSON_ID=@PersonID 
+ 
+  DECLARE @USER_GUID uniqueiden..er 
+ 
+  SELECT TOP(1) @USER_GUID = [UserID] 
+  FROM [UserMgmt].[dbo].[User] 
+  WHERE [Username] like @UserLogin + '%' 
+  AND [IsAc.ve] = 1 
+  ORDER BY [LastAc.vityDate] DESC 
+ 
+  IF @USER_GUID = null 
+  BEGIN 
+   SET @USER_GUID = '00000000-0000-0000-0000-000000000000' 
+  END 
+ 
+  EXEC [RSSOSS].[USMC].[InsertUpdateMapsSectorRecruiter] 
+   @SectorRecruiterId = null, 
+   @SectorID = null, 
+   @Recrui.ngPersonId = @RECRUITING_PERSON_GUID, 
+   @LastUpdateUserId = @USER_GUID 
+  ---------------------------------------------------------------------------------------- 
+  ---------------------------------------------------------------------------------------- 
+ 
+  SET @result = 'SUCCESS' 
+ END 
+  
+SELECT @result]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

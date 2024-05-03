@@ -1,0 +1,598 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[RCTAPI_GetOpera.onalData]" directorySegmentName="seg_8" id="02BFA11B-AADE-350E-2002-43173BF3388E">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@edipi varchar(10) 
+AS 
+ 
+SET NOCOUNT ON 
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+ 
+DECLARE @result   varchar(max) 
+DECLARE @tempJson varchar(max) 
+ 
+--RssOss.[dbo].[RCTAPI_GetOpera.onalData] 1266694055 
+--DECLARE @edipi varchar(10) 
+--SET @edipi = 1266694055 
+ 
+DECLARE  
+ @nowMinusTwoYear date.me, 
+ @nowMinusOneYear date.me 
+ 
+SET @nowMinusTwoYear = DATEADD(year, -2, GETDATE()) 
+SET @nowMinusOneYear = DATEADD(year, -1, GETDATE()) 
+ 
+-- Recruiter Info 
+SELECT TOP 1 
+  u.FirstName 
+ ,u.LastName 
+ ,rp.RECRUITING_PERSON_ID AS Recrui.ngPersonId 
+ ,rp.rowguid AS Recrui.ngPersonGuid  
+ ,ro.ORGANIZATION_ID 
+ ,ro.rowguid as OrgGuid 
+ ,ro.COUNTY_CODE 
+ ,ro.STATE_CODE 
+ ,ro.CITY_CODE 
+ ,ro.Street 
+ ,ro.Street2 
+ ,ro.ZIP_CODE 
+INTO #Recruiter  
+FROM  
+ UserMgmt.dbo.[User] u 
+ INNER JOIN MCRISS.dbo.PERSON p ON u.FirstName = p.FIRST_NAME AND u.LastName=p.LAST_NAME 
+ INNER JOIN MCRISS.dbo.RECRUITING_ORGANIZATION ro ON u.Sta.on_OrgUnitID = ro.OrgUnitId 
+ INNER JOIN MCRISS.dbo.RECRUITING_PERSON rp ON rp.RECRUITING_PERSON_ID = p.PERSON_ID AND rp.ORGANIZATION_ID = ro.ORGANIZATION_ID 
+WHERE  
+ Dis.nguishedName like '%' + @edipi AND u.IsAc.ve = 1 AND rp.ORGANIZATION_ID = ro.ORGANIZATION_ID 
+ORDER BY 
+ LastAc.vityDate DESC 
+ 
+-- Nwa related to the recruiter 
+SELECT  
+ rowguid 
+INTO #nwaList   
+FROM 
+ ( 
+  SELECT 
+   n.rowguid 
+  FROM  
+   MCRISS.dbo.NWA n 
+   INNER JOIN #Recruiter r  
+    ON (n.WORKING_RECRUITER_ID = r.Recrui.ngPersonId) 
+   
+  UNION 
+ 
+  SELECT 
+   n.rowguid 
+  FROM  
+   MCRISS.dbo.NWA n 
+   INNER JOIN #Recruiter r  
+    ON (n.RECRUITER_OF_RECORD_ID = r.Recrui.ngPersonId) 
+  
+ ) T1 
+ 
+-- Prospect related to the recruiter 
+SELECT * 
+INTO #prospectList 
+FROM 
+ (SELECT  
+  pr.ProspectId 
+  FROM  
+  Prospec.ng.USMC.Prospect pr 
+  INNER JOIN Prospec.ng.USMC.Person p ON pr.PersonId = p.PersonId 
+  INNER JOIN #Recruiter recrut ON pr.Recrui.ngPersonId = recrut.Recrui.ngPersonGuid 
+  UNION 
+  SELECT  
+  pr.ProspectId 
+  FROM  
+  Prospec.ng.USMC.Prospect pr 
+  INNER JOIN Prospec.ng.USMC.Person p ON pr.PersonId = p.PersonId 
+  INNER JOIN #nwaList n ON pr.NwaId = n.rowguid 
+ ) T 
+ 
+-- current nwa disposi.on for the prospect 
+SELECT 
+ cs2.NWA_ID, cs2.DISPOSITION_CODE 
+INTO #CurrentCandidateStatus 
+FROM  
+ MCRISS.dbo.CANDIDATE_STATUS cs2 
+ INNER JOIN  
+  ( SELECT 
+   cs.NWA_ID, MAX(CANDIDATE_STATUS_ID) AS CANDIDATE_STATUS_ID 
+    FROM  
+   Prospec.ng.USMC.Prospect pr 
+   INNER JOIN #prospectList pl ON pr.ProspectId = pl.ProspectId 
+   INNER JOIN MCRISS.dbo.NWA n ON pr.NwaId = n.rowguid 
+   INNER JOIN MCRISS.dbo.CANDIDATE_STATUS cs ON cs.NWA_ID = n.NWA_ID 
+    WHERE 
+    pr.NwaId IS NOT NULL 
+    GROUP BY 
+   cs.NWA_ID 
+  ) T 
+ ON --cs2.NWA_ID = T.NWA_ID AND  
+ cs2.CANDIDATE_STATUS_ID = T.CANDIDATE_STATUS_ID 
+ 
+--.nal Prospect list with .lters 
+SELECT 
+ pr.ProspectId 
+INTO #prospectFinalList 
+FROM  
+ Prospec.ng.USMC.Prospect pr 
+ INNER JOIN Prospec.ng.USMC.Person p ON pr.PersonId = p.PersonId 
+ INNER JOIN #prospectList pl ON pr.ProspectId = pl.ProspectId 
+ LEFT OUTER JOIN MCRISS.dbo.NWA n ON pr.NwaId = n.rowguid 
+ LEFT OUTER JOIN #CurrentCandidateStatus ccs ON ccs.NWA_ID = n.NWA_ID 
+WHERE 
+ pr.Ac.ve = 1  
+ AND  
+   (  
+  (  
+     (pr.Expira.onDate >= @nowMinusOneYear OR pr.PACCreateDate >= @nowMinusOneYear) AND 
+     pr.ProspectDisposi.onId = 2 
+  ) 
+  OR 
+  ( 
+    (pr.Gradua.onYear >= DATEPART(year, @nowMinusTwoYear) OR  pr.CreatedDate >= @nowMinusOneYear) AND 
+    pr.ProspectDisposi.onId = 1 
+  ) 
+  OR  
+  pr.ProspectDisposi.onId IN (3) OR 
+  pr.NwaId IS NOT NULL   
+   ) 
+ AND pr.ProspectDisposi.onId <> 5 
+ 
+ -- Eject CANDIDATE_STATUS DISPOSITION_CODE 
+ -- Contract DEP Discharge (L), NWA DQ-Medical (G), NWA DQ-Mental (H), NWA DQ-Moral (I), NWA DQ-Other (J) 
+ -- Eject ProspectDisposi.on PDQ (4) 
+ 
+ AND pr.ProspectDisposi.onId <> 4 
+ AND 
+  ( 
+   ccs.DISPOSITION_CODE IS NULL 
+   OR 
+   ccs.DISPOSITION_CODE NOT IN ('L', 'G', 'H', 'I', 'J') 
+  ) 
+ 
+-- physicalProblems 
+SET @tempJson = ( 
+     SELECT  
+       ProspectPhysicalProblemsId  AS physicalProblemsId 
+      ,pr.PersonId     AS personId 
+      ,Implants      AS implants 
+      ,Contacts      AS contacts 
+      ,Opera.ons      AS opera.ons 
+      ,Medicines      AS medicines 
+      ,BrokenBones     AS brokenBones 
+      ,Asthma       AS asthma 
+      ,Tatoos      AS tatoos 
+      ,Vision       AS vision 
+      ,Other       AS other 
+     FROM  
+      Prospec.ng.USMC.ProspectPhysicalProblems pp 
+      INNER JOIN Prospec.ng.USMC.Prospect pr ON pr.ProspectId = pp.ProspectId 
+      INNER JOIN #prospectFinalList pl ON pr.ProspectId = pl.ProspectId 
+ 
+      --WHERE ProspectPhysicalProblemsId='97aca4a4-1979-499e-91b1-12dd142a96f1' 
+     FOR JSON PATH, ROOT('physicalProblems'), INCLUDE_NULL_VALUES  
+) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = ISNULL(@tempJson, '"physicalProblems":[]')  
+ 
+-- drugUses 
+SET @tempJson = ( 
+     SELECT  
+       ProspectDrugUseId  AS drugUseId 
+      ,pr.PersonId   AS personId  
+      ,DrugTypeId    AS drugTypeId 
+      ,OtherDrug    AS otherDrugType 
+      ,DrugLastUsed   AS dateLastUsed 
+      ,DrugFirstUse   AS dateFirstUsed 
+      ,NumberOfTimeUsed  AS .mesUsed 
+      ,Detail     AS details 
+     FROM  
+      Prospec.ng.USMC.ProspectDrugUse  du 
+      INNER JOIN Prospec.ng.USMC.Prospect pr ON pr.ProspectId = du.ProspectId 
+      INNER JOIN #prospectFinalList pl ON pr.ProspectId = pl.ProspectId 
+ 
+      --WHERE ProspectDrugUseId = '07813503-caf6-4e6d-9e5e-5b44a60f2499' 
+     FOR JSON PATH, ROOT('drugUses'), INCLUDE_NULL_VALUES 
+) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"drugUses":[]') 
+ 
+-- moralO.enses 
+SET @tempJson = ( 
+     SELECT 
+       ProspectLegalO.enseId  AS moralO.enseId 
+      ,pr.PersonId    AS personId  
+      ,ISNULL( 
+         o.ense1Geo.rowguid, 
+         o.ense2Geo.rowguid 
+       )       AS cityId 
+      ,LegalO.enseId    AS o.enseId 
+      ,IsGuilty     AS adverseAdjudica.onId 
+      ,IsJuvenile     AS o.enseSummaryId 
+      ,LegalO.enseDate   AS o.enseDate 
+      ,ZipCode     AS zip 
+      ,Disposi.on    AS disposi.on 
+      ,Detail      AS details 
+      ,WaiverCode     AS waiverCode 
+     FROM 
+      Prospec.ng.USMC.ProspectLegalO.ense lf 
+      INNER JOIN Prospec.ng.USMC.Prospect pr ON pr.ProspectId = lf.ProspectId 
+      INNER JOIN #prospectFinalList pl ON pr.ProspectId = pl.ProspectId 
+ 
+      LEFT OUTER JOIN MCRISS.dbo.GEO_LOCATION o.ense1Geo --City 
+      ON o.ense1Geo.CITY_CODE = lf.LegalO.enseCity AND o.ense1Geo.STATE_CODE = lf.LegalO.enseCountry AND o.ense1Geo.COUNTRY_DESCRIPTION <> 'UNITED STATES' 
+         AND (o.ense1Geo.STATE_CODE <> '00' AND o.ense1Geo.COUNTY_CODE <> '000' AND (o.ense1Geo.CITY_CODE NOT IN ('0000', '0'))) 
+ 
+      LEFT OUTER JOIN MCRISS.dbo.GEO_LOCATION o.ense2Geo --City 
+      ON o.ense2Geo.CITY_CODE = lf.LegalO.enseCity AND o.ense2Geo.COUNTY_CODE = lf.LegalO.enseCounty AND o.ense2Geo.STATE_CODE = lf.LegalO.enseState AND o.ense2Geo.COUNTRY_DESCRIPTION = 'UNITED STATES' 
+         AND (o.ense2Geo.STATE_CODE <> '00' AND o.ense2Geo.COUNTY_CODE <> '000' AND (o.ense2Geo.CITY_CODE NOT IN ('0000', '0'))) 
+ 
+      --WHERE ProspectLegalO.enseId= 'bb8e686f-2515-4683-8f0e-027faaa9e26a' 
+     FOR JSON PATH, ROOT('moralO.enses'), INCLUDE_NULL_VALUES   
+) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"moralO.enses":[]') 
+ 
+-- dependents 
+SET @tempJson = ( 
+     SELECT 
+       ProspectDependentId AS dependentId 
+      ,pr.PersonId   AS personId  
+      ,DependentType   AS dependentTypeCode 
+      ,RecordStatus   AS veri.ca.onStatusCode 
+      ,DependentAddressID  AS dependentAddressId 
+      ,FirstName    AS .rstName 
+      ,MiddleName    AS middleName 
+      ,LastName    AS lastName 
+      ,Su.xCode    AS su.x 
+      ,DateOfBirth   AS dateOfBirth 
+      ,OtherDescrip.on  AS otherRela.onship 
+     FROM 
+      Prospec.ng.USMC.ProspectDependent pd 
+      INNER JOIN Prospec.ng.USMC.Prospect pr ON pr.ProspectId = pd.ProspectId 
+      INNER JOIN #prospectFinalList pl ON pr.ProspectId = pl.ProspectId 
+  
+      --WHERE ProspectDependentId = '320aeb9a-82c3-4414-af85-2b60c788e69d'--- '4819f10e-081f-4531-a680-381a01f2b414' 
+     FOR JSON PATH, ROOT('dependents'), INCLUDE_NULL_VALUES   
+) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"dependents":[]') 
+ 
+-- comments 
+SET @tempJson = ( 
+     SELECT 
+       ProspectCommentId    AS commentId 
+      ,pr.PersonId     AS personId  
+      ,ProspectAc.vityCommentId  AS ac.vityCommentId 
+      ,Comment      AS commentText 
+      ,ProspectDate     AS commentDateTime 
+      ,ResultDate      AS resultDateTime 
+      ,IsApproved      AS isApproved 
+     FROM 
+      Prospec.ng.USMC.ProspectComment pc 
+      INNER JOIN Prospec.ng.USMC.Prospect pr ON pr.ProspectId = pc.ProspectId 
+      INNER JOIN #prospectFinalList pl ON pr.ProspectId = pl.ProspectId 
+ 
+      --where ProspectCommentId = '490c6f89-5b28-41f2-b1d7-006dda5b7705' 
+     FOR JSON PATH, ROOT('comments'), INCLUDE_NULL_VALUES   
+) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"comments":[]') 
+ 
+-- educa.ons 
+SET @tempJson = ( 
+     SELECT 
+       ProspectEduca.onId  AS educa.onId 
+      ,pr.PersonId    AS personId  
+      ,EduCreden.alCode   AS educa.onCreden.alCode 
+      ,Educa.onCode    AS educa.onCer..ca.onCode 
+      ,Educa.onLevel    AS educa.onLevelCode 
+      ,SchoolCode     AS schoolId 
+      ,EduStatusCode    AS educa.onStatusCode 
+      ,EduProjectedTierCode  AS educa.onProjectedTierCode 
+      ,CompletedDate    AS dateCompleted 
+      ,LastYearAtended   AS lastYearAtended 
+      ,YearGraduated    AS gradua.onYear 
+      ,Educa.onCompleted   AS educa.onCompleted 
+     FROM 
+      Prospec.ng.USMC.ProspectEduca.on pe 
+      INNER JOIN Prospec.ng.USMC.Prospect pr ON pr.ProspectId = pe.ProspectId 
+      INNER JOIN #prospectFinalList pl ON pr.ProspectId = pl.ProspectId 
+ 
+      --WHERE ProspectEduca.onId = '204a29f9-409f-4323-bbad-c65853eda37d' 
+     FOR JSON PATH, ROOT('educa.ons'), INCLUDE_NULL_VALUES  
+) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"educa.ons":[]') 
+ 
+-- exams 
+SET @tempJson = ( 
+     SELECT 
+       ID      AS examId 
+      ,pr.PersonId   AS personId 
+      ,ExamType    AS examTypeId 
+      ,pe.CareerDecision  AS careerDecisionId 
+      ,ExamDate    AS examDate 
+      ,Score     AS examScore 
+      ,ExamEnteredDate  AS examEnteredDate 
+      ,PiCatMmScore   AS piCatMmScore 
+      ,PiCatGtScore   AS piCatGtScore 
+      ,PiCatElScore   AS piCatElScore 
+      ,PiCatClScore   AS piCatClScore 
+     FROM 
+      Prospec.ng.USMC.ProspectNonMEPSProfessedExam pe 
+      INNER JOIN Prospec.ng.USMC.Prospect pr ON pr.ProspectId = pe.ProspectId 
+      INNER JOIN #prospectFinalList pl ON pr.ProspectId = pl.ProspectId 
+      --where ID = 'fe999e47-be7a-43.-b84a-589d9a081035' 
+     FOR JSON PATH, ROOT('exams'), INCLUDE_NULL_VALUES   
+) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"exams":[]') 
+ 
+-- priorServices 
+SET @tempJson = ( 
+     SELECT 
+       ID        AS priorServiceId 
+      ,pr.PersonId     AS personId 
+      ,ReenlistmentCode    AS reenlistmentCode 
+      ,ServiceID      AS serviceId 
+      ,Separa.onCode     AS separa.onCode 
+      ,ServiceCharacter    AS serviceCharacterCode 
+      ,RecordStatus     AS veri.ca.onStatusCode 
+      ,Ac.veDutyStartDate   AS ac.veDutyStartDate 
+      ,Ac.veDutyEndDate    AS ac.veDutyEndDate 
+      ,EndObligatedServiceDate  AS endOfObligatedServiceDate 
+      ,IsCurrentlyInReserves   AS currentlyInReserves 
+     FROM 
+      Prospec.ng.USMC.ProspectPriorService ps 
+      INNER JOIN Prospec.ng.USMC.Prospect pr ON pr.ProspectId = ps.ProspectId 
+      INNER JOIN #prospectFinalList pl ON pr.ProspectId = pl.ProspectId 
+ 
+      --where ID = 'c6ead550-c3af-4fdf-9fd8-3a2e676835d4' 
+     FOR JSON PATH, ROOT('priorServices'), INCLUDE_NULL_VALUES  
+) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"priorServices":[]') 
+ 
+ 
+-- dependentAddresses 
+SET @tempJson = ( 
+     SELECT DISTINCT 
+       da.DependentAddressID  AS dependentAddressId 
+      ,ISNULL( 
+         da1Geo.rowguid, 
+         da2Geo.rowguid 
+       )       AS cityId 
+      ,Street1     AS street1 
+      ,Street2     AS street2 
+      ,ZipCode     AS zipCode  
+     FROM 
+      Prospec.ng.USMC.DependentAddress da 
+      INNER JOIN Prospec.ng.USMC.ProspectDependent pd ON da.DependentAddressID = pd.DependentAddressID 
+      INNER JOIN Prospec.ng.USMC.Prospect pr ON pr.ProspectId = pd.ProspectId 
+      INNER JOIN #prospectFinalList pl ON pr.ProspectId = pl.ProspectId 
+ 
+      LEFT OUTER JOIN MCRISS.dbo.GEO_LOCATION da1Geo --City 
+      ON da1Geo.CITY_CODE = da.CityCode AND da1Geo.STATE_CODE = da.StateCode AND da1Geo.COUNTRY_DESCRIPTION <> 'UNITED STATES' 
+         AND (da1Geo.STATE_CODE <> '00' AND da1Geo.COUNTY_CODE <> '000' AND (da1Geo.CITY_CODE NOT IN ('0000', '0'))) 
+ 
+      LEFT OUTER JOIN MCRISS.dbo.GEO_LOCATION da2Geo --City 
+      ON da2Geo.CITY_CODE = da.CityCode AND da2Geo.COUNTY_CODE = da.CountyCode AND da2Geo.STATE_CODE = da.StateCode AND da2Geo.COUNTRY_DESCRIPTION = 'UNITED STATES' 
+         AND (da2Geo.STATE_CODE <> '00' AND da2Geo.COUNTY_CODE <> '000' AND (da2Geo.CITY_CODE NOT IN ('0000', '0'))) 
+ 
+      --where da.DependentAddressID = '598c9761-ca72-4797-b3e9-09bdae4a303c' 
+     FOR JSON PATH, ROOT('dependentAddresses'), INCLUDE_NULL_VALUES   
+) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"dependentAddresses":[]') 
+ 
+ 
+-- prospectStatusHistories 
+SET @tempJson = ( 
+     SELECT 
+       HistoryID   AS prospectStatusHistoryId 
+      ,sh.ProspectID  AS prospectId 
+      ,pr.PersonId  AS personId 
+      ,Disposi.onID  AS candidateDisposi.onCode 
+      ,UpdateDate   AS updateDate 
+      ,rowguid   AS rowGuid 
+     FROM 
+      Prospec.ng.USMC.ProspectStatusHistory sh 
+      INNER JOIN Prospec.ng.USMC.Prospect pr ON pr.ProspectId = sh.ProspectId 
+      INNER JOIN #prospectFinalList pl ON pr.ProspectId = pl.ProspectId 
+ 
+      --where historyId = 1774585 
+     FOR JSON PATH, ROOT('prospectStatusHistories'), INCLUDE_NULL_VALUES   
+) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"prospectStatusHistories":[]') 
+ 
+ 
+-- heightWeightIsts 
+SET @tempJson = ( 
+     SELECT 
+       ID     AS heightWeightIstId 
+      ,pr.PersonId  AS personId  
+      ,TestDate   AS recordDate 
+      ,Height    AS height 
+      ,[Weight]   AS [weight] 
+      ,RunTimeMinute  AS runTimeMin 
+      ,RunTimeSecond  AS runTimeSec 
+      ,Pullup    AS pullUps 
+      ,Hang    AS .exArmHang 
+      ,Crunch    AS crunches 
+      ,AmmoCanLi.  AS ammoCanLi. 
+      ,Pushup    AS pushUps 
+      ,ppi.Note   AS notes 
+     FROM 
+      Prospec.ng.USMC.ProspectPhysicalIst ppi 
+      INNER JOIN Prospec.ng.USMC.Prospect pr ON pr.ProspectId = ppi.ProspectId 
+      INNER JOIN #prospectFinalList pl ON pr.ProspectId = pl.ProspectId 
+ 
+      --where id = '178fac07-07cf-48c2-9d93-.57319888b1' 
+     FOR JSON PATH, ROOT('heightWeightIsts'), INCLUDE_NULL_VALUES  
+) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"heightWeightIsts":[]') 
+ 
+-- medicalExams 
+SET @tempJson = ( 
+     SELECT 
+       ProspectMedicalExamID  AS medicalExamId 
+      ,pr.PersonId    AS personId  
+      ,MedicalExamType   AS medicalExamTypeCode 
+      ,MepsOrganiza.onID   AS mepsOrganiza.onCode 
+      ,MedicalExamDate   AS medicalExamDate 
+      ,P_GeneralBodyBuild   AS generalBodyBuild 
+      ,U_UpperBody    AS upperBody 
+      ,L_LowerBody    AS lowerBody 
+      ,H_Hearing     AS hearing 
+      ,E_Eyes      AS eyes 
+      ,S_MentalPsychological  AS mentalPsychological 
+      ,VisualColor    AS visionColorCode 
+      ,VisualColorDisposi.on  AS visualColorPassCode 
+      ,Le.CorrVisualAcuity  AS le.CorrVisualAcuity 
+      ,RightCorrVisualAcuity  AS rightCorrVisualAcuity 
+      ,Le.UncorrVisualAcuity  AS le.UncorrVisualAcuity 
+      ,RightUncorrVisualAcuity AS rightUncorrVisualAcuity 
+      ,Height      AS height 
+      ,[Weight]     AS [weight] 
+      ,MedicalDisposi.on   AS medicalDisposi.onCode 
+      ,Consulta.onType   AS consulta.onTypeCode 
+     FROM 
+      Prospec.ng.USMC.ProspectMedicalExam m 
+      INNER JOIN Prospec.ng.USMC.Prospect pr ON pr.ProspectId = m.ProspectId 
+      INNER JOIN #prospectFinalList pl ON pr.ProspectId = pl.ProspectId 
+ 
+      --where ProspectMedicalExamID = 'dfec7d56-8f39-4d3f-a8a4-47b10185c048' 
+     FOR JSON PATH, ROOT('medicalExams'), INCLUDE_NULL_VALUES   
+) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"medicalExams":[]') 
+ 
+-- asvabs 
+SET @tempJson = ( 
+     SELECT 
+       ID    AS asvabId 
+      ,pr.PersonId AS personId  
+      ,ExamDate  AS examDate 
+      ,GS_Score  AS gsScore 
+      ,AR_Score  AS arScore 
+      ,WK_Score  AS wkScore 
+      ,PC_Score  AS pcScore 
+      ,NO_Score  AS noScore 
+      ,CS_Score  AS csScore 
+      ,AS_Score  AS asScore 
+      ,MK_Score  AS mkScore 
+      ,MC_Score  AS mcScore 
+      ,EI_Score  AS eiScore 
+      ,VE_Score  AS veScore 
+      ,GT_Score  AS gtScore 
+      ,EL_Score  AS elScore 
+      ,CL_Score  AS clScore 
+      ,MM_Score  AS mmScore 
+      ,AFQT   AS afqt 
+      ,MepsOrgID  AS mepsOrgId 
+      ,[Version]  AS [version] 
+     FROM 
+      Prospec.ng.USMC.ProspectAsvab av 
+      INNER JOIN Prospec.ng.USMC.Prospect pr ON pr.ProspectId = av.ProspectId 
+      INNER JOIN #prospectFinalList pl ON pr.ProspectId = pl.ProspectId 
+ 
+      --where id = '7d537c6c-e5dd-4a35-a4cf-6b86797c114f' 
+     FOR JSON PATH, ROOT('asvabs'), INCLUDE_NULL_VALUES   
+) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"asvabs":[]') 
+ 
+-- sectorRecruiters 
+SET @tempJson = ( 
+     SELECT 
+       SectorRecruiterId   AS sectorRecruiterId 
+      ,SectorID     AS sectorId 
+      ,msr.Recrui.ngPersonId  AS recrui.ngPersonId 
+     FROM 
+      RSSOSS.USMC.MapsSectorRecruiter msr 
+      INNER JOIN #Recruiter recrut ON msr.Recrui.ngPersonId = recrut.Recrui.ngPersonGuid 
+ 
+      --where SectorRecruiterId='03e078d2-db48-4263-bdf3-266a30c906ca' 
+     FOR JSON PATH, ROOT('sectorRecruiters'), INCLUDE_NULL_VALUES   
+) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"sectorRecruiters":[]') 
+ 
+-- listImports 
+SET @tempJson = ( 
+     SELECT DISTINCT 
+       ie.ImportEventId    AS listImportId 
+      ,ImportTypeId     AS importTypeId 
+      ,ImportEventStatusTypeId  AS importEventStatusTypeId 
+      ,ImportFileName     AS importFileName 
+      ,ie.PersonId     AS personId 
+      ,SchoolId      AS schoolGuid 
+      ,ie.Gradua.onYear    AS gradua.onYear 
+      ,DateObtained     AS dateObtained 
+      ,DateStarted     AS dateStarted 
+      ,DateCompleted     AS dateCompleted 
+      ,Notes       AS notes 
+      ,ie.SubSta.onType    AS subSta.onType 
+      ,ie.Recrui.ngOrganiza.onId AS recrui.ngOrganiza.onId 
+      ,ie.[Source]     AS [source] 
+      ,ListCode      AS listCode 
+      ,DateAc.ve      AS dateAc.ve 
+      ,RecordCount     AS recordCount 
+      ,DateCompleted     AS dateToContactSheet 
+      ,ie.LastUpdateDate    AS lastUpdateDate 
+     FROM  
+      Prospec.ng.USMC.ImportEvent ie 
+      INNER JOIN Prospec.ng.USMC.ImportPerson ipp ON ie.ImportEventId = ipp.ImportEventId 
+      INNER JOIN Prospec.ng.USMC.Person p ON ipp.PersonId = p.PersonId 
+      INNER JOIN Prospec.ng.USMC.Prospect pr ON pr.PersonId = p.PersonId 
+      INNER JOIN #prospectFinalList pl ON pr.ProspectId = pl.ProspectId 
+ 
+      --where ie.importEven.d = '28e2447c-6a.-4653-ad6f-f7dbe32d025b' 
+     FOR JSON PATH, ROOT('listImports'), INCLUDE_NULL_VALUES   
+) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"listImports":[]') 
+ 
+ 
+-- personImports 
+SET @tempJson = ( 
+     SELECT 
+       ipp.ImportPersonId     AS importPersonId 
+      ,ipp.ImportEventId     AS listImportId 
+      ,ipp.PersonId      AS personId 
+      ,ipp.ImportPersonStatusTypeId  AS importPersonStatusTypeId 
+      ,ipp.ImportFileRecordNumber   AS importFileRecordNumber 
+ 
+     FROM 
+      Prospec.ng.USMC.ImportPerson ipp 
+      INNER JOIN Prospec.ng.USMC.Person p ON ipp.PersonId = p.PersonId 
+      INNER JOIN Prospec.ng.USMC.Prospect pr ON pr.PersonId = p.PersonId 
+      INNER JOIN #prospectFinalList pl ON pr.ProspectId = pl.ProspectId 
+ 
+      --where ipp.ImportPersonId = 'baeb4f9c-6565-418d-8c1e-a8.94b532ee' 
+     FOR JSON PATH, ROOT('personImports'), INCLUDE_NULL_VALUES   
+) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"personImports":[]') 
+  
+ 
+SET @result = '{' + @result + '}' 
+SELECT @result 
+ 
+DROP TABLE #Recruiter 
+DROP TABLE #nwaList 
+DROP TABLE #prospectList 
+DROP TABLE #prospectFinalList 
+DROP TABLE #CurrentCandidateStatus]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

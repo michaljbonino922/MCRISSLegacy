@@ -1,0 +1,42 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetSmcrUnitList]" directorySegmentName="seg_9" id="D9CCC90D-7B89-8C1F-8E9C-350CB4E061B7">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@zipCodes xml = null 
+ 
+  
+AS 
+ 
+BEGIN 
+    
+   SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+    
+   IF @ZipCodes IS NOT null 
+   BEGIN 
+  DECLARE @ZipCodesTable TABLE (ID varchar(5)) 
+  INSERT INTO @ZipCodesTable (ID) 
+  SELECT ParamValues.ID.value('.','VARCHAR(5)') 
+  FROM @ZipCodes.nodes('ZipCodes/id') as ParamValues(ID)  
+ END 
+  
+       
+    SELECT  [SMCRReserveUnitID]   
+   ,[SMCRReserveUnitName]   
+   ,[Street1]   
+   ,[City]   
+   ,[State]   
+   ,[ZipCode]   
+   FROM [USMC].[SMCRReserveUnit]    
+            WHERE  
+            (  @ZipCodes is null OR 
+    LEFT(ZIPCODE,5) IN (SELECT * FROM @ZipCodesTable)  
+   ) 
+            ORDER BY  SMCRReserveUnitName ; 
+  
+    
+END]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,57 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateARN]" directorySegmentName="seg_24" id="2D32A52A-B565-611F-1D83-FE55EF124E34">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@MarineCandidateID int, 
+ @ARN   varchar(9), 
+ @ARNStatus  char(1)  = NULL, 
+ @ARNDiscrepancy  varchar(2) = NULL, 
+ @UserLogin   varchar(15) 
+AS 
+ 
+DECLARE @ARNStatusID   int 
+DECLARE @ARNDiscrepancyID int 
+ 
+--- GET THE ARN STATUS ID 
+SELECT  
+ @ARNStatusID = ARN_STATUS_ID  
+FROM  
+ ARN_STATUS  
+WHERE  
+ ARN_STATUS_CODE = @ARNStatus 
+ 
+--- GET THE ARN DISCREPANCY ID 
+SELECT  
+ @ARNDiscrepancyID = ARN_DISCREPANCY_ID  
+FROM  
+ ARN_DISCREPANCY  
+WHERE  
+ ARN_DISCREPANCY_CODE = @ARNDiscrepancy 
+ 
+--- UPDATE THE RECORD 
+IF EXISTS (SELECT 1 FROM ALIEN_REGISTRATION WHERE MARINE_CANDIDATE_ID = @MarineCandidateID) 
+BEGIN 
+ UPDATE  
+  ALIEN_REGISTRATION 
+ SET   
+  ARN   = @ARN, 
+  ARN_STATUS   = @ARNStatusID, 
+  ARN_DISCREPANCY  = @ARNDiscrepancyID, 
+  USER_LOGIN   = @UserLogin, 
+  UPDATE_DATE   = GETDATE() 
+ WHERE  
+  MARINE_CANDIDATE_ID  = @MarineCandidateID 
+END 
+ELSE 
+BEGIN 
+ --- INSERT THE Alien Registra.on Data 
+ INSERT INTO ALIEN_REGISTRATION  
+  (MARINE_CANDIDATE_ID, ARN, ARN_STATUS, ARN_DISCREPANCY , USER_LOGIN, UPDATE_DATE) 
+ VALUES  
+  (@MarineCandidateID, @ARN, @ARNStatusID, @ARNDiscrepancyID, @UserLogin, GETDATE()) 
+END]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

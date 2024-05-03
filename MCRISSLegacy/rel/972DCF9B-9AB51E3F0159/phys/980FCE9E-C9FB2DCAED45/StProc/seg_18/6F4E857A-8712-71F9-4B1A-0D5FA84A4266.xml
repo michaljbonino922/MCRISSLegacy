@@ -1,0 +1,26 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetMedicalStatusWaiversNOMI]" directorySegmentName="seg_18" id="6F4E857A-8712-71F9-4B1A-0D5FA84A4266">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@NWAID int 
+AS 
+ 
+SELECT 
+ [MEDICAL_STATUS_WAIVER_ID], 
+ [SUBMISSION_TYPE_ID], 
+ COALESCE(CONVERT(CHAR(11), [DATE_SUBMITTED_NOMI], 106), null) AS DATE_SUBMITTED_NOMI, 
+ COALESCE(CONVERT(CHAR(11), [DATE_RECEIVED_MCRC], 106), null) AS DATE_RECEIVED_MCRC, 
+ [NOMI_DISPOSITION_ID], 
+ [MCRC_DISPOSITION_ID], 
+ COALESCE(CONVERT(CHAR(11), [DATE_TO_DISTRICT], 106), null) AS DATE_TO_DISTRICT 
+FROM 
+ [MEDICAL_STATUS_WAIVERS_NOMI]  
+WHERE 
+ [NWA_ID] = @NWAID 
+ORDER BY 
+ [MEDICAL_STATUS_WAIVER_ID]]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

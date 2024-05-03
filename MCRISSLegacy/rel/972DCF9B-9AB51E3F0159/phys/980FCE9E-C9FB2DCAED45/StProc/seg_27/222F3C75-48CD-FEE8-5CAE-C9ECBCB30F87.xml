@@ -1,0 +1,25 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateQSNRSS]" directorySegmentName="seg_27" id="222F3C75-48CD-FEE8-5CAE-C9ECBCB30F87">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[(@strQSNID char(9) 
+ ,@AssignedRSS int 
+ ,@UserLogin varchar(50)) 
+AS 
+ 
+IF EXISTS (SELECT 1 FROM QSN WHERE QSN_ID = @strQSNID) 
+BEGIN 
+ UPDATE 
+  QSN 
+ SET     
+  AssignedRssOrgId =  @AssignedRSS, 
+  USER_LOGIN    =  @UserLogin  
+ WHERE 
+  QSN_ID = @strQSNID 
+ 
+END]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

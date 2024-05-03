@@ -1,0 +1,18 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_DeleteARN]" directorySegmentName="seg_14" id="B1393492-D881-4B7C-A901-2A1EB15C78F6">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@MarineCandidateID int, 
+ @UserLogin   varchar(15) 
+AS 
+ 
+--- DELETE THE RECORD 
+IF EXISTS (SELECT 1 FROM ALIEN_REGISTRATION WHERE MARINE_CANDIDATE_ID = @MarineCandidateID) 
+BEGIN 
+ DELETE ALIEN_REGISTRATION WHERE MARINE_CANDIDATE_ID = @MarineCandidateID 
+END]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

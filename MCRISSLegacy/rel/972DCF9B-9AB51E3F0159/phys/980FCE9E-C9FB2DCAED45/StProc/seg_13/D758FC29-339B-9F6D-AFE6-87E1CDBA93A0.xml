@@ -1,0 +1,305 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_AddNROTCCandidate]" directorySegmentName="seg_13" id="D758FC29-339B-9F6D-AFE6-87E1CDBA93A0">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@LastName   varchar(20), 
+ @FirstName   varchar(20), 
+ @MiddleName   varchar(20), 
+ @Su.x    varchar(5), 
+ @SSN    char(9), 
+ @DateOfBirth   date.me, 
+ @Gender    char(1), 
+ @Organiza.onOfRecordID  int, 
+ @Recrui.ngPersonID  int, 
+ @Selec.onBoardDate  date.me, 
+ @O.cerComponentCode  varchar(2), 
+ @ShipMission   int, 
+ @RaceCode   char(1), 
+ @EthnicCode   varchar(2), 
+ @MaritalStatusCode  char(1), 
+ @ReligionCode   varchar(2),   
+ @MEPCOMRaceCode   char(1), 
+ @MEPCOMEthnicCode  char(1), 
+ @CountryOfOrigin  varchar(3), 
+ @Ci.zenship   varchar(2), 
+ @CurStreetAddress  varchar(50) = NULL, 
+ @CurStateCode   varchar(2) = NULL, 
+ @CurCountyCode   varchar(3) = NULL, 
+ @CurCityCode   varchar(4) = NULL, 
+ @CurZipcode   varchar(9) = NULL, 
+ @CurAC    varchar(4) = NULL, 
+ @CurTelephoneNumber  varchar(10) = NULL, 
+ @HorStreetAddress  varchar(50) = NULL, 
+ @HorStateCode   varchar(2) = NULL, 
+ @HorCountyCode   varchar(3) = NULL, 
+ @HorCityCode   varchar(4) = NULL, 
+ @HorZipcode   varchar(9) = NULL, 
+ @HorAC    varchar(4) = NULL, 
+ @HorTelephoneNumber  varchar(10) = NULL, 
+ @Addi.onalTelephoneType char(1)  = NULL, 
+ @Addi.onalAC   varchar(4)  = NULL, 
+ @Addi.onalTelephoneNumber varchar(10)  = NULL, 
+ @EmailAddress   varchar(50) = NULL,  
+ @WaiverNote   varchar(50) = NULL, 
+ @StatusType   char(1), 
+ @StatusCode   varchar(10), 
+ @Disposi.onCode  varchar(20), 
+ @StatusE.ec.veDate  date.me, 
+ @UserLogin   varchar(15), 
+ @NWAID    int OUTPUT, 
+ @PersonID   int OUTPUT 
+AS 
+ 
+DECLARE @UpdateCounter INT 
+ 
+DECLARE @DBID   INT 
+DECLARE @DBNAME  SYSNAME 
+DECLARE @CurrentDate DATETIME 
+ 
+DECLARE @ErrMsg  varchar(100) 
+ 
+SET NOCOUNT ON 
+ 
+--- INITIALIZE VARIABLES 
+SELECT  
+ @CurrentDate = GETDATE(), 
+ @DBID   = DB_ID(),  
+ @DBNAME  = DB_NAME(), 
+ @UpdateCounter  = 1 
+ 
+--- update the PERSON table and retrieve the new PersonID 
+EXEC sp_UpdatePerson 
+ @PersonID    = 0, 
+ @SocialSecurityNumber  = @SSN, 
+ @FirstName   = @FirstName, 
+ @LegalMiddleName  = @MiddleName, 
+ @LastName   = @LastName, 
+ @Su.xCD   = @Su.x, 
+ @UserLogin   = @UserLogin, 
+ @ID    = @PersonID OUTPUT 
+ 
+IF @@ERROR != 0  
+BEGIN 
+ RAISERROR ('An error occurred adding the NWA person record.', 16, @UpdateCounter, @DBID, @DBNAME) 
+ RETURN 
+END 
+ 
+--- INCREMENT THE UPDATE COUNTER 
+SET @UpdateCounter = @UpdateCounter + 1 
+ 
+--- update the MARINE_CANDIDATE table 
+EXEC sp_UpdateMarineCandidate  
+ @PersonID    = @PersonID, 
+ @MaritalStatusCode  = @MaritalStatusCode, 
+ @RaceCode     = @RaceCode, 
+ @EthnicCode     = @EthnicCode, 
+ @MEPCOMRaceCategoryCode  = @MEPCOMRaceCode, 
+ @MEPCOMEthnicCategoryCode = @MEPCOMEthnicCode, 
+ @GenderCode     = @Gender, 
+ @ReligionCode     = @ReligionCode, 
+ @Popula.onGroupCode    = NULL, 
+ @DateOfBirth     = @DateOfBirth, 
+ @Ci.zenship     = @Ci.zenship, 
+ @CountryOfOrigin    = @CountryOfOrigin,  
+ @DriverLicenseState    = NULL, 
+ @DriverLicenseNum    = NULL, 
+ @DriverLicenseExp    = NULL, 
+ @InterviewDate    = NULL, 
+ @UserLogin    = @UserLogin 
+ 
+IF @@ERROR != 0 
+BEGIN 
+ RAISERROR ('An error occurred adding the NWA marine candidate record.', 16, @UpdateCounter, @DBID, @DBNAME) 
+ RETURN 
+END 
+ 
+--- INCREMENT THE UPDATE COUNTER 
+SET @UpdateCounter = @UpdateCounter + 1 
+ 
+--- update the NWA table and retrieve the NWAID 
+EXEC sp_UpdateNWA 
+ @PersonID   = @PersonID, 
+ @NWAID    = 0, 
+ @NWADeclaredDate  = @Selec.onBoardDate, 
+ @NWADateStartedWorking  = @Selec.onBoardDate, 
+ @ParentalConsent  = NULL, 
+ @ProjectedShipMonth  = NULL, 
+ @NWALogNotes   = @WaiverNote, 
+ @ProjectProgramChoice1  = NULL, 
+ @ProjectProgramChoice2  = NULL, 
+        @ProjectProgramChoice3  = NULL, 
+ @Ac.vityCode    = NULL, 
+ @SourceCode    = NULL, 
+ @SourceCodeDual   = NULL, 
+ @RecruiterofRecordID   = @Recrui.ngPersonID, 
+ @Organiza.onofRecordID = @Organiza.onOfRecordID, 
+ @WorkingRecruiterID   = @Recrui.ngPersonID, 
+ @CategoryCode   = NULL, 
+ @Educa.onLevel   = NULL, 
+ @Educa.onCode   = NULL, 
+ @PPC     = NULL, 
+ @CompChangeFlag   = NULL, 
+ @BachGradYear   = NULL, 
+ @BachGradMonth   = NULL, 
+ @O.cerComponentCode  = @O.cerComponentCode, 
+ @Na.onalCallToService = NULL, 
+ --- @OCCR   = NULL, 
+ @ShipMission   = @ShipMission, 
+ @EmailAddress  = @EmailAddress, 
+ @UserLogin   = @UserLogin, 
+ @ID    = @NWAID OUTPUT 
+ 
+IF @@ERROR != 0  
+BEGIN 
+ RAISERROR ('An error occurred adding the NWA record.', 16, @UpdateCounter, @DBID, @DBNAME) 
+ RETURN 
+END 
+ 
+--- INCREMENT THE UPDATE COUNTER 
+SET @UpdateCounter = @UpdateCounter + 1 
+ 
+ 
+--- update the CANDIDATE_STATUS table 
+EXEC sp_UpdateCandidateStatus 
+ @NWAID    = @NWAID, 
+ @StatusE.ec.veDate  = @StatusE.ec.veDate, 
+ @StatusType   = @StatusType, 
+ @StatusCode   = @StatusCode, 
+ @Disposi.onCode  = @Disposi.onCode, 
+ @UserLogin   = @UserLogin 
+ 
+IF @@ERROR != 0  
+BEGIN 
+ RAISERROR ('An error occurred adding the status disposi.on record.', 16, @UpdateCounter, @DBID, @DBNAME) 
+ RETURN 
+END 
+ 
+ 
+--- INCREMENT THE UPDATE COUNTER 
+SET @UpdateCounter = @UpdateCounter + 1 
+ 
+--- CURRENT ADDRESS DATA 
+IF @CurStreetAddress IS NOT NULL AND @CurStateCode IS NOT NULL 
+BEGIN 
+ --- UPDATE CURRENT ADDRESS DATA 
+ EXEC sp_UpdateCandidateAddress 
+  @PersonID  = @PersonID, 
+  @AddressType  = 'C', 
+  @StreetAddress  = @CurStreetAddress, 
+  @CityCode  = @CurCityCode, 
+  @CountyCode  = @CurCountyCode, 
+  @StateCode  = @CurStateCode, 
+  @ZipCode  = @CurZipcode, 
+  @UserLogin  = @UserLogin 
+ 
+ IF @@ERROR != 0  
+ BEGIN 
+  RAISERROR ('An error occurred adding the current address.', 16, @UpdateCounter, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ 
+ --- INCREMENT THE UPDATE COUNTER 
+ SET @UpdateCounter = @UpdateCounter + 1 
+END 
+ 
+--- HOR ADDRESS DATA 
+IF @HorStreetAddress IS NOT NULL AND @HorStateCode IS NOT NULL 
+BEGIN 
+ --- UPDATE HOR ADDRESS DATA 
+ EXEC sp_UpdateCandidateAddress 
+  @PersonID  = @PersonID, 
+  @AddressType  = 'H', 
+  @StreetAddress = @HorStreetAddress, 
+  @CityCode  = @HorCityCode, 
+  @CountyCode  = @HorCountyCode, 
+  @StateCode  = @HorStateCode, 
+  @ZipCode  = @HorZipcode, 
+  @UserLogin  = @UserLogin 
+ 
+ IF @@ERROR != 0  
+ BEGIN 
+  RAISERROR ('An error occurred adding the home of record address.', 16, @UpdateCounter, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ 
+ --- INCREMENT THE UPDATE COUNTER 
+ SET @UpdateCounter = @UpdateCounter + 1 
+END 
+ 
+IF @CurTelephoneNumber IS NOT NULL 
+BEGIN 
+ --- UPDATE CURRENT TELEPHONE DATA 
+ EXEC sp_UpdateCandidateTelephone 
+  @PersonID   = @PersonID, 
+  @TelephoneType   = 'C', 
+  @AreaCode   = @CurAC, 
+  @TelephoneNumber  = @CurTelephoneNumber, 
+  @UserLogin   = @UserLogin 
+ 
+ IF @@ERROR != 0  
+ BEGIN 
+  RAISERROR ('An error occurred adding the current telephone.', 16, @UpdateCounter, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ 
+ --- INCREMENT THE UPDATE COUNTER 
+ SET @UpdateCounter = @UpdateCounter + 1 
+END 
+ 
+ 
+IF @HorTelephoneNumber IS NOT NULL 
+BEGIN 
+ --- UPDATE HOR TELEPHONE DATA 
+ EXEC sp_UpdateCandidateTelephone 
+  @PersonID   = @PersonID, 
+  @TelephoneType   = 'H', 
+  @AreaCode   = @HorAC, 
+  @TelephoneNumber  = @HorTelephoneNumber, 
+  @UserLogin   = @UserLogin 
+ 
+ IF @@ERROR != 0  
+ BEGIN 
+  RAISERROR ('An error occurred adding the NWA home of record telephone.', 16, @UpdateCounter, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ 
+ --- INCREMENT THE UPDATE COUNTER 
+ SET @UpdateCounter = @UpdateCounter + 1 
+END 
+ 
+ 
+IF @Addi.onalTelephoneType IS NOT NULL AND @Addi.onalTelephoneNumber IS NOT NULL 
+BEGIN 
+ --- UPDATE ADDITIONAL TELEPHONE DATA 
+ EXEC sp_UpdateCandidateTelephone 
+  @PersonID   = @PersonID, 
+  @TelephoneType   = @Addi.onalTelephoneType, 
+  @AreaCode   = @Addi.onalAC, 
+  @TelephoneNumber  = @Addi.onalTelephoneNumber, 
+  @UserLogin   = @UserLogin 
+ 
+ IF @@ERROR != 0  
+ BEGIN 
+  DECLARE @TelephoneTypeDesc varchar(50) 
+ 
+  --- RETRIEVE THE TELEPHONE TYPE    
+  SELECT @TelephoneTypeDesc = COALESCE(TT.TELEPHONE_TYPE, 'addi.onal') FROM TELEPHONE_TYPE TT  
+  WHERE TT.TELEPHONE_TYPE_CODE = @Addi.onalTelephoneType 
+ 
+ 
+  SET @ErrMsg = 'An error occurred adding the ' + @TelephoneTypeDesc + ' telephone.' 
+  RAISERROR (@ErrMsg, 16, @UpdateCounter, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ 
+ --- INCREMENT THE UPDATE COUNTER 
+ SET @UpdateCounter = @UpdateCounter + 1 
+END 
+ 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

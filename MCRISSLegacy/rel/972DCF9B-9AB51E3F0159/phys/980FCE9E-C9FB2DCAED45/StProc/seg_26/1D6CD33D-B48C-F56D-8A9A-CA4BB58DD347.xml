@@ -1,0 +1,178 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SPGEN_CANDASVAB179]" directorySegmentName="seg_26" id="1D6CD33D-B48C-F56D-8A9A-CA4BB58DD347">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[as  
+ 
+SET ARITHABORT OFF 
+set arithignore on 
+set ansi_warnings o. 
+ 
+declare 
+ @ssn     varchar(9), 
+ @marine_candidate_id   int, 
+ @meps_organiza.on_id   int, 
+ @meps_mcc   varchar(3), 
+ @person_id    int, 
+ @asvab_dte   date.me, 
+ @contract_date   date.me, 
+ @version   varchar(3), 
+ @afqt_score   varchar(3), 
+ @gs_subtest   varchar(2), 
+ @ar_subtest   varchar(2), 
+ @wk_subtest   varchar(2), 
+ @pc_subtest   varchar(2), 
+ @no_subtest   varchar(2), 
+ @cs_subtest   varchar(2), 
+ @as_subtest   varchar(2), 
+ @mk_subtest   varchar(2), 
+ @mc_subtest   varchar(2), 
+ @ei_subtest   varchar(2), 
+ @ve_subtest   varchar(2), 
+ @gt_score   varchar(3), 
+ @el_score   varchar(3), 
+ @cl_score   varchar(3), 
+ @mm_score   varchar(3), 
+ @user_login   varchar(15), 
+ @update_date   date.me 
+  
+ 
+declare asvab cursor for 
+ 
+select   SSN,  
+  MEPS_AFQT, 
+  substring(MEPS_RAWS,3,2), 
+  substring(MEPS_RAWS,13,2), 
+  convert(date.me,ASVAB_DTE,112), 
+  substring(MEPS_COMPOSITE,16,3), 
+  substring(MEPS_RAWS,11,2), 
+  substring(MEPS_RAWS,19,2), 
+  substring(MEPS_COMPOSITE,13,3), 
+  substring(MEPS_RAWS,1,2), 
+  substring(MEPS_COMPOSITE,7,3), 
+  substring(MEPS_RAWS,17,2), 
+  substring(MEPS_RAWS,15,2), 
+  substring(MEPS_COMPOSITE,19,3), 
+  substring(MEPS_RAWS,9,2), 
+  substring(MEPS_RAWS,7,2), 
+  substring(MEPS_RAWS,21,2), 
+  AFEES_TESTID, 
+  substring(MEPS_RAWS,5,2), 
+  AFEES_MCC, 
+  convert(date.me,DEP_DATEIN,112) 
+from arms..ARMS179 
+ 
+ 
+open asvab 
+ 
+fetch asvab  
+    into @ssn, @afqt_score, @ar_subtest, @as_subtest, @asvab_dte, @cl_score, 
+   @cs_subtest, @ei_subtest, @el_score, @gs_subtest, @gt_score,  
+   @mc_subtest, @mk_subtest, @mm_score, @no_subtest, @pc_subtest,  
+   @ve_subtest, @version, @wk_subtest, @meps_mcc, @contract_date 
+ 
+while (@@FETCH_STATUS = 0) 
+begin 
+ 
+ 
+select @user_login = 'migra.on' 
+select @update_date = getdate() 
+ 
+     select @person_id = PERSON_ID from PERSON  
+     where SOCIAL_SECURITY_NUMBER = @ssn 
+ 
+     select @marine_candidate_id = @person_id 
+ 
+     select @meps_organiza.on_id =  (select TOP 1 MEPS_ORGANIZATION_ID 
+                                  from mcriss..MEPS_ORGANIZATION_LOOKUP 
+                                  where MCC_CODE = @meps_mcc) 
+  
+ 
+     if @person_id is not NULL 
+       begin  
+ 
+      print @ssn 
+ 
+         if (not exists(select 1 from mcriss..CANDIDATE_ASVAB 
+                 where MARINE_CANDIDATE_ID = @person_id and ASVAB_DATE = @asvab_dte and VERSION = @version)) 
+        begin 
+ 
+             if @asvab_dte in (' ') 
+      select @asvab_dte = @contract_date 
+ 
+             if @gs_subtest = NULL 
+      select @gs_subtest = '00' 
+             if @ar_subtest = NULL 
+      select @ar_subtest = '00' 
+             if @wk_subtest = NULL 
+      select @wk_subtest = '00' 
+             if @pc_subtest = NULL 
+      select @pc_subtest = '00' 
+             if @no_subtest = NULL 
+      select @no_subtest = '00' 
+             if @cs_subtest = NULL 
+      select @cs_subtest = '00' 
+             if @as_subtest = NULL 
+      select @as_subtest = '00' 
+             if @mk_subtest = NULL 
+      select @mk_subtest = '00' 
+             if @mc_subtest = NULL 
+      select @mc_subtest = '00' 
+             if @ei_subtest = NULL 
+      select @ei_subtest = '00' 
+             if @ve_subtest = NULL 
+      select @gs_subtest = '00' 
+            
+       if @afqt_score = NULL 
+      select @afqt_score = '000' 
+       if @gt_score = NULL 
+      select @gt_score = '000' 
+       if @el_score = NULL 
+     select @el_score = '000' 
+       if @cl_score = NULL 
+      select @cl_score = '000' 
+       if @mm_score = NULL 
+      select @mm_score = '000' 
+      
+        insert into mcriss..CANDIDATE_ASVAB 
+   (MARINE_CANDIDATE_ID,VERSION,ASVAB_DATE,GS_SUBTEST,AR_SUBTEST, 
+   WK_SUBTEST,PC_SUBTEST,NO_SUBTEST,CS_SUBTEST,AS_SUBTEST,MK_SUBTEST, 
+   MC_SUBTEST,EI_SUBTEST,VE_SUBTEST,AFQT_SCORE,GT_SCORE,EL_SCORE, 
+   CL_SCORE,MM_SCORE,MEPS_ORGANIZATION_ID,USER_LOGIN,UPDATE_DATE) 
+ 
+ 
+ 
+      values (@marine_candidate_id, @version, @asvab_dte,  
+           @gs_subtest, @ar_subtest, @wk_subtest, @pc_subtest, @no_subtest, 
+   @cs_subtest, @as_subtest, @mk_subtest, @mc_subtest, @ei_subtest, 
+   @ve_subtest, @afqt_score, @gt_score, @el_score, @cl_score, 
+   @mm_score, @meps_organiza.on_id,@user_login,@update_date) 
+ 
+      if @meps_organiza.on_id = NULL 
+     print 'missing meps mcc code = '+@meps_mcc+'for SSN '+@ssn 
+ 
+           end 
+         else 
+           begin 
+        print 'Already in Candidate_Asvab '+@ssn 
+           end 
+       end 
+      else 
+        print @ssn+' Not in person' 
+ 
+   fetch asvab  
+    into @ssn, @afqt_score, @ar_subtest, @as_subtest, @asvab_dte, @cl_score, 
+   @cs_subtest, @ei_subtest, @el_score, @gs_subtest, @gt_score,  
+   @mc_subtest, @mk_subtest, @mm_score, @no_subtest, @pc_subtest,  
+   @ve_subtest, @version, @wk_subtest, @meps_mcc, @contract_date 
+ 
+end 
+ 
+close asvab 
+ 
+deallocate asvab]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

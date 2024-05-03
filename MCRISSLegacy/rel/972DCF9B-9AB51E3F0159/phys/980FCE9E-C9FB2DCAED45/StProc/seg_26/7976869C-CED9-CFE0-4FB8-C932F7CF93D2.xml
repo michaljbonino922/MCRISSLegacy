@@ -1,0 +1,46 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateCandidatePriorService]" directorySegmentName="seg_26" id="7976869C-CED9-CFE0-4FB8-C932F7CF93D2">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[(@MarineCandidateID int 
+ ,@ComponentCode varchar(2) 
+ ,@BeginDate date.me 
+ ,@EndDate date.me 
+ ,@Separa.onCode varchar(4) 
+ ,@ReenlistmentCode varchar(2) 
+ ,@ServiceCharacter char(1) 
+ ,@Veri.ca.on varchar(10) 
+ ,@PmosCode varchar(4) 
+ ,@ServiceID int 
+ ,@CurrentlyInReserves char(1) 
+ ,@EndOfObligatedServiceDate date.me 
+ ,@Pros decimal(10,1) 
+ ,@Cons decimal(10,1) 
+ ,@UserLogin varchar(15)) 
+AS 
+ 
+UPDATE  
+ [dbo].[CANDIDATE_PRIOR_SERVICE]  
+SET 
+  [BEGIN_DATE] = @BeginDate 
+ ,[SEPARATION_CODE] = @Separa.onCode 
+ ,[REENLISTMENT_CODE] = @ReenlistmentCode 
+ ,[SERVICE_CHARACTER] = @ServiceCharacter 
+ ,[VERIFICATION] = @Veri.ca.on 
+ ,[PMOS_CODE] = @PmosCode 
+ ,[SERVICE_ID] = @ServiceID 
+ ,[CURRENTLY_IN_RESERVES] = @CurrentlyInReserves 
+ ,[END_OF_OBLIGATED_SERVICE_DATE] = @EndOfObligatedServiceDate 
+ ,[PROS] = @Pros 
+ ,[CONS] = @Cons 
+ ,[USER_LOGIN] = @UserLogin 
+ ,[UPDATE_DATE] = GetDate() 
+WHERE 
+ [MARINE_CANDIDATE_ID] = @MarineCandidateID AND 
+ [COMPONENT_CODE] = @ComponentCode AND 
+ [END_DATE] = @EndDate]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

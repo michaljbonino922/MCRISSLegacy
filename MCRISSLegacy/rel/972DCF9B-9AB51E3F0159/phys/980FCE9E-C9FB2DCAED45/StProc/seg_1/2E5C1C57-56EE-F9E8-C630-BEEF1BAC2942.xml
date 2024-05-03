@@ -1,0 +1,23 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetAllCi.es]" directorySegmentName="seg_1" id="2E5C1C57-56EE-F9E8-C630-BEEF1BAC2942">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[AS 
+  BEGIN 
+    -- Ci.es in US 
+    SELECT c.[Code], c.[Name], c.[StateCode], c.[StateName], c.[CountyCode], c.[CountyName] 
+    FROM   [MCRISS].[USMC].[vwCi.es] c INNER JOIN [MCRISS].[USMC].[vwStatesWithTerritories] s ON c.StateCode = s.Code 
+    UNION 
+    -- Ci.es from Other Countries 
+    SELECT [Code], [Name], [StateCode], [StateName], [CountyCode], [CountyName] 
+    FROM   [MCRISS].[USMC].[vwCi.es] 
+    WHERE  StateCode IN (SELECT Code AS CountryCode 
+                         FROM   [USMC].[vwCountries] 
+                         WHERE  Code <> 'US' AND ISNUMERIC(LEFT(Code, 1)) = 0) AND Name IS NOT NULL 
+    ORDER BY StateCode, CountyCode, [Name] 
+  END]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

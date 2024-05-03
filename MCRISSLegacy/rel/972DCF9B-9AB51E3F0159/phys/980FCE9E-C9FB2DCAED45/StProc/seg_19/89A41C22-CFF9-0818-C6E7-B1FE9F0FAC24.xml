@@ -1,0 +1,28 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetProgramCriteriaWaiverCodes]" directorySegmentName="seg_19" id="89A41C22-CFF9-0818-C6E7-B1FE9F0FAC24">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[AS 
+ 
+SELECT 
+ W.WAIVER_ID,  
+ C.WAIVER_CATEGORY_CODE + T.WAIVER_TYPE_CODE + L.WAIVER_LEVEL_CODE AS WAIVER_CODE,  
+ C.WAIVER_CATEGORY_CODE,  
+ T.WAIVER_TYPE_CODE,  
+ L.WAIVER_LEVEL_CODE,  
+ C.WAIVER_CATEGORY_DESC,  
+ T.WAIVER_TYPE_DESC,  
+ L.WAIVER_LEVEL_DESC 
+FROM 
+ WAIVER W INNER JOIN WAIVER_CATEGORY C ON  
+  (W.WAIVER_CATEGORY_ID = C.WAIVER_CATEGORY_ID AND  
+  C.WAIVER_CATEGORY_CODE IN ('D', 'F')) 
+ INNER JOIN WAIVER_TYPE T ON W.WAIVER_TYPE_ID = T.WAIVER_TYPE_ID  
+ INNER JOIN WAIVER_LEVEL L ON W.WAIVER_LEVEL_ID = L.WAIVER_LEVEL_ID 
+ORDER BY  
+ WAIVER_CODE, W.WAIVER_ID]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

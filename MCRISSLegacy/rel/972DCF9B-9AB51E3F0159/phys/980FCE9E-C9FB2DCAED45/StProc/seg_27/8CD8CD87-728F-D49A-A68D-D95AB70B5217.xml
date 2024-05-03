@@ -1,0 +1,30 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateOCSClassView]" directorySegmentName="seg_27" id="8CD8CD87-728F-D49A-A68D-D95AB70B5217">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[(@OCSID int 
+ ,@NoShow char(1) = NULL 
+ ,@ReportDate date.me = NULL 
+ ,@UserLogin varchar(50)) 
+  
+AS 
+ 
+IF EXISTS (SELECT 1 FROM OCS WHERE OCS_ID = @OCSID) 
+BEGIN 
+ UPDATE 
+  OCS 
+ SET  
+  CLASS_RESULT_CODE = CASE @NoShow WHEN 'Y' THEN 'O' ELSE CLASS_RESULT_CODE END, 
+  REPORT_DATE  = CASE  
+      WHEN COALESCE(@NoShow, 'N') = 'N' THEN @ReportDate 
+      ELSE REPORT_DATE 
+      END 
+ WHERE 
+  OCS_ID    = @OCSID 
+ 
+END]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,187 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUpdateForm]" directorySegmentName="seg_29" id="1D970E71-A796-63D5-1511-911FD694E791">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:39 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @Sec.onItemId uniqueiden..er, 
+ @Sec.onId uniqueiden..er, 
+ @FriendlyName varchar(100), 
+ @Sec.onItemType .nyint, 
+ @FormCfgId uniqueiden..er, 
+ @Signed bit, 
+ @Valid bit, 
+ @Assembly varchar(100), 
+ @ClassName varchar(100), 
+ @TemplatePdfFileName varchar(100), 
+ @TemplateXdpFileName varchar(100), 
+ @VersionNumber char(10), 
+ @UserName varchar(100), 
+ @SortOrder .nyint = 0, 
+ @IsOQR bit 
+) 
+AS 
+BEGIN TRANSACTION 
+ 
+IF(@SortOrder IS NULL) 
+ SET @SortOrder = (SELECT ISNULL(MAX(SortOrder)+1, 0) FROM ACP.Sec.onItem WHERE Sec.onID = @Sec.onId) 
+ 
+ 
+ 
+IF EXISTS(SELECT 1 FROM [ACP].[Sec.onItem] WHERE [Sec.onItemId] = @Sec.onItemId) 
+BEGIN 
+ --Update the Sec.onItem 
+ UPDATE  
+  [ACP].[Sec.onItem] 
+ SET 
+  [Sec.onId] = @Sec.onId, 
+  [FriendlyName] = @FriendlyName, 
+  [Sec.onItemType] = @Sec.onItemType, 
+  [SortOrder] = @SortOrder 
+ WHERE 
+  [Sec.onItemId] = @Sec.onItemId 
+   
+ -- Before upda.ng, archive the old record if Valid or Signed AND it has Data 
+ INSERT INTO [ACP].[FormArchive] 
+  ([FormArchiveId] 
+  ,[Sec.onItemId] 
+  ,[FormCfgId] 
+  ,[Signed] 
+  ,[Valid] 
+  ,[Assembly] 
+  ,[ClassName] 
+  ,[TemplatePdfFileName] 
+  ,[TemplateXdpFileName] 
+  ,[VersionNumber] 
+  ,[Data] 
+  ,[Size] 
+  ,[IsOQR] 
+  ,[DateArchived]) 
+ SELECT  
+  newID(), 
+  [Sec.onItemId], 
+      [FormCfgId], 
+      [Signed], 
+      [Valid], 
+      [Assembly], 
+      [ClassName], 
+      [TemplatePdfFileName], 
+      [TemplateXdpFileName], 
+      [VersionNumber], 
+      [Data], 
+      [Size], 
+      [IsOQR], 
+      GetDate() 
+ FROM  
+  [ACP].[Form]  
+ WHERE  
+  [Sec.onItemId] = @Sec.onItemId AND (Valid = 1 OR Signed = 1) AND [Data] IS NOT NULL  
+ 
+ IF EXISTS(SELECT 1 FROM [ACP].[Form] WHERE [Sec.onItemId] = @Sec.onItemId) 
+ BEGIN 
+ --Update the Form 
+  UPDATE 
+   [ACP].[Form] 
+  SET 
+   [FormCfgId] = @FormCfgId, 
+   [Signed] = @Signed, 
+   [Valid] = @Valid, 
+   [Assembly] = @Assembly, 
+   [ClassName] = @ClassName, 
+   [TemplatePdfFileName] = @TemplatePdfFileName, 
+   [TemplateXdpFileName] = @TemplateXdpFileName, 
+   [VersionNumber] = @VersionNumber, 
+   [IsOQR] = @IsOQR 
+  WHERE 
+   [Sec.onItemId] = @Sec.onItemId 
+    
+  --Record the update in the FormAc.on table 
+   
+  INSERT INTO [ACP].[FormAc.on] 
+   ([FormAc.onId], [Sec.onItemId], [Ac.onType], [Ac.onDate], [UserName]) 
+  VALUES 
+   (NewId(), @Sec.onItemId, 'UPLOADED', GetDate(), @UserName) 
+ END 
+END 
+ELSE 
+BEGIN 
+--Insert the Sec.onItem 
+ INSERT INTO [ACP].[Sec.onItem] 
+ ( 
+  [Sec.onItemId], 
+  [Sec.onId], 
+  [FriendlyName], 
+  [Sec.onItemType], 
+  [SortOrder] 
+ ) 
+ VALUES 
+ ( 
+  @Sec.onItemId, 
+  @Sec.onId, 
+  @FriendlyName, 
+  @Sec.onItemType, 
+  @SortOrder 
+ ) 
+  
+--Insert the Form 
+ INSERT INTO [ACP].[Form] 
+ ( 
+  [Sec.onItemId], 
+  [FormCfgId], 
+  [Signed], 
+  [Valid], 
+  [Assembly], 
+  [ClassName], 
+  [TemplatePdfFileName], 
+  [TemplateXdpFileName], 
+  [VersionNumber], 
+  [IsOQR] 
+ ) 
+ VALUES 
+ ( 
+  @Sec.onItemId, 
+  @FormCfgId, 
+  @Signed, 
+  @Valid, 
+  @Assembly, 
+  @ClassName, 
+  @TemplatePdfFileName, 
+  @TemplateXdpFileName, 
+  @VersionNumber, 
+  @IsOQR 
+ ) 
+  
+ --Record the crea.on in the FormAc.on table 
+ INSERT INTO [ACP].[FormAc.on] 
+  ([FormAc.onId],[Sec.onItemId],[Ac.onType],[Ac.onDate],[UserName]) 
+ VALUES 
+  (NewId(),@Sec.onItemId,'CREATED',GetDate(),@UserName) 
+END 
+ 
+ 
+-- Rollback the transac.on if there were any errors 
+IF @@ERROR <> 0 
+BEGIN 
+ -- Rollback the transac.on 
+ ROLLBACK TRANSACTION 
+ -- Raise an error and return 
+ RAISERROR ('Error occurred while performing the change.', 16, 1) 
+ RETURN 
+END 
+ 
+-- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+IF @@ROWCOUNT > 1 
+BEGIN 
+ -- Rollback the transac.on 
+ ROLLBACK TRANSACTION 
+ -- Raise an error and return 
+ RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+ RETURN 
+END 
+ 
+-- If we reach this point, the commands completed successfully, commit the transac.on 
+COMMIT TRANSACTION]]></body>
+<schema>569A41D8-8F40-0619-141C-F4C9436AAF46</schema>
+<database>2D7ED536-DF8E-3523-7DC3-4228EBAF5F66</database>
+</StoredProcedureSqlServerv2k5>

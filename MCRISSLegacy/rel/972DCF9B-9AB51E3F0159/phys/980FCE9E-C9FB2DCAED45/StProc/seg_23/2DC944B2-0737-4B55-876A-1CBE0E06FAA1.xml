@@ -1,0 +1,202 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_TestUpdateASVABs]" directorySegmentName="seg_23" id="2DC944B2-0737-4B55-876A-1CBE0E06FAA1">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@SSNPre.x   varchar(9), 
+ @NumberToAdd  int, 
+ @Version  varchar(3), 
+ @ASVABDate  date.me, 
+ @GS   varchar(2), 
+ @AR   varchar(2), 
+ @WK   varchar(2), 
+ @PC   varchar(2), 
+ @NO   varchar(2), 
+ @CS   varchar(2), 
+ @AS   varchar(2), 
+ @MK   varchar(2), 
+ @MC   varchar(2), 
+ @EI   varchar(2), 
+ @VE   varchar(2), 
+ @AFQT   int, 
+ @GT   int, 
+ @EL   int, 
+ @CL   int, 
+ @MM   int, 
+ @MEPS   int = NULL, 
+ @UserLogin  varchar(15) = 'SA' 
+AS 
+  
+ 
+DECLARE @SSN    char(9) 
+DECLARE @MarineCandidateId  int 
+DECLARE @TranType  varchar(8) 
+ 
+DECLARE @i   int 
+DECLARE @ErrMsg   varchar(100) 
+ 
+DECLARE @Ini.alSSN   char(9) 
+DECLARE @FirstSSN  char(9) 
+DECLARE @LastSSN  char(9) 
+DECLARE @SSNMessage  varchar(100) 
+DECLARE @LenSSNPre.x   int 
+ 
+DECLARE @DBID INT 
+DECLARE @DBNAME NVARCHAR(128) 
+ 
+SET NOCOUNT ON  
+ 
+SELECT  
+ @DBID  = DB_ID(),  
+ @DBNAME = DB_NAME() 
+ 
+ 
+ 
+--- MAKE SURE THE NUMBER OF PEOPLE TO BE CONTRACTED IS BETWEEN 1 AND 9999 
+IF @NumberToAdd NOT BETWEEN 1 AND 9999 
+BEGIN 
+ RAISERROR ('You must enter a number between 1 and 9999.', 16, 1, @DBID, @DBNAME) 
+ RETURN  
+END 
+ 
+ 
+ 
+--- MAKE SURE THE SSN PREFIX IS 5 CHARACTERS LONG 
+SET @LenSSNPre.x = LEN(@SSNPre.x) 
+ 
+--- IF THE SSN PREFIX IS LESS THAN 5 CHARACTERS LONG, APPEND 0's UNTIL IT'S 5 CHARACTERS LONG 
+IF @LenSSNPre.x < 5 
+BEGIN 
+ SET @SSNPre.x = RTRIM(@SSNPre.x) + REPLICATE('0', 5 - LEN(@SSNPre.x)) 
+END 
+ 
+--- INITIALIZE THE COUNTER 
+SET @i = 1 
+ 
+ 
+SET @Ini.alSSN = CASE  
+   WHEN LEN(@SSNPre.x) = 9 THEN @SSNPre.x 
+   WHEN EXISTS (SELECT 1 FROM PERSON P WHERE P.SOCIAL_SECURITY_NUMBER LIKE @SSNPre.x + '%') 
+    THEN CONVERT(CHAR(9), CONVERT(INT, (SELECT MAX(P.SOCIAL_SECURITY_NUMBER) FROM PERSON P  
+         WHERE P.SOCIAL_SECURITY_NUMBER LIKE @SSNPre.x + '%') + 1)) 
+   ELSE @SSNPre.x + '0000' 
+   END 
+ 
+ 
+ 
+WHILE @i <= @NumberToAdd 
+BEGIN 
+ --- DEFINE THE SSN FOR THE PERSON TO BE CONTRACTED 
+ SET @SSN = CONVERT(CHAR(9), CONVERT(INT, @Ini.alSSN) + (@i - 1)) 
+ 
+ 
+ IF EXISTS (SELECT 1 FROM PERSON WHERE SOCIAL_SECURITY_NUMBER = @SSN) 
+ BEGIN 
+  SELECT @MarineCandidateId = PERSON_ID FROM PERSON WHERE SOCIAL_SECURITY_NUMBER = @SSN 
+ END 
+ ELSE 
+ BEGIN 
+  SET @ErrMsg = 'SSN ' + @SSN + ' does not exist in the system.' 
+  RAISERROR (@ErrMsg, 16, 2, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ 
+ 
+ BEGIN TRANSACTION 
+ 
+ IF EXISTS (SELECT 1 FROM CANDIDATE_ASVAB CA  
+   WHERE CA.MARINE_CANDIDATE_ID = @MarineCandidateId AND 
+   VERSION = @Version AND ASVAB_DATE = @ASVABDate) 
+ BEGIN 
+  SET @TranType = 'upda.ng' 
+ 
+  UPDATE  
+   CANDIDATE_ASVAB 
+  SET 
+   GS_SUBTEST = @GS, 
+   AR_SUBTEST = @AR, 
+   WK_SUBTEST = @WK, 
+   PC_SUBTEST = @PC, 
+   NO_SUBTEST = @NO, 
+   CS_SUBTEST = @CS, 
+   AS_SUBTEST = @AS, 
+   MK_SUBTEST = @MK, 
+   MC_SUBTEST = @MC, 
+   EI_SUBTEST = @EI, 
+   VE_SUBTEST = @VE, 
+   AFQT_SCORE = @AFQT, 
+   GT_SCORE = @GT, 
+   EL_SCORE = @EL, 
+   CL_SCORE = @CL, 
+   MM_SCORE = @MM, 
+   MEPS_ORGANIZATION_ID = @MEPS, 
+   USER_LOGIN = @UserLogin, 
+   UPDATE_DATE = GETDATE() 
+  WHERE 
+   MARINE_CANDIDATE_ID = @MarineCandidateId AND 
+   VERSION = @Version AND  
+   ASVAB_DATE = @ASVABDate 
+ END 
+ ELSE 
+ BEGIN 
+  SET @TranType = 'adding' 
+ 
+  INSERT INTO CANDIDATE_ASVAB  
+   (MARINE_CANDIDATE_ID, VERSION, ASVAB_DATE, GS_SUBTEST, AR_SUBTEST, WK_SUBTEST, PC_SUBTEST,  
+   NO_SUBTEST, CS_SUBTEST, AS_SUBTEST, MK_SUBTEST, MC_SUBTEST, EI_SUBTEST, VE_SUBTEST, AFQT_SCORE,  
+   GT_SCORE, EL_SCORE, CL_SCORE, MM_SCORE, MEPS_ORGANIZATION_ID, USER_LOGIN, UPDATE_DATE) 
+  VALUES 
+   (@MarineCandidateId, @Version, @ASVABDate, @GS, @AR, @WK, @PC,  
+   @NO, @CS, @AS, @MK, @MC, @EI, @VE, @AFQT,  
+   @GT, @EL, @CL, @MM, @MEPS, @UserLogin, GETDATE()) 
+ END 
+ 
+ 
+ IF @@ERROR != 0 OR @@ROWCOUNT = 0 
+ BEGIN 
+  ROLLBACK TRANSACTION  
+  SET @ErrMsg = 'An error occurred ' + @TranType + ' the ASVAB record for SSN ' + @SSN + '.' 
+  RAISERROR (@ErrMsg, 16, 3, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ 
+ 
+ --- IF WE MAKE IT HERE COMMIT THE TRANSACTION 
+ COMMIT TRANSACTION 
+ 
+ SELECT 
+  @FirstSSN = CASE @i 
+    WHEN 1 THEN @SSN 
+    ELSE @FirstSSN 
+    END, 
+  @LastSSN = CASE  
+    WHEN @i BETWEEN 1 AND @NumberToAdd THEN @SSN 
+    ELSE @LastSSN  
+    END 
+ 
+ 
+ --- INCREMENT THE COUNTER 
+ SET @i = @i + 1 
+END 
+ 
+SET NOCOUNT OFF 
+ 
+ 
+--- DEFINE THE MESSAGE TO DISPLAY 
+SET @SSNMessage = CASE  
+   WHEN (@FirstSSN IS NOT NULL AND LEN(@FirstSSN) = 9) AND 
+    (@LastSSN IS NOT NULL AND LEN(@LastSSN) = 9)  
+   THEN 
+    'ASVABs for SSN ' + @FirstSSN + ' to ' + @LastSSN + '.' 
+   ELSE SPACE(0) 
+   END 
+ 
+ 
+IF @SSNMessage IS NOT NULL AND LEN(@SSNMessage) > 0 
+BEGIN 
+ PRINT @SSNMessage 
+END]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

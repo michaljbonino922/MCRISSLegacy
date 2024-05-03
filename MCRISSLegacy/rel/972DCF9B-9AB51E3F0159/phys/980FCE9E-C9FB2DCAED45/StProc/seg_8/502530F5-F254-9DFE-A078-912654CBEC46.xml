@@ -1,0 +1,48 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetOssAnnualObjec.ve]" directorySegmentName="seg_8" id="502530F5-F254-9DFE-A078-912654CBEC46">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@Organiza.onId int, 
+    @FiscalYear int    
+AS 
+SET NOCOUNT ON 
+ 
+BEGIN 
+ 
+ -- if somehow there are mul.ple records for the same 
+ -- Organiza.on and Fiscal year then pick the newest record 
+ SELECT TOP (1) 
+  OssAnnualObjec.veId, 
+  Organiza.onId, 
+  FiscalYear, 
+  AdjBusPercentTC, 
+  AdjBusPercentOT, 
+  AdjBusPercentAC, 
+  AdjBusPercentDC, 
+  ContractGoal, 
+  GoalPercentJUL, 
+  GoalPercentAUG, 
+  GoalPercentSEP, 
+  GoalPercentOCT, 
+  GoalPercentNOV, 
+  GoalPercentDEC, 
+  GoalPercentJAN, 
+  GoalPercentFEB, 
+  GoalPercentMAR, 
+  GoalPercentAPR, 
+  GoalPercentMAY, 
+  GoalPercentJUN  
+ FROM [USMC].[OssAnnualObjec.ve] 
+ WHERE Organiza.onId = @Organiza.onId 
+  AND FiscalYear = @FiscalYear 
+ ORDER BY LastUpdatedDate DESC 
+    
+END 
+ 
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

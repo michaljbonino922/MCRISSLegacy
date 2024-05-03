@@ -1,0 +1,174 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SPGEN_CANDMEDICAL_EXAM]" directorySegmentName="seg_26" id="69BA9A16-EC1A-0671-3DF5-E578484ECAEE">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[as  
+SET ARITHABORT OFF 
+set arithignore on 
+set ansi_warnings o. 
+ 
+declare  
+ @ssn varchar(9), 
+ @marine_candidate_id    int, 
+ @person_id    int, 
+ @meps_organiza.on_id   int, 
+ @e_eyes    char(1), 
+ @h_hearing    char(1), 
+ @height       int, 
+ @weight    int, 
+ @sd_height       int, 
+ @sd_weight   int, 
+ @l_lower_body   char(1), 
+ @le._corr_visual_acuity varchar(10), 
+ @right_corr_visual_acuity varchar(10), 
+ @le._uncorr_visual_acuity varchar(10), 
+ @right_uncorr_visual_acuity varchar(10), 
+ @medical_disposi.on  char(1), 
+ @medical_exam_date  date.me, 
+ @medical_exam_type  varchar(4), 
+ @p_general_body_build  char(1), 
+ @s_mental_psychological  char(1), 
+ @u_upper_body   char(1), 
+ @visual_color   char(1), 
+ @x    char(1), 
+ @visual_color_disp  char(1), 
+ @ship_date   date.me, 
+ @meps_mcc   varchar(3), 
+ @consulta.on_type  varchar(2), 
+ @user_login   varchar(15), 
+ @update_date   date.me 
+ 
+declare medical_exam cursor for 
+ 
+select  SSN,  
+  substring(PULHES,5,1),  
+  substring(PULHES,4,1),  
+  convert(int,WEIGHT), 
+  convert(int,HEIGHT), 
+  convert(int,SD_WEIGHT), 
+  convert(int,SD_HEIGHT), 
+  substring(PULHES,3,1), 
+  convert(date.me,DEP_DATEIN,112), 
+  substring(PULHES,1,1), 
+  substring(PULHES,6,1), 
+  substring(PULHES,2,1), 
+  VIS_COL, 
+  substring(VIS_ACUITY,7,3), 
+  substring(VIS_ACUITY,10,3), 
+  substring(VIS_ACUITY,1,3), 
+  substring(VIS_ACUITY,4,3), 
+  convert(date.me,DOE,112), 
+  AFEES_MCC 
+ 
+from arms..ARMS179 
+ 
+ 
+open medical_exam 
+ 
+fetch medical_exam  
+    into @ssn, @e_eyes, @h_hearing, @weight, @height, @sd_weight, @sd_height, 
+    @l_lower_body, @medical_exam_date, @p_general_body_build,  
+   @s_mental_psychological, @u_upper_body, @visual_color, 
+   @right_corr_visual_acuity, @le._corr_visual_acuity,  
+   @right_uncorr_visual_acuity, @le._uncorr_visual_acuity,  
+   @ship_date, @meps_mcc 
+ 
+select @medical_exam_type = 'FULL' 
+select @medical_disposi.on = 'Q' 
+select @consulta.on_type = NULL 
+select @user_login = 'migra.on' 
+select @update_date = getdate() 
+ 
+ 
+while (@@FETCH_STATUS = 0) 
+begin 
+ 
+     if @weight = 0 
+    set @weight = NULL 
+ if @sd_weight = 0 
+    set @sd_weight = NULL 
+     if @height = 0 
+    set @height = NULL 
+ if @sd_height = 0 
+    set @sd_height = NULL 
+       if @right_corr_visual_acuity = '' 
+    set  @right_corr_visual_acuity = NULL 
+ if @le._corr_visual_acuity = '' 
+    set  @le._corr_visual_acuity = NULL 
+ if @right_uncorr_visual_acuity = '' 
+    set @right_uncorr_visual_acuity = NULL 
+ if @le._uncorr_visual_acuity = '' 
+    set @le._uncorr_visual_acuity = NULL 
+ 
+ 
+     select @person_id =  PERSON_ID from PERSON  
+     where PERSON.SOCIAL_SECURITY_NUMBER = @ssn 
+ 
+     select @meps_organiza.on_id =  MEPS_ORGANIZATION_ID 
+                                from MEPS_ORGANIZATION_LOOKUP 
+     where MCC_CODE = @meps_mcc 
+ 
+     if @person_id is not NULL 
+       begin  
+ 
+    print @ssn 
+ 
+       if (not exists(select 1 from mcriss..CANDIDATE_MEDICAL_EXAM 
+                 where MARINE_CANDIDATE_ID = @person_id and 
+  MEDICAL_EXAM_DATE = @medical_exam_date and  
+   MEDICAL_EXAM_TYPE = @medical_exam_type 
+ 
+)) 
+      begin 
+      if @meps_organiza.on_id is not NULL 
+    begin 
+      
+     insert CANDIDATE_MEDICAL_EXAM 
+   (MARINE_CANDIDATE_ID,MEDICAL_EXAM_DATE,MEDICAL_EXAM_TYPE, 
+   MEPS_ORGANIZATION_ID,P_GENERAL_BODY_BUILD,U_UPPER_BODY,L_LOWER_BODY, 
+   H_HEARING,E_EYES,S_MENTAL_PSYCHOLOGICAL,VISUAL_COLOR, 
+   VISUAL_COLOR_DISPOSITION,X,LEFT_CORR_VISUAL_ACUITY, 
+   RIGHT_CORR_VISUAL_ACUITY,LEFT_UNCORR_VISUAL_ACUITY, 
+   RIGHT_UNCORR_VISUAL_ACUITY,HEIGHT,WEIGHT,MEDICAL_DISPOSITION, 
+   CONSULTATION_TYPE,USER_LOGIN,UPDATE_DATE) 
+ 
+ 
+ 
+    values(@person_id, @medical_exam_date,@medical_exam_type, 
+    @meps_organiza.on_id, @p_general_body_build, @u_upper_body, @l_lower_body, 
+    @h_hearing, @e_eyes,@s_mental_psychological, @visual_color,  
+           @visual_color_disp,@x, @le._corr_visual_acuity,  
+    @right_corr_visual_acuity, @le._uncorr_visual_acuity,  
+    @right_uncorr_visual_acuity,@sd_height, @sd_weight, @medical_disposi.on, 
+    @consulta.on_type,@user_login,@update_date 
+   ) 
+    end 
+   else 
+     print 'Meps ORG not in DB'+@meps_mcc+'for SSN'+@ssn 
+           end 
+           else 
+              print @ssn+' Already in candidate_medical_exam' 
+       end 
+    else 
+     print @ssn+' Not in person' 
+ 
+   fetch medical_exam  
+    into @ssn, @e_eyes, @h_hearing, @weight, @height, @sd_weight, @sd_height, 
+    @l_lower_body, @medical_exam_date, @p_general_body_build,  
+   @s_mental_psychological, @u_upper_body, @visual_color, 
+   @right_corr_visual_acuity, @le._corr_visual_acuity,  
+   @right_uncorr_visual_acuity, @le._uncorr_visual_acuity,  
+   @ship_date, @meps_mcc 
+ 
+end 
+ 
+close medical_exam 
+ 
+deallocate medical_exam 
+ 
+return]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

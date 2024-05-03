@@ -1,0 +1,217 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_TestUpdateMedicalExams]" directorySegmentName="seg_23" id="F313C617-170B-B9A0-00EA-8B5A9CC7A43A">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@SSNPre.x   varchar(9), 
+ @NumberToAdd  int, 
+ @ExamDate  date.me,  
+ @ExamType  char(4), 
+ @MEPS   varchar(20), 
+ @P   char(1), 
+ @U   char(1), 
+ @L   char(1), 
+ @H   char(1), 
+ @E   char(1), 
+ @S   char(1), 
+ @ColorVision  char(1), 
+ @ColorDisposi.on char(1), 
+ @Le.CorrectedVision varchar(3), 
+ @RightCorrectedVision varchar(3), 
+ @Le.UncorrectedVision varchar(3), 
+ @RightUncorrectedVision varchar(3), 
+ @Height   int, 
+ @Weight   int, 
+ @Disposi.on  char(1), 
+ @Consulta.onType varchar(2), 
+ @UserLogin  varchar(15) = 'SA' 
+AS 
+ 
+DECLARE @SSN    char(9) 
+DECLARE @MarineCandidateId  int 
+DECLARE @MEPS_ID  int 
+DECLARE @TranType  varchar(8) 
+ 
+DECLARE @i   int 
+DECLARE @ErrMsg   varchar(100) 
+ 
+DECLARE @Ini.alSSN   char(9) 
+DECLARE @FirstSSN  char(9) 
+DECLARE @LastSSN  char(9) 
+DECLARE @SSNMessage  varchar(100) 
+DECLARE @LenSSNPre.x   int 
+ 
+DECLARE @DBID INT 
+DECLARE @DBNAME NVARCHAR(128) 
+ 
+ 
+SET NOCOUNT ON  
+ 
+SELECT  
+ @DBID  = DB_ID(),  
+ @DBNAME = DB_NAME() 
+ 
+ 
+ 
+ 
+--- MAKE SURE THE NUMBER OF PEOPLE TO BE CONTRACTED IS BETWEEN 1 AND 9999 
+IF @NumberToAdd NOT BETWEEN 1 AND 9999 
+BEGIN 
+ RAISERROR ('You must enter a number between 1 and 9999.', 16, 1, @DBID, @DBNAME) 
+ RETURN  
+END 
+ 
+ 
+ 
+--- MAKE SURE THE SSN PREFIX IS 5 CHARACTERS LONG 
+SET @LenSSNPre.x = LEN(@SSNPre.x) 
+ 
+--- IF THE SSN PREFIX IS LESS THAN 5 CHARACTERS LONG, APPEND 0's UNTIL IT'S 5 CHARACTERS LONG 
+IF @LenSSNPre.x < 5 
+BEGIN 
+ SET @SSNPre.x = RTRIM(@SSNPre.x) + REPLICATE('0', 5 - LEN(@SSNPre.x)) 
+END 
+ 
+--- INITIALIZE THE COUNTER 
+SET @i = 1 
+ 
+ 
+SET @Ini.alSSN = CASE  
+   WHEN LEN(@SSNPre.x) = 9 THEN @SSNPre.x 
+   WHEN EXISTS (SELECT 1 FROM PERSON P WHERE P.SOCIAL_SECURITY_NUMBER LIKE @SSNPre.x + '%') 
+    THEN CONVERT(CHAR(9), CONVERT(INT, (SELECT MAX(P.SOCIAL_SECURITY_NUMBER) FROM PERSON P  
+         WHERE P.SOCIAL_SECURITY_NUMBER LIKE @SSNPre.x + '%') + 1)) 
+   ELSE @SSNPre.x + '0000' 
+   END 
+ 
+ 
+ 
+WHILE @i <= @NumberToAdd 
+BEGIN 
+ --- DEFINE THE SSN FOR THE PERSON TO BE CONTRACTED 
+ SET @SSN = CONVERT(CHAR(9), CONVERT(INT, @Ini.alSSN) + (@i - 1)) 
+ 
+ 
+ IF EXISTS (SELECT 1 FROM PERSON WHERE SOCIAL_SECURITY_NUMBER = @SSN) 
+ BEGIN 
+  --- DEFINE THE PERSON ID 
+  SELECT @MarineCandidateId = PERSON_ID FROM PERSON WHERE SOCIAL_SECURITY_NUMBER = @SSN 
+ 
+  --- DEFINE THE MEPS_ID 
+  SELECT @MEPS_ID = MEPS_ORGANIZATION_ID FROM MEPS_ORGANIZATION_LOOKUP WHERE MEPS_NAME = @MEPS 
+ END 
+ ELSE 
+ BEGIN 
+  SET @ErrMsg = 'SSN ' + @SSN + ' does not exist in the system.' 
+  RAISERROR (@ErrMsg, 16, 1, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ 
+ 
+ BEGIN TRANSACTION 
+ 
+ IF EXISTS (SELECT 1 FROM CANDIDATE_MEDICAL_EXAM CME 
+   WHERE CME.MARINE_CANDIDATE_ID = @MarineCandidateId AND 
+   CME.MEDICAL_EXAM_TYPE = @ExamType AND 
+   CME.MEDICAL_EXAM_DATE = @ExamDate)  
+ BEGIN 
+  --- DEFINE THE TRANSACTION TYPE 
+  SET @TranType = 'upda.ng' 
+ 
+  --- UPDATE THE MEDICAL EXAM  
+  UPDATE  
+   CANDIDATE_MEDICAL_EXAM 
+  SET 
+   MEPS_ORGANIZATION_ID = @MEPS_ID, 
+   P_GENERAL_BODY_BUILD = @P, 
+   U_UPPER_BODY = @U, 
+   L_LOWER_BODY = @L, 
+   H_HEARING = @H, 
+   E_EYES = @E,     
+   S_MENTAL_PSYCHOLOGICAL = @S, 
+   VISUAL_COLOR = @ColorVision, 
+   LEFT_CORR_VISUAL_ACUITY = @Le.CorrectedVision, 
+   RIGHT_CORR_VISUAL_ACUITY = @RightCorrectedVision, 
+   LEFT_UNCORR_VISUAL_ACUITY = @Le.UncorrectedVision,  
+   RIGHT_UNCORR_VISUAL_ACUITY = @RightUncorrectedVision, 
+   HEIGHT = @Height, 
+   WEIGHT = @Weight, 
+   MEDICAL_DISPOSITION = @Disposi.on, 
+   CONSULTATION_TYPE = @Consulta.onType, 
+   USER_LOGIN = @UserLogin, 
+   UPDATE_DATE = GETDATE() 
+  WHERE 
+   MARINE_CANDIDATE_ID = @MarineCandidateId AND 
+   MEDICAL_EXAM_TYPE = @ExamType AND 
+   MEDICAL_EXAM_DATE = @ExamDate 
+ END 
+ ELSE 
+ BEGIN 
+  --- DEFINE THE TRANSACTION TYPE 
+  SET @TranType = 'adding' 
+ 
+  --- INSERT THE MEDICAL EXAM 
+  INSERT INTO CANDIDATE_MEDICAL_EXAM 
+   (MARINE_CANDIDATE_ID, MEDICAL_EXAM_DATE, MEDICAL_EXAM_TYPE, MEPS_ORGANIZATION_ID, P_GENERAL_BODY_BUILD, 
+   U_UPPER_BODY, L_LOWER_BODY, H_HEARING, E_EYES, S_MENTAL_PSYCHOLOGICAL, VISUAL_COLOR, 
+   VISUAL_COLOR_DISPOSITION, LEFT_CORR_VISUAL_ACUITY, RIGHT_CORR_VISUAL_ACUITY,  
+   LEFT_UNCORR_VISUAL_ACUITY, RIGHT_UNCORR_VISUAL_ACUITY, HEIGHT, WEIGHT, 
+   MEDICAL_DISPOSITION, CONSULTATION_TYPE, USER_LOGIN, UPDATE_DATE) 
+  VALUES  
+   (@MarineCandidateId, @ExamDate, @ExamType, @MEPS_ID, @P, 
+   @U, @L, @H, @E, @S, @ColorVision,  
+   @ColorDisposi.on, @Le.CorrectedVision, @RightCorrectedVision,  
+   @Le.UncorrectedVision, @RightUncorrectedVision, @Height, @Weight,  
+   @Disposi.on, @Consulta.onType, @UserLogin, GETDATE()) 
+ END 
+ 
+ 
+ IF @@ERROR != 0 OR @@ROWCOUNT = 0 
+ BEGIN 
+  ROLLBACK TRANSACTION 
+  
+  SET @ErrMsg = 'An error occurred ' + @TranType + ' the medical exam record for SSN ' + @SSN + '.' 
+  RAISERROR (@ErrMsg, 16, 2, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ 
+ 
+ --- IF WE MAKE IT HERE COMMIT THE TRANSACTION 
+ COMMIT TRANSACTION 
+ 
+ SELECT 
+  @FirstSSN = CASE @i 
+    WHEN 1 THEN @SSN 
+    ELSE @FirstSSN 
+    END, 
+  @LastSSN = CASE  
+    WHEN @i BETWEEN 1 AND @NumberToAdd THEN @SSN 
+    ELSE @LastSSN  
+    END 
+ 
+ 
+ --- INCREMENT THE COUNTER 
+ SET @i = @i + 1 
+END 
+ 
+SET NOCOUNT OFF 
+ 
+ 
+--- DEFINE THE MESSAGE TO DISPLAY 
+SET @SSNMessage = CASE  
+   WHEN (@FirstSSN IS NOT NULL AND LEN(@FirstSSN) = 9) AND 
+    (@LastSSN IS NOT NULL AND LEN(@LastSSN) = 9)  
+   THEN 
+    'Medical Exams for SSN ' + @FirstSSN + ' to ' + @LastSSN + '.' 
+   ELSE SPACE(0) 
+   END 
+ 
+ 
+IF @SSNMessage IS NOT NULL AND LEN(@SSNMessage) > 0 
+BEGIN 
+ PRINT @SSNMessage 
+END]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

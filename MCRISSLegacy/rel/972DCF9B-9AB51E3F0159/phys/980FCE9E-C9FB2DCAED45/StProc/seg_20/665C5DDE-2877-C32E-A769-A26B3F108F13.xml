@@ -1,0 +1,173 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetRecruiterBoardOrgHierarchy]" directorySegmentName="seg_20" id="665C5DDE-2877-C32E-A769-A26B3F108F13">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@OrgID int 
+AS 
+ 
+SET NOCOUNT ON 
+ 
+DECLARE @LowestOrgType AS varchar(3) 
+ 
+SET @OrgID = COALESCE(@OrgID, 900) 
+SET @LowestOrgType = 'RSS' 
+ 
+/* 
+------------------------------------------------------------------------------ 
+The @Orgs table will be populated with all OrgIDs that are in the child hierarchy 
+of the input @OrgID.  USED is a bit that is necessary for popula.ng the data 
+to .ag whether an OrgID's children have been joined yet.  This is to make 
+sure the direct children of an OrgID are only inserted once. 
+ 
+The @IDS table is used only to temporarily store the OrgIDs that children are being 
+retrieved for.  Because it is an itera.ve process, this table is necessary so that 
+we know which OrgIDs to toggle the USED .ag on in the @Orgs table. 
+------------------------------------------------------------------------------ 
+*/ 
+ 
+CREATE TABLE #Orgs 
+  (ORG_ID int NOT NULL, ORG_TYPE varchar(3), USED bit NOT NULL, LONG_NAME varchar(45) NOT NULL, 
+  REG_ID INT NULL, DIST_ID INT NULL, RS_ID INT NULL, RSS_ID INT NULL) 
+ 
+DECLARE @IDS TABLE (ORG_ID int NOT NULL) 
+ 
+-- Seed the temp table with the input OrgID 
+INSERT INTO #Orgs 
+SELECT ORGANIZATION_ID, 
+ ORGANIZATION_TYPE, 
+ 0, 
+ NAME, 
+ NULL, 
+ NULL, 
+ NULL, 
+ NULL 
+FROM RECRUITING_ORGANIZATION 
+WHERE ORGANIZATION_ID = @OrgID 
+ 
+-- Con.nue processing un.l we have goten to the RSS level 
+WHILE (SELECT COUNT(1) FROM #Orgs WHERE USED = 0 AND ORG_TYPE = @LowestOrgType) = 0 
+BEGIN 
+ 
+ -- Save all OrgIDs in the @Orgs table that we haven't goten children for yet. 
+ INSERT INTO 
+  @IDS 
+ SELECT 
+  ORG_ID 
+ FROM 
+  #Orgs 
+ WHERE 
+  USED = 0 
+  
+ -- Insert new children (with Used .ag = 0) into the @Orgs table. 
+ INSERT INTO 
+  #Orgs 
+ SELECT 
+  OM.CHILD_ORGANIZATION_ID, 
+  RO.ORGANIZATION_TYPE, 
+  0, 
+  RO.NAME, 
+  NULL, 
+  NULL, 
+  NULL, 
+  NULL 
+ FROM 
+  ORGANIZATION_MAP OM INNER JOIN #Orgs SO 
+   ON OM.PARENT_ORGANIZATION_ID = SO.ORG_ID AND SO.USED = 0 
+  INNER JOIN RECRUITING_ORGANIZATION RO 
+   ON OM.CHILD_ORGANIZATION_ID = RO.ORGANIZATION_ID 
+ WHERE 
+  RO.ISOPEN = 'Y' 
+  
+ -- Set the USED .ag to 1 for the OrgIDs that we just processed. 
+ UPDATE 
+  #Orgs 
+ SET 
+  USED = 1 
+ WHERE 
+  ORG_ID IN (SELECT * FROM @IDS) 
+  
+ -- No need to save the OrgIDs that we just got children for.  They will remain in the @Orgs table 
+ -- and are now marked as used/processed. 
+ DELETE FROM @IDS 
+END 
+ 
+UPDATE 
+ #Orgs 
+SET 
+ REG_ID = CASE ORG_TYPE 
+  WHEN 'R' THEN 
+   ORG_ID 
+  WHEN 'D' THEN 
+   (SELECT OM_D.PARENT_ORGANIZATION_ID FROM ORGANIZATION_MAP OM_D 
+    WHERE OM_D.CHILD_ORGANIZATION_ID = ORG_ID) 
+  WHEN 'RS' THEN 
+   (SELECT OM_D.PARENT_ORGANIZATION_ID FROM ORGANIZATION_MAP OM_D 
+    INNER JOIN ORGANIZATION_MAP OM_RS ON OM_D.CHILD_ORGANIZATION_ID = OM_RS.PARENT_ORGANIZATION_ID 
+    WHERE OM_RS.CHILD_ORGANIZATION_ID = ORG_ID) 
+  WHEN 'RSS' THEN 
+   (SELECT OM_D.PARENT_ORGANIZATION_ID FROM ORGANIZATION_MAP OM_D 
+    INNER JOIN ORGANIZATION_MAP OM_RS ON OM_D.CHILD_ORGANIZATION_ID = OM_RS.PARENT_ORGANIZATION_ID 
+    INNER JOIN ORGANIZATION_MAP OM_RSS ON OM_RS.CHILD_ORGANIZATION_ID = OM_RSS.PARENT_ORGANIZATION_ID 
+    WHERE OM_RSS.CHILD_ORGANIZATION_ID = ORG_ID) 
+ END, 
+ DIST_ID = CASE ORG_TYPE 
+  WHEN 'R' THEN 
+   NULL 
+  WHEN 'D' THEN 
+   ORG_ID 
+ 
+  WHEN 'RS' THEN 
+   (SELECT OM_RS.PARENT_ORGANIZATION_ID FROM ORGANIZATION_MAP OM_RS 
+    WHERE OM_RS.CHILD_ORGANIZATION_ID = ORG_ID) 
+  WHEN 'RSS' THEN 
+   (SELECT OM_RS.PARENT_ORGANIZATION_ID FROM ORGANIZATION_MAP OM_RS 
+    INNER JOIN ORGANIZATION_MAP OM_RSS ON OM_RS.CHILD_ORGANIZATION_ID = OM_RSS.PARENT_ORGANIZATION_ID 
+    WHERE OM_RSS.CHILD_ORGANIZATION_ID = ORG_ID) 
+ END, 
+ RS_ID = CASE ORG_TYPE 
+  WHEN 'R' THEN 
+   NULL 
+  WHEN 'D' THEN 
+   NULL 
+  WHEN 'RS' THEN 
+   ORG_ID 
+  WHEN 'RSS' THEN 
+   (SELECT OM_RSS.PARENT_ORGANIZATION_ID FROM ORGANIZATION_MAP OM_RSS 
+    WHERE OM_RSS.CHILD_ORGANIZATION_ID = ORG_ID) 
+ END, 
+ RSS_ID = CASE ORG_TYPE 
+  WHEN 'R' THEN 
+   NULL 
+  WHEN 'D' THEN 
+   NULL 
+  WHEN 'RS' THEN 
+   NULL 
+  WHEN 'RSS' THEN 
+   ORG_ID 
+ END 
+ 
+SELECT 
+ ORG_ID, 
+ ORG_TYPE, 
+ LONG_NAME 
+FROM 
+ #Orgs 
+WHERE 
+ ORG_TYPE IN ('H', 'R', 'D', 'RS', 'RSS') 
+ORDER BY 
+ REG_ID, 
+ DIST_ID, 
+ RS_ID, 
+ CASE WHEN RSS_ID IS NOT NULL 
+   THEN LONG_NAME 
+  ELSE '' 
+ END 
+ 
+DROP TABLE #Orgs 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

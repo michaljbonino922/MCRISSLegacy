@@ -1,0 +1,127 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUpdateCandidateO.enseFromPac]" directorySegmentName="seg_12" id="AC2AC804-7AD8-EDF5-16AA-991DCAE69BEE">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@NWAId     uniqueiden..er 
+    ,@OldRecSubmitDate  date.me 
+ ,@OldRecLegalO.enseId int 
+ ,@OldRecIsGuilty  bit 
+ ,@OldRecIsJuvenile  bit 
+ ,@OldRecDetail   varchar(5000) 
+ ,@SubmitDate   date.me 
+ ,@LegalO.enseId  int 
+ ,@IsGuilty    bit 
+ ,@IsJuvenile   bit 
+ ,@Detail    varchar(5000) 
+  
+AS 
+BEGIN 
+  
+ -- STEP 1: Start the transac.on 
+ BEGIN TRANSACTION 
+  
+ DECLARE @PersonID int; 
+ DECLARE @CandidateLegalO.enseID int; 
+  
+ IF @OldRecIsGuilty IS NULL 
+  SET @OldRecIsGuilty = 0; 
+   
+ IF @OldRecIsJuvenile IS NULL 
+  SET @OldRecIsJuvenile = 0; 
+   
+ IF @IsGuilty IS NULL 
+  SET @IsGuilty = 0; 
+   
+ IF @IsJuvenile IS NULL 
+  SET @IsJuvenile = 0; 
+ 
+ SELECT @PersonID = MARINE_CANDIDATE_ID  
+ FROM dbo.NWA  
+ WHERE rowguid = @NWAId 
+ 
+  
+     
+ SELECT TOP 1 @CandidateLegalO.enseID = CandidateLegalO.enseID 
+ FROM [USMC].[CandidateLegalO.ense] 
+ WHERE  
+  [PersonId] = @PersonId 
+  AND [LegalO.enseId] = @OldRecLegalO.enseId 
+  AND [IsGuilty] = @OldRecIsGuilty 
+  AND [IsJuvenile] = @OldRecIsJuvenile 
+  AND [SubmitDate] = @OldRecSubmitDate 
+  AND [Detail] = @OldRecDetail 
+  
+  
+   
+ -- STEP 2 & 3: Issue the data change statement(s), checking @@ERROR a.er each statement 
+ IF @CandidateLegalO.enseID IS NOT NULL 
+ BEGIN 
+  -- if already exists.  UPDATE. 
+  UPDATE 
+   [USMC].[CandidateLegalO.ense] 
+  SET  
+   [PersonId] = @PersonId 
+   ,[LegalO.enseId] = @LegalO.enseId 
+   ,[Detail] = @Detail 
+   ,[IsGuilty] = @IsGuilty 
+   ,[IsJuvenile] = @IsJuvenile 
+   ,[WaiverOccasionId] = 1  
+   ,[SubmitDate] = @SubmitDate 
+  WHERE 
+   [CandidateLegalO.enseID] = @CandidateLegalO.enseID 
+    
+ END 
+ ELSE 
+ BEGIN 
+  -- if does not exist.  INSERT. 
+  INSERT INTO [usmc].[CandidateLegalO.ense] 
+   ([PersonId] 
+   ,[LegalO.enseId] 
+   ,[Detail] 
+   ,[IsGuilty] 
+   ,[IsJuvenile] 
+   ,[WaiverOccasionId] 
+   ,[SubmitDate]) 
+  VALUES 
+   (@PersonId 
+   ,@LegalO.enseId 
+   ,@Detail 
+   ,@IsGuilty 
+   ,@IsJuvenile 
+   ,1 -- @WaiverOccasionId 
+   ,@SubmitDate) 
+ 
+ END 
+ 
+ -- Rollback the transac.on if there were any errors 
+ IF @@ERROR <> 0 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+ 
+  -- Raise an error and return 
+  RAISERROR ('Error occurred while performing the change.', 16, 1) 
+  RETURN 
+ END 
+ 
+ -- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+ IF @@ROWCOUNT > 1 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+ 
+  -- Raise an error and return 
+  RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+  RETURN 
+ END 
+  
+ -- STEP 4: If we reach this point, the commands completed successfully 
+ --         Commit the transac.on.... 
+ COMMIT TRANSACTION 
+  
+END]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

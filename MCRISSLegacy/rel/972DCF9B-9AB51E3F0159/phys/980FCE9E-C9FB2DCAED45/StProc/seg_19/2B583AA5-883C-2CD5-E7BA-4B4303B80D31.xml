@@ -1,0 +1,16 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetPersonnelAssignmentData]" directorySegmentName="seg_19" id="2B583AA5-883C-2CD5-E7BA-4B4303B80D31">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@PersonID as integer 
+ 
+AS 
+ 
+SELECT RECRUITING_PERSON.ORGANIZATION_ID, RECRUITING_ROLE_ID 
+FROM RECRUITING_PERSON 
+WHERE RECRUITING_PERSON_ID = @PersonID]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

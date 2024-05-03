@@ -1,0 +1,77 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_dbaSHIP]" directorySegmentName="seg_14" id="A198C02A-C227-3A6B-86A8-F9A3911E705E">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@contrac.d int, 
+@nwaid int, 
+@date date.me, 
+@user_login varchar(15) 
+--@component varchar(2), 
+--@trainingorg int 
+ 
+ 
+AS 
+declare 
+ 
+@component varchar(2), 
+@trainingorg int 
+ 
+/* 
+print @contrac.d  
+print @nwaid 
+print @date 
+print @user_login 
+*/ 
+ 
+--Gets current user 
+--set @user_login = (select current_user) 
+--Gets component code 
+set @component = (select top 1 component_code from contract where contract_id=@contrac.d) 
+-- order by CONTRACT_ID desc) 
+--Gets training organiza.on 
+set @trainingorg = (select top 1 projected_training_org_id from contract where contract_id=@contrac.d) 
+-- order by CONTRACT_ID desc) 
+/* 
+print @contrac.d  
+print @nwaid  
+print @date  
+print @component  
+print @trainingorg  
+print @user_login  
+*/ 
+ 
+if exists (select 1 from Shipper where contract_id = @contrac.d) 
+ 
+ update Shipper 
+ set CONTRACT_ID=@CONTRACTID, 
+ SHIP_TYPE='ENL', 
+ TRAINING_ORGANIZATION_ID=@trainingorg, 
+ SHIP_DATE=@DATE, 
+ COMPONENT_CODE=@component 
+ where contract_id = @contrac.d 
+ 
+else 
+ 
+ insert shipper 
+ (CONTRACT_ID,SHIP_TYPE,TRAINING_ORGANIZATION_ID,SHIP_DATE,COMPONENT_CODE,USER_LOGIN,UPDATE_DATE) 
+ values 
+ (@CONTRACTID,'ENL',@trainingorg,@DATE,@component,@USER_LOGIN, getdate()) 
+ 
+ 
+print 'The SHIPPER Was added. Please Check the applica.on to con.rm' 
+ 
+ 
+if not exists(select 1 from CANDIDATE_STATUS  
+  where NWA_ID = @NWAID and STATUS_CODE='C' AND DISPOSITION_CODE= 'N' ) 
+ 
+ insert CANDIDATE_STATUS 
+ (nwa_id, STATUS_EFFECTIVE_DATE, STATUS_TYPE, STATUS_CODE, DISPOSITION_CODE, USER_LOGIN, UPDATE_DATE) 
+ values 
+ (@NWAID,@DATE,'E', 'C', 'N', @USER_LOGIN, getdate()) 
+ 
+print 'The SHIP STATUS Was added. Please Check the applica.on to con.rm']]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

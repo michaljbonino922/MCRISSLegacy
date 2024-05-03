@@ -1,0 +1,108 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateProcessingShellData]" directorySegmentName="seg_25" id="225B0498-AA6E-11CA-1703-E3139EA28008">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@PersonID   int, 
+ @NWAID    int, 
+ @LastName   varchar(20), 
+ @FirstName   varchar(20), 
+ @MiddleName   varchar(20), 
+ @Su.x    varchar(5), 
+ @SSN    varchar(9), 
+ @DateOfBirth   date.me, 
+ @Gender    char(1), 
+ @Organiza.onOfRecordID  int, 
+ @Recrui.ngPersonID  int, 
+ @UserLogin   varchar(15) 
+AS 
+ 
+DECLARE @DBID     INT 
+DECLARE @DBNAME    NVARCHAR(128) 
+ 
+DECLARE @UpdateCounter   INT 
+DECLARE @ErrMsg    varchar(100) 
+ 
+SET NOCOUNT ON 
+ 
+--- INITIALIZE VARIABLES 
+SELECT  
+ @DBID   = DB_ID(),  
+ @DBNAME  = DB_NAME(), 
+ @UpdateCounter  = 1 
+ 
+ 
+--- UPDATE PERSON DATA 
+EXEC sp_UpdatePerson 
+ @PersonID   = @PersonID, 
+ @SocialSecurityNumber  = @SSN, 
+ @FirstName   = @FirstName, 
+ @LegalMiddleName  = @MiddleName, 
+ @LastName   = @LastName, 
+ @Su.xCD   = @Su.x, 
+ @UserLogin   = @UserLogin 
+ 
+IF @@ERROR != 0  
+BEGIN 
+ RAISERROR ('An error occurred upda.ng the NWA person record.', 16, @UpdateCounter, @DBID, @DBNAME) 
+ RETURN 
+END 
+ 
+--- INCREMENT THE UPDATE COUNTER 
+SET @UpdateCounter = @UpdateCounter + 1 
+ 
+ 
+--- UPDATE GENDER  
+EXEC sp_UpdateGender 
+ @MarineCandidateID = @PersonID, 
+ @Gender   = @Gender, 
+ @UserLogin   = @UserLogin 
+ 
+IF @@ERROR != 0  
+BEGIN 
+ RAISERROR ('An error occurred upda.ng the gender.', 16, @UpdateCounter, @DBID, @DBNAME) 
+ RETURN 
+END 
+ 
+--- INCREMENT THE UPDATE COUNTER 
+SET @UpdateCounter = @UpdateCounter + 1 
+ 
+ 
+--- UPDATE GENDER  
+EXEC sp_UpdateDateOfBirth 
+ @MarineCandidateID = @PersonID, 
+ @DateOfBirth  = @DateOfBirth, 
+ @UserLogin   = @UserLogin 
+ 
+IF @@ERROR != 0  
+BEGIN 
+ RAISERROR ('An error occurred upda.ng the date of birth.', 16, @UpdateCounter, @DBID, @DBNAME) 
+ RETURN 
+END 
+ 
+--- INCREMENT THE UPDATE COUNTER 
+SET @UpdateCounter = @UpdateCounter + 1 
+ 
+--- UPDATE RECRUITING ORG AND RECRUITER DATA 
+--- CALL sp_TransferApplicant SINCE THIS STORED PROCEDURE 
+--- UPDATES THE ORGANIZATION AND RECRUITER OF RECORD FOR AN NWA 
+EXEC sp_TransferApplicant  
+ @NWAID   = @NWAID, 
+ @OrgID  = @Organiza.onOfRecordID, 
+ @RecruiterID = @Recrui.ngPersonID, 
+ @UserLogin = @UserLogin 
+ 
+IF @@ERROR != 0  
+BEGIN 
+ RAISERROR ('An error occurred upda.ng the applicant''s Organiza.on/Recruiter data.', 16, @UpdateCounter, @DBID, @DBNAME) 
+ RETURN 
+END 
+ 
+--- INCREMENT THE UPDATE COUNTER 
+SET @UpdateCounter = @UpdateCounter + 1 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

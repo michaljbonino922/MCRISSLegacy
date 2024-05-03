@@ -1,0 +1,27 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetRecruitersByDatePeriod]" directorySegmentName="seg_5" id="4DCDCD19-8AC1-2221-4BCE-F0668C4125ED">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @OrgID int, 
+ @StartDate date.me, 
+ @EndDate date.me  
+) 
+AS 
+ 
+SELECT   
+   LTRIM(RTRIM(RP.RANK_CODE)) + ' ' + P.LAST_NAME DisplayName, 
+   rp.rowguid 
+   ,RP.TOUR_BEGIN_DATE 
+   ,RP.TOUR_END_DATE 
+      
+  FROM MCRISS.DBO.RECRUITING_PERSON RP WITH (NOLOCK) 
+   INNER JOIN MCRISS.DBO.RECRUITING_ORGANIZATION RO ON RP.ORGANIZATION_ID = RO.ORGANIZATION_ID 
+   INNER JOIN MCRISS.DBO.PERSON P ON RP.RECRUITING_PERSON_ID = P.PERSON_ID 
+   --INNER JOIN RECRUITING_ROLE RR ON RP.RECRUITING_ROLE_ID = RR.RECRUITING_ROLE_ID 
+  WHERE RP.ORGANIZATION_ID=@OrgID and ((RP.TOUR_BEGIN_DATE<@EndDate and (RP.TOUR_END_DATE is null or RP.TOUR_END_DATE>=@EndDate)) or (RP.TOUR_END_DATE<@EndDate and RP.TOUR_END_DATE>=@StartDate and RP.TOUR_END_DATE is not null))]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

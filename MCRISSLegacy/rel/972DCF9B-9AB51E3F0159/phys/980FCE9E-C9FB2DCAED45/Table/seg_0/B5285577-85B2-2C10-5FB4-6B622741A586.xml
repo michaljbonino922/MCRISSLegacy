@@ -1,0 +1,58 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="EventSource" directorySegmentName="seg_0" id="B5285577-85B2-2C10-5FB4-6B622741A586">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:54 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<schemaObject>454547C7-2829-9C8F-6E0C-35E4CFDC8E47</schemaObject>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="EventSourceTypeId" id="5BA9D3C5-BC41-00CB-39AC-C47F23E024A3">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="Name" id="8F8687AD-2874-6263-D943-6FBD6C28BA84">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="ID" id="9366034A-9F53-C786-B3DB-1CD2CB51346E">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<asIdentity>true</asIdentity>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="IsCard" id="9BE2F0FC-DF97-8D68-2AD8-4FC34E5E162D">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+</columnProxies>
+<indexProxies>
+<IndexProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.IndexProxySqlServerv2k12" name="IX_Name_TypeID" id="0E7F56A5-7385-31AD-28EC-EF3D7208BA88">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<fillFactor>100</fillFactor>
+<recomputeStatistics>ON</recomputeStatistics>
+</IndexProxy>
+</indexProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="FK_EventSource_EventSourceType" id="0D149E00-4EA3-847A-936C-D139BBBF6387">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="PK_EventSource" id="80DA941E-D194-A100-BE92-0CE788AF3695">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<clustered>true</clustered>
+<fillFactor>100</fillFactor>
+<partitioningColumn>EFC1C3A0-E2D3-374A-ACA3-B322F3BEB012</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+</TableProxySqlServerv2k5>

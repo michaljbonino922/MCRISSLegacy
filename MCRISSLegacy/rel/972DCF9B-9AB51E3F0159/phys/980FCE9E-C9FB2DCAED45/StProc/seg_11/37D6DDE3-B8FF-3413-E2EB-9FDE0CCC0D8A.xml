@@ -1,0 +1,222 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUpdateCandidateWaiver]" directorySegmentName="seg_11" id="37D6DDE3-B8FF-3413-E2EB-9FDE0CCC0D8A">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[(@CandidateWaiverID int 
+ ,@NwaID int 
+ ,@WaiverID int 
+ ,@WaiverStatusCode char(1) 
+ ,@WaiverSubmissionDate date.me 
+ ,@WaiverDetails varchar(255) 
+ ,@ApprovalDate date.me 
+ ,@OccasionID int 
+ ,@ProgramID int 
+ ,@MOS varchar(4) 
+ ,@AFQT char(1) 
+ ,@GT char(1) 
+ ,@EL char(1) 
+ ,@MM char(1) 
+ ,@CL char(1) 
+ ,@Height char(1) 
+ ,@Age char(1) 
+ ,@ColorPercep.on char(1) 
+ ,@Vision char(1) 
+ ,@WPMT char(1) 
+ ,@APT char(1) 
+ ,@EDPT char(1) 
+ ,@DLAB char(1) 
+ ,@PAOI char(1) 
+ ,@MEOP char(1) 
+ ,@HighestWaiverLevel char(1) 
+ ,@SeriousMoralO.enses char(1) 
+ ,@MarijuanaUse char(1) 
+ ,@AlgebraGrade char(1) 
+ ,@UserLogin varchar(50) 
+ ,@OutputID int output) 
+  
+AS 
+ 
+DECLARE @ID int 
+DECLARE @ErrorVar int 
+DECLARE @RowCountVar int 
+ 
+BEGIN TRANSACTION 
+ 
+SELECT @ID = @CandidateWaiverID; 
+ 
+UPDATE 
+ [dbo].[CANDIDATE_WAIVER] 
+SET  
+  [NWA_ID] = @NwaID 
+ ,[WAIVER_ID] = @WaiverID 
+ ,[WAIVER_STATUS_CODE] = @WaiverStatusCode 
+ ,[WAIVER_SUBMISSION_DATE] = @WaiverSubmissionDate 
+ ,[WAIVER_DETAILS] = @WaiverDetails  
+ ,[OCCASION_ID] = @OccasionID 
+ ,[USER_LOGIN] = @UserLogin 
+ ,[UPDATE_DATE] = GetDate() 
+WHERE 
+ [CANDIDATE_WAIVER_ID] = @CandidateWaiverID; 
+  
+SELECT @ErrorVar = @@ERROR, @RowCountVar = @@ROWCOUNT; 
+ 
+IF (@ErrorVar <> 0) GOTO on_error; 
+ 
+IF @RowCountVar = 0  
+ 
+BEGIN 
+ INSERT INTO [dbo].[CANDIDATE_WAIVER] 
+  ([NWA_ID] 
+  ,[WAIVER_ID] 
+  ,[WAIVER_STATUS_CODE] 
+  ,[WAIVER_SUBMISSION_DATE] 
+  ,[WAIVER_DETAILS]   
+  ,[OCCASION_ID] 
+  ,[USER_LOGIN] 
+  ,[UPDATE_DATE]) 
+ VALUES 
+  (@NwaID 
+  ,@WaiverID 
+  ,@WaiverStatusCode 
+  ,@WaiverSubmissionDate 
+  ,@WaiverDetails   
+  ,@OccasionID 
+  ,@UserLogin 
+  ,GetDate()); 
+   
+ IF (@@ERROR <> 0) GOTO on_error; 
+  
+ SELECT @ID = SCOPE_IDENTITY(); 
+END 
+ 
+------------------------------ 
+-- APPROVAL NUMBER 
+------------------------------ 
+IF @WaiverStatusCode = 'A' 
+BEGIN 
+ UPDATE 
+  [dbo].[CANDIDATE_WAIVER] 
+ SET  
+   [APPROVAL_NUMBER] = @ID 
+  ,[APPROVAL_DATE] = @ApprovalDate 
+ WHERE 
+  [CANDIDATE_WAIVER_ID] = @ID; 
+END 
+ 
+ELSE 
+ 
+BEGIN 
+ UPDATE 
+  [dbo].[CANDIDATE_WAIVER] 
+ SET  
+   [APPROVAL_NUMBER] = NULL 
+  ,[APPROVAL_DATE] = NULL 
+ WHERE 
+  [CANDIDATE_WAIVER_ID] = @ID; 
+END 
+ 
+------------------------------ 
+-- CANDIDATE CRITERIA WAIVER 
+------------------------------ 
+UPDATE  
+ [dbo].[CANDIDATE_CRITERIA_WAIVER] 
+SET  
+ [PROGRAM_ID] = @ProgramID, 
+ [MOS] = @MOS, 
+ [AFQT] = @AFQT, 
+ [GT] = @GT, 
+ [EL] = @EL, 
+ [MM] = @MM, 
+ [CL] = @CL, 
+ [HEIGHT] = @Height, 
+ [AGE] = @Age, 
+ [COLOR_PERCEPTION] = @ColorPercep.on, 
+ [VISION] = @Vision, 
+ [WPMT] = @WPMT, 
+ [APT] = @APT, 
+ [EDPT] = @EDPT, 
+ [DLAB] = @DLAB, 
+ [PAOI] = @PAOI, 
+ [MEOP] = @MEOP, 
+ [HIGHEST_WAIVER_LEVEL] = @HighestWaiverLevel, 
+ [SERIOUS_MORAL_OFFENSES] = @SeriousMoralO.enses, 
+ [MARIJUANA_USE] = @MarijuanaUse, 
+ [ALGEBRA_GRADE] = @AlgebraGrade, 
+ [UPDATE_DATE] = GETDATE() 
+WHERE 
+ [CANDIDATE_WAIVER_ID] = @ID; 
+  
+SELECT @ErrorVar = @@ERROR, @RowCountVar = @@ROWCOUNT; 
+ 
+IF (@ErrorVar <> 0) GOTO on_error; 
+ 
+IF @RowCountVar = 0  
+ 
+INSERT INTO [dbo].[CANDIDATE_CRITERIA_WAIVER] 
+ ([CANDIDATE_WAIVER_ID] 
+ ,[PROGRAM_ID] 
+ ,[MOS]  
+ ,[AFQT] 
+ ,[GT] 
+ ,[EL] 
+ ,[MM] 
+ ,[CL] 
+ ,[HEIGHT] 
+ ,[AGE] 
+ ,[COLOR_PERCEPTION] 
+ ,[VISION] 
+ ,[WPMT] 
+ ,[APT]  
+ ,[EDPT] 
+ ,[DLAB] 
+ ,[PAOI] 
+ ,[MEOP] 
+ ,[HIGHEST_WAIVER_LEVEL] 
+ ,[SERIOUS_MORAL_OFFENSES] 
+ ,[MARIJUANA_USE] 
+ ,[ALGEBRA_GRADE] 
+ ,[USER_LOGIN] 
+ ,[UPDATE_DATE]) 
+VALUES 
+ (@ID 
+ ,@ProgramID 
+ ,@MOS 
+ ,@AFQT 
+ ,@GT 
+ ,@EL 
+ ,@MM 
+ ,@CL 
+ ,@Height 
+ ,@Age 
+ ,@ColorPercep.on 
+ ,@Vision 
+ ,@WPMT 
+ ,@APT 
+ ,@EDPT 
+ ,@DLAB 
+ ,@PAOI 
+ ,@MEOP 
+ ,@HighestWaiverLevel 
+ ,@SeriousMoralO.enses 
+ ,@MarijuanaUse 
+ ,@AlgebraGrade 
+ ,@UserLogin 
+ ,GETDATE()); 
+ 
+IF (@@ERROR <> 0) GOTO on_error; 
+  
+COMMIT TRANSACTION 
+ 
+SELECT @OutputID = @ID; 
+ 
+RETURN (0); 
+ 
+on_error: 
+ ROLLBACK TRANSACTION 
+  
+ RETURN (1);]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

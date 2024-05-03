@@ -1,0 +1,18 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetAllOCSTrainingTypes]" directorySegmentName="seg_2" id="A6CDED6A-9FE4-A8DD-D15C-4B68E724A2E2">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[AS 
+ 
+SELECT 
+ TRAINING_TYPE_CODE As Code,  
+ TRAINING_TYPE_DESC As Descrip.on 
+FROM  
+ [dbo].[OCS_TRAINING_TYPE] WITH (NOLOCK) 
+ORDER BY  
+ TRAINING_TYPE_DESC]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

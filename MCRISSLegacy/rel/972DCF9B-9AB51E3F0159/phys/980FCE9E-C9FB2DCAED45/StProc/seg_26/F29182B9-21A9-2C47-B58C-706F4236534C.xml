@@ -1,0 +1,38 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateCandidateDependent]" directorySegmentName="seg_26" id="F29182B9-21A9-2C47-B58C-706F4236534C">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+  @CandidateDependentID int, 
+  @PersonID int, 
+  @DependentType varchar(2), 
+  @IsVeri.ed char(1), 
+  @FirstName varchar(30), 
+  @LastName varchar(20), 
+  @MiddleName varchar(20), 
+  @Su.x varchar(5), 
+  @DateOfBirth date.me, 
+  @UserLogin varchar(15) 
+ ) 
+AS 
+ 
+UPDATE  
+ [dbo].[CANDIDATE_DEPENDENT] 
+SET 
+ MARINE_CANDIDATE_ID = @PersonID, 
+ DEPENDENT_TYPE = @DependentType, 
+ VERIFICATION = @IsVeri.ed, 
+ FIRST_NAME = @FirstName, 
+ LAST_NAME = @LastName, 
+ MIDDLE_NAME = @MiddleName, 
+ SUFFIX_CD = @Su.x, 
+ DATE_OF_BIRTH = @DateOfBirth, 
+ USER_LOGIN = @UserLogin, 
+ UPDATE_DATE = GetDate() 
+WHERE 
+ DEPENDENT_ID = @CandidateDependentID]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

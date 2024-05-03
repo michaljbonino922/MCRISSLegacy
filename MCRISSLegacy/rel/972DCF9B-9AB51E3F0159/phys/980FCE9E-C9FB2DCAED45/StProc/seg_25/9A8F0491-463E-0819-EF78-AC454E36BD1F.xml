@@ -1,0 +1,65 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateShipperData]" directorySegmentName="seg_25" id="9A8F0491-463E-0819-EF78-AC454E36BD1F">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@ShipID   integer, 
+ @ShipDate   date.me, 
+ @Ac.veDutyServiceDate date.me, 
+ @PayDate  date.me, 
+ @PayGradeDate  date.me,  
+ @DetectabilityCode  integer, 
+ @DischargeCode   varchar(4)  = NULL, 
+ @DischargeDate  date.me  = NULL, 
+ @GradDate  date.me  = NULL, 
+ @ComponentCode  varchar(2)  = NULL, 
+ @TrainingOrgID  int  = NULL,  
+ @UserLogin   varchar(15) 
+AS 
+ 
+IF EXISTS (SELECT 1 FROM SHIPPER WHERE SHIP_ID = @ShipID) 
+BEGIN 
+ --- UPDATE SHIPPER DATA 
+ UPDATE  
+  SHIPPER 
+ SET 
+  SHIP_DATE   = @ShipDate,  
+  AFADBD    = @Ac.veDutyServiceDate,  
+  PAY_ENTRY_BASE_DATE  = @PayDate,  
+  PAY_GRADE_ED_DATE  = @PayGradeDate,  
+  COMPONENT_CODE   = @ComponentCode,  
+  TRAINING_ORGANIZATION_ID = @TrainingOrgID,  
+  USER_LOGIN    = @UserLogin,  
+  UPDATE_DATE    = GETDATE() 
+ WHERE 
+  SHIP_ID    = @ShipID 
+END  
+ 
+IF EXISTS (SELECT 1 FROM RECRUIT_TRAINING WHERE SHIP_ID = @ShipID)  
+BEGIN    
+ --- UPDATE THE RECRUIT TRAINING DATA 
+ UPDATE  
+  RECRUIT_TRAINING 
+ SET  
+  GRADUATION_DATE   = @GradDate,  
+  DETECTABILITY_CODE   = @DetectabilityCode,  
+  DROP_REASON    = @DischargeCode, 
+  DROP_DATE    = @DischargeDate,   
+  USER_LOGIN    = @UserLogin,  
+  UPDATE_DATE    = GETDATE() 
+ WHERE  
+  SHIP_ID    = @ShipID  
+   
+END 
+ELSE 
+BEGIN  
+ --- INSERT THE RECRUIT TRAINING DATA 
+ INSERT INTO RECRUIT_TRAINING  
+  (SHIP_ID, SHIP_DATE, GRADUATION_DATE, DETECTABILITY_CODE, DROP_REASON, DROP_DATE, USER_LOGIN, UPDATE_DATE) 
+ VALUES  
+  (@ShipID, @ShipDate, @GradDate, @DetectabilityCode, @DischargeCode, @DischargeDate, @UserLogin, GETDATE()) 
+END]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

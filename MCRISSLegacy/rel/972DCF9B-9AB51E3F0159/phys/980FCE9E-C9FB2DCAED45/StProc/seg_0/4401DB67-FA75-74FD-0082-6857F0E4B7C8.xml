@@ -1,0 +1,30 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="Proc20" directorySegmentName="seg_0" id="4401DB67-FA75-74FD-0082-6857F0E4B7C8">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:44 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @intUserID int, 
+ @intRoleID int, 
+ @intOrgUnitID int, 
+ @IsPSROrgUnit bit = 0 
+) 
+AS 
+ 
+ 
+IF NOT EXISTS (SELECT 1 FROM [Post] WHERE [RoleID] = @intRoleID AND [OrgUnitID] = @intOrgUnitID AND [IsPSROrgUnit] = @IsPSROrgUnit) 
+BEGIN 
+ INSERT INTO [Post] ([RoleID], [OrgUnitID], [IsPSROrgUnit]) VALUES (@intRoleID, @intOrgUnitID, @IsPSROrgUnit) 
+END 
+ 
+DECLARE @intPostID int 
+SET @intPostID = (SELECT TOP 1 [ID] FROM [Post] WHERE [RoleID] = @intRoleID AND [OrgUnitID] = @intOrgUnitID AND [IsPSROrgUnit] = @IsPSROrgUnit) 
+ 
+IF NOT EXISTS (SELECT 1 FROM [UserPost] WHERE [UserID] = @intUserID AND [PostID] = @intPostID) 
+BEGIN 
+ INSERT INTO [UserPost] ([UserID], [PostID]) VALUES (@intUserID, @intPostID) 
+END]]></body>
+<schema>83D3778E-22FC-1B9B-E3A5-96CA5869EFE3</schema>
+<database>30378C7E-748C-F803-F9A3-93DBFA86C9A7</database>
+</StoredProcedureSqlServerv2k5>

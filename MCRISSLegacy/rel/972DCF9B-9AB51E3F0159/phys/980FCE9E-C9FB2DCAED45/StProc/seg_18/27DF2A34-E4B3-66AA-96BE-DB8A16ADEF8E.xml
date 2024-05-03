@@ -1,0 +1,24 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetMaster8412DataLog]" directorySegmentName="seg_18" id="27DF2A34-E4B3-66AA-96BE-DB8A16ADEF8E">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@FileName varchar(250) = NULL 
+AS 
+ 
+--- GET DATA FOR THE LAST UPLOAD  
+SELECT  
+ L.MASTER_8412_DATA_LOG_ID,  
+ S.FILE_STATUS, L.USER_LOGIN,  
+ CONVERT(VARCHAR(19), L.UPDATE_DATE, 120) AS UPDATE_DATE,  
+ L.[FILE_NAME] 
+FROM  
+ MASTER_8412_DATA_LOG L INNER JOIN MASTER_8412_DATA_FILE_STATUS S ON  
+  (L.[FILE_NAME] = COALESCE(@FileName, L.[FILE_NAME]) AND  
+  L.FILE_STATUS_ID = S.MCD_MASTER_DATA_FILE_STATUS_ID AND  
+  L.MASTER_8412_DATA_LOG_ID = (SELECT MAX(L1.MASTER_8412_DATA_LOG_ID) FROM MASTER_8412_DATA_LOG L1 
+      WHERE L1.[FILE_NAME] = L.[FILE_NAME]))]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

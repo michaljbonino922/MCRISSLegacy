@@ -1,0 +1,79 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateCandidateAddress]" directorySegmentName="seg_26" id="FC26AFB9-CE0A-9372-6E6C-0E30C4F44B59">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @PersonId int, 
+ @AddressType int, 
+ @StreetAddress varchar(50), 
+ @StreetAddress2 varchar(50), 
+ @CityCode varchar(4) = null, 
+ @CountyCode varchar(3), 
+ @StateCode varchar(2), 
+ @ZipCode varchar(9), 
+ @LastEditBy varchar(15) 
+) 
+AS 
+DECLARE @charType varchar(10) 
+ 
+IF(@AddressType = 1) 
+ SET @charType = 'C' 
+ELSE 
+ SET @charType = 'H' 
+ 
+IF (@CountyCode IS NULL) 
+BEGIN 
+ SELECT @CountyCode = COUNTY_CODE 
+ FROM GEO_LOCATION 
+ WHERE STATE_CODE = @StateCode AND CITY_CODE = @CityCode 
+END 
+ 
+IF EXISTS ( SELECT 1  
+   FROM [mcriss].[dbo].[CANDIDATE_ADDRESS]  
+   WHERE [MARINE_CANDIDATE_ID] = @PersonId  
+    AND [ADDRESS_TYPE] = @charType) 
+ BEGIN 
+  UPDATE [mcriss].[dbo].[CANDIDATE_ADDRESS] 
+     SET  
+     [STREET_ADDRESS] = @StreetAddress 
+     ,[STREET_ADDRESS_2] = @StreetAddress2 
+     ,[CITY_CODE] = @CityCode 
+     ,[COUNTY_CODE] = @CountyCode 
+     ,[STATE_CODE] = @StateCode 
+     ,[ZIPCODE] = @ZipCode 
+     ,[USER_LOGIN] = @LastEditBy 
+     ,[UPDATE_DATE] = GetDate() 
+   WHERE [MARINE_CANDIDATE_ID] = @PersonId AND [ADDRESS_TYPE] = @charType 
+ END 
+ELSE 
+ BEGIN 
+INSERT INTO [mcriss].[dbo].[CANDIDATE_ADDRESS] 
+           ([MARINE_CANDIDATE_ID] 
+           ,[ADDRESS_TYPE] 
+           ,[STREET_ADDRESS] 
+           ,[STREET_ADDRESS_2] 
+           ,[CITY_CODE] 
+           ,[COUNTY_CODE] 
+           ,[STATE_CODE] 
+           ,[ZIPCODE] 
+           ,[USER_LOGIN] 
+           ,[UPDATE_DATE] 
+           ,[rowguid]) 
+     VALUES 
+           (@PersonId 
+           ,@charType 
+           ,@StreetAddress 
+           ,@StreetAddress2 
+           ,@CityCode 
+           ,@CountyCode 
+           ,@StateCode 
+           ,@ZipCode 
+           ,@LastEditBy 
+           ,GetDate() 
+           ,NEWID()) 
+ END]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

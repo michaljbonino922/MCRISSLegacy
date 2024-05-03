@@ -1,0 +1,34 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[DeleteCandidateWaiver]" directorySegmentName="seg_0" id="E3F85A3F-4269-3458-2E85-B2EF11D892DB">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[(@CandidateWaiverID int) 
+ 
+AS 
+ 
+BEGIN TRANSACTION 
+ 
+DELETE FROM [dbo].[CANDIDATE_PROGRAM_CRITERIA_WAIVER] WHERE CANDIDATE_WAIVER_ID = @CandidateWaiverID;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+ 
+IF (@@ERROR <> 0) GOTO on_error; 
+ 
+DELETE FROM [dbo].[CANDIDATE_CRITERIA_WAIVER] WHERE CANDIDATE_WAIVER_ID = @CandidateWaiverID; 
+ 
+IF (@@ERROR <> 0) GOTO on_error; 
+ 
+DELETE FROM [dbo].[CANDIDATE_WAIVER] WHERE CANDIDATE_WAIVER_ID = @CandidateWaiverID; 
+ 
+IF (@@ERROR <> 0) GOTO on_error; 
+ 
+COMMIT TRANSACTION 
+ 
+RETURN (0); 
+ 
+on_error: 
+ ROLLBACK TRANSACTION 
+ RETURN (1);]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

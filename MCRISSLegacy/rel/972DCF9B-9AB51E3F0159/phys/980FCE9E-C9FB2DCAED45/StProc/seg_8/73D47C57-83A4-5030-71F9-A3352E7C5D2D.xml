@@ -1,0 +1,302 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[RCTAPI_GetEventOpera.onalDataPartRecent]" directorySegmentName="seg_8" id="73D47C57-83A4-5030-71F9-A3352E7C5D2D">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@edipi varchar(10), 
+ @cutO.BeginDate date = NULL 
+AS 
+ 
+--RssOss.dbo.RCTAPI_GetEventOpera.onalDataPartRecent 1266694055 
+--DECLARE @edipi varchar(10) 
+--SET @edipi = 1266694055 
+ 
+SET NOCOUNT ON 
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+ 
+DECLARE @result   varchar(max) 
+DECLARE @tempJson varchar(max) 
+ 
+IF @cutO.BeginDate IS NULL 
+BEGIN 
+ SET @cutO.BeginDate = DATEADD(DAY, -62, GETDATE()) 
+END 
+ 
+SELECT TOP 1 
+  u.FirstName 
+ ,u.LastName 
+ ,rp.rowguid AS Recrui.ngPersonGuid  
+ ,ro.ORGANIZATION_ID 
+ ,ro.rowguid as OrgGuid 
+INTO #Recruiter  
+FROM  
+ UserMgmt.dbo.[User] u 
+ INNER JOIN MCRISS.dbo.PERSON p ON u.FirstName = p.FIRST_NAME AND u.LastName=p.LAST_NAME 
+ INNER JOIN MCRISS.dbo.RECRUITING_ORGANIZATION ro ON u.Sta.on_OrgUnitID = ro.OrgUnitId 
+ INNER JOIN MCRISS.dbo.RECRUITING_PERSON rp ON rp.RECRUITING_PERSON_ID = p.PERSON_ID AND rp.ORGANIZATION_ID = ro.ORGANIZATION_ID 
+WHERE  
+ Dis.nguishedName like '%' + @edipi AND u.IsAc.ve = 1 AND rp.ORGANIZATION_ID = ro.ORGANIZATION_ID 
+ORDER BY 
+ LastAc.vityDate DESC 
+ 
+  
+--EventOutcomes 
+SET @tempJson = ( 
+      SELECT  
+       v.[ID]      AS eventOutcomeId 
+      ,v.[EventId]    AS eventId 
+      ,v.[AppointmentOutcomeId] AS eventAppointmentOutcomeId 
+      ,v.[InterviewOutcomeId]  AS eventInterviewOutcomeId 
+      FROM  
+      RSSOSS.[USMC].[EventOutcome] v 
+      INNER JOIN RSSOSS.USMC.[Event] ev ON ev.ID = v.EventId 
+      INNER JOIN #Recruiter r ON ev.Organiza.onId = r.ORGANIZATION_ID 
+      WHERE 
+      ev.StartDate >= @cutO.BeginDate 
+       
+      FOR JSON PATH, ROOT('eventOutcomes'), INCLUDE_NULL_VALUES  
+) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = ISNULL(@tempJson, '"eventOutcomes":[]')  
+ 
+--EventBene.ts 
+SET @tempJson = ( 
+     SELECT  
+        v.[ID]     AS eventBene.tId 
+       ,v.[EventOutcomeId]  AS eventOutcomeId 
+       ,v.[Bene.tTypeId]  AS eventBene.tTypeId 
+       ,v.[Comment]   AS eventBene.tComment 
+       ,v.[Bene.tPriority] AS eventBene.tPriority 
+     FROM  
+      [RSSOSS].[USMC].[EventBene.t] v 
+      INNER JOIN RSSOSS.[USMC].[EventOutcome] eo ON eo.Id = v.EventOutcomeId 
+      INNER JOIN RSSOSS.USMC.[Event] ev ON ev.ID = eo.EventId 
+      INNER JOIN #Recruiter r ON ev.Organiza.onId = r.ORGANIZATION_ID 
+      WHERE 
+      ev.StartDate >= @cutO.BeginDate 
+      
+     FOR JSON PATH, ROOT('eventBene.ts'), INCLUDE_NULL_VALUES  
+    ) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"eventBene.ts":[]') 
+ 
+--EventOwners 
+SET @tempJson = ( 
+     SELECT 
+       v.[ID]   AS eventOwnerId 
+      ,v.[EventID] AS eventId 
+      ,v.[OwnerID] AS ownerId 
+      ,v.[CreatorID] AS creatorId 
+     FROM  
+      RSSOSS.[USMC].[EventOwners] v 
+      INNER JOIN RSSOSS.USMC.[Event] ev ON ev.ID = v.EventId 
+      INNER JOIN #Recruiter r ON ev.Organiza.onId = r.ORGANIZATION_ID 
+      WHERE 
+      ev.StartDate >= @cutO.BeginDate 
+      
+     FOR JSON PATH, ROOT('eventOwners'), INCLUDE_NULL_VALUES  
+    ) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"eventOwners":[]') 
+ 
+ 
+--EventPoolAtendances 
+SET @tempJson = ( 
+     SELECT  
+       v.[ID]   AS eventPoolAtendanceId 
+      ,v.[EventId] AS eventId 
+      ,v.[PooleeId] AS nwaId 
+      ,v.[Show]  AS atendance 
+     FROM  
+      [RSSOSS].[USMC].[PooleeAtendee] v 
+      INNER JOIN RSSOSS.USMC.[Event] ev ON ev.ID = v.EventId 
+      INNER JOIN #Recruiter r ON ev.Organiza.onId = r.ORGANIZATION_ID 
+     WHERE 
+      ev.StartDate >= @cutO.BeginDate 
+ 
+     FOR JSON PATH, ROOT('eventPoolAtendances'), INCLUDE_NULL_VALUES  
+    ) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"eventPoolAtendances":[]') 
+ 
+--WeeklyObjec.ves 
+SET @tempJson = ( 
+     SELECT  
+         w.[ID]        AS weeklyObjec.veId 
+        ,w.[MonthlyObjec.veID]    AS monthlyObjec.veId 
+        ,w.[StartDate]      AS startDate 
+        ,w.[EndDate]       AS endDate 
+        ,w.[GoalPercentage]     AS goalPercentage 
+        ,w.[NwaObjec.ve]      AS nwaObjec.ve 
+        ,w.[InterviewObjec.ve]    AS interviewObjec.ve 
+        ,w.[TelephoneCallObjec.ve]   AS telephoneCallObjec.ve 
+        ,w.[O.ceTra.cObjec.ve]   AS o.ceTra.cObjec.ve 
+        ,w.[AreaCanvassingObjec.ve]   AS areaCanvassingObjec.ve 
+        ,w.[HomeVisitObjec.ve]    AS homeVisitObjec.ve 
+        ,w.[ElectronicProspec.ngObjec.ve] AS electronicProspec.ngObjec.ve 
+        ,w.[Comments]       AS comment 
+     FROM 
+      [RSSOSS].[USMC].[MonthlyObjec.ve] mo 
+      INNER JOIN #Recruiter r ON mo.[RecruiterID] = r.Recrui.ngPersonGuid 
+      INNER JOIN [RSSOSS].[USMC].[WeeklyObjec.ve] w ON mo.Id = w.MonthlyObjec.veID 
+     WHERE 
+      CAST( (CAST(mo.[Year] as char(4)) + '-' + CAST(mo.[Month] as varchar(2)) + '-1') as date) >= @cutO.BeginDate 
+ 
+     FOR JSON PATH, ROOT('weeklyObjec.ves'), INCLUDE_NULL_VALUES  
+    ) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"weeklyObjec.ves":[]') 
+ 
+ 
+--MonthlyObjec.ves 
+SET @tempJson = ( 
+     SELECT  
+       mo.[ID]      AS monthlyObjec.veId 
+      ,mo.[Organiza.onId]   AS organiza.onId 
+      ,mo.[RecruiterID]    AS recruiterID 
+      ,mo.[Year]      AS [year] 
+      ,mo.[Month]      AS [month] 
+      ,mo.[TelephoneCallABP]   AS telephoneCallABP 
+      ,mo.[O.ceTra.cABP]   AS o.ceTra.cABP 
+      ,mo.[AreaCanvassingABP]   AS areaCanvassingABP 
+      ,mo.[HomeVisitABP]    AS homeVisitABP 
+      ,mo.[ElectronicProspec.ngABP] AS electronicProspec.ngABP 
+      ,mo.[ContractCount]    AS contractCount 
+      ,mo.[Nwa]      AS nwa 
+      ,mo.[Interview]     AS interview 
+      ,mo.[TelephoneCall]    AS telephoneCall 
+      ,mo.[O.ceTra.c]    AS o.ceTra.c 
+      ,mo.[AreaCanvassing]   AS areaCanvassing 
+      ,mo.[HomeVisit]     AS homeVisit 
+      ,mo.[ElectronicProspec.ng]  AS electronicProspec.ng 
+      ,mo.[Comments]     AS comment 
+     FROM  
+      [RSSOSS].[USMC].[MonthlyObjec.ve] mo 
+      INNER JOIN #Recruiter r ON mo.[RecruiterID] = r.Recrui.ngPersonGuid 
+     WHERE 
+      CAST( (CAST([Year] as char(4)) + '-' + CAST([Month] as varchar(2)) + '-1') as date) >= @cutO.BeginDate 
+ 
+     FOR JSON PATH, ROOT('monthlyObjec.ves'), INCLUDE_NULL_VALUES  
+    ) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"monthlyObjec.ves":[]') 
+ 
+ 
+--RecruiterAc.vityAndResults 
+SET @tempJson = ( 
+     SELECT 
+         rar.[ID]       AS recruiterAc.vityAndResultId 
+        ,rar.[RecruiterID]    AS recruiterId 
+        ,rar.[StartDate]     AS startDate 
+        ,rar.[EndDate]     AS endDate 
+        ,rar.[RecruiterComments]   AS recruiterComment 
+        ,rar.[SncoicComments]    AS sncoicComment 
+        ,rar.[RecruiterCommentsSigned] AS recruiterCommentsSigned 
+        ,rar.[SncoicCommentsSigned]  AS sncoicCommentsSigned 
+     FROM  
+      [RSSOSS].[USMC].[RecruiterAc.vityAndResult] rar 
+      INNER JOIN #Recruiter r ON rar.[RecruiterID] = r.Recrui.ngPersonGuid 
+     WHERE 
+      StartDate >= @cutO.BeginDate 
+ 
+     FOR JSON PATH, ROOT('recruiterAc.vityAndResults'), INCLUDE_NULL_VALUES  
+    ) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"recruiterAc.vityAndResults":[]') 
+ 
+--TakeOneEvents 
+SET @tempJson = ( 
+     SELECT 
+       v.[ID]    AS eventId 
+      ,v.[NumberAdded] AS numberAdded 
+     FROM  
+      [RSSOSS].[USMC].[TakeOneEvent] v 
+      INNER JOIN RSSOSS.USMC.[Event] ev ON ev.ID = v.Id 
+      INNER JOIN #Recruiter r ON ev.Organiza.onId = r.ORGANIZATION_ID 
+     WHERE 
+      ev.StartDate >= @cutO.BeginDate 
+ 
+     FOR JSON PATH, ROOT('takeOneEvents'), INCLUDE_NULL_VALUES  
+    )  
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"takeOneEvents":[]') 
+ 
+--JuniorTalkEvents 
+SET @tempJson = ( 
+     SELECT 
+       v.[ID]     AS eventId 
+      ,v.[NumberOfJuniors] AS numberOfJuniors 
+     FROM 
+      [RSSOSS].[USMC].[JuniorTalkEvent] v 
+      INNER JOIN RSSOSS.USMC.[Event] ev ON ev.ID = v.Id 
+      INNER JOIN #Recruiter r ON ev.Organiza.onId = r.ORGANIZATION_ID 
+     WHERE 
+      ev.StartDate >= @cutO.BeginDate 
+ 
+     FOR JSON PATH, ROOT('juniorTalkEvents'), INCLUDE_NULL_VALUES  
+    ) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"juniorTalkEvents":[]') 
+ 
+--StudentListEvents 
+SET @tempJson = ( 
+     SELECT 
+       v.[ID]      AS eventId 
+      ,v.[NumberOfMaleStudents] AS numberOfMaleStudents 
+     FROM 
+      [RSSOSS].[USMC].[StudentListEvent] v 
+      INNER JOIN RSSOSS.USMC.[Event] ev ON ev.ID = v.Id 
+      INNER JOIN #Recruiter r ON ev.Organiza.onId = r.ORGANIZATION_ID 
+     WHERE 
+      ev.StartDate >= @cutO.BeginDate 
+ 
+     FOR JSON PATH, ROOT('studentListEvents'), INCLUDE_NULL_VALUES  
+    ) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"studentListEvents":[]') 
+ 
+--SeniorTalkEvents 
+SET @tempJson = ( 
+     SELECT 
+       v.[ID]     AS eventId 
+      ,v.[NumberOfSeniors] AS numberOfSeniors 
+     FROM 
+      [RSSOSS].[USMC].[SeniorTalkEvent] v 
+      INNER JOIN RSSOSS.USMC.[Event] ev ON ev.ID = v.Id 
+      INNER JOIN #Recruiter r ON ev.Organiza.onId = r.ORGANIZATION_ID 
+     WHERE 
+      ev.StartDate >= @cutO.BeginDate 
+ 
+     FOR JSON PATH, ROOT('seniorTalkEvents'), INCLUDE_NULL_VALUES  
+    ) 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"seniorTalkEvents":[]') 
+ 
+--YouthPhysicalFitnessEvents 
+SET @tempJson = ( 
+     SELECT  
+       v.[ID]     AS eventId 
+      ,v.[NumberOfStudents] AS numberOfStudents 
+     FROM 
+      [RSSOSS].[USMC].[YouthPhysicalFitnessEvent] v 
+      INNER JOIN RSSOSS.USMC.[Event] ev ON ev.ID = v.Id 
+      INNER JOIN #Recruiter r ON ev.Organiza.onId = r.ORGANIZATION_ID 
+     WHERE 
+      ev.StartDate >= @cutO.BeginDate 
+ 
+     FOR JSON PATH, ROOT('youthPhysicalFitnessEvents'), INCLUDE_NULL_VALUES  
+    ) 
+ 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"youthPhysicalFitnessEvents":[]') 
+ 
+ 
+SET @result = '{' + @result + '}' 
+SELECT @result 
+  
+DROP TABLE #Recruiter]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

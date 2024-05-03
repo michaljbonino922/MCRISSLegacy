@@ -1,0 +1,88 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[DeleteSec.onItem]" directorySegmentName="seg_29" id="EB334190-7316-4915-3A47-A447EFB9FB09">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:39 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @Sec.onItemId uniqueiden..er, 
+ @User varchar(100) 
+) 
+AS 
+ 
+BEGIN TRANSACTION 
+ 
+IF EXISTS(SELECT 1 FROM [ACP].[Form] WHERE [Sec.onItemId] = @Sec.onItemId AND [Signed] = 1) 
+BEGIN 
+ RAISERROR ('Dele.ng a Signed Form is unauthorized.',16,1) 
+ RETURN 
+END 
+ELSE 
+BEGIN 
+ 
+ -- Remove any Associa.on where either side of the Associa.on was this Sec.onItem 
+ DELETE FROM [ACP].[Associa.on] 
+ WHERE 
+  (FromSec.onItemId = @Sec.onItemId) 
+ OR 
+  (ToSec.onItemId = @Sec.onItemId) 
+ 
+  
+  
+ -- If we are dele.ng a Form...delete records from child tables .rst. 
+ IF EXISTS(SELECT 1 FROM [ACP].[Form] WHERE [Sec.onItemId] = @Sec.onItemId) 
+ BEGIN 
+  --Delete archives of this form from the FormArchive table. 
+  DELETE FROM [ACP].[FormArchive] 
+  WHERE 
+   [Sec.onItemId] = @Sec.onItemId 
+  
+  -- Delete child records in the FormAc.on table. 
+  DELETE FROM [ACP].[FormAc.on] 
+  WHERE 
+   [Sec.onItemId] = @Sec.onItemId 
+    
+  -- then delete the record from the Form table. 
+  DELETE FROM [ACP].[Form] 
+  WHERE 
+   [Sec.onItemId] = @Sec.onItemId 
+    
+  DELETE FROM [ACP].[Sec.onItem] 
+  WHERE Sec.onItemId = @Sec.onItemId 
+   
+ END 
+ ELSE 
+ BEGIN 
+  DELETE FROM [ACP].[Document] 
+  WHERE Sec.onItemId = @Sec.onItemId 
+   
+  DELETE FROM [ACP].[Sec.onItem] 
+  WHERE Sec.onItemId = @Sec.onItemId 
+ END 
+ 
+ -- Rollback the transac.on if there were any errors 
+ IF @@ERROR <> 0 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+  -- Raise an error and return 
+  RAISERROR ('Error occurred while performing the change.', 16, 1) 
+  RETURN 
+ END 
+ 
+ -- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+ IF @@ROWCOUNT > 1 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+  -- Raise an error and return 
+  RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+  RETURN 
+ END 
+ 
+ -- If we reach this point, the commands completed successfully, commit the transac.on 
+ COMMIT TRANSACTION 
+END]]></body>
+<schema>569A41D8-8F40-0619-141C-F4C9436AAF46</schema>
+<database>2D7ED536-DF8E-3523-7DC3-4228EBAF5F66</database>
+</StoredProcedureSqlServerv2k5>

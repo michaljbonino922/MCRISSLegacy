@@ -1,0 +1,64 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetApplicantData]" directorySegmentName="seg_15" id="8D967D01-0A8C-864B-FBF3-8C1132724D76">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@SSN    char(9), 
+ @PersonID  int   = NULL OUTPUT, 
+ @NWAID   int   = NULL OUTPUT, 
+ @ContractID  int   = NULL OUTPUT, 
+ @ShipID   int   = NULL OUTPUT, 
+ @CandidateStatusID int   = NULL OUTPUT, 
+ @StatusType  char(1)  = NULL OUTPUT, 
+ @StatusCode   varchar(10) = NULL OUTPUT, 
+ @Disposi.onCode varchar(20)  = NULL OUTPUT, 
+ @IsRecruiter  char(1)  = NULL OUTPUT 
+AS 
+ 
+ 
+--- GET THE @PersonID 
+SET @PersonID = COALESCE((SELECT P.PERSON_ID FROM PERSON P WHERE P.SOCIAL_SECURITY_NUMBER = @SSN), 0) 
+ 
+ 
+--- GET THE @NWAID 
+SET @NWAID = COALESCE(dbo.GetMaxNWAID(@PersonID), 0) 
+ 
+ 
+--- GET THE @CandidateStatusID  
+SET @CandidateStatusID = COALESCE(dbo.GetMaxStatusID(@NWAID), 0) 
+  
+--- GET THE @StatusType,  @StatusCode and @Disposi.onCode 
+SELECT 
+ @StatusType   = CS.STATUS_TYPE, 
+ @StatusCode   = CS.STATUS_CODE, 
+ @Disposi.onCode  = CASE WHEN CS.DISPOSITION_CODE = 'DH' THEN 'F' ELSE CS.DISPOSITION_CODE END 
+FROM 
+ CANDIDATE_STATUS CS  
+WHERE 
+ CS.CANDIDATE_STATUS_ID = @CandidateStatusID 
+  
+ 
+--- GET THE CONTRACT AND SHIP IDs 
+SET @ContractID = COALESCE((SELECT CASE  
+    WHEN @StatusType = 'E' AND @StatusCode IN ('B', 'C')  
+    THEN (SELECT C.CONTRACT_ID FROM CONTRACT C WHERE C.NWA_ID = @NWAID) 
+    ELSE NULL 
+    END), 0) 
+ 
+SET @ShipID = COALESCE((SELECT CASE  
+    WHEN @StatusType = 'E' AND @StatusCode = 'C' 
+    THEN (SELECT S.SHIP_ID FROM SHIPPER S WHERE S.CONTRACT_ID = @ContractID) 
+    ELSE NULL 
+    END), 0) 
+ 
+ 
+--- SET THE IsRecruiter Flag 
+SET @IsRecruiter = CASE  
+   WHEN COALESCE(@PersonID, 0) = 0 THEN 'N' 
+   WHEN EXISTS (SELECT 1 FROM RECRUITING_PERSON WHERE RECRUITING_PERSON_ID = @PersonID AND TOUR_END_DATE IS NULL) THEN 'Y' 
+   ELSE 'N' 
+   END]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,48 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="GradCommDateChangeRequest" directorySegmentName="seg_7" id="130C645F-6D3F-536F-9EF5-426BE16EE247">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:56 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<schemaObject>B106B664-0C0B-E788-08ED-5CF8E449BE22</schemaObject>
+<database>2D7ED536-DF8E-3523-7DC3-4228EBAF5F66</database>
+<schema>569A41D8-8F40-0619-141C-F4C9436AAF46</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="GradDate" id="06E6CCF9-C01A-2357-B16D-61B031C89F5A">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:59 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="ReferenceText" id="17AB6FB4-E39A-478B-A831-88B79ED5340A">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:59 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="RequestID" id="30E5D2AA-C9B9-BA76-27BF-E22AB8B2D6D8">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:59 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="CommissionDate" id="C389D00F-0B0C-44ED-6F31-5A8D15159FF9">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:59 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+</columnProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="FK_Request_GradCommDateChangeRequest" id="45517722-3CDA-4F7C-6765-7275EA2A111A">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:03 UTC</createdTime>
+<ownerDesignName>create MCRISS_ERROR script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="GradCommDateChangeRequest_PK" id="45948BF7-3A4A-3E08-C13F-E12F5E8BFDED">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:59 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<clustered>true</clustered>
+<fillFactor>90</fillFactor>
+<partitioningColumn>FA53D4CE-1093-2087-B8FD-38199358E4AD</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+</TableProxySqlServerv2k5>

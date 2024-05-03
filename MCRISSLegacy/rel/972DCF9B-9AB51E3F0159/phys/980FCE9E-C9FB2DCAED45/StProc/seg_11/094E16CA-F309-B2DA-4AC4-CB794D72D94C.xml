@@ -1,0 +1,21 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertProgramCriteriaWaiver]" directorySegmentName="seg_11" id="094E16CA-F309-B2DA-4AC4-CB794D72D94C">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @intProgramID int, 
+ @dtE.ec.veDate date.me, 
+ @intWaiverID int, 
+ @strUserLogin varchar(15) 
+) 
+AS 
+ 
+INSERT INTO PROGRAM_CRITERIA_WAIVER  
+ (PROGRAM_ID, PROGRAM_CRITERIA_ED_DATE, WAIVER_ID, USER_LOGIN) 
+VALUES  
+ (@intProgramID, @dtE.ec.veDate, @intWaiverID, @strUserLogin)]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

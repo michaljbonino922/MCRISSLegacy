@@ -1,0 +1,39 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_3" id="DC11CD9B-AAA4-54CB-A1D1-24D1A07111D1" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="_dta_mv_268">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>F102EA73-98E1-8D48-BB67-9D7E817E5816</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  [USMC].[EventOwners].[EventID] as _col_1,  [USMC].[EventOwners].[ID] as _col_2 FROM  [USMC].[Event],  [USMC].[EventOwners]   WHERE  [USMC].[Event].[EventSourceId] = 16  AND  [USMC].[Event].[EventTypeId] = 85  AND  [USMC].[Event].[ID] = [USMC].[EventOwners].[EventID]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[EventID]" id="575E4CC2-981F-0332-E7EB-1C245742E8F1">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_1</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_1</headerAlias>
+<expression>[EventID]</expression>
+<reference>false</reference>
+<viewID>DC11CD9B-AAA4-54CB-A1D1-24D1A07111D1</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[ID]" id="9C49D9D3-A0B1-773E-9917-A00771A1F2AC">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_2</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_2</headerAlias>
+<expression>[ID]</expression>
+<reference>false</reference>
+<viewID>DC11CD9B-AAA4-54CB-A1D1-24D1A07111D1</viewID>
+</viewElement>
+</viewElements>
+</TableView>

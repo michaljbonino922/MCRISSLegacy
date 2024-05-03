@@ -1,0 +1,305 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetDataSheetGridDataByOrgIdYear]" directorySegmentName="seg_2" id="9AECAF33-0901-844E-DDE4-77B42BC78A1C">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@orgUnitId int, 
+     @.scalYear int 
+AS 
+BEGIN 
+   
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+  
+ CREATE TABLE #DataTable   
+ (  
+   [rowid] INT NOT NULL IDENTITY(1,1) 
+  ,[Sector] VARCHAR(2) Not NULL 
+  ,[Mhssr] INT DEFAULT 0 
+  ,[pfy1] INT DEFAULT 0 
+  ,[pfy2] INT DEFAULT 0 
+  ,[pfy3] INT DEFAULT 0 
+  ,[sahs] INT DEFAULT 0 
+  ,[sacc] INT DEFAULT 0 
+  ,[sacol] INT DEFAULT 0 
+  ,[sato] INT DEFAULT 0 
+  ,[sairt] INT DEFAULT 0 
+  ,[problems] VARCHAR(500) Null 
+  ,[gridid] UNIQUEIDENTIFIER Null 
+ ) 
+ 
+ CREATE UNIQUE CLUSTERED INDEX IX_rowid ON #DataTable (rowid) 
+ 
+ CREATE TABLE #SectorCounts 
+ ( 
+   [rowid] INT NOT NULL IDENTITY(1,1) 
+  ,[sahs] INT 
+  ,[cc] INT 
+  ,[acol] INT 
+  ,[Sector] VARCHAR(2) 
+ ) 
+ 
+ CREATE UNIQUE CLUSTERED INDEX IX_rowid ON #SectorCounts (rowid) 
+ 
+ DECLARE @fyst VARCHAR(20) 
+ DECLARE @fyed VARCHAR(20) 
+ 
+ DECLARE @DTfyst DATETIME 
+ DECLARE @DTfyed DATETIME 
+ 
+ DECLARE @OrgRowguid UNIQUEIDENTIFIER 
+ 
+ SELECT  
+  @OrgRowguid = rowguid 
+ FROM  
+  MCRISS.dbo.RECRUITING_ORGANIZATION 
+ WHERE  
+  ORGANIZATION_ID = @OrgUnitId 
+ 
+ SELECT @fyst = str(@.scalYear -1) + '/10/1' 
+ SELECT @DTfyst = convert(DATETIME, @fyst,101) 
+ 
+ SELECT @fyed = STR(@.scalYear) + '/10/1' 
+ SELECT @DTfyed = CONVERT(DATETIME, @fyed,101) 
+ SET @DTfyed = DATEADD(second, -1, @DTfyed)  
+ 
+ SELECT *  
+ INTO #HighSchool 
+ FROM 
+  MCRISS.dbo.HIGH_SCHOOL 
+ WHERE 
+  ORGANIZATION_ID = @OrgUnitId 
+ 
+ SELECT *  
+ INTO #MapsSector 
+ FROM 
+  RSSOSS.USMC.MapsSector 
+ WHERE 
+  Recrui.ngOrganiza.onId = @OrgRowguid 
+ 
+ 
+ INSERT INTO #DataTable(Sector) 
+ SELECT  
+  DISTINCT ms.SectorDesignator sector 
+ FROM  
+  #MapsSector ms  
+ ORDER BY SectorDesignator 
+ 
+ insert into #DataTable(Sector) values('OA') 
+ 
+  
+  
+  --  Get previous 3 yeas contracts                                       
+ update dt set pfy1 = rst.pfy1, 
+      pfy2=rst.pfy2, pfy3=rst.pfy3  
+ from #DataTable dt inner join ( 
+ SELECT   (sum(case when mc.CONTRACT_BEGIN_DATE>=dateadd(year, -1,@DTfyst) 
+         AND mc.CONTRACT_BEGIN_DATE<=dateadd(year, -1,@DTfyed) THEN 1 else 0 end)) pfy1, 
+    sum(case when mc.CONTRACT_BEGIN_DATE>=dateadd(year, -2, @DTfyst) 
+      AND mc.CONTRACT_BEGIN_DATE<=dateadd(year, -2, @DTfyed) then 1 else 0 end) pfy2, 
+    sum(case when  mc.CONTRACT_BEGIN_DATE>=dateadd(year, -3, @DTfyst)  
+    AND mc.CONTRACT_BEGIN_DATE<=dateadd(year, -3, @DTfyed)  then 1 else 0 end) pfy3,     
+   case when SectorDesignator is null then 'OA' else SectorDesignator end as sector 
+ FROM MCRISS.DBO.NWA mn  
+       
+ INNER JOIN MCRISS.DBO.Contract mc on mc.NWA_ID = mn.NWA_ID  
+  
+ INNER JOIN MCRISS.DBO.RECRUITING_ORGANIZATION ro ON mn.ORGANIZATION_OF_RECORD_ID = ro.ORGANIZATION_ID  
+              AND ro.ORGANIZATION_ID = @orgUnitId               
+    
+ Le. JOIN USMC.MapsSector ms ON ms.SectorId = mc.SectorId and ms.Recrui.ngOrganiza.onId=ro.rowguid 
+  
+ group by SectorDesignator) rst on rst.sector=dt.sector 
+  
+ ---- To get the sector zip info 
+ ---- based on history and using last day of the .scal year as the snapping point 
+ SELECT * 
+ INTO #SectorZip 
+ FROM 
+ ( 
+  SELECT ms.SectorDesignator, mz.Zip, mz.E.ec.veDate, NULL as EndDate  
+  FROM 
+   #MapsSector ms 
+   INNER JOIN RSSOSS.USMC.MapsSectorZip mz 
+    ON ms.SectorID = mz.SectorID 
+  UNION 
+ 
+  SELECT ms.SectorDesignator, mzh.Zip, mzh.E.ec.veDate, mzh.EndDate  
+  FROM 
+   #MapsSector ms 
+   INNER JOIN RSSOSS.USMC.MapsSectorZipHist mzh 
+    ON ms.SectorID = mzh.SectorID 
+ 
+ ) as t 
+ Where 
+  ( t.EndDate IS NULL AND @DTfyed >= t.E.ec.veDate)  OR 
+  ( t.EndDate IS NOT NULL AND @DTfyed < t.EndDate AND @DTfyed >= t.E.ec.veDate) 
+ 
+ --- GET male seniors from por.le sheet 
+ SELECT  
+  Sum(hsp.MALE_SENIORS) AS MaleSeniors 
+  ,ISNULL(sz.SectorDesignator, 'OA') AS Sector 
+ INTO #MaleSeniors  
+ FROM 
+   MCRISS.dbo.HIGH_SCHOOL_PROFILE hsp 
+   INNER JOIN #HighSchool hs 
+    ON hsp.SCHOOL_CODE = hs.SCHOOL_CODE 
+   LEFT OUTER JOIN #SectorZip sz 
+    ON sz.Zip = LEFT(hs.Zip_Code,5) 
+   
+ WHERE 
+   hsp.SCHOOL_YEAR = @.scalYear 
+ GROUP BY SectorDesignator 
+ order by SectorDesignator 
+ 
+ UPDATE dt  
+ SET  
+  dt.Mhssr = m.MaleSeniors 
+ FROM  
+  #DataTable dt 
+  INNER JOIN #MaleSeniors m 
+  ON dt.sector = m.sector 
+ 
+ INSERT INTO #SectorCounts 
+ SELECT   sum(case when hs.school_type='HS' then 1 else 0 END) AS [sahs] 
+   ,sum(case when hs.school_type='CC' OR hs.school_type='2yr' then 1 else 0 END) AS [cc] 
+   ,sum(case when hs.school_type='COL' or hs.school_type='4Y' then 1 else 0 END) AS [acol] 
+   ,[Sector]=case when SectorDesignator is not null then SectorDesignator else 'OA' end 
+ FROM   USMC.MapsSectorZip mz  
+ INNER JOIN   USMC.MapsSector ms on ms.SectorId = mz.SectorId  
+          and mz.E.ec.veDate <@DTfyed 
+ INNER JOIN MCRISS.DBO.RECRUITING_ORGANIZATION org ON org.ORGANIZATION_ID = @orgUnitId  
+              AND org.rowguid = ms.Recrui.ngOrganiza.onId   
+ INNER JOIN  MCRISS.DBO.High_School hs ON le.(hs.Zip_Code,5) = mz.zip  
+   AND hs.deleted='N' AND org.ORGANIZATION_ID = hs.ORGANIZATION_ID 
+ GROUP BY SectorDesignator  
+ 
+ union  
+ SELECT  sum(case when hs.school_type='HS' then 1 else 0 END) AS [sahs] 
+   ,sum(case when hs.school_type='CC' OR hs.school_type='2yr' then 1 else 0 END) AS [cc] 
+   ,sum(case when hs.school_type='COL' or hs.school_type='4Y' then 1 else 0 END) AS [acol] 
+   ,SectorDesignator AS [Sector] 
+ FROM   USMC.MapsSectorZipHist mzh  
+ INNER JOIN USMC.MapsSector ms ON ms.SectorId = mzh.SectorId  
+         AND mzh.E.ec.veDate <@DTfyed  
+         AND mzh.EndDate > @DTfyed 
+ INNER JOIN MCRISS.DBO.RECRUITING_ORGANIZATION org on org.ORGANIZATION_ID = @orgUnitId  
+              AND org.rowguid = ms.Recrui.ngOrganiza.onId   
+ INNER JOIN  MCRISS.DBO.High_School hs ON le.(hs.Zip_Code,5) = mzh.zip  
+  AND hs.deleted='N'  AND org.ORGANIZATION_ID = hs.ORGANIZATION_ID  
+  
+ GROUP BY SectorDesignator 
+  
+  Update #SectorCounts set [acol]=rst.[acol] from #SectorCounts sc inner join ( 
+ SELECT   COUNT(hs.rowguid) AS [acol] 
+   ,[Sector]=case when SectorDesignator is not null then SectorDesignator else 'OA' end 
+ FROM   USMC.MapsSectorZip mz  
+   
+ INNER JOIN   USMC.MapsSector ms on ms.SectorId = mz.SectorId  
+          and mz.E.ec.veDate <@DTfyed 
+ INNER JOIN MCRISS.DBO.RECRUITING_ORGANIZATION org ON org.ORGANIZATION_ID = @orgUnitId  
+              AND org.rowguid = ms.Recrui.ngOrganiza.onId  
+ INNER JOIN  MCRISS.DBO.High_School hs ON le.(hs.Zip_Code,5) = mz.zip  
+   AND hs.deleted='N' AND (hs.school_type='COL' or hs.school_type='4Y') 
+   AND org.ORGANIZATION_ID = hs.ORGANIZATION_ID              
+ GROUP BY SectorDesignator  
+ 
+ union  
+ SELECT COUNT(hs.rowguid) AS [acol] 
+   ,SectorDesignator AS [Sector] 
+ FROM   USMC.MapsSectorZipHist mzh    
+ INNER JOIN USMC.MapsSector ms ON ms.SectorId = mzh.SectorId  
+         AND mzh.E.ec.veDate <@DTfyed  
+         AND mzh.EndDate > @DTfyed 
+ INNER JOIN MCRISS.DBO.RECRUITING_ORGANIZATION org ON org.ORGANIZATION_ID = @orgUnitId  
+              AND org.rowguid = ms.Recrui.ngOrganiza.onId  
+ INNER JOIN  MCRISS.DBO.High_School hs ON le.(hs.Zip_Code,5) = mzh.zip  
+  AND hs.deleted='N' AND (hs.school_type='COL' or hs.school_type='4Y') 
+  AND org.ORGANIZATION_ID = hs.ORGANIZATION_ID               
+ GROUP BY SectorDesignator) rst on sc.Sector = rst.sector 
+    
+ --Get Sector Assets info HS, CC, COL, T/O, IRT etc                        
+ UPDATE dt  
+ SET  dt.sahs = sc.sahs 
+  ,dt.sacc = sc.cc 
+  ,dt.sacol = sc.acol 
+ FROM #DataTable dt 
+ INNER JOIN #SectorCounts sc ON dt.sector = sc.sector 
+                           
+ --Get Sector Take one loca.on info 
+ UPDATE dt 
+ SET dt.sato = rst.tono 
+ FROM #DataTable dt 
+ INNER JOIN ( SELECT  count(toc.ID) AS [tono] 
+       ,SectorDesignator AS [Sector] 
+     FROM --USMC.MapsSectorZip mz INNER JOIN 
+      USMC.MapsSector ms INNER JOIN USMC.TakeOneCard toc   
+      ON ms.SectorId = toc.SectorId  
+     --         AND mz.E.ec.veDate <@DTfyed 
+     INNER JOIN MCRISS.DBO.RECRUITING_ORGANIZATION org ON org.ORGANIZATION_ID = @orgUnitId  
+     AND org.rowguid = ms.Recrui.ngOrganiza.onId  
+     --INNER JOIN USMC.TakeOneLoca.on tol ON tol.ZipCode = mz.Zip and tol.isAc.ve = 1 
+     --on toc.ID = tol.TakeOneCardID  
+     and toc.FY = @.scalYear  
+     GROUP BY SectorDesignator  
+     --UNION 
+     --SELECT  count(tol.ID) AS [tono] 
+     --  ,SectorDesignator AS [Sector] 
+     --FROM USMC.MapsSectorZipHist mzh 
+     --INNER JOIN USMC.MapsSector ms ON ms.SectorId = mzh.SectorId  
+     --        AND mzh.E.ec.veDate <@DTfyed  
+     --        AND mzh.EndDate > @DTfyed 
+     --INNER JOIN MCRISS.DBO.RECRUITING_ORGANIZATION org ON org.ORGANIZATION_ID = @orgUnitId  
+      --             AND org.rowguid = ms.Recrui.ngOrganiza.onId    
+     --INNER JOIN USMC.TakeOneLoca.on tol ON tol.ZipCode = mzh.Zip  
+     --          and tol.isAc.ve = 1 
+     --INNER JOIN USMC.TakeOneCard toc on toc.ID = tol.TakeOneCardID and toc.FY = @.scalYear           
+     --GROUP BY SectorDesignator 
+      ) rst ON dt.sector = rst.sector 
+                           
+                           
+ 
+----------------------------------------------------------------------------------------------------- 
+--  Get IRT Card Data 
+------------------------------------------------------------------------------------------------------ 
+ UPDATE dt 
+ SET dt.sairt = rst.irtno 
+ FROM #DataTable dt 
+ INNER JOIN ( SELECT     COUNT(IRTCardID) AS irtno, Sector 
+     FROM       RSSOSS.USMC.IRTCard 
+     GROUP BY Sector,RssOrgID, ForFY 
+     HAVING      (RssOrgID = @orgUnitId and ForFY=@.scalYear) 
+ 
+ ) rst ON dt.sector = rst.sector 
+------------------------------------------------------------------------------------------------------ 
+  
+                            
+                           
+ --Get Sector Highlights, problems 
+ UPDATE dt  
+ SET  dt.problems = rst.problems 
+  ,dt.gridid = rst.gridid 
+ FROM #DataTable dt 
+ INNER JOIN (SELECT  rdss.RssDataSheetSectorId AS [gridid] 
+      ,rdss.SectorDesignator AS [sector] 
+      ,rdss.sectorproblems AS [problems] 
+    FROM USMC.RssDataSheet rds 
+    INNER JOIN USMC.RssDataSheetSector rdss ON rds.RssDataSheetId = rdss.RssDataSheetId 
+    WHERE RssOrgId = @orgUnitId  
+     and FysicalYear = @.scalYear 
+      ) rst ON dt.sector = rst.sector 
+                           
+ SELECT *  
+ FROM #DataTable 
+ 
+ DROP TABLE #DataTable 
+ DROP TABLE #SectorCounts 
+ DROP TABLE #HighSchool 
+ DROP TABLE #MapsSector 
+ DROP TABLE #SectorZip 
+ DROP TABLE #MaleSeniors 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

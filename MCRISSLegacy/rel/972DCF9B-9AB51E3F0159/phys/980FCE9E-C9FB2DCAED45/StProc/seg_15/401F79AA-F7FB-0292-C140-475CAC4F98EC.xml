@@ -1,0 +1,602 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="Proc1045" directorySegmentName="seg_15" id="401F79AA-F7FB-0292-C140-475CAC4F98EC">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[(   
+ @FirstName varchar(20) = null, 
+ @LastName varchar(20) = null, 
+ @SSN varchar(9) = null, 
+ @ProspectDisposi.onId int = NULL, 
+ @PACCreatedFromDate DateTime = null, 
+ @PACCreatedToDate DateTime = null, 
+ @Ac.vityFromDate DateTime = null, 
+ @Ac.vityToDate DateTime = null , 
+ @Gradua.onYear int = null, 
+ @SchoolIDs xml = null, 
+ @ZipCodes xml = NULL, 
+ @SubSta.onType varchar(1) = NULL 
+) 
+ 
+AS 
+ 
+SET ARITHABORT ON 
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+IF (@SchoolIDS IS NOT NULL OR @ZipCodes IS NOT NULL) 
+BEGIN 
+ 
+ CREATE TABLE #ZipCodesTable  
+ ( 
+  ID VARCHAR(5) 
+ ) 
+  
+ CREATE TABLE #PROSPECT_ADDRESS 
+ ( 
+   PersonId UNIQUEIDENTIFIER 
+  ,PersonAddressTypeId INT 
+ ) 
+  
+ CREATE TABLE #PROSPECT_SCHOOL 
+ ( 
+   prospec.d UNIQUEIDENTIFIER 
+  ,schoolid UNIQUEIDENTIFIER 
+ ) 
+  
+ IF @ZipCodes IS NOT NULL 
+ BEGIN 
+  INSERT INTO #ZipCodesTable (ID) 
+  SELECT ParamValues.ID.value('.','VARCHAR(5)') 
+  FROM @ZipCodes.nodes('ZipCodes/id') as ParamValues(ID) 
+ 
+  INSERT INTO #PROSPECT_ADDRESS 
+  SELECT  pa.PersonId 
+    ,pa.PersonAddressTypeId 
+  FROM #ZipCodesTable zct 
+  INNER JOIN [USMC].[PersonAddress] pa ON zct.ID = LEFT(pa.ZipCode,5) 
+  WHERE pa.PersonAddressTypeId = 1 
+ 
+  INSERT INTO #PROSPECT_SCHOOL 
+  SELECT  ps.prospec.d 
+    ,ps.schoolid 
+  FROM #ZipCodesTable zct 
+  INNER JOIN MCRISS.dbo.HIGH_SCHOOL hs ON zct.ID = LEFT(HS.ZIP_CODE, 5) 
+  INNER JOIN USMC.ProspectSchool ps ON ps.SchoolId = hs.rowguid 
+ END 
+ 
+ SELECT * INTO #Prospect 
+ From  
+ ( 
+  SELECT  
+   ie.ImportEventId, 
+   p.PersonId, 
+   p.FirstName, 
+   p.MiddleName, 
+   p.LastName, 
+   pr.ProspectId, 
+   pr.Recrui.ngOrganiza.onId, 
+   pr.Recrui.ngPersonId, 
+   pr.Gradua.onYear, 
+   pr.ProspectDisposi.onId, 
+   pr.PACCreateDate, 
+   pr.Ac.vity, 
+   pr.Ac.vityDate, 
+   pr.CareerDecision, 
+   pr.Ini.alContactType, 
+   pr.ASVABDate, 
+   pr.Source, 
+   pr.NoChildLe.BehindOptIn, 
+   pr.Suppression, 
+   pr.ContactTimeIndicator, 
+   pr.Note, 
+   pr.LastUpdateDate, 
+   pr.LastUpdateUserId, 
+   pr.CreatedDate, 
+   pr.SubSta.onType, 
+   pr.NwaId, 
+   pr.AcpApplicantId, 
+   pr.TDQRemark, 
+   pr.PriorityCode, 
+   pr.SourceDual, 
+   pr.PPC, 
+   pr.ReferralSSN, 
+   pr.CategoryCode, 
+   pr.Interest, 
+   pr.ProgramType, 
+   pr.ProgramCode, 
+   pr.ReferOSODate, 
+   pr.Ini.alContactDate, 
+   pr.MonthWorkFor, 
+   pr.BirthDocumentCode, 
+   pr.DriverLicenseNumber, 
+   pr.DriverLicenseState, 
+   pr.DriverLicenseExp, 
+   pr.HasDriversLicense, 
+   pr.HasDrugUse, 
+   pr.HasMoralO.ense, 
+   pr.HasPhysicalProblems, 
+   pr.WaverInfo, 
+   pr.Expira.onDate, 
+   pr.RecruiterComments, 
+   pr.SncoicComments, 
+   pr.AvablTime, 
+   pr.AvablLoca.on, 
+   pr.AvablOtherDesc, 
+   pr.StsChgDepcy, 
+   pr.StsChgEdu, 
+   pr.StsChgPhys, 
+   pr.StsChgDrug, 
+   pr.StsChgMoral, 
+   pr.StsChgAtrRisk, 
+   pr.StsChgOther, 
+   pr.StsChgOtherDesc, 
+   pr.StsChgRemark, 
+   pr.DigitalCommunica.on 
+  
+  FROM [usmc].[ImportEvent] ie  
+   INNER JOIN [usmc].[ImportPerson] ip on ie.importeven.d = ip.importeven.d 
+   INNER JOIN [usmc].[Person] p on ip.PersonId = p.PersonId 
+   INNER JOIN usmc.Prospect pr ON p.PersonId = pr.PersonId  
+   INNER JOIN #Prospect_School ps on (pr.ProspectId = ps.ProspectId) 
+  WHERE IE.ImportEventStatusTypeId = 3  
+   AND pr.SubSta.onType = @SubSta.onType  
+   
+  Union 
+   
+  SELECT  
+   ie.ImportEventId, 
+   p.PersonId, 
+   p.FirstName, 
+   p.MiddleName, 
+   p.LastName, 
+   pr.ProspectId, 
+   pr.Recrui.ngOrganiza.onId, 
+   pr.Recrui.ngPersonId, 
+   pr.Gradua.onYear, 
+   pr.ProspectDisposi.onId, 
+   pr.PACCreateDate, 
+   pr.Ac.vity, 
+   pr.Ac.vityDate, 
+   pr.CareerDecision, 
+   pr.Ini.alContactType, 
+   pr.ASVABDate, 
+   pr.Source, 
+   pr.NoChildLe.BehindOptIn, 
+   pr.Suppression, 
+   pr.ContactTimeIndicator, 
+   pr.Note, 
+   pr.LastUpdateDate, 
+   pr.LastUpdateUserId, 
+   pr.CreatedDate, 
+   pr.SubSta.onType, 
+   pr.NwaId, 
+   pr.AcpApplicantId, 
+   pr.TDQRemark, 
+   pr.PriorityCode, 
+   pr.SourceDual, 
+   pr.PPC, 
+   pr.ReferralSSN, 
+   pr.CategoryCode, 
+   pr.Interest, 
+   pr.ProgramType, 
+   pr.ProgramCode, 
+   pr.ReferOSODate, 
+   pr.Ini.alContactDate, 
+   pr.MonthWorkFor, 
+   pr.BirthDocumentCode, 
+   pr.DriverLicenseNumber, 
+   pr.DriverLicenseState, 
+   pr.DriverLicenseExp, 
+   pr.HasDriversLicense, 
+   pr.HasDrugUse, 
+   pr.HasMoralO.ense, 
+   pr.HasPhysicalProblems, 
+   pr.WaverInfo, 
+   pr.Expira.onDate, 
+   pr.RecruiterComments, 
+   pr.SncoicComments, 
+   pr.AvablTime, 
+   pr.AvablLoca.on, 
+   pr.AvablOtherDesc, 
+   pr.StsChgDepcy, 
+   pr.StsChgEdu, 
+   pr.StsChgPhys, 
+   pr.StsChgDrug, 
+   pr.StsChgMoral, 
+   pr.StsChgAtrRisk, 
+   pr.StsChgOther, 
+   pr.StsChgOtherDesc, 
+   pr.StsChgRemark, 
+   pr.DigitalCommunica.on 
+  
+  FROM [usmc].[ImportEvent] ie  
+   INNER JOIN [usmc].[ImportPerson] ip on ie.importeven.d = ip.importeven.d 
+   INNER JOIN [usmc].[Person] p on ip.PersonId = p.PersonId 
+   INNER JOIN usmc.Prospect pr ON p.PersonId = pr.PersonId  
+   INNER JOIN #PROSPECT_ADDRESS pa on (pr.PersonId = pa.PersonId) 
+  WHERE IE.ImportEventStatusTypeId = 3  
+   AND pr.SubSta.onType = @SubSta.onType  
+ ) as T 
+            
+ 
+ CREATE TABLE #SchoolsTable  
+ ( 
+  ID UNIQUEIDENTIFIER 
+ ) 
+ 
+ IF @SchoolIDs IS NOT NULL 
+ BEGIN  
+  INSERT INTO #SchoolsTable (ID)  
+  SELECT ParamValues.ID.value('.','VARCHAR(36)') 
+  FROM @SchoolIds.nodes('/Schools/id') as ParamValues(ID) 
+   
+  INSERT INTO #PROSPECT_SCHOOL 
+  SELECT  ps.prospec.d 
+    ,ps.Schoolid 
+  FROM #SchoolsTable st 
+  INNER JOIN USMC.ProspectSchool ps ON st.ID = ps.SchoolId 
+   
+ END 
+ 
+ CREATE TABLE #TEMP_EVENT( 
+  [ProspectId] [uniqueiden..er] NOT NULL, 
+  [PersonId] [uniqueiden..er] NOT NULL, 
+  [Recrui.ngOrganiza.onId] [uniqueiden..er] NOT NULL, 
+  [Recrui.ngPersonId] [uniqueiden..er] NULL, 
+  [SchoolId] [uniqueiden..er] NULL, 
+  [Gradua.onYear] [smallint] NULL, 
+  [ProspectDisposi.onId] [smallint] NULL, 
+  [PACCreateDate] [date.me] NULL, 
+  [Ac.vity] [varchar](10) NULL, 
+  [Ac.vityDate] [date.me] NULL, 
+  [CareerDecision] [varchar](50) NULL, 
+  [Ini.alContactType] [varchar](10) NULL, 
+  [ASVABDate] [date.me] NULL, 
+  [Source] [varchar](10) NULL, 
+  [NoChildLe.BehindOptIn] [bit] NULL, 
+  [Suppression] [bit] NULL, 
+  [ContactTimeIndicator] [char](1) NULL, 
+  [Note] [varchar](500) NULL, 
+  [LastUpdateDate] [date.me] NOT NULL, 
+  [LastUpdateUserId] [uniqueiden..er] NOT NULL, 
+  [CreatedDate] [date.me] NOT NULL, 
+  [SubSta.onType] [char](1) NULL, 
+  [RANK_CODE] [varchar](10) NULL, 
+  [RecruiterLastName] [varchar](20) NULL, 
+  [RecruiterFirstName] [varchar](20) NULL, 
+  [RecruiterMiddleName] [varchar](20) NULL, 
+  [NwaId] [uniqueiden..er] NULL, 
+  [AcpApplicantId] [uniqueiden..er] NULL, 
+  [TDQRemark] [varchar](50) NULL, 
+  [PriorityCode] [int] NULL, 
+  [SourceDual] [varchar](10) NULL, 
+  [PPC] [varchar](8) NULL, 
+  [ReferralSSN] [varchar](9) NULL, 
+  [CategoryCode] [varchar](6) NULL, 
+  [Interest] [varchar](500) NULL, 
+  [ProgramType] [varchar](4) NULL, 
+  [ProgramCode] [varchar](4) NULL, 
+  [ReferOSODate] [date.me] NULL, 
+  [Ini.alContactDate] [date.me] NULL, 
+  [MonthWorkFor] [date.me] NULL, 
+  [BirthDocumentCode] [int] NULL, 
+  [DriverLicenseNumber] [varchar](20) NULL, 
+  [DriverLicenseState] [varchar](2) NULL, 
+  [DriverLicenseExp] [date.me] NULL, 
+  [HasDriversLicense] [bit] NULL, 
+  [HasDrugUse] [bit] NULL, 
+  [HasMoralO.ense] [bit] NULL, 
+  [HasPhysicalProblems] [bit] NULL, 
+  [WaverInfo] [varchar](500) NULL, 
+  [Expira.onDate] [date.me] NULL, 
+  [RecruiterComments] [varchar](500) NULL, 
+  [SncoicComments] [varchar](500) NULL, 
+  [AvablTime] [int] NULL, 
+  [AvablLoca.on] [int] NULL, 
+  [AvablOtherDesc] [varchar](50) NULL, 
+  [StsChgDepcy] [bit] NULL, 
+  [StsChgEdu] [bit] NULL, 
+  [StsChgPhys] [bit] NULL, 
+  [StsChgDrug] [bit] NULL, 
+  [StsChgMoral] [bit] NULL, 
+  [StsChgAtrRisk] [bit] NULL, 
+  [StsChgOther] [bit] NULL, 
+  [StsChgOtherDesc] [varchar](20) NULL, 
+  [StsChgRemark] [varchar](500) NULL, 
+  [DigitalCommunica.on] [varchar](1000) NULL 
+ ) 
+ 
+ IF (@SchoolIDS IS NOT null AND @ZipCodes IS null) 
+ BEGIN 
+ 
+  INSERT INTO #TEMP_EVENT 
+  SELECT  DISTINCT  
+    PR.ProspectId, 
+    PR.PersonId, 
+    PR.Recrui.ngOrganiza.onId, 
+    PR.Recrui.ngPersonId, 
+    ps.SchoolId,   
+    PR.Gradua.onYear, 
+    PR.ProspectDisposi.onId, 
+    PR.PACCreateDate, 
+    PR.Ac.vity, 
+    PR.Ac.vityDate, 
+    PR.CareerDecision, 
+    PR.Ini.alContactType, 
+    PR.ASVABDate, 
+    PR.Source, 
+    PR.NoChildLe.BehindOptIn, 
+    PR.Suppression, 
+    PR.ContactTimeIndicator, 
+    PR.Note, 
+    PR.LastUpdateDate, 
+    PR.LastUpdateUserId, 
+    PR.CreatedDate, 
+    PR.SubSta.onType, 
+    RP.RANK_CODE, 
+    PERSON.LAST_NAME as RecruiterLastName, 
+    PERSON.FIRST_NAME as RecruiterFirstName, 
+    PERSON.LEGAL_MIDDLE_NAME as RecruiterMiddleName, 
+    PR.NwaId, 
+    PR.AcpApplicantId, 
+    PR.TDQRemark, 
+    PR.PriorityCode, 
+    PR.SourceDual, 
+    PR.PPC, 
+    PR.ReferralSSN, 
+    PR.CategoryCode, 
+    PR.Interest, 
+    PR.ProgramType, 
+    PR.ProgramCode, 
+    PR.ReferOSODate, 
+    PR.Ini.alContactDate, 
+    PR.MonthWorkFor, 
+    PR.BirthDocumentCode, 
+    PR.DriverLicenseNumber, 
+    PR.DriverLicenseState, 
+    PR.DriverLicenseExp, 
+    PR.HasDriversLicense, 
+    PR.HasDrugUse, 
+    PR.HasMoralO.ense, 
+    PR.HasPhysicalProblems, 
+    PR.WaverInfo, 
+    PR.Expira.onDate, 
+    PR.RecruiterComments, 
+    PR.SncoicComments, 
+    PR.AvablTime, 
+    PR.AvablLoca.on, 
+    PR.AvablOtherDesc, 
+    PR.StsChgDepcy, 
+    PR.StsChgEdu, 
+    PR.StsChgPhys, 
+    PR.StsChgDrug, 
+    PR.StsChgMoral, 
+    PR.StsChgAtrRisk, 
+    PR.StsChgOther, 
+    PR.StsChgOtherDesc, 
+    PR.StsChgRemark, 
+    PR.DigitalCommunica.on 
+  FROM  
+   #Prospect pr 
+   INNER JOIN [usmc].[ProspectDisposi.on] pdt on (pr.ProspectDisposi.onId = pdt.ProspectDisposi.onId) 
+   INNER JOIN MCRISS.dbo.RECRUITING_PERSON RP on (Pr.Recrui.ngPersonId = RP.rowguid)--RECRUITING_PERSON_ID  
+   INNER JOIN MCRISS.dbo.PERSON PERSON on (RP.RECRUITING_PERSON_ID=PERSON.PERSON_ID) 
+   INNER JOIN [RSSOSS].[USMC].[MapsSectorRecruiter] MSR on (pr.Recrui.ngPersonId=MSR.Recrui.ngPersonId) 
+   INNER JOIN [RSSOSS].[USMC].[MapsSector] MS on(MSR.SectorId=MS.SectorID) 
+   INNER JOIN MCRISS.dbo.RECRUITING_ORGANIZATION RO on (Pr.Recrui.ngOrganiza.onId = RO.rowguid)--ORGANIZATION_ID  
+   INNER JOIN #PROSPECT_SCHOOL ps on (pr.ProspectId = ps.ProspectId)   
+  WHERE  
+   (@ProspectDisposi.onId is null OR pdt.ProspectDisposi.onId = @ProspectDisposi.onId)  
+   --AND 
+   --(@PACCreatedFromDate is null OR pr.PACCreateDate >= @PACCreatedFromDate) 
+   --AND 
+   --(@PACCreatedToDate is null OR pr.PACCreateDate <= @PACCreatedToDate) 
+   --AND 
+   --(@Gradua.onYear is null OR  pr.Gradua.onYear=@Gradua.onYear) 
+   ----Recruiter Ac.vity  
+   --AND 
+   --(@Ac.vityFromDate is null OR pr.Ac.vityDate >= @Ac.vityFromDate) 
+   --AND 
+   --(@Ac.vityToDate is null OR pr.Ac.vityDate <= @Ac.vityToDate)  
+ 
+ END 
+ 
+ IF (@ZipCodes IS NOT null AND @SchoolIDs IS null) 
+ BEGIN 
+ 
+  INSERT INTO #TEMP_EVENT 
+  SELECT  DISTINCT  
+    PR.ProspectId, 
+    PR.PersonId, 
+    PR.Recrui.ngOrganiza.onId, 
+    PR.Recrui.ngPersonId, 
+    ps.SchoolId,   
+    PR.Gradua.onYear, 
+    PR.ProspectDisposi.onId, 
+    PR.PACCreateDate, 
+    PR.Ac.vity, 
+    PR.Ac.vityDate, 
+    PR.CareerDecision, 
+    PR.Ini.alContactType, 
+    PR.ASVABDate, 
+    PR.Source, 
+    PR.NoChildLe.BehindOptIn, 
+    PR.Suppression, 
+    PR.ContactTimeIndicator, 
+    PR.Note, 
+    PR.LastUpdateDate, 
+    PR.LastUpdateUserId, 
+    PR.CreatedDate, 
+    PR.SubSta.onType, 
+    RP.RANK_CODE, 
+    PERSON.LAST_NAME as RecruiterLastName, 
+    PERSON.FIRST_NAME as RecruiterFirstName, 
+    PERSON.LEGAL_MIDDLE_NAME as RecruiterMiddleName, 
+    PR.NwaId, 
+    PR.AcpApplicantId, 
+    PR.TDQRemark, 
+    PR.PriorityCode, 
+    PR.SourceDual, 
+    PR.PPC, 
+    PR.ReferralSSN, 
+    PR.CategoryCode, 
+    PR.Interest, 
+    PR.ProgramType, 
+    PR.ProgramCode, 
+    PR.ReferOSODate, 
+    PR.Ini.alContactDate, 
+    PR.MonthWorkFor, 
+    PR.BirthDocumentCode, 
+    PR.DriverLicenseNumber, 
+    PR.DriverLicenseState, 
+    PR.DriverLicenseExp, 
+    PR.HasDriversLicense, 
+    PR.HasDrugUse, 
+    PR.HasMoralO.ense, 
+    PR.HasPhysicalProblems, 
+    PR.WaverInfo, 
+    PR.Expira.onDate, 
+    PR.RecruiterComments, 
+    PR.SncoicComments, 
+    PR.AvablTime, 
+    PR.AvablLoca.on, 
+    PR.AvablOtherDesc, 
+    PR.StsChgDepcy, 
+    PR.StsChgEdu, 
+    PR.StsChgPhys, 
+    PR.StsChgDrug, 
+    PR.StsChgMoral, 
+    PR.StsChgAtrRisk, 
+    PR.StsChgOther, 
+    PR.StsChgOtherDesc, 
+    PR.StsChgRemark, 
+    PR.DigitalCommunica.on 
+  FROM  
+   #Prospect pr 
+   INNER JOIN [usmc].[ProspectDisposi.on] pdt on (pr.ProspectDisposi.onId = pdt.ProspectDisposi.onId) 
+   INNER JOIN MCRISS.dbo.RECRUITING_PERSON RP on (Pr.Recrui.ngPersonId = RP.rowguid)--RECRUITING_PERSON_ID  
+   INNER JOIN MCRISS.dbo.PERSON PERSON on (RP.RECRUITING_PERSON_ID=PERSON.PERSON_ID) 
+   INNER JOIN [RSSOSS].[USMC].[MapsSectorRecruiter] MSR on (pr.Recrui.ngPersonId=MSR.Recrui.ngPersonId) 
+   INNER JOIN [RSSOSS].[USMC].[MapsSector] MS on(MSR.SectorId=MS.SectorID) 
+   INNER JOIN MCRISS.dbo.RECRUITING_ORGANIZATION RO on (Pr.Recrui.ngOrganiza.onId = RO.rowguid)--ORGANIZATION_ID  
+   INNER JOIN #PROSPECT_SCHOOL ps on (pr.ProspectId = ps.ProspectId)     
+  WHERE  
+   (@ProspectDisposi.onId is null OR pdt.ProspectDisposi.onId = @ProspectDisposi.onId)  
+   --AND 
+   --(@PACCreatedFromDate is null OR pr.PACCreateDate >= @PACCreatedFromDate) 
+   --AND 
+   --(@PACCreatedToDate is null OR pr.PACCreateDate <= @PACCreatedToDate) 
+   --AND 
+   --(@Gradua.onYear is null OR  pr.Gradua.onYear=@Gradua.onYear) 
+   ----Recruiter Ac.vity  
+   --AND 
+   --(@Ac.vityFromDate is null OR pr.Ac.vityDate >= @Ac.vityFromDate) 
+   --AND 
+   --(@Ac.vityToDate is null OR pr.Ac.vityDate <= @Ac.vityToDate)  
+ 
+  INSERT INTO #TEMP_EVENT 
+  SELECT  DISTINCT  
+    PR.ProspectId, 
+    PR.PersonId, 
+    PR.Recrui.ngOrganiza.onId, 
+    PR.Recrui.ngPersonId, 
+    ps.SchoolId,   
+    PR.Gradua.onYear, 
+    PR.ProspectDisposi.onId, 
+    PR.PACCreateDate, 
+    PR.Ac.vity, 
+    PR.Ac.vityDate, 
+    PR.CareerDecision, 
+    PR.Ini.alContactType, 
+    PR.ASVABDate, 
+    PR.Source, 
+    PR.NoChildLe.BehindOptIn, 
+    PR.Suppression, 
+    PR.ContactTimeIndicator, 
+    PR.Note, 
+    PR.LastUpdateDate, 
+    PR.LastUpdateUserId, 
+    PR.CreatedDate, 
+    PR.SubSta.onType, 
+    RP.RANK_CODE, 
+    PERSON.LAST_NAME as RecruiterLastName, 
+    PERSON.FIRST_NAME as RecruiterFirstName, 
+    PERSON.LEGAL_MIDDLE_NAME as RecruiterMiddleName, 
+    PR.NwaId, 
+    PR.AcpApplicantId, 
+    PR.TDQRemark, 
+    PR.PriorityCode, 
+    PR.SourceDual, 
+    PR.PPC, 
+    PR.ReferralSSN, 
+    PR.CategoryCode, 
+    PR.Interest, 
+    PR.ProgramType, 
+    PR.ProgramCode, 
+    PR.ReferOSODate, 
+    PR.Ini.alContactDate, 
+    PR.MonthWorkFor, 
+    PR.BirthDocumentCode, 
+    PR.DriverLicenseNumber, 
+    PR.DriverLicenseState, 
+    PR.DriverLicenseExp, 
+    PR.HasDriversLicense, 
+    PR.HasDrugUse, 
+    PR.HasMoralO.ense, 
+    PR.HasPhysicalProblems, 
+    PR.WaverInfo, 
+    PR.Expira.onDate, 
+    PR.RecruiterComments, 
+    PR.SncoicComments, 
+    PR.AvablTime, 
+    PR.AvablLoca.on, 
+    PR.AvablOtherDesc, 
+    PR.StsChgDepcy, 
+    PR.StsChgEdu, 
+    PR.StsChgPhys, 
+    PR.StsChgDrug, 
+    PR.StsChgMoral, 
+    PR.StsChgAtrRisk, 
+    PR.StsChgOther, 
+    PR.StsChgOtherDesc, 
+    PR.StsChgRemark, 
+    PR.DigitalCommunica.on 
+  FROM  
+   #Prospect pr 
+   INNER JOIN [usmc].[ProspectDisposi.on] pdt on (pr.ProspectDisposi.onId = pdt.ProspectDisposi.onId) 
+   INNER JOIN MCRISS.dbo.RECRUITING_PERSON RP on (Pr.Recrui.ngPersonId = RP.rowguid)--RECRUITING_PERSON_ID  
+   INNER JOIN MCRISS.dbo.PERSON PERSON on (RP.RECRUITING_PERSON_ID=PERSON.PERSON_ID) 
+   INNER JOIN [RSSOSS].[USMC].[MapsSectorRecruiter] MSR on (pr.Recrui.ngPersonId=MSR.Recrui.ngPersonId) 
+   INNER JOIN [RSSOSS].[USMC].[MapsSector] MS on(MSR.SectorId=MS.SectorID) 
+   INNER JOIN MCRISS.dbo.RECRUITING_ORGANIZATION RO on (Pr.Recrui.ngOrganiza.onId = RO.rowguid)--ORGANIZATION_ID  
+   INNER JOIN #PROSPECT_ADDRESS PA_PRIMARY ON PA_PRIMARY.PersonId = pr.PersonId 
+   LEFT OUTER JOIN [usmc].[ProspectSchool] ps on (pr.ProspectId = ps.ProspectId) 
+   WHERE  
+   (@ProspectDisposi.onId is null OR pdt.ProspectDisposi.onId = @ProspectDisposi.onId)  
+   --AND 
+   --(@PACCreatedFromDate is null OR pr.PACCreateDate >= @PACCreatedFromDate) 
+   --AND 
+   --(@PACCreatedToDate is null OR pr.PACCreateDate <= @PACCreatedToDate) 
+   --AND 
+   --(@Gradua.onYear is null OR  pr.Gradua.onYear=@Gradua.onYear) 
+   ----Recruiter Ac.vity  
+   --AND 
+   --(@Ac.vityFromDate is null OR pr.Ac.vityDate >= @Ac.vityFromDate) 
+   --AND 
+   --(@Ac.vityToDate is null OR pr.Ac.vityDate <= @Ac.vityToDate)  
+ END 
+ 
+ SELECT * FROM #TEMP_EVENT 
+ 
+ DROP TABLE #Prospect 
+ DROP TABLE #TEMP_EVENT 
+ DROP TABLE #SchoolsTable 
+ DROP TABLE #ZipCodesTable 
+ DROP TABLE #PROSPECT_SCHOOL 
+ DROP TABLE #PROSPECT_ADDRESS 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

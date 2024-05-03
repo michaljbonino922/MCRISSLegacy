@@ -1,0 +1,52 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_3" id="7C7A02A2-F12E-AC80-171A-C5B001743EC7" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="_dta_mv_258">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>1291FA2B-5378-8610-C655-1491B31D58C4</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  [USMC].[EventSubject].[Id] as _col_1,  [USMC].[EventSubject].[SubjectId] as _col_2,  count_big(*) as _col_3 FROM  [USMC].[Event],  [USMC].[EventSubject],  [USMC].[EventOwners]   WHERE  [USMC].[Event].[EventSourceId] = 16  AND  [USMC].[Event].[EventTypeId] = 85  AND  [USMC].[Event].[ID] = [USMC].[EventOwners].[EventID]  AND  [USMC].[EventSubject].[EventId] = [USMC].[EventOwners].[EventID]  GROUP BY  [USMC].[EventSubject].[Id],  [USMC].[EventSubject].[SubjectId]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[Id]" id="D15FB078-8A13-4ABB-9142-CF1FF9E3E694">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_1</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_1</headerAlias>
+<expression>[Id]</expression>
+<reference>false</reference>
+<viewID>7C7A02A2-F12E-AC80-171A-C5B001743EC7</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[SubjectId]" id="FA0D4C93-6258-F375-D775-8E063823AC3C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_2</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_2</headerAlias>
+<expression>[SubjectId]</expression>
+<reference>false</reference>
+<viewID>7C7A02A2-F12E-AC80-171A-C5B001743EC7</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="count_big(*)" id="1291A7DF-AF07-BA27-FE9A-D20097EF377C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_3</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_3</headerAlias>
+<expression>count_big(*)</expression>
+<reference>false</reference>
+<viewID>7C7A02A2-F12E-AC80-171A-C5B001743EC7</viewID>
+</viewElement>
+</viewElements>
+</TableView>

@@ -1,0 +1,34 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetImportPersonListForInsert]" directorySegmentName="seg_13" id="85FE2636-A5A8-5CD5-D0A7-2604B0F76E8E">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@ImportEventId uniqueiden..er 
+  
+AS 
+BEGIN 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+ SELECT  ImportPersonStagingID, 
+            ImportEventID, 
+   ImportStatusID, 
+   ChildEventID, 
+   FirstName, 
+   MiddleName, 
+   LastName, 
+   Street, 
+   City, 
+   State, 
+   Zip, 
+   Phone, 
+   Gender, 
+   Email 
+  FROM   [PROSPECTING].[UPLOAD].[ImportPersonStaging] 
+    WHERE   ImportEventId=@ImportEventId  
+  AND ImportStatusID in (1,7,10)  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

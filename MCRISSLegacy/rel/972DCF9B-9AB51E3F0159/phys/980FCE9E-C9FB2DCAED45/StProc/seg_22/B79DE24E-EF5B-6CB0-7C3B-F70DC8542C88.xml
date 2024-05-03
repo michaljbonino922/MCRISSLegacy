@@ -1,0 +1,35 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_MIGetContractShipDate]" directorySegmentName="seg_22" id="B79DE24E-EF5B-6CB0-7C3B-F70DC8542C88">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@NWAID    int, 
+ @ContractID   int OUTPUT, 
+ @ContractDate   char(8) OUTPUT, 
+ @ShipperDate   char(8) OUTPUT 
+AS 
+ 
+ 
+SET NOCOUNT ON  
+ 
+SET @ContractID = 0 
+ 
+IF EXISTS (SELECT 1 FROM CONTRACT WHERE NWA_ID = @NWAID) 
+BEGIN 
+ SELECT  
+  @ContractID = CONTRACT_ID, 
+  @ContractDate = Convert(char(8), CONTRACT_BEGIN_DATE, 112)  
+ FROM  
+  CONTRACT WHERE NWA_ID = @NWAID 
+ 
+ SELECT @ShipperDate = Convert(char(8), SHIP_DATE, 112) 
+   FROM SHIPPER WHERE CONTRACT_ID = @ContractID 
+END 
+ 
+ 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

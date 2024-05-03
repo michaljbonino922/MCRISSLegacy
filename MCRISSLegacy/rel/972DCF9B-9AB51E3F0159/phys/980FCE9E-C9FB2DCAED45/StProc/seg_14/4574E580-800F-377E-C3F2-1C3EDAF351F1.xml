@@ -1,0 +1,55 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_DeleteCandidateASVAB]" directorySegmentName="seg_14" id="4574E580-800F-377E-C3F2-1C3EDAF351F1">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@MarineCandidateID int, 
+ @ASVABDate  date.me, 
+ @Version  varchar(3), 
+ @UserLogin  varchar(15) 
+AS 
+  
+SET NOCOUNT ON  
+ 
+DECLARE @TranType varchar(8) 
+DECLARE @ErrMsg  varchar(100) 
+DECLARE @SSN   char(9) 
+DECLARE @DBID   int 
+DECLARE @DBNAME  sysname 
+ 
+SELECT  
+ @DBID  = DB_ID(),  
+ @DBNAME = DB_NAME() 
+ 
+IF EXISTS (SELECT 1 FROM CANDIDATE_ASVAB CA WHERE CA.MARINE_CANDIDATE_ID = @MarineCandidateId AND VERSION = @Version AND ASVAB_DATE = @ASVABDate) 
+BEGIN 
+ SET @TranType = 'dele.ng' 
+ 
+ --- update the user login before  dele.ng so the TLog will record the user that deleted the record 
+ UPDATE  
+  CANDIDATE_ASVAB  
+ SET 
+  USER_LOGIN   = @UserLogin, 
+  UPDATE_DATE  = GETDATE() 
+ WHERE  
+  MARINE_CANDIDATE_ID  = @MarineCandidateId AND  
+  VERSION   = @Version AND  
+  ASVAB_DATE   = @ASVABDate 
+ 
+ DELETE FROM CANDIDATE_ASVAB WHERE MARINE_CANDIDATE_ID = @MarineCandidateId AND VERSION = @Version AND ASVAB_DATE = @ASVABDate 
+ 
+ IF @@ERROR != 0 OR @@ROWCOUNT = 0 
+ BEGIN 
+  SELECT @SSN = SOCIAL_SECURITY_NUMBER FROM PERSON WHERE PERSON_ID = @MarineCandidateID 
+ 
+  SET @ErrMsg = 'An error occurred ' + @TranType + ' the ASVAB record for SSN ' + @SSN + '.' 
+  RAISERROR (@ErrMsg, 16, 1, @DBID, @DBNAME) 
+  RETURN 
+ END 
+END 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

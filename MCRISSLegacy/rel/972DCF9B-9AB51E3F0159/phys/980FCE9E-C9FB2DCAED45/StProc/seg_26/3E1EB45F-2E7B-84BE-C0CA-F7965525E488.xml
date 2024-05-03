@@ -1,0 +1,166 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[spResolveMigratedEducErrors]" directorySegmentName="seg_26" id="3E1EB45F-2E7B-84BE-C0CA-F7965525E488">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[as  
+SET ARITHABORT OFF 
+set arithignore on 
+set ansi_warnings o. 
+ 
+declare 
+  @ssn     varchar(9), 
+  @mc_id    int, 
+  @person_id    int, 
+  @school_code    int, 
+  @civ_educ_major_code  varchar(2), 
+  @ship_date   date.me, 
+  @educa.on_code   char(1), 
+  @educa.on_level  varchar(2), 
+  @educa.on_.er   varchar(2), 
+  @.rst_senior   char(1), 
+  @proj_comp_date   date.me, 
+  @hs_code   varchar(9), 
+  @school_end_date  date.me, 
+  @cont_educ_code   char(1), 
+  @sd_educ_code   char(1), 
+  @cont_educ_level  varchar(2), 
+  @sd_educ_level   varchar(2), 
+  @cont_educ_.er   varchar(2), 
+  @sd_educ_.er   varchar(2), 
+  @hs_grad_date   date.me, 
+  @veri.ca.on   varchar(2), 
+  @current_gpa   .oat, 
+  @cumula.ve_gpa   .oat, 
+  @high_math_level  varchar(2), 
+  @user_login   varchar(15), 
+  @update_date   date.me, 
+  @educ_code   char(1), 
+  @educ_level   varchar(2), 
+  @educ_.er   varchar(2), 
+  @contract_begin_date  date.me 
+     
+ 
+ 
+--SSN's that have mul.ple educa.on records, due to a migra.on error, will be stored here 
+create table #tempEducAnalysis ( 
+ ssn varchar(9) not null, 
+ mc_id int 
+) 
+print '#tempEducAnalysis Created' 
+ 
+insert into #tempEducAnalysis (ssn, mc_id) 
+select dis.nct p.social_security_number, ce.marine_candidate_id 
+from mcriss..candidate_educa.on ce inner join mcriss..person p on ce.marine_candidate_id = p.person_id 
+group by p.social_security_number, ce.marine_candidate_id 
+having count(*) > 4 
+ 
+declare @educErrorCount int 
+ 
+select @educErrorCount = count(*) 
+from #tempEducAnalysis 
+ 
+print '#tempEducAnalysis table populated with ' + convert(varchar(6),@educErrorCount) 
+ 
+if (@educErrorCount > 0) begin 
+ 
+ declare educa.on cursor for 
+ select   a.SSN,  
+   substring(a.CONT_HIGRD,3,1),  
+   substring(a.SD_HIGRD,3,1),  
+   convert(int,substring(a.CONT_HIGRD,1,2)),  
+   convert(int,substring(a.SD_HIGRD,1,2)),  
+   a.CONT_EDUC_TIER, 
+   a.SD_EDUC_TIER, 
+   a.HS_CODE, 
+   convert(date.me,a.CADB,112), 
+    convert(date.me,a.DEP_DATEIN,112), 
+          ed.mc_id 
+ from #tempEducAnalysis ed le. outer join arms..arms_all179_1120 a on ed.ssn = a.ssn 
+ where a.ssn is not null 
+ 
+ 
+ open educa.on 
+ 
+ fetch educa.on  into @ssn, @cont_educ_code, @sd_educ_code, @cont_educ_level, @sd_educ_level, 
+      @cont_educ_.er, @sd_educ_.er, @hs_code, @ship_date,@contract_begin_date,@mc_id 
+ 
+ select @civ_educ_major_code  = NULL 
+ select @proj_comp_date       = NULL 
+ select @.rst_senior  = NULL 
+ select @current_gpa  = NULL 
+ select @cumula.ve_gpa  = NULL 
+ select @high_math_level  = NULL 
+ select @user_login  = 'migra.on' 
+ select @update_date  = getdate() 
+ 
+ 
+ while (@@FETCH_STATUS = 0) 
+ begin 
+  /** 
+  select @person_id = MARINE_CANDIDATE_ID from MARINE_CANDIDATE  
+  where MARINE_CANDIDATE_ID = (select PERSON_ID from PERSON  
+  where PERSON.SOCIAL_SECURITY_NUMBER = @ssn) 
+  **/ 
+   
+ 
+  select @school_code = SCHOOL_CODE from HIGH_SCHOOL 
+  where DOD_CODE = @hs_code 
+ 
+   if @hs_grad_date = ' ' 
+    select @hs_grad_date = NULL 
+ 
+       if @school_code is not NULL 
+         begin  
+    print @ssn 
+ 
+   if (@ship_date not in ('',NULL)) and @sd_educ_level != ' ' and @sd_educ_code != '  ' 
+   begin 
+    set @educ_level = @sd_educ_level 
+    set @educ_.er = @sd_educ_.er 
+    set @educ_code = @sd_educ_code 
+    if @educ_code = 'M' 
+     set @educ_code = '9' 
+   end 
+   else 
+   begin 
+    set @educ_level = @cont_educ_level 
+    set @educ_.er = @cont_educ_.er 
+    set @educ_code = @cont_educ_code 
+    
+    if @educ_code = 'M' 
+    set @educ_code = '9' 
+   end 
+    
+   delete from candidate_educa.on where marine_candidate_id = @mc_id 
+   --if not exists(select 1 from CANDIDATE_EDUCATION where MARINE_CANDIDATE_ID = @person_id and 
+   -- SCHOOL_CODE = @school_code and  
+   -- EDUCATION_LEVEL = @educ_level) 
+   --begin 
+     insert CANDIDATE_EDUCATION 
+    (MARINE_CANDIDATE_ID,SCHOOL_CODE,EDUCATION_LEVEL,SCHOOL_END_DATE, 
+    EDUCATION_TIER,EDUCATION_CODE,CIVILIAN_EDUCATION_MAJOR_CODE, 
+    PROJECTED_COMPL_DATE,FIRST_SENIOR,VERIFICATION,CUMULATIVE_GPA, 
+    HIGH_MATH_LEVEL,CURRENT_GPA,USER_LOGIN,UPDATE_DATE) 
+  
+     values(@mc_id, @school_code, @educ_level, @contract_begin_date, 
+     @educ_.er, @educ_code, @civ_educ_major_code, 
+    @proj_comp_date, @.rst_senior, 'VERIFIED', 
+    @cumula.ve_gpa, @high_math_level, @current_gpa, 
+    @user_login, @update_date) 
+   --end 
+  end -- if person and shool not null 
+  
+    fetch educa.on into @ssn, @cont_educ_code, @sd_educ_code, @cont_educ_level, @sd_educ_level, 
+       @cont_educ_.er, @sd_educ_.er, @hs_code,  @ship_date,@contract_begin_date,@mc_id 
+ 
+ end --while fetch status = 0 
+ 
+ close educa.on 
+ 
+ deallocate educa.on 
+end  --If educError > 0]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

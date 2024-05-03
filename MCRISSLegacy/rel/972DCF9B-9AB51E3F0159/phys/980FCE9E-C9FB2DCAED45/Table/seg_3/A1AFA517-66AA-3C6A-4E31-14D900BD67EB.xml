@@ -1,0 +1,72 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="RecruiterHistory" directorySegmentName="seg_3" id="A1AFA517-66AA-3C6A-4E31-14D900BD67EB">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:52 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<schemaObject>2A6D9360-3BB2-5CEA-6E99-790D76996FDF</schemaObject>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="DateUpdated" id="0B777C31-683A-0881-0813-D815B700E45C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:11 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="OrgUnitID" id="7540EA49-CEB5-CFB2-3F79-F86DE30B9FD4">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:11 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="BilletEndDate" id="921A70DA-95EB-F424-1BCF-4BB571EB078D">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:11 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="UpdatedByUser" id="A1287767-0519-5B9E-E37F-106BEA23889F">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:11 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="BilletID" id="A8FBC4ED-DCED-E6E9-DE23-872DEB1AAE23">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:11 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="RecruiterID" id="DB06764B-5BFA-B8BB-7E61-3FF4B83D7A74">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:11 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="RecruiterHistoryID" id="E924C6CE-702D-1EB8-522C-403D43005A2E">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:11 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="BilletBeginDate" id="F6531612-0E45-1F7E-5AB3-3144EC774D98">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:11 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+</columnProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="FK_RecruiterHistory_PSROrgUnit" id="061823EE-C06D-4773-3A58-578EA2D2CFC2">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:25 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="FK_RecruiterHistory_Recruiter" id="12D765E6-4804-3532-C3B8-649C52A18795">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:25 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="PK_RecruiterHistory" id="1A6EE111-3D55-5859-8317-3FEA7867A37B">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:11 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<clustered>true</clustered>
+<partitioningColumn>57EE235D-45D3-3771-FC6C-556CF7F6B5C3</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+</TableProxySqlServerv2k5>

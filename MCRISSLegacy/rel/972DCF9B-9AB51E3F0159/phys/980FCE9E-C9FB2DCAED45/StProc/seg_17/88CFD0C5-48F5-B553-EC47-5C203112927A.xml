@@ -1,0 +1,32 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetDailyReportAc.vityObjec.vesDistrict]" directorySegmentName="seg_17" id="88CFD0C5-48F5-B553-EC47-5C203112927A">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@Organiza.onID int,  
+ @FiscalYear  int,  
+ @Month   int 
+AS 
+ 
+SELECT  
+ RS.ORGANIZATION_ID, 
+ COALESCE(AO.CONTRACT_OBJECTIVE, 0) AS CONTRACT_OBJECTIVE, 
+ --- dbo.GetContractObjec.ve (RSS.ORGANIZATION_ID, @FiscalYear, @Month, RSS.ORGANIZATION_TYPE) AS CONTRACT_OBJECTIVE, 
+ COALESCE(AO.NWAS_OBJECTIVE, 0) AS NWAS_OBJECTIVE, 
+ COALESCE(AO.INTERVIEWS_OBJECTIVE, 0) AS INTERVIEWS_OBJECTIVE 
+FROM  
+ RECRUITING_ORGANIZATION RS INNER JOIN ORGANIZATION_MAP DISTRICT ON 
+  (RS.ORGANIZATION_ID = DISTRICT.CHILD_ORGANIZATION_ID AND 
+  DISTRICT.PARENT_ORGANIZATION_ID = @Organiza.onID AND 
+  RS.ORGANIZATION_TYPE = 'RS' AND 
+  RS.ISOPEN = 'Y') 
+ LEFT OUTER JOIN ACTIVITY_OBJECTIVE AO ON  
+  (RS.ORGANIZATION_ID = AO.ORGANIZATION_ID AND 
+  AO.FISCAL_YEAR = @FiscalYear AND 
+  AO.MONTH = @Month) 
+ORDER BY 
+ RS.NAME]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

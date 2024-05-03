@@ -1,0 +1,52 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUpdateCandidateOccr]" directorySegmentName="seg_11" id="8CE1ECBB-C01D-88F0-E3F5-CFC5F775446F">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[(@MARINE_CANDIDATE_ID int 
+ ,@MOS_CODE varchar(4) 
+ ,@STATE_CODE varchar(2) 
+ ,@COUNTY_CODE varchar(3) 
+ ,@CITY_CODE varchar(4) 
+ ,@PRIORITY_PREF varchar(1) 
+ ,@USER_LOGIN varchar(50)) 
+  
+AS 
+ 
+UPDATE  
+ [dbo].[CANDIDATE_OCCR] 
+SET  
+  [MOS_CODE] = @MOS_CODE 
+ ,[STATE_CODE] = @STATE_CODE 
+ ,[COUNTY_CODE] = @COUNTY_CODE 
+ ,[CITY_CODE] = @CITY_CODE 
+ ,[PRIORITY_PREF] = @PRIORITY_PREF 
+ ,[USER_LOGIN] = @USER_LOGIN 
+ ,[UPDATE_DATE] = GetDate() 
+WHERE 
+ [MARINE_CANDIDATE_ID] = @MARINE_CANDIDATE_ID 
+  
+IF @@ROWCOUNT = 0 
+ 
+INSERT INTO [dbo].[CANDIDATE_OCCR] 
+ ([MARINE_CANDIDATE_ID] 
+ ,[MOS_CODE] 
+ ,[STATE_CODE] 
+ ,[COUNTY_CODE] 
+ ,[CITY_CODE] 
+ ,[PRIORITY_PREF] 
+ ,[USER_LOGIN] 
+ ,[UPDATE_DATE]) 
+VALUES 
+ (@MARINE_CANDIDATE_ID  
+ ,@MOS_CODE  
+ ,@STATE_CODE  
+ ,@COUNTY_CODE  
+ ,@CITY_CODE  
+ ,@PRIORITY_PREF  
+ ,@USER_LOGIN  
+ ,GetDate())]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,119 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_mg_Person_OSO]" directorySegmentName="seg_22" id="39D47AEA-B692-A6BA-2DEE-9DF8102F2AA8">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[as 
+declare 
+  @user_login varchar(15), 
+  @update_date date.me, 
+  @social_security_number char(9), 
+  @.rst_name char(10), 
+  @legal_middle_name char(10), 
+  @last_name char(20), 
+  @su.x_cd char(10), 
+  @person_id int 
+ 
+ 
+declare cur_arms cursor for 
+  select dis.nct oso_ssn, 
+    oso_.rst_name, 
+    oso_mi, 
+    mcriss.dbo.sp_mg_getlastname(oso_last_name), 
+    mcriss.dbo.sp_mg_getsu.x(oso_last_name) 
+    from arms_o.cer_update 
+  where oso_ssn not in  
+  (select p.social_security_number from person p 
+    inner join arms_o.cer_update a  
+    on p.social_security_number = a.oso_ssn 
+  )  
+ 
+declare cur_arms2 cursor for 
+  select dis.nct oso_ssn 
+    from arms_o.cer_update 
+  where oso_ssn not in  
+  (select p.social_security_number from person p 
+    inner join arms_o.cer_update a  
+    on p.social_security_number = a.oso_ssn 
+  )  
+ 
+  set @user_login = 'arms_migra.on' 
+  set @update_date = getdate() 
+   
+  open cur_arms 
+  fetch cur_arms into 
+    @social_security_number, 
+    @.rst_name, 
+    @legal_middle_name, 
+    @last_name, 
+    @su.x_cd 
+ 
+while (@@FETCH_STATUS = 0) 
+begin 
+ 
+  /* 
+   * Error handling 
+   */ 
+  if not exists (select 1 from person_su.x where su.x_cd = @su.x_cd) 
+    set @su.x_cd = null 
+ 
+  /* 
+   * Insert into table 
+   */ 
+  insert into person ( 
+    social_security_number, 
+    .rst_name, 
+    legal_middle_name, 
+    last_name, 
+    su.x_cd, 
+    user_login, 
+    update_date) 
+  values ( 
+    @social_security_number, 
+    @.rst_name, 
+    @legal_middle_name, 
+    @last_name, 
+    @su.x_cd, 
+    @user_login, 
+    @update_date) 
+ 
+  fetch cur_arms into 
+    @social_security_number, 
+    @.rst_name, 
+    @legal_middle_name, 
+    @last_name, 
+    @su.x_cd 
+end 
+ 
+close cur_arms 
+deallocate cur_arms 
+ 
+ 
+  open cur_arms2 
+  fetch cur_arms2 into 
+    @social_security_number 
+ 
+while (@@FETCH_STATUS = 0) 
+begin 
+ 
+  set @person_id = (select person_id from person  
+   where social_security_number = @social_security_number) 
+  insert into marine ( 
+    marine_id, 
+    user_login, 
+    update_date) 
+  values ( 
+    @person_id, 
+    @user_login, 
+    @update_date) 
+ 
+  fetch cur_arms2 into 
+    @social_security_number 
+end 
+ 
+close cur_arms2 
+deallocate cur_arms2]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

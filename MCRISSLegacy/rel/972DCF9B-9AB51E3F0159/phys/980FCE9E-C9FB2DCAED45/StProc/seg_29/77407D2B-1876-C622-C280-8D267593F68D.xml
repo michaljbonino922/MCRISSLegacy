@@ -1,0 +1,115 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SaveDependent]" directorySegmentName="seg_29" id="77407D2B-1876-C622-C280-8D267593F68D">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:39 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @DependentId uniqueiden..er, 
+ @PersonId uniqueiden..er, 
+ @FullName varchar(200), 
+ @BirthDate date.me, 
+ @SSN varchar(11), 
+ @Rela.onship varchar(20), 
+ @PhoneNumber varchar(20), 
+ @AddressStreet1 varchar(100), 
+ @AddressStreet2 varchar(100), 
+ @AddressCity varchar(100), 
+ @AddressState varchar(50), 
+ @AddressCounty varchar(100), 
+ @AddressCountry varchar(100), 
+ @AddressZip varchar(50) 
+) 
+AS 
+BEGIN 
+ 
+ BEGIN TRANSACTION 
+  
+ IF EXISTS(SELECT DependentId FROM [ACP].Dependent WHERE [DependentId] = @DependentId) 
+ BEGIN 
+  UPDATE 
+   [ACP].[Dependent] 
+  SET  
+   [PersonId] = @PersonId, 
+   [FullName] = @FullName, 
+   [BirthDate] = @BirthDate, 
+   [SSN] = @SSN, 
+   [Rela.onship] = @Rela.onship, 
+   [PhoneNumber] = @PhoneNumber, 
+   [AddressStreet1] = @AddressStreet1, 
+   [AddressStreet2] = @AddressStreet2, 
+   [AddressCity] = @AddressCity, 
+   [AddressState] = @AddressState, 
+   [AddressCounty] = @AddressCounty, 
+   [AddressCountry] = @AddressCountry, 
+   [AddressZip] = @AddressZip 
+  WHERE  
+   [DependentId] = @DependentId 
+ END 
+ ELSE 
+ BEGIN 
+  INSERT INTO [ACP].[Dependent]  
+  ( 
+   [DependentId], 
+   [PersonId], 
+   [FullName], 
+   [BirthDate], 
+   [SSN], 
+   [Rela.onship], 
+   [PhoneNumber], 
+   [AddressStreet1], 
+   [AddressStreet2], 
+   [AddressCity], 
+   [AddressState], 
+   [AddressCounty], 
+   [AddressCountry], 
+   [AddressZip] 
+  ) 
+  VALUES  
+  ( 
+   @DependentId, 
+   @PersonId, 
+   @FullName, 
+   @BirthDate, 
+   @SSN, 
+   @Rela.onship, 
+   @PhoneNumber, 
+   @AddressStreet1, 
+   @AddressStreet2, 
+   @AddressCity, 
+   @AddressState, 
+   @AddressCounty, 
+   @AddressCountry, 
+   @AddressZip 
+  ) 
+  
+ END 
+  
+ -- Rollback the transac.on if there were any errors 
+ IF @@ERROR <> 0 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+  
+  -- Raise an error and return 
+  RAISERROR ('Error occurred while performing the change.', 16, 1) 
+  RETURN 
+ END 
+  
+ -- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+ IF @@ROWCOUNT > 1 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+  
+  -- Raise an error and return 
+  RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+  RETURN 
+ END 
+  
+ -- If we reach this point, the commands completed successfully. 
+ COMMIT TRANSACTION 
+END]]></body>
+<schema>569A41D8-8F40-0619-141C-F4C9436AAF46</schema>
+<database>2D7ED536-DF8E-3523-7DC3-4228EBAF5F66</database>
+</StoredProcedureSqlServerv2k5>

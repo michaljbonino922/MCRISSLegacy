@@ -1,0 +1,40 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateProgram_AssignContractId]" directorySegmentName="seg_27" id="86C45381-3D12-61A0-8EF0-A3C67B6B0F05">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[(  
+ @ContractID int, 
+ @NWA_ID int, 
+ @DutyPreference1 varchar(10), 
+ @DutyPreference2 varchar(10), 
+ @DutyPreference3 varchar(10),  
+ @LastEditBy varchar(50) 
+) 
+AS 
+ 
+UPDATE  
+ PROGRAM_AVAILABILITY 
+SET   
+ CONTRACT_ID = @ContractID,  
+ USER_LOGIN = @LastEditBy, 
+ UPDATE_DATE = GETDATE() 
+WHERE  
+ NWA_ID = @NWA_ID 
+  
+  
+IF (@DutyPreference1 IS NOT NULL OR @DutyPreference2 IS NOT NULL OR @DutyPreference3 IS NOT NULL) 
+BEGIN 
+ UPDATE CONTRACT 
+ SET   
+  DUTY_PREFERENCE1 = @DutyPreference1, 
+  DUTY_PREFERENCE2 = @DutyPreference2, 
+  DUTY_PREFERENCE3 = @DutyPreference3, 
+  USER_LOGIN = @LastEditBy, 
+  UPDATE_DATE = GETDATE() 
+ WHERE CONTRACT_ID = @ContractID 
+END]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

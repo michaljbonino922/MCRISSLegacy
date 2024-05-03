@@ -1,0 +1,50 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SPUPDMARINE_CANDIDATE]" directorySegmentName="seg_26" id="B6206CBA-24F4-2FD0-1EBF-FB97ECBE0E88">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@person_id        int, 
+@ci.zenship_code  varchar(2), 
+@marital_status_code  char(1), 
+@race    char(1), 
+@ethnic_code   varchar(2), 
+@gender_code   char(1), 
+@religion_code   varchar(2), 
+@pop_group_code   varchar(2), 
+@dob    date.me, 
+@country_of_origin  varchar(10), 
+@birth_city   varchar(10), 
+@birth_county   varchar(10), 
+@birth_state   varchar(10), 
+@drivers_license_state  varchar(2), 
+@drivers_license_num  varchar(20), 
+@drivers_license_exp  date.me, 
+@interview_date   date.me, 
+@user_login   varchar(15), 
+@update_date   date.me 
+ 
+as 
+  update mcriss..MARINE_CANDIDATE 
+  set  MARITAL_STATUS_CODE  = @marital_status_code, 
+     RACE_CODE    = @race, 
+     ETHNIC_CODE  = @ethnic_code, 
+  GENDER_CODE  = @gender_code, 
+  RELIGION_CODE = @religion_code, 
+  POPULATION_GROUP_CODE = @pop_group_code, 
+  DATE_OF_BIRTH = @dob, 
+  CITIZENSHIP = @ci.zenship_code, 
+  COUNTRY_OF_ORIGIN = @country_of_origin, 
+  BIRTH_CITY = @birth_city, 
+  BIRTH_COUNTY = @birth_county, 
+  BIRTH_STATE = @birth_state, 
+  DRIVER_LICENSE_STATE = @drivers_license_state, 
+  DRIVER_LICENSE_NUM = @drivers_license_num, 
+  DRIVER_LICENSE_EXP = @drivers_license_exp, 
+  INTERVIEW_DATE = @interview_date, 
+  USER_LOGIN = @user_login, 
+  UPDATE_DATE = @update_date 
+  where MARINE_CANDIDATE_ID  = @person_id]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

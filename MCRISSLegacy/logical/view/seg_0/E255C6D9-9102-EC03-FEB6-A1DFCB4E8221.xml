@@ -1,0 +1,37 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<EntityView class="oracle.dbtools.crest.model.design.logical.EntityView" directorySegmentName="seg_0" id="E255C6D9-9102-EC03-FEB6-A1DFCB4E8221" name="vwCurrentOCS">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>AE900D0A-7546-8E48-8473-B980FCD8BE19</generatorID>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT O.* 
+FROM vwCurrentNWA n WITH(NOLOCK) 
+INNER JOIN OCS O WITH(NOLOCK) ON n.NWA_ID = O.NWA_ID 
+WHERE O.OCS_ID IN (SELECT MAX(O2.OCS_ID) 
+      FROM OCS O2 WITH (NOLOCK) 
+      WHERE O2.NWA_ID = O.NWA_ID)]]></userDefinedSQL>
+<validSQL>false</validSQL>
+<viewType>EntityView</viewType>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="O.*" id="A24E08E8-372D-3065-3811-0F7A082EE706">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>3CA628C6-CE6B-8B00-DBC0-9D586B045611</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>O.*</alias>
+<dataType>UNKNOWN</dataType>
+<expression>O.*</expression>
+<reference>false</reference>
+<viewID>E255C6D9-9102-EC03-FEB6-A1DFCB4E8221</viewID>
+</viewElement>
+</viewElements>
+</EntityView>

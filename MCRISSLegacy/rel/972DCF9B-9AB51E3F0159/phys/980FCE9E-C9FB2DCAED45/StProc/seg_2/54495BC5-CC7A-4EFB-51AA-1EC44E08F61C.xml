@@ -1,0 +1,18 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetAllQSNRUCs]" directorySegmentName="seg_2" id="54495BC5-CC7A-4EFB-51AA-1EC44E08F61C">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[AS 
+ 
+SELECT  
+ MO.PRESENT_RUC AS RUC, MO.UNIT_NAME,  
+ MO.PRESENT_MCC AS MCC_CODE,  
+ (SELECT TOP 1 QSN.MCC_CODE FROM QSN WHERE QSN.RUC = MO.PRESENT_RUC ORDER BY QSN.UPDATE_DATE DESC) AS QSN_MCC 
+FROM MARINE_ORGANIZATION MO WITH (NOLOCK)  
+WHERE EXISTS (SELECT 1 FROM QSN WHERE QSN.RUC = MO.PRESENT_RUC) 
+ORDER BY MO.PRESENT_RUC, MO.UNIT_NAME]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

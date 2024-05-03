@@ -1,0 +1,164 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="Proc1118" directorySegmentName="seg_16" id="8BBC03C6-3592-7A5C-FDF5-D8E50D84C798">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:56 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@PersonID     uniqueiden..er, 
+ @LastName     varchar(75), 
+ @FirstName     varchar(75), 
+ @MiddleName     varchar(75) = null, 
+ @Su.x         varchar(5) = null, 
+ @SocialSecurityNumber  char(9) = null, 
+ @AlienRegistra.onNumber char(10) = null, 
+    @Gender      char(1) = null, 
+ @DateOfBirth    date.me = null, 
+ @PlaceOfBirth    varchar(75),  
+ @LastUpdateUserId   uniqueiden..er, 
+    @ParentConsentReceived  int = null, 
+ @Ci.zenshipStatus   varchar(2) = null,  
+ @OtherCountryCi.zen  varchar(2) = null,  
+ @DualCountryCi.zen   varchar(2) = null, 
+ @Religion     varchar(2) = null,  
+ @Race      varchar(1) = null,  
+ @Ethnicity     varchar(1) = null,  
+ @MepcomRace     varchar(1) = null,  
+ @MepcomEthnicity   varchar(1) = null,  
+ @BirthCountry    varchar(3) = null,  
+ @BirthState     varchar(2) = null,  
+ @BirthCounty    varchar(3) = null,  
+ @BirthCity     varchar(4) = null,  
+ @SsnCard     bit = null, 
+ @CountryOfOrigin   varchar(3) = null 
+AS 
+BEGIN 
+ 
+-- STEP 1: Start the transac.on 
+BEGIN TRANSACTION 
+ 
+-- STEP 2 & 3: Issue the data change statement(s), checking @@ERROR a.er each statement 
+IF EXISTS(SELECT PersonId FROM Person WHERE PersonId = @PersonID) 
+BEGIN 
+ -- if @intCount > 0, then the Employee already exists.  UPDATE. 
+ UPDATE 
+   Person 
+  SET 
+   LastName=@LastName,    
+   FirstName=@FirstName,       
+   MiddleName=@MiddleName,  
+   Su.x =@Su.x,       
+   SocialSecurityNumber=@SocialSecurityNumber,    
+   AlienRegistra.onNumber=@AlienRegistra.onNumber,   
+   Gender=@Gender,        
+   DateOfBirth=@DateOfBirth,      
+   PlaceOfBirth=@PlaceOfBirth,      
+   LastUpdateDate=GETDATE(),     
+   LastUpdateUserId=@LastUpdateUserId 
+   ,ParentConsentReceived = @ParentConsentReceived 
+   ,Ci.zenshipStatus = @Ci.zenshipStatus 
+   ,OtherCountryCi.zen = @OtherCountryCi.zen 
+   ,DualCountryCi.zen = @DualCountryCi.zen 
+   ,Religion = @Religion 
+   ,Race = @Race 
+   ,Ethnicity = @Ethnicity 
+   ,MepcomRace = @MepcomRace 
+   ,MepcomEthnicity = @MepcomEthnicity 
+   ,BirthCountry = @BirthCountry 
+   ,BirthState = @BirthState 
+   ,BirthCounty = @BirthCounty 
+   ,BirthCity = @BirthCity 
+   ,SsnCard = @SsnCard 
+   ,COUNTRY_OF_ORIGIN = @CountryOfOrigin    
+  WHERE  
+   PersonId = @PersonID 
+END 
+ELSE 
+BEGIN 
+ -- if @intCount = 0, then the Employee does not exist.  INSERT. 
+ INSERT INTO Person (PersonId, 
+      LastName, 
+      FirstName, 
+      MiddleName, 
+      Su.x,  
+      SocialSecurityNumber, 
+      AlienRegistra.onNumber, 
+      Gender, 
+      DateOfBirth, 
+      PlaceOfBirth, 
+      LastUpdateDate, 
+      LastUpdateUserId 
+      ,ParentConsentReceived 
+      ,Ci.zenshipStatus 
+      ,OtherCountryCi.zen 
+      ,DualCountryCi.zen 
+      ,Religion 
+      ,Race 
+      ,Ethnicity 
+      ,MepcomRace 
+      ,MepcomEthnicity 
+      ,BirthCountry 
+      ,BirthState 
+      ,BirthCounty 
+      ,BirthCity 
+      ,SsnCard 
+      ,COUNTRY_OF_ORIGIN) 
+    VALUES (@PersonID, 
+      @LastName,       
+      @FirstName,       
+      @MiddleName, 
+      @Su.x, 
+      @SocialSecurityNumber,    
+      @AlienRegistra.onNumber,   
+      @Gender,        
+      @DateOfBirth,      
+      @PlaceOfBirth,      
+      GETDATE(),      
+      @LastUpdateUserId 
+      ,@ParentConsentReceived 
+      ,@Ci.zenshipStatus 
+      ,@OtherCountryCi.zen 
+      ,@DualCountryCi.zen 
+      ,@Religion 
+      ,@Race 
+      ,@Ethnicity 
+      ,@MepcomRace 
+      ,@MepcomEthnicity 
+      ,@BirthCountry 
+      ,@BirthState 
+      ,@BirthCounty 
+      ,@BirthCity 
+      ,@SsnCard 
+      ,@CountryOfOrigin)  
+END 
+ 
+-- Rollback the transac.on if there were any errors 
+IF @@ERROR <> 0 
+ BEGIN 
+    -- Rollback the transac.on 
+    ROLLBACK TRANSACTION 
+ 
+    -- Raise an error and return 
+    RAISERROR ('Error occurred while performing the change.', 16, 1) 
+    RETURN 
+ END 
+ 
+-- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+IF @@ROWCOUNT > 1 
+BEGIN 
+    -- Rollback the transac.on 
+    ROLLBACK TRANSACTION 
+ 
+    -- Raise an error and return 
+    RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+    RETURN 
+END 
+  
+-- STEP 4: If we reach this point, the commands completed successfully 
+--         Commit the transac.on.... 
+COMMIT TRANSACTION 
+ 
+  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

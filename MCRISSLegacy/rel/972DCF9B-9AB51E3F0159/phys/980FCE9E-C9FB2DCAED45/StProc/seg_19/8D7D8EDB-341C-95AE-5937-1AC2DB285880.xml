@@ -1,0 +1,28 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetO.cerWaiverData]" directorySegmentName="seg_19" id="8D7D8EDB-341C-95AE-5937-1AC2DB285880">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@WaiverID as integer 
+AS 
+ 
+SELECT 
+ CONVERT(CHAR(11), W.WAIVER_SUBMIT_DATE, 106) AS WAIVER_SUBMIT_DATE, 
+ W.WAIVER_OCCASION_ID,  
+ T.WAIVER_CATEGORY_ID,  
+ T.WAIVER_TYPE_ID, 
+ COALESCE(W.WAIVER_DETAILS, SPACE(0)) AS WAIVER_DETAILS, 
+ W.WAIVER_STATUS_CODE, 
+ COALESCE(CONVERT(CHAR(11), W.APPROVAL_DATE, 106), SPACE(0)) AS APPROVAL_DATE, 
+ COALESCE(CONVERT(VARCHAR(10), W.APPROVAL_NUMBER), SPACE(0)) AS APPROVAL_NUMBER, 
+ T.WAIVER_CODE, T.WAIVER_LEVEL, T.EXCEPTION_TO_POLICY, 
+ T.WAIVER_TYPE_DESC, T.WAIVER_TYPE_CONDITIONS, 
+ COALESCE(CONVERT(CHAR(11), W.DISAPPROVAL_DATE, 106), SPACE(0)) AS DISAPPROVAL_DATE 
+FROM 
+ OFFICER_WAIVER W INNER JOIN OFFICER_WAIVER_TYPE T ON  
+  (W.OFFICER_WAIVER_ID = @WaiverID AND 
+  W.WAIVER_TYPE_ID = T.WAIVER_TYPE_ID)]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

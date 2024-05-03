@@ -1,0 +1,32 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetMIContractGoalViewForRegion]" directorySegmentName="seg_6" id="05BFB558-9796-9817-553C-3BC31197947E">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[(@RegionOrgID INT) 
+AS 
+   SELECT ro.ORGANIZATION_ID AS OrgID, 
+          ro.SHORT_NAME AS OrgName, 
+          1 AS FiscalYear, 
+          '' AS Contrac.ngMissionType, 
+          0 AS [January], 
+          0 AS [February], 
+          0 AS [March], 
+          0 AS [April], 
+          0 AS [May], 
+          0 AS [June], 
+          0 AS [July], 
+          0 AS [August], 
+          0 AS [September], 
+          0 AS [October], 
+          0 AS [November], 
+          0 AS [December] 
+     FROM MCRISS.dbo.RECRUITING_ORGANIZATION ro 
+          INNER JOIN MCRISS.dbo.ORGANIZATION_MAP om 
+             ON     om.CHILD_ORGANIZATION_ID = ro.ORGANIZATION_ID 
+                AND ro.ORGANIZATION_TYPE = 'D' 
+    WHERE om.PARENT_ORGANIZATION_ID = @RegionOrgID]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,132 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetAllLeadsReport]" directorySegmentName="seg_9" id="ADB3FEFF-9C68-BBD4-6859-A92267F3885C">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:37 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+  @FromDate date.me, 
+  @ToDate  date.me, 
+  @CompletedDate date.me 
+ ) 
+ 
+ 
+AS 
+ 
+ 
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+--Get Top 10 recruiters (as measured by joins) for the From/To Dates speci.ed 
+Select  B.BilletId, 
+  'Recruiter' RoleAbbr, 
+  Rank.Abbr RankAbbr, 
+  PRN.LastName, 
+  (SELECT CASE WHEN (ouRSSRS.DESCRIPTION IS NOT NULL) 
+    THEN 
+   ouRSSRS.DESCRIPTION 
+    ELSE  
+   ouRS.DESCRIPTION  
+    END) AS PSRS, 
+  TotalJoins, 
+  ouRSS.Descrip.on AS RSS, 
+  ouRSS.PSROrgUnitID PSRSSID,  
+  RPL.TotalJoins AS CompletedMonthJoins, 
+  Count(Case When PSH.OnProduc.on='True' Then OnProduc.on End) AS CompletedMonths --months on produc.on 
+From  
+(Select top 10 l.AssignedRecruiterID AS RecruiterID, count(l.leadid) TotalJoins 
+from dbo.Lead l  
+inner join dbo.ApplicantPackage ap on ap.LeadID = l.LeadID 
+inner join dbo.LeadStatusDisposi.on lsd on l.LeadID = lsd.LeadID 
+where ap.DateJoinCredit between @FromDate and @ToDate AND 
+    lsd.StatusDisposi.onID IN (28,34,35,36,37) 
+group by l.AssignedRecruiterID 
+order by TotalJoins desc 
+) AS RPL  --RPL gets the top ten recruiters based on joins, the rest gets the recruiter personnel data for the report 
+inner join dbo.Recruiter R on R.RecruiterID = RPL.RecruiterID 
+inner join dbo.Person PRN on PRN.PersonID = R.PersonID 
+inner join dbo.Rank on R.RankID = dbo.Rank.RankID  
+inner join dbo.Billet B on B.BilletId = R.BilletID 
+le. outer join dbo.Produc.onStatusHistory PSH on R.RecruiterID = PSH.RecruiterID  and  
+ dateadd(mm, (PSH.CalendarYear - 1900) * 12 + PSH.MonthCode - 1 , 0) >= @FromDate and --translate Month/Year in Produc.onStatusHistory into a date (1st of the month) 
+ dateadd(mm, (PSH.CalendarYear - 1900) * 12 + PSH.MonthCode - 1 , 0) <= @CompletedDate 
+le. outer join [vwOrgUnitIDs] vouRSS on vouRSS.rss = r.Organiza.onID 
+le. outer join dbo.PSROrgUnit ouRSSRS on ouRSSRS.PSROrgUnitID = vouRSS.RS 
+le. outer join dbo.PSROrgUnit ouRSS on ouRSS.PSROrgUnitID = vouRSS.RSS 
+le. outer join [vwOrgUnitIDs] vouRS on vouRS.RS = r.Organiza.onID 
+le. outer join dbo.PSROrgUnit ouRS on ouRS.PSROrgUnitID = vouRS.RS 
+group by 
+B.BilletId,Rank.Abbr ,RPL.RecruiterID, PRN.LastName,ouRSSRS.Descrip.on, ouRS.Descrip.on, TotalJoins, 
+ouRSS.Descrip.on, ouRSS.PSROrgUnitID --groups the recruiter data for calcula.ng the produc.on months 
+ 
+ 
+union  
+ 
+Select  B.BilletId, 
+  B.Descrip.on RoleAbbr, 
+  Rank.Abbr RankAbbr, 
+  PRN.LastName, 
+  (SELECT CASE WHEN (ouRSSRS.DESCRIPTION IS NOT NULL) 
+    THEN 
+   ouRSSRS.DESCRIPTION 
+    ELSE  
+   ouRS.DESCRIPTION  
+    END) AS PSRS, 
+  TotalJoins, 
+  ouRSS.Descrip.on AS RSS, 
+  ouRSS.PSROrgUnitID PSRSSID,  
+  RPL.TotalJoins AS CompletedMonthJoins, 
+  PM.CompletedMonths 
+From  
+(Select  top 5 SNCOIC.RecruiterID, count(l.leadid) TotalJoins 
+ from dbo.Lead l  
+ inner join dbo.ApplicantPackage ap on ap.LeadID = l.LeadID 
+ inner join dbo.LeadStatusDisposi.on lsd on l.LeadID = lsd.LeadID 
+ inner join  
+  (select RecruiterID, Organiza.onID as OrgUnitID, BilletBeginDate, BilletEndDate, BilletID from dbo.Recruiter 
+   union  
+   select RecruiterID, OrgUnitID, BilletBeginDate, BilletEndDate, BilletID from dbo.RecruiterHistory) SNCOIC  
+ on  SNCOIC.OrgUnitID = l.AtachedPSRSSID AND 
+  SNCOIC.BilletID = 2 AND 
+  (ap.DateJoinCredit >= SNCOIC.BilletBeginDate OR SNCOIC.BilletBeginDate is null) and  
+  (ap.DateJoinCredit < SNCOIC.BilletEndDate OR SNCOIC.BilletEndDate is null)  
+ where ap.DateJoinCredit between @FromDate and @ToDate AND 
+     lsd.StatusDisposi.onID IN (28,34,35,36,37) 
+ group by SNCOIC.RecruiterID 
+ order by TotalJoins desc 
+ ) AS RPL  --RPL gets the top .ve SNCOICs based on joins in their org during their tenure, 
+           --the rest gets the SNCOIC personnel data for the report 
+inner join dbo.Recruiter R on R.RecruiterID = RPL.RecruiterID 
+inner join dbo.Rank on R.RankID = dbo.Rank.RankID  
+inner join dbo.Billet B on B.BilletId = R.BilletID 
+inner join dbo.Person PRN on PRN.PersonID = R.PersonID 
+le. outer join [vwOrgUnitIDs] vouRSS on vouRSS.rss = r.Organiza.onID 
+le. outer join dbo.PSROrgUnit ouRSSRS on ouRSSRS.PSROrgUnitID = vouRSS.RS 
+le. outer join dbo.PSROrgUnit ouRSS on ouRSS.PSROrgUnitID = vouRSS.RSS 
+le. outer join [vwOrgUnitIDs] vouRS on vouRS.RS = r.Organiza.onID 
+le. outer join dbo.PSROrgUnit ouRS on ouRS.PSROrgUnitID = vouRS.RS 
+le. outer join 
+ (select ou.PSROrgUnitID, ISNULL(A.CompletedMonths,0) + ISNULL(B.CompletedMonths,0) as CompletedMonths  
+ from PSROrgUnit ou 
+ le. outer join (select r.organiza.onid, Count(Case When PSH1.OnProduc.on='True' Then OnProduc.on End) 
+   as CompletedMonths 
+   from Recruiter R 
+   le. outer join Produc.onStatusHistory PSH1 on PSH1.RecruiterID = r.RecruiterID and 
+   dateadd(mm, (PSH1.CalendarYear - 1900) * 12 + PSH1.MonthCode - 1 , 0) >= @FromDate and  
+   dateadd(mm, (PSH1.CalendarYear - 1900) * 12 + PSH1.MonthCode - 1 , 0) <= @CompletedDate 
+   group by Organiza.onID) A 
+   on A.Organiza.onID = ou.PSROrgUnitID 
+ le. outer join (select rh.orguni.d, Count(Case When PSH2.OnProduc.on='True' Then OnProduc.on End) 
+   as CompletedMonths 
+   from RecruiterHistory RH 
+   le. outer join Produc.onStatusHistory PSH2 on PSH2.RecruiterID = RH.RecruiterID and 
+   dateadd(mm, (PSH2.CalendarYear - 1900) * 12 + PSH2.MonthCode - 1 , 0) >= @FromDate and  
+   dateadd(mm, (PSH2.CalendarYear - 1900) * 12 + PSH2.MonthCode - 1 , 0) <= @CompletedDate  
+   where OrgUnitID is not null --billet gaps are .lled with orguni.d of null 
+   group by OrgUnitID) B 
+   on B.OrgUnitID = ou.PSROrgUnitID 
+ Where ou.PSROrgUnitTypeID = 4 
+ ) PM -- PM gets the number of produc.on months for each PSRSS organiza.on (summed over all recruiters in the PSRSS) 
+ on vouRSS.RSS = PM.PSROrgUnitID]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+</StoredProcedureSqlServerv2k5>

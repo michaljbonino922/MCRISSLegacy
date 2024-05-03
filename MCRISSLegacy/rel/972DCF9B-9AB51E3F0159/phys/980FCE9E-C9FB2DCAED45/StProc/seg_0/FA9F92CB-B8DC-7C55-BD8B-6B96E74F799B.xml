@@ -1,0 +1,18 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[DeleteBilletTrainingComment]" directorySegmentName="seg_0" id="FA9F92CB-B8DC-7C55-BD8B-6B96E74F799B">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@PersonID   INT, 
+  @SeqNo  INT = NULL  
+AS 
+ 
+ 
+ IF EXISTS(SELECT Person_ID FROM M8412_Comment  
+   WHERE Person_ID=@PersonID and Sequence_No= @SeqNo) 
+    DELETE FROM M8412_Comment  
+   WHERE Person_ID=@PersonID AND Sequence_No=@SeqNo]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

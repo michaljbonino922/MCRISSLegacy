@@ -1,0 +1,17 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetAllLeaveOfAbsenceReason]" directorySegmentName="seg_1" id="C8992FB6-F5E9-B03C-6B33-1F5D1604C161">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[AS 
+ 
+SELECT  
+ LOA_REASON_ID AS ID, 
+ LOA_REASON  AS Descrip.on 
+FROM 
+ dbo.LEAVE_OF_ABSENCE_REASON WITH (NOLOCK) 
+ORDER BY Descrip.on]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,113 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SaveChangeRequestDisenrollment]" directorySegmentName="seg_13" id="09F0E3F3-0572-C7DC-6C6B-C8C539C87E8C">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[(@ID uniqueiden..er 
+ ,@NWA_ID int 
+ ,@SUBMITTED_ON date.me 
+ ,@APPR_DISAPPR_ON date.me 
+ ,@CHANGE_REQUEST_STATUS_ID int 
+ ,@CHANGE_REQUEST_TYPE_ID int 
+ ,@CHANGE_REQUEST_LEVEL_ID_CURRENT int 
+ ,@CHANGE_REQUEST_LEVEL_ID_FINAL int 
+ ,@DETAILS varchar(255) 
+ ,@MODIFIED_BY varchar(50) 
+ ,@SIGNED_BY varchar(50) 
+ ,@BY_DIRECTION bit 
+ ,@DISCHARGE_REASON_CODE varchar(3) 
+ ,@DISCHARGE_ON date.me) 
+ 
+AS 
+ 
+ 
+ 
+ -- INSERT/UPDATE THE CHANGE_REQUEST 
+  
+IF EXISTS(SELECT 1 FROM [USMC].[CHANGE_REQUEST], [USMC].[CHANGE_REQUEST_DISENROLLMENT] WHERE [ID] = @ID AND [CHANGE_REQUEST_ID] = @ID) 
+ BEGIN 
+  
+  BEGIN TRANSACTION 
+     
+  UPDATE  
+   [USMC].[CHANGE_REQUEST] 
+  SET  
+    [NWA_ID] = @NWA_ID 
+   ,[SUBMITTED_ON] = @SUBMITTED_ON 
+   ,[APPR_DISAPPR_ON] = @APPR_DISAPPR_ON 
+   ,[CHANGE_REQUEST_STATUS_ID] = @CHANGE_REQUEST_STATUS_ID 
+   ,[CHANGE_REQUEST_TYPE_ID] = @CHANGE_REQUEST_TYPE_ID 
+   ,[CHANGE_REQUEST_LEVEL_ID_CURRENT] = @CHANGE_REQUEST_LEVEL_ID_CURRENT 
+   ,[CHANGE_REQUEST_LEVEL_ID_FINAL] = @CHANGE_REQUEST_LEVEL_ID_FINAL 
+   ,[DETAILS] = @DETAILS 
+   ,[MODIFIED_BY] = @MODIFIED_BY 
+   ,[MODIFIED_ON] = getdate() 
+   ,[SIGNED_BY] = @SIGNED_BY 
+   ,[BY_DIRECTION] = @BY_DIRECTION 
+   WHERE 
+   [ID] = @ID 
+   
+  -- NOW INSERT/UPDATE THE DISENROLLMENT 
+ 
+  UPDATE  
+   [USMC].[CHANGE_REQUEST_DISENROLLMENT] 
+  SET 
+    [DISCHARGE_REASON_CODE] = @DISCHARGE_REASON_CODE 
+   ,[DISCHARGE_ON] = @DISCHARGE_ON 
+  WHERE 
+   [CHANGE_REQUEST_ID] = @ID 
+    
+  IF (@@ERROR <> 0) ROLLBACK TRANSACTION; 
+ END 
+ELSE 
+ BEGIN 
+  
+  BEGIN TRANSACTION 
+  
+  DECLARE @NewChangeRequestID uniqueiden..er; 
+  SET @NewChangeRequestID = newid(); 
+ 
+ 
+  INSERT INTO [USMC].[CHANGE_REQUEST] 
+   ([ID] 
+   ,[NWA_ID] 
+   ,[SUBMITTED_ON] 
+   ,[APPR_DISAPPR_ON] 
+   ,[CHANGE_REQUEST_STATUS_ID] 
+   ,[CHANGE_REQUEST_TYPE_ID] 
+   ,[CHANGE_REQUEST_LEVEL_ID_CURRENT] 
+   ,[CHANGE_REQUEST_LEVEL_ID_FINAL] 
+   ,[DETAILS] 
+   ,[MODIFIED_BY] 
+   ,[SIGNED_BY] 
+   ,[BY_DIRECTION]) 
+  VALUES 
+   (@NewChangeRequestID 
+   ,@NWA_ID 
+   ,@SUBMITTED_ON 
+   ,@APPR_DISAPPR_ON 
+   ,@CHANGE_REQUEST_STATUS_ID 
+   ,@CHANGE_REQUEST_TYPE_ID 
+   ,@CHANGE_REQUEST_LEVEL_ID_CURRENT 
+   ,@CHANGE_REQUEST_LEVEL_ID_FINAL 
+   ,@DETAILS 
+   ,@MODIFIED_BY 
+   ,@SIGNED_BY 
+   ,@BY_DIRECTION) 
+    
+  INSERT INTO [USMC].[CHANGE_REQUEST_DISENROLLMENT] 
+   ([CHANGE_REQUEST_ID] 
+   ,[DISCHARGE_REASON_CODE] 
+   ,[DISCHARGE_ON]) 
+  VALUES 
+   (@NewChangeRequestID 
+   ,@DISCHARGE_REASON_CODE 
+   ,@DISCHARGE_ON) 
+ 
+  IF (@@ERROR <> 0) ROLLBACK TRANSACTION; 
+ END 
+COMMIT]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

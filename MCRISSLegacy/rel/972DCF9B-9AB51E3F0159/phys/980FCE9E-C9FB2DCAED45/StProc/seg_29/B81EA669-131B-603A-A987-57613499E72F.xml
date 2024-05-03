@@ -1,0 +1,47 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetRequestsForApplicant]" directorySegmentName="seg_29" id="B81EA669-131B-603A-A987-57613499E72F">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:39 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @NwaGUID uniqueiden..er = null, 
+ @FirstName varchar(20) = null, 
+ @LastName varchar(20) = null, 
+ @SSN varchar(9) = null 
+) 
+AS 
+ 
+SELECT 
+ [ID], 
+ a.[NWA_GUID], 
+ a.FIRST_NAME, 
+ a.LEGAL_MIDDLE_NAME, 
+ a.LAST_NAME, 
+ a.SUFFIX_CD, 
+ [RequestTypeID], 
+ [FormID], 
+ [RequestDate], 
+ [RequestStatusID], 
+ [RequestLevelID], 
+ [OSS_RequestDecisionID], 
+ [RS_RequestDecisionID], 
+ [District_RequestDecisionID], 
+ [Region_RequestDecisionID], 
+ [MCRC_RequestDecisionID], 
+ [LastEditDate], 
+ [LastEditBy], 
+ [ProgramID], 
+ [GradDate], 
+ [CommissionDate], 
+ [ReferenceText] 
+FROM [ACP].[vwRequests] r 
+ INNER JOIN [ACP].[ext_MCRISS_O.cerContracts] a ON a.NWA_GUID = r.NWA_GUID 
+WHERE  
+ (@NwaGUID is null OR r.NWA_GUID = @NwaGUID) AND 
+ (@FirstName is null OR a.FIRST_NAME like @FirstName) AND 
+ (@LastName is null OR a.LAST_NAME like @LastName) AND 
+ (@SSN is null OR a.SOCIAL_SECURITY_NUMBER like @SSN)]]></body>
+<schema>569A41D8-8F40-0619-141C-F4C9436AAF46</schema>
+<database>2D7ED536-DF8E-3523-7DC3-4228EBAF5F66</database>
+</StoredProcedureSqlServerv2k5>

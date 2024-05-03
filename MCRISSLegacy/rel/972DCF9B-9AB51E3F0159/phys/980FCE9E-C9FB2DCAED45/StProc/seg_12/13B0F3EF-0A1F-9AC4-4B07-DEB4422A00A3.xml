@@ -1,0 +1,45 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUpdateSMCRAc.va.on]" directorySegmentName="seg_12" id="13B0F3EF-0A1F-9AC4-4B07-DEB4422A00A3">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @ContractID int, 
+ @SMCRAc.vated char(1), 
+ @SMCRActDate date.me, 
+ @SMCRDeactDate date.me, 
+ @LastEditBy varchar(15) 
+) 
+AS 
+IF EXISTS (SELECT 1 FROM [mcriss].[dbo].[SMCR] WHERE [CONTRACT_ID] = @ContractID) 
+ BEGIN 
+  UPDATE [mcriss].[dbo].[SMCR] SET 
+   [ACTIVATED] = @SMCRAc.vated 
+   ,[ACTIVATED_DATE] = @SMCRActDate 
+   ,[DEACTIVATED_DATE] = @SMCRDeactDate 
+   ,[USER_LOGIN] = @LastEditBy 
+   ,[UPDATE_DATE] = GetDate() 
+  WHERE [CONTRACT_ID] = @ContractID 
+ END 
+ELSE 
+ BEGIN 
+  IF(@SMCRAc.vated IS NOT NULL OR @SMCRActDate IS NOT NULL OR @SMCRDeactDate IS NOT NULL) 
+  INSERT INTO [MCRISS].[dbo].[SMCR] 
+       ([CONTRACT_ID] 
+       ,[ACTIVATED] 
+       ,[ACTIVATED_DATE] 
+       ,[DEACTIVATED_DATE] 
+       ,[USER_LOGIN] 
+       ,[UPDATE_DATE]) 
+     VALUES 
+       (@ContractID 
+       ,@SMCRAc.vated 
+       ,@SMCRActDate 
+       ,@SMCRDeactDate 
+       ,@LastEditBy 
+       ,GetDate()) 
+ END]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

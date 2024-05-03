@@ -1,0 +1,54 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_MIDeleteRecruitTraining]" directorySegmentName="seg_22" id="6C03C941-D8EA-7019-ED52-5129DA348F57">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@ShipID   int, 
+ @UserLogin  varchar(15) 
+AS 
+ 
+SET NOCOUNT ON  
+ 
+DECLARE @DBID  int 
+DECLARE @DBNAME sysname 
+DECLARE @ErrMsg varchar(100) 
+ 
+SELECT  
+ @DBID  = DB_ID(),  
+ @DBNAME = DB_NAME() 
+ 
+IF EXISTS (SELECT 1 FROM RECRUIT_TRAINING WHERE SHIP_ID = @ShipID) 
+BEGIN 
+ --- BEGIN TRANSACTION 
+ 
+ --- UPDATE THE USER LOGIN AND UPDATE_DATE BEFORE DELETING RECRUIT TRAINING DATA  
+ --- SO THAT THE RIGHT INFORMATION IS REFLECTED IN THE TLOG 
+ UPDATE  
+  RECRUIT_TRAINING 
+ SET 
+  USER_LOGIN  = @UserLogin, 
+  UPDATE_DATE  = GETDATE() 
+ WHERE 
+  SHIP_ID  = @ShipID 
+ 
+ --- DELETE THE RECRUIT TRAINING DATA 
+ DELETE FROM RECRUIT_TRAINING WHERE SHIP_ID = @ShipID 
+ 
+ IF @@ERROR != 0 OR @@ROWCOUNT = 0 
+ BEGIN 
+  --- ROLLBACK TRANSACTION 
+  SET @ErrMsg = 'An error occurred dele.ng the recruit training record for Shipper ' + CONVERT(VARCHAR, @ShipID) + '.' 
+  RAISERROR (@ErrMsg, 16, 2, @DBID, @DBNAME) 
+  RETURN 
+ END 
+  
+ --- IF WE MAKE IT HERE COMMIT THE TRANSACTION 
+ --- COMMIT TRANSACTION 
+END 
+ 
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,122 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[spRollbackAnalysis]" directorySegmentName="seg_0" id="63530E86-47A8-8D3F-8C41-4CE60E76050C">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:09 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[AS                 
+BEGIN 
+ 
+ 
+declare @priorId varchar(5), @postId varchar(5), @curId varchar(5) 
+declare @priorTran varchar(1), @curTran varchar(1), @priorSSN varchar(9), @curSSN varchar(9) 
+declare @isPriorForImport varchar(1), @isCurrentForImport varchar(1) 
+declare @priorSubCategory varchar(20), @curSubCategory varchar(20) 
+declare @priorCategory varchar(20), @curCategory varchar(20) 
+ 
+--Date of transactions will now be derived from the file name not necessariliy from 
+--the date they were updated in the mirs import log. 
+declare @priorUpdateDate datetime, @curUpdateDate datetime, @rollbackDate datetime 
+ 
+ 
+ 
+declare @rolbackPrePostCount int, @rollbackPreOnlyCount int 
+declare @priorFileName varchar(40), @curFileName varchar(40), @rollbackFileName varchar(40) 
+ 
+ 
+ 
+declare ROLLBACK_CURSOR cursor for   
+ select ssn, mtl.mirs_transaction, rb.transaction_type, substring(rb.file_name,10,8), mtl.import_transaction, mtl.sub_category,mtl.category,rb.file_name 
+ from rollbacks3 rb, mirs_transaction_lookup mtl 
+ where rb.meps_transaction = mtl.mirs_transaction 
+ order by ssn, file_name 
+ 
+ 
+print 'Opening Cursor'   
+ 
+set @rolbackPrePostCount = 0 
+set @rollbackPreOnlyCount = 0 
+ 
+delete from rollback_s2 
+ 
+open ROLLBACK_CURSOR   
+fetch ROLLBACK_CURSOR into @curSSN, @curId, @curTran, @curUpdateDate, @isCurrentForImport, @curSubCategory, @curCategory, @curFileName 
+while (@@FETCH_STATUS = 0)  begin           
+ if (@priorId is not null and @priorTran = 'R' and @curTran != 'R' 
+  and @priorSSN is not null and @priorSSN = @curSSN) begin 
+  set @rolbackPrePostCount = @rolbackPrePostCount + 1 
+  print 'Rollback with Pre and Post Trans for Same SSN: [' + convert(varchar(7),@rolbackPrePostCount) + ']' 
+  insert into rollback_s2 (ssn,pre_rollback_trans,post_rollback_trans,pre_rollback_category, 
+     post_rollback_category,pre_rollback_subcategory,post_rollback_subcategory,is_priortran_important, 
+     pre_rollback_date_of_transaction, post_rollback_date_of_transaction,file_name,rollback_filename) 
+  values (@curssn,@priorId,@CurId,@priorCategory,@curCategory,@priorSubCategory,@curSubCategory,@isPriorForImport,@priorUpdateDate,@curUpdateDate,@priorFileName,@rollbackFileName) 
+   
+ 
+  set @priorId = @curId 
+  set @isPriorForImport = @isCurrentForImport 
+  set @priorSubCategory = @curSubCategory 
+  set @priorCategory = @curCategory 
+  set @priorUpdateDate = @curUpdateDate 
+  set @priorFileName = @curFileName 
+ 
+ end else  begin 
+  --Here we capture the rollback that have no post transaction 
+  --i.e.  the ssn has changed 
+  if (@priorId is not null and @priorTran = 'R' and @curTran != 'R' 
+   and @priorSSN is not null and @priorSSN != @curSSN) begin 
+ 
+   set @rollbackPreOnlyCount = @rollbackPreOnlyCount + 1 
+   print 'Rollback with Pre but not Post Trans for SSN: [' + convert(varchar(7),@rollbackPreOnlyCount) + ']' 
+   insert into rollback_s2 (ssn,pre_rollback_trans,pre_rollback_category,pre_rollback_subcategory, 
+     is_priortran_important,pre_rollback_date_of_transaction, file_name,rollback_filename) 
+   values (@priorssn,@priorId,@priorCategory,@priorSubCategory,@isPriorForImport,@priorUpdateDate,@priorFileName,@rollbackFileName) 
+ 
+ 
+   set @priorId = @curId 
+   set @isPriorForImport = @isCurrentForImport 
+   set @priorSubCategory = @curSubCategory 
+   set @priorCategory = @curCategory 
+   set @priorUpdateDate = @curUpdateDate 
+   set @priorFileName = @curFileName 
+  end 
+ end   
+ --only reset the priorId 
+ --if current transaction is not a rollback 
+ --and the prioTran is not a rollback 
+ if (@curTran != 'R') begin 
+  if (@priorTran is null) begin 
+   set @priorId = @curId 
+   set @isPriorForImport = @isCurrentForImport 
+   set @priorSubCategory = @curSubCategory 
+   set @priorCategory = @curCategory 
+   set @priorUpdateDate = @curUpdateDate 
+   set @priorFileName = @curFileName 
+  end 
+  else  
+  if (@priorTran != 'R') begin 
+   set @priorId = @curId 
+   set @isPriorForImport = @isCurrentForImport 
+   set @priorSubCategory = @curSubCategory 
+   set @priorCategory = @curCategory 
+   set @priorUpdateDate = @curUpdateDate 
+   set @priorFileName = @curFileName 
+  end 
+ end else begin 
+  set @rollbackFileName = @curFileName  
+ end 
+ 
+ set @priorSSN = @curSSN  
+ set @priorTran = @curTran  
+ fetch ROLLBACK_CURSOR into @curSSN,@curId,@curTran,@curUpdateDate,@isCurrentForImport,@curSubCategory,@curCategory,@curFileName 
+end    
+ 
+print 'Close Cursor' 
+close ROLLBACK_CURSOR   
+ 
+print 'Deallocate Cursor' 
+deallocate ROLLBACK_CURSOR   
+ 
+end]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>24B9F7BA-5DD4-EAB5-4EB1-35B911743E85</database>
+</StoredProcedureSqlServerv2k5>

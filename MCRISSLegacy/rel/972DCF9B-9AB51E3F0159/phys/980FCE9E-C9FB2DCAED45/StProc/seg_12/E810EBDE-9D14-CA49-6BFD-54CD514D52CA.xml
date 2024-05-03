@@ -1,0 +1,135 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[M8412_Retrieve_or_Count_Person]" directorySegmentName="seg_12" id="E810EBDE-9D14-CA49-6BFD-54CD514D52CA">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@RCountORList INT =1, 
+ @Op.on  INT =1, 
+ @SSN  VARCHAR(9) = NULL, 
+ @LastName VARCHAR(20) = NULL, 
+ @FirstName VARCHAR(20) = NULL, 
+ @UserID varchar(15) 
+AS 
+ SET NOCOUNT ON 
+ 
+ DECLARE @orgid int 
+ DECLARE @orgCnt int 
+  
+ CREATE table #org1(organiza.on_id int) 
+ CREATE table #org2(organiza.on_id int) 
+ CREATE table #org3(organiza.on_id int) 
+  
+ 
+ 
+ SET @orgid = 900 
+ /* 
+ SET @orgid=0 
+  
+ SELECT @orgid = o.ORGANIZATION_ID 
+  FROM RECRUITING_ORGANIZATION o, USER_LIST u 
+  WHERE o.MCC_CODE = u.MCC_CODE 
+   AND u.USER_ID = @UserID 
+ */ 
+ 
+ IF @orgid > 0 
+ BEGIN 
+ 
+ insert into #org1(organiza.on_id) values(@orgid) 
+ select @orgCnt = organiza.on_id from #org1 
+ while(@orgCnt > 0) 
+ begin 
+  insert into #org2(organiza.on_id) 
+  select organiza.on_id from #org1 
+ 
+  insert into #org3(organiza.on_id) 
+  select organiza.on_id from #org1 
+ 
+  delete from #org1 
+  insert into #org1(organiza.on_id) 
+  select child_organiza.on_id from ORGANIZATION_MAP where parent_organiza.on_id in (select organiza.on_id from #org2) 
+  delete from #org2 
+  select @orgCnt = count(*) from #org1 
+ end     
+ END 
+ 
+ 
+-- ****** 
+ 
+ DECLARE @SelectStmt  VARCHAR(2000), 
+  @WhereClause VARCHAR(1000) 
+ 
+ 
+ SET @WhereClause ='' 
+ 
+ IF @RCountORList=1 SET @SelectStmt='SELECT COUNT(*) ' 
+ ELSE 
+  SET @SelectStmt='SELECT p.PERSON_ID, ' + '''XXXXX'' + RIGHT(p.SOCIAL_SECURITY_NUMBER,4) SOCIAL_SECURITY_NUMBER, ' 
+   + 'p.FIRST_NAME, p.LEGAL_MIDDLE_NAME, p.LAST_NAME, p.SUFFIX_CD, ' 
+   + 'p.LAST_NAME + '', '' + p.FIRST_NAME NAME, ' 
+   + 'p.ORGANIZATION_ID, ' 
+   + 'r.Current_Loca.on Loca.on, ' 
+   + '(case CHARINDEX(''$'', r.Current_Loca.on, 1) WHEN 0 then r.Current_Loca.on  
+    else substring(r.Current_Loca.on, CHARINDEX(''$'',r.Current_Loca.on, 1)+1,  
+    len(r.Current_Loca.on)-CHARINDEX(''$'', r.Current_Loca.on, 1)) end) Current_Loca.on, '   
+   + 'r.Billet,  CONVERT(CHAR(111),r.Date_Billet, 111) Date_Billet' 
+ 
+ SET @SelectStmt= @SelectStmt+ ' FROM M8412_Person_View p LEFT OUTER JOIN M8412_Recruit_Person r ' 
+  +  'ON p.Person_ID=r.Person_ID' 
+ 
+ 
+ IF @Op.on = 2   GOTO Search_LastName 
+ Else IF @Op.on = 3  GOTO Search_Extend 
+ 
+ 
+ IF (ISNULL(LEN(@SSN),0)= 0)  SET @SSN='@' 
+ SET @WhereClause = ' p.SOCIAL_SECURITY_NUMBER=''' + @SSN + '''' 
+ GOTO Process_Search 
+  
+ 
+Search_LastName: 
+ IF (ISNULL(LEN(@LastName),0)= 0) 
+  SET @WhereClause =' p.SOCIAL_SECURITY_NUMBER=''@''' 
+ ELSE 
+  SET @WhereClause = dbo.sp_Add_And_OR(@WhereClause,'AND') + ' UPPER(p.LAST_NAME) LIKE ''' + UPPER(@LastName) + '%''' 
+ GOTO Process_Search 
+ 
+ 
+Search_Extend: 
+ 
+ IF (ISNULL(LEN(@SSN),0)=0 and ISNULL(LEN(@LastName),0)=0 and ISNULL(LEN(@FirstName),0)=0) 
+  SET @WhereClause = ' p.SOCIAL_SECURITY_NUMBER =''@''' 
+ ELSE 
+ 
+ BEGIN 
+    IF (ISNULL(LEN(@SSN), 0) != 0)  
+  SET @WhereClause = dbo.sp_Add_And_OR(@WhereClause,'AND ') + 'p.SOCIAL_SECURITY_NUMBER LIKE ''%' + @SSN +'''' 
+    IF (ISNULL(LEN(@LastName),0)!= 0) 
+  SET @WhereClause = dbo.sp_Add_And_OR(@WhereClause,'AND')+ ' UPPER(p.LAST_NAME) LIKE ''' + UPPER(@LastName) + '%''' 
+    IF (ISNULL(LEN(@FirstName), 0) != 0) 
+  SET @WhereClause = dbo.sp_Add_And_OR(@WhereClause,'AND')+ ' UPPER(p.FIRST_NAME) LIKE ''' + UPPER(@FirstName) + '%''' 
+ END 
+Process_Search: 
+ SET @SelectStmt= @SelectStmt+ ' WHERE p.ORGANIZATION_ID IN (select organiza.on_id from #org3) '  
+ 
+ 
+ IF (ISNULL(LEN(@WhereClause), 0) != 0) 
+--  SET @SelectStmt = @SelectStmt + ' WHERE ' + @WhereClause  
+  SET @SelectStmt = @SelectStmt + ' AND ' + @WhereClause  
+ 
+ 
+ IF @RCountORList <>1  SET @SelectStmt= @SelectStmt+ ' ORDER BY p.LAST_NAME, p.FIRST_NAME, p.LEGAL_MIDDLE_NAME' 
+ EXEC (@SelectStmt) 
+ --PRINT @SelectStmt 
+ 
+ 
+ 
+-- select count(*) from #org3 
+ drop table #org1 
+ drop table #org2 
+ drop table #org3 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

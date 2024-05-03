@@ -1,0 +1,127 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_12" id="A42BF6D7-CD46-1BC4-1731-53032DE85691" schemaObject="B106B664-0C0B-E788-08ED-5CF8E449BE22" name="DriversLicense">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>2B2C4F7E-D137-D4A1-126F-B63EC251A5BC</importedID>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="PersonId" id="0D407514-C585-5CA4-E797-D4D53BED6027">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:58 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>3D1619B1-4907-EA99-4EF1-BED029D75E45</importedID>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="A8344D6D-9CEB-D961-6FF2-1F7B187FE2D0" referredColumn="C202E241-6807-3149-C8B3-59C820CEE6DB"/>
+</associations>
+</Column>
+<Column name="Expira.onDate" id="E4842D02-583A-7891-7FA9-688E05AF9815">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:58 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>92E10BCC-6D6F-F67A-7E3A-426B41CABE59</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="LicenseNumber" id="E1418422-1DC9-27BC-ADB7-04D30F4533CF">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:58 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>F80E33CA-E5BD-5497-656E-5F4251B9A77B</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>FD927799-44A6-804F-C848-2D8ABCF9C139</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="State" id="4290685A-2B4B-F788-10C5-D09A634C9DBE">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:58 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>B4B119C2-DC50-58E1-ACEF-03A317EB121A</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>2E8EE7FC-99CE-D4AE-132C-50F4AADCC1F4</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="Country" id="17EF8EDE-B29E-1A3D-E0A8-90657D610173">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:58 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>0F132414-3494-361E-432F-11EBDE31FBD5</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>27508766-BB8A-7C66-5C01-9D4029B8962D</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="Valid" id="59B66B9B-526F-0B21-C12E-2BACCF8376D4">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:58 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>ED48E8AF-48A9-0D96-81DC-2B890927D17F</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>91FEE8D3-8598-AD10-5F0A-90AD41572AF8</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="E893B924-1F38-541C-9524-973299366FC6" name="PK_DriversLicense">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:58 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>150FD8E5-9107-A4CD-DC4C-DED554F22A65</importedID>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="0D407514-C585-5CA4-E797-D4D53BED6027"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="EA1B8936-D43A-BAEA-E7A8-E13AA8BA32F9" name="FK_DriversLicense_Applicant">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:00:03 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="0D407514-C585-5CA4-E797-D4D53BED6027"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+<tableCheckConstraints itemClass="oracle.dbtools.crest.model.design.constraint.TableLevelConstraint">
+<tableCheckConstraint name="[ACP].[DriversLicense]" directorySegmentName="seg_10" id="3ADC2321-41FF-B0F2-CD3D-ED5504CBDB7B">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:58 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>FF0D96CB-05AF-DF36-0FC0-A12ADC932E9D</importedID>
+<rule><![CDATA[CONSTRAINT [FK_DriversLicense_Applicant]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITH" directorySegmentName="seg_10" id="E28B1A09-DD5C-14C2-9ECF-1F1D274AE31D">
+<sourceDDLFile>create ACP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:58 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>A83C8F44-D303-E45C-E931-0F50B09CD15B</importedID>
+</tableCheckConstraint>
+</tableCheckConstraints>
+</Table>

@@ -1,0 +1,56 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertOrUpdateRemarkUsingGuid]" directorySegmentName="seg_11" id="0F3A06DB-0742-E150-7C5A-0AF67A1E4EFC">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@RemarkID uniqueiden..er, 
+      @SchoolCode uniqueiden..er, 
+      @FiscalYear int, 
+      @Remark varchar(100), 
+      @UserLogin varchar(50)           
+         
+ 
+AS 
+SET NOCOUNT ON 
+ 
+  
+ DECLARE @CollegePro.leID uniqueiden..er 
+ Select @CollegePro.leID  = CollegePro.leID FROM [USMC].CollegePro.le cp  
+                                              inner join [dbo].High_School hs on cp.SCHOOL_CODE = hs.SCHOOL_CODE 
+                                              where hs.RowGuid = @SchoolCode 
+             and FiscalYear = @FiscalYear 
+ 
+ 
+ --IMPORTANT NOTE: Add begin and end transac.on 
+ 
+ IF EXISTS (SELECT '1' from [USMC].[Remark] where  RemarkID = @RemarkID 
+              and @RemarkID IS NOT NULL)  
+  -- then update the exisi.ng record 
+  BEGIN 
+   
+   UPDATE [MCRISS].[USMC].[Remark] 
+   SET   
+      
+      Remark = @Remark, 
+      UserLogin = @UserLogin  
+      where RemarkID = @RemarkID 
+       
+   END 
+    
+  --- ELSE  PROCEED WITH INSERT 
+  ELSE  
+  BEGIN 
+ 
+   INSERT INTO [MCRISS].[USMC].[Remark] 
+     ([RemarkID],[Remark],[En.tyID],[En.tyTypeID],[CollegePro.leID],[UserLogin],[UpdateDate] ) 
+ 
+   VALUES   
+     (@RemarkID,@Remark, 3,3, @CollegePro.leID,@UserLogin, GetDate()) 
+      
+  END 
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,24 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetMilestones]" directorySegmentName="seg_18" id="3BBA9696-4ACB-9F1C-F0B3-E365FCFFECFA">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@Organiza.onID as integer, @SchoolYear as integer 
+AS 
+ 
+SELECT 
+ HIGH_SCHOOL_PLAN_TYPE.PLAN_TYPE, HIGH_SCHOOL_PLAN_TYPE.SHORT_DESCRIPTION, PRIORITY_CODE, OBJECTIVE_MONTH, SUM(OBJECTIVE_PERCENTAGE) AS OBJECTIVE_PERCENTAGE 
+FROM 
+ HIGH_SCHOOL_MILESTONE, HIGH_SCHOOL_PLAN_TYPE 
+WHERE  
+ HIGH_SCHOOL_PLAN_TYPE.PLAN_TYPE *= HIGH_SCHOOL_MILESTONE.PLAN_TYPE AND 
+ HIGH_SCHOOL_MILESTONE.ORGANIZATION_ID = @Organiza.onID AND 
+ SCHOOL_YEAR = @SchoolYear 
+GROUP BY 
+ HIGH_SCHOOL_PLAN_TYPE.PLAN_TYPE,SHORT_DESCRIPTION, PRIORITY_CODE, OBJECTIVE_MONTH 
+ORDER BY 
+ SHORT_DESCRIPTION, PRIORITY_CODE, OBJECTIVE_MONTH]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

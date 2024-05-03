@@ -1,0 +1,80 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetNumEvents]" directorySegmentName="seg_4" id="29F532BA-AEF2-7C9A-A485-E9B28F623CA2">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@StartDate    date.me, 
+ @EndDate    date.me, 
+ @EventSourceId   int, 
+ @Organiza.onId   int, 
+ @SubjectId    uniqueidentifier = null 
+WITH RECOMPILE 
+AS 
+BEGIN 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ SET NOCOUNT ON 
+ 
+ SELECT DISTINCT e.ID 
+ INTO #EventList 
+ FROM  
+  [RSSOSS].[USMC].[Event] E 
+  INNER JOIN [RSSOSS].[USMC].[EventSubject] ESub ON E.ID = ESub.Even.d 
+  INNER JOIN [RSSOSS].[USMC].[EventSource] ES ON E.EventSourceId = ES.ID 
+  INNER JOIN [RSSOSS].[USMC].[EventType] ET ON E.EventTypeId = ET.ID 
+  
+ WHERE  
+  ((@SubjectId = ESub.SubjectId AND @SubjectId IS NOT NULL) OR (@SubjectId IS NULL)) and 
+  (@EventSourceId = 0 or (E.EventSourceId = @EventSourceId)) and  
+  (@Organiza.onId = 0 or (E.Organiza.onId = @Organiza.onId)) and 
+  ( ( @StartDate is null AND @EndDate is null) OR 
+    ( (E.StartDate <= @EndDate AND @EndDate IS NOT NULL)  AND (E.EndDate >= @StartDate AND @StartDate IS NOT NULL ) ) 
+  ) 
+ 
+ SELECT 
+    E.ID, 
+    E.Organiza.onId, 
+    E.Loca.on, 
+    E.Comments, 
+    E.IsComplete, 
+    E.StartDate, 
+    E.EndDate, 
+    E.EventTypeOther, 
+    E.LastUpdateDate, 
+    E.LastUpdateUserId, 
+    E.Remarks, 
+    E.EventPrecision, 
+    EA.MISApprovedEventStartDate, 
+    EA.MISApprovedEventEndDate, 
+    EA.WISApprovedEventStartDate, 
+    EA.WISApprovedEventEndDate, 
+    ES.Id EventSourceId, 
+    ES.Name EventSourceName, 
+    ET.Id EventTypeId, 
+    ET.Type EventTypeName 
+ INTO #ResultSet 
+ FROM [RSSOSS].[USMC].[Event] E 
+ INNER JOIN #EventList el ON E.ID = el.ID 
+ INNER JOIN [RSSOSS].[USMC].[EventSource] ES ON E.EventSourceId = ES.ID 
+ INNER JOIN [RSSOSS].[USMC].[EventType] ET ON E.EventTypeId = ET.ID 
+ LEFT OUTER JOIN [RSSOSS].[USMC].[EventApproval] EA on E.ID = EA.ID 
+ WHERE  
+  (@EventSourceId = 0 or (E.EventSourceId = @EventSourceId)) and  
+  (@Organiza.onId = 0 or (E.Organiza.onId = @Organiza.onId)) and 
+  ( ( @StartDate is null AND @EndDate is null) OR 
+    ( (E.StartDate <= @EndDate AND @EndDate IS NOT NULL)  AND (E.EndDate >= @StartDate AND @StartDate IS NOT NULL ) ) 
+  ) 
+ ORDER BY E.StartDate desc 
+  
+ SELECT count(*) as NumEvents FROM #ResultSet 
+  
+ DROP TABLE #EventList 
+ DROP TABLE #ResultSet 
+  
+ SET NOCOUNT OFF 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,20 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[RelockPackage]" directorySegmentName="seg_28" id="C004DE8B-0E94-EF43-2E7E-4B90B2095E2B">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:58:46 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @PackageId uniqueiden..er 
+) 
+AS 
+ 
+-- If the record is not locked, lock it. 
+UPDATE [AFP].[USMC].[Package]  
+SET  
+ LockedBy = UploadedBy, 
+ DateLocked = GetDate()  
+WHERE PersonID = @PackageId AND LockedBy IS NULL]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>DC23F770-7DD9-7021-9572-6AE599ACA3AE</database>
+</StoredProcedureSqlServerv2k5>

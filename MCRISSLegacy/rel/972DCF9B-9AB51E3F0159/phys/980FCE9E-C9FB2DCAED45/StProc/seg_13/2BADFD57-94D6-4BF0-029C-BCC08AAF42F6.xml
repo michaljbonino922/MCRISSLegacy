@@ -1,0 +1,89 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[M8412_Get_Not_T3ed_Report]" directorySegmentName="seg_13" id="2BADFD57-94D6-4BF0-029C-BCC08AAF42F6">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@OrgID int 
+AS 
+SET NOCOUNT ON 
+ 
+-- If NULL, assume MCRC level (OrgID 900) 
+SET @OrgID = COALESCE(@OrgID, 900) 
+ 
+/* 
+------------------------------------------------------------------------------ 
+--- Create Temp Tables --- 
+ 
+The #SUBORGS table will be populated with all OrgIDs that are in the child hierarchy 
+of the input @OrgID.  USED is a bit that is necessary for popula.ng the data 
+to .ag whether an OrgID's children have been joined yet.  This is to make 
+sure the direct children of an OrgID are only inserted once. 
+ 
+The #IDS table is used only to temporarily store the OrgIDs that children are being 
+retrieved for.  Because it is an itera.ve process, this table is necessary so that 
+we know which OrgIDs to toggle the USED .ag on in the #SUBORGS table. 
+------------------------------------------------------------------------------ 
+*/ 
+CREATE TABLE #SUBORGS (ORG_ID int NOT NULL, ORG_TYPE varchar(3), USED bit NOT NULL) 
+CREATE TABLE #IDS (ORG_ID int NOT NULL) 
+ 
+-- Seed the temp table with the input OrgID 
+INSERT INTO #SUBORGS 
+SELECT ORGANIZATION_ID, 
+ ORGANIZATION_TYPE, 
+ 0 
+FROM RECRUITING_ORGANIZATION 
+WHERE ORGANIZATION_ID = @OrgID 
+ 
+-- Con.nue processing un.l we have goten to the RS level 
+WHILE (SELECT COUNT(1) FROM #SUBORGS WHERE USED = 0 AND ORG_TYPE = 'RS') = 0 
+BEGIN 
+ 
+-- Save all OrgIDs in the #SUBORGS table that we haven't goten children for yet. 
+INSERT INTO #IDS 
+SELECT ORG_ID 
+FROM #SUBORGS 
+WHERE USED = 0 
+ 
+-- Insert new children (with Used .ag = 0) into the #SUBORGS table. 
+INSERT INTO #SUBORGS 
+SELECT OM.CHILD_ORGANIZATION_ID, RO.ORGANIZATION_TYPE, 0 
+FROM ORGANIZATION_MAP OM INNER JOIN #SUBORGS SO ON OM.PARENT_ORGANIZATION_ID = SO.ORG_ID AND SO.USED = 0 
+ INNER JOIN RECRUITING_ORGANIZATION RO ON OM.CHILD_ORGANIZATION_ID = RO.ORGANIZATION_ID 
+ 
+-- Set the USED .ag to 1 for the OrgIDs that we just processed. 
+UPDATE #SUBORGS 
+SET USED = 1 
+WHERE ORG_ID IN (SELECT * FROM #IDS) 
+ 
+-- No need to save the OrgIDs that we just got children for.  They will remain in the #SUBORGS table 
+-- and are now marked as used/processed. 
+DELETE FROM #IDS 
+ 
+END 
+ 
+SELECT 
+ PV.LAST_NAME, 
+ PV.FIRST_NAME, 
+ (SELECT R.RANK_CODE FROM M8412_Lk_Rank R WHERE R.RANK_ID = RP.RANK_ID) AS RANK, 
+ PV.SOCIAL_SECURITY_NUMBER, 
+ RP.BILLET 
+FROM 
+ M8412_Person_View PV 
+ INNER JOIN M8412_Recruit_Person RP ON 
+  (PV.PERSON_ID = RP.PERSON_ID) 
+ INNER JOIN M8412_RECRUIT_PME RPME ON 
+  (PV.PERSON_ID = RPME.PERSON_ID) 
+ INNER JOIN #SUBORGS SO ON 
+  (RP.LOCATION_ID = SO.ORG_ID) 
+WHERE 
+ RPME.DT_T3_PSS_MOD_APP IS NULL 
+ 
+-- CLEAN UP 
+DROP TABLE #SUBORGS 
+DROP TABLE #IDS 
+SET NOCOUNT OFF]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

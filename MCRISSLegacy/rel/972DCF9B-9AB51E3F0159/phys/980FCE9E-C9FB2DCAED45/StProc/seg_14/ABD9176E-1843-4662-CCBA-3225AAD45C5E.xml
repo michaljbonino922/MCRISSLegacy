@@ -1,0 +1,39 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_dbaCreateCandidateStatusEntry]" directorySegmentName="seg_14" id="ABD9176E-1843-4662-CCBA-3225AAD45C5E">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@nwa_id int, 
+ @status_e.ec.ve_date date.me, 
+ @status_type char(1), 
+ @status_code varchar(10), 
+ @disposi.on_code varchar(20), 
+ @user_login varchar(15) 
+ AS 
+ 
+/* 
+Create Candidate Status Entries in Candidate_Status table 
+*/ 
+insert into candidate_status  
+( nwa_id, 
+ status_e.ec.ve_date, 
+ status_type, 
+ status_code, 
+ disposi.on_code, 
+ user_login, 
+ update_date 
+) values 
+( @nwa_id, 
+ @status_e.ec.ve_date, 
+ @status_type, 
+ @status_code, 
+ @disposi.on_code, 
+ @user_login, 
+ getdate() 
+) 
+ 
+/* End Create Candidate_Status Entry */]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

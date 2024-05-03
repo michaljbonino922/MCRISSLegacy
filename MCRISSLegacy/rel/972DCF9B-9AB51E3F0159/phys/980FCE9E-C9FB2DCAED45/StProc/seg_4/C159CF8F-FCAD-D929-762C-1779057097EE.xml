@@ -1,0 +1,121 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetContractGoalDistrictViewForRegion]" directorySegmentName="seg_4" id="C159CF8F-FCAD-D929-762C-1779057097EE">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[(@FiscalYear int 
+ ,@DistrictOrgID int) 
+ 
+AS 
+ 
+IF (SELECT  
+  COUNT(cmp.ORGANIZATION_ID) 
+ FROM  
+  CONTRACTING_MISSION_PLAN cmp WITH (NOLOCK) 
+ INNER JOIN ORGANIZATION_MAP omrs  
+  ON cmp.ORGANIZATION_ID = omrs.CHILD_ORGANIZATION_ID 
+ INNER JOIN RECRUITING_ORGANIZATION rs  
+  ON omrs.CHILD_ORGANIZATION_ID = rs.ORGANIZATION_ID 
+ INNER JOIN MONTH_CODE mc  
+  ON cmp.MONTH_CODE = mc.MONTH_CODE  
+ WHERE  
+  rs.ORGANIZATION_TYPE = 'RS' AND 
+  omrs.PARENT_ORGANIZATION_ID= @DistrictOrgID AND 
+  cmp.FISCAL_YEAR = @FiscalYear AND 
+  cmp.MONTH_CODE > 0 AND 
+  cmp.CONTRACTING_MISSION_TYPE != 'DIST') > 0 
+ 
+BEGIN 
+ 
+SELECT 
+ @FiscalYear AS FiscalYear, 
+ ORGANIZATION_ID AS OrgID, 
+ SHORT_NAME AS OrgName, 
+ CONTRACTING_MISSION_TYPE AS Contrac.ngMissionType, 
+ ISNULL([1], 0) AS [January], 
+ ISNULL([2], 0) AS [February], 
+ ISNULL([3], 0) AS [March], 
+ ISNULL([4], 0) AS [April], 
+ ISNULL([5], 0) AS [May], 
+ ISNULL([6], 0) AS [June], 
+ ISNULL([7], 0) AS [July], 
+ ISNULL([8], 0) AS [August], 
+ ISNULL([9], 0) AS [September], 
+ ISNULL([10], 0) AS [October], 
+ ISNULL([11], 0) AS [November], 
+ ISNULL([12], 0) AS [December] 
+FROM 
+ ( 
+ SELECT   
+  omrs.CHILD_ORGANIZATION_ID AS ORGANIZATION_ID,  
+  rs.SHORT_NAME, 
+  mc.MONTH_CODE,  
+  CASE 
+   WHEN cmp.CONTRACTING_MISSION_TYPE = 'CMC' THEN 'MCRC' 
+   ELSE cmp.CONTRACTING_MISSION_TYPE 
+  END AS CONTRACTING_MISSION_TYPE,   
+  cmp.MISSION_VALUE 
+ FROM  
+  CONTRACTING_MISSION_PLAN cmp WITH (NOLOCK) 
+ INNER JOIN ORGANIZATION_MAP omrs  
+  ON cmp.ORGANIZATION_ID = omrs.CHILD_ORGANIZATION_ID 
+ INNER JOIN RECRUITING_ORGANIZATION rs  
+  ON omrs.CHILD_ORGANIZATION_ID = rs.ORGANIZATION_ID 
+ INNER JOIN MONTH_CODE mc  
+  ON cmp.MONTH_CODE = mc.MONTH_CODE  
+ WHERE  
+  rs.ORGANIZATION_TYPE = 'RS' AND 
+  omrs.PARENT_ORGANIZATION_ID= @DistrictOrgID AND 
+  cmp.FISCAL_YEAR = @FiscalYear AND 
+  cmp.MONTH_CODE > 0 AND 
+  cmp.CONTRACTING_MISSION_TYPE != 'DIST') t 
+PIVOT 
+ ( 
+ SUM(MISSION_VALUE)  
+ FOR MONTH_CODE  
+ IN ([1], [2], [3], [4], [5], [6], [7], [8], [9], [10], [11], [12]) 
+ ) p 
+ ORDER BY OrgName 
+ 
+END 
+ 
+ELSE 
+ 
+SELECT DISTINCT 
+ @FiscalYear AS FiscalYear, 
+ rs.ORGANIZATION_ID AS OrgID, 
+ rs.SHORT_NAME AS OrgName, 
+ CASE 
+  WHEN cmp.CONTRACTING_MISSION_TYPE = 'CMC' THEN 'MCRC' 
+  ELSE cmp.CONTRACTING_MISSION_TYPE 
+ END AS Contrac.ngMissionType,  
+ 0 AS [January], 
+ 0 AS [February], 
+ 0 AS [March], 
+ 0 AS [April], 
+ 0 AS [May], 
+ 0 AS [June], 
+ 0 AS [July], 
+ 0 AS [August], 
+ 0 AS [September], 
+ 0 AS [October], 
+ 0 AS [November], 
+ 0 AS [December] 
+FROM  
+ CONTRACTING_MISSION_PLAN cmp WITH (NOLOCK) 
+INNER JOIN ORGANIZATION_MAP omrs  
+ ON cmp.ORGANIZATION_ID = omrs.CHILD_ORGANIZATION_ID 
+INNER JOIN RECRUITING_ORGANIZATION rs  
+ ON omrs.CHILD_ORGANIZATION_ID = rs.ORGANIZATION_ID 
+INNER JOIN MONTH_CODE mc  
+ ON cmp.MONTH_CODE = mc.MONTH_CODE  
+WHERE  
+ rs.ORGANIZATION_TYPE = 'RS' AND 
+ omrs.PARENT_ORGANIZATION_ID = @DistrictOrgID AND 
+ cmp.MONTH_CODE > 0 AND 
+ cmp.CONTRACTING_MISSION_TYPE != 'DIST' 
+ORDER BY OrgName]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

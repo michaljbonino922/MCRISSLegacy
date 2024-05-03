@@ -1,0 +1,385 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_gen_waivers179]" directorySegmentName="seg_15" id="B5325989-8701-ECE8-FB13-D5BEACE7F38D">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[as 
+SET ARITHABORT OFF 
+set arithignore on 
+set ansi_warnings o. 
+ 
+declare  
+@ssn   varchar(9), 
+@person_id  int, 
+@nwa_id   int, 
+@waiver_id  int, 
+@waiver_status_code char(1), 
+@approval  int, 
+@occasion_id  int, 
+@user_login  varchar(15), 
+@update_date  date.me, 
+@wvr1   char(1), 
+@wvr2   char(2), 
+@wvr3   char(3), 
+@mos_qual  varchar(4), 
+@program_wvr  varchar(4), 
+@delayed_wvr  char(1), 
+@con_moral_cd  varchar(3), 
+@cont_wvr1  varchar(3), 
+@cont_wvr2  varchar(3), 
+@cont_wvr3  varchar(3), 
+@sd_moral_cd  varchar(3),  
+@sd_wvr1  varchar(3),  
+@sd_wvr2  varchar(3),  
+@sd_wvr3  varchar(3), 
+@rd_moral_cd  varchar(3),  
+@rd_wvr1  varchar(3),  
+@rd_wvr2  varchar(3),  
+@rd_wvr3  varchar(3), 
+@contract_date  date.me, 
+@ship_date  date.me , 
+@rd_date  date.me , 
+@moral_cd  varchar(3), 
+@dep_ext  int 
+ 
+ 
+-- se.ng up the global variables 
+ 
+set @update_date = getdate() 
+set @user_login = 'migra.on' 
+set @waiver_status_code = 'A' 
+ 
+--crea.ng lookup table 
+ 
+ 
+create  table temp_waiver 
+( 
+WAIVER_ID  int, 
+WAIVER_CATEGORY_CODE char(1), 
+WAIVER_TYPE_CODE char(1), 
+WAIVER_LEVEL_CODE char(1), 
+) 
+ 
+insert temp_waiver 
+select  w.waiver_id, c.WAIVER_CATEGORY_CODE, t.WAIVER_TYPE_CODE, l.WAIVER_LEVEL_CODE 
+from waiver w, waiver_category c, waiver_type t, waiver_level l 
+where w.waiver_category_id = c.waiver_category_id and 
+w.waiver_type_id = t.waiver_type_id and 
+w. waiver_level_id = l.waiver_level_id 
+ 
+--indexing temp_waiver 
+ 
+create index idx_temp_waiver on temp_waiver(WAIVER_CATEGORY_CODE, WAIVER_TYPE_CODE, WAIVER_LEVEL_CODE) 
+ 
+ 
+-- declaring the cursor 
+ 
+declare waiver cursor for 
+select  MOS_QUALIFICATION_WAIVER, PROGRAM_ENLISTED_FOR_WAIVER,DELAYED_ENTRY_PROGRAM_WAIVER, 
+CONT_MORAL_WVR,CONT_WVR1, CONT_WVR2, CONT_WVR3,SD_MORAL_WVR, SD_WVR1, SD_WVR2, SD_WVR3,  
+RD_MORAL_WVR, RD_WVR1, RD_WVR2, RD_WVR3, SSN,dateadd(day,-1,DEP_DATEIN), convert(date.me,CADB,112), 
+dateadd(day, 1, convert(date.me,CADB,112)) from arms..ARMS179 
+where MOS_QUALIFICATION_WAIVER not like '' or PROGRAM_ENLISTED_FOR_WAIVER not like '' or DELAYED_ENTRY_PROGRAM_WAIVER != 'N' 
+or CONT_MORAL_WVR != 'YY' or CONT_WVR1 != 'YYY' or CONT_WVR2 != 'YYY' or CONT_WVR3 != 'YYY' or SD_MORAL_WVR != 'YY' or 
+SD_WVR1 != 'YYY' or SD_WVR2 != 'YYY' or SD_WVR3 != 'YYY' or RD_MORAL_WVR not like '' or RD_WVR1 != 'YYY' or 
+RD_WVR2 != 'YYY' or RD_WVR3 != 'YYY' 
+open waiver  
+ 
+fetch waiver into 
+@mos_qual, @program_wvr, @delayed_wvr,  
+@con_moral_cd,@cont_wvr1,@cont_wvr2,@cont_wvr3,@sd_moral_cd, @sd_wvr1, @sd_wvr2, @sd_wvr3, 
+@rd_moral_cd, @rd_wvr1, @rd_wvr2, @rd_wvr3, @ssn, @contract_date,@ship_date, @rd_date 
+  
+ 
+while (@@fetch_status = 0) 
+begin 
+set @nwa_id = (select max(nwa_id) from nwa where marine_candidate_id = (select person_id from person 
+  where social_security_number = @ssn)) 
+ 
+-- if it is, a record is inserted into the CANDIDATE_WAIVER table 
+ 
+if @nwa_id is not null  
+begin 
+-- DEP Extension Waiver 
+ 
+if @delayed_wvr not in ('N','') and @delayed_wvr is not null 
+ begin 
+  if exists (select 1 from contract where nwa_id = @nwa_id) 
+  begin 
+  set @dep_ext = 0   
+  if @delayed_wvr in ('Y','A') 
+  set @dep_ext = 30 
+  if @delayed_wvr = 'B' 
+  set @dep_ext = 60 
+  if @delayed_wvr = 'C' 
+  set @dep_ext = 90 
+  if @delayed_wvr = 'D' 
+  set @dep_ext = 120 
+  if @delayed_wvr = 'E' 
+  set @dep_ext = 150 
+  if @delayed_wvr = 'F' 
+  set @dep_ext = 180 
+ 
+  update CONTRACT 
+  set DEP_EXTENSION = @dep_ext, 
+  user_login = @user_login, 
+  update_date = @update_date 
+  where NWA_ID = @nwa_id 
+ 
+  end 
+    
+ end 
+ 
+-- MOS_QUALIFICATION if there is data, auto populate per requirements 
+ if @mos_qual not in ('','   ') and @contract_date is not null 
+ begin 
+ set @occasion_id = 1 
+ set @waiver_id = (select waiver_id from temp_waiver where  
+ WAIVER_CATEGORY_CODE = 'X' and  
+ WAIVER_TYPE_CODE = 'Y' and  
+ WAIVER_LEVEL_CODE = 'B') 
+  
+ execute sp_InsertWaiver179 @nwa_id, @waiver_id, 
+ @waiver_status_code, @contract_date, 
+ @contract_date, @occasion_id, @user_login, @update_date 
+ end 
+ 
+--PROGRAM WAIVER  if there is data, auto populate per requirements 
+ if @program_wvr not in ('','   ') and @contract_date is not null 
+ begin 
+ set @occasion_id = 1 
+ set @waiver_id = (select waiver_id from temp_waiver where  
+ WAIVER_CATEGORY_CODE = 'X' and  
+ WAIVER_TYPE_CODE = 'Y' and  
+ WAIVER_LEVEL_CODE = 'B') 
+ 
+ execute sp_InsertWaiver179 @nwa_id, @waiver_id, 
+ @waiver_status_code, @contract_date, 
+ @contract_date, @occasion_id, @user_login, @update_date 
+ end 
+ 
+--Contract Moral Code Logic 
+ 
+ if @con_moral_cd not in ('CC','YY','')  and @contract_date is not null 
+ begin 
+ 
+  if substring(@con_moral_cd,1,1) in ('H','G',' P')  
+   begin 
+    set @moral_cd = 'F' + substring(@con_moral_cd,1,1) + substring(@con_moral_cd,2,1)  
+   end 
+   else 
+    begin 
+    set @moral_cd = 'D' + substring(@con_moral_cd,1,1) + substring(@con_moral_cd,2,1) 
+    end 
+ 
+  execute sp_ManipulateWaiver @moral_cd, @waiver_id output 
+ 
+  
+ if @waiver_id != 9999 
+  begin 
+  set @occasion_id = 1 
+  execute sp_InsertWaiver179 @nwa_id, @waiver_id, 
+  @waiver_status_code,@contract_date, 
+  @contract_date,@occasion_id,@user_login,@update_date 
+  end 
+ end 
+ 
+--Ship Moral Code Logic 
+  
+ if @sd_moral_cd not in ('CC','YY','')  and @ship_date is not null 
+ begin 
+  if substring(@sd_moral_cd,1,1) in ('H','G',' P') and @sd_moral_cd not in ('   ','') 
+  begin 
+  set @moral_cd = 'F' + substring(@sd_moral_cd,1,1) + substring(@sd_moral_cd,2,1) 
+  end 
+   else begin 
+   set @moral_cd = 'D' + substring(@sd_moral_cd,1,1) + substring(@sd_moral_cd,2,1) 
+   end 
+  
+  execute sp_ManipulateWaiver @moral_cd, @waiver_id output 
+ 
+ if @waiver_id != 9999 
+  begin 
+  set @occasion_id = 2 
+  execute sp_InsertWaiver179 @nwa_id, @waiver_id, 
+  @waiver_status_code,@ship_date, 
+  @ship_date,@occasion_id,@user_login,@update_date 
+  end 
+ end 
+ 
+-- RD Moral Code Logic 
+ if @rd_moral_cd not in ('CC','YY','') and @rd_date is not null 
+ begin 
+  if substring(@rd_moral_cd,1,1) in ('H','G',' P') and @rd_moral_cd not in ('   ','') 
+  begin 
+  set @moral_cd = 'F' + substring(@rd_moral_cd,1,1) + substring(@rd_moral_cd,2,1) 
+  end 
+   else begin 
+   set @moral_cd = 'D' + substring(@rd_moral_cd,1,1) + substring(@rd_moral_cd,2,1) 
+   end 
+ 
+  execute sp_ManipulateWaiver @moral_cd, @waiver_id output 
+  
+ if @waiver_id != 9999 
+  begin 
+  set @occasion_id = 3 
+  execute sp_InsertWaiver179 @nwa_id, @waiver_id, 
+  @waiver_status_code,@rd_date, 
+  @rd_date,@occasion_id,@user_login,@update_date 
+  end 
+ end 
+ 
+--Regular 123 Waiver Logic 
+ 
+ if @cont_wvr1 not in ('   ','','YYY') and @contract_date is not null 
+  begin 
+  execute sp_ManipulateWaiver @cont_wvr1, @waiver_id output 
+   
+  if @waiver_id != 9999 
+   begin 
+   set @occasion_id = 1 
+ 
+   execute sp_InsertWaiver179 @nwa_id,@waiver_id, 
+   @waiver_status_code,@contract_date, 
+   @contract_date,@occasion_id,@user_login,@update_date 
+   
+   
+   end 
+  end 
+ if @cont_wvr2 not in ('   ','','YYY') and @contract_date is not null 
+  begin 
+  execute sp_ManipulateWaiver @cont_wvr2, @waiver_id output 
+   
+  if @waiver_id != 9999 
+   begin 
+   set @occasion_id = 1 
+ 
+   execute sp_InsertWaiver179 @nwa_id,@waiver_id, 
+   @waiver_status_code,@contract_date, 
+   @contract_date,@occasion_id,@user_login,@update_date 
+   
+   end 
+  end 
+ if @cont_wvr3 not in ('   ','','YYY') and @contract_date is not null 
+  begin 
+  execute sp_ManipulateWaiver @cont_wvr3, @waiver_id output 
+   
+  if @waiver_id != 9999 
+   begin 
+   set @occasion_id = 1 
+   
+   execute sp_InsertWaiver179 @nwa_id,@waiver_id, 
+   @waiver_status_code,@contract_date, 
+   @contract_date,@occasion_id,@user_login,@update_date 
+   
+   end 
+  end 
+ if @sd_wvr1 not in ('   ','','YYY') and @ship_date is not null 
+  begin 
+  execute sp_ManipulateWaiver @SD_wvr1, @waiver_id output 
+   
+  if @waiver_id != 9999 
+   begin 
+   set @occasion_id = 2 
+ 
+   execute sp_InsertWaiver179 @nwa_id,@waiver_id, 
+   @waiver_status_code,@ship_date, 
+   @ship_date,@occasion_id,@user_login,@update_date 
+   
+   end 
+  end  
+   
+ if @SD_wvr2 not in ('   ','','YYY') and @ship_date is not null 
+  begin 
+  set @occasion_id = 1 
+ 
+  execute sp_ManipulateWaiver @SD_wvr2, @waiver_id output 
+   
+  if @waiver_id != 9999 
+   begin 
+   set @occasion_id = 2 
+ 
+   execute sp_InsertWaiver179 @nwa_id,@waiver_id, 
+   @waiver_status_code,@ship_date, 
+   @ship_date,@occasion_id,@user_login,@update_date 
+   
+   end 
+  end  
+  
+ if @SD_wvr3 not in ('   ','','YYY') and @ship_date is not null 
+  begin 
+  execute sp_ManipulateWaiver @SD_wvr3, @waiver_id output 
+   
+  if @waiver_id != 9999 
+   begin 
+   set @occasion_id = 2    
+ 
+   execute sp_InsertWaiver179 @nwa_id,@waiver_id, 
+   @waiver_status_code,@ship_date, 
+   @ship_date,@occasion_id,@user_login,@update_date 
+   
+   end 
+  end 
+ 
+ if @RD_wvr1 not in ('   ','','YYY') and @rd_date is not null 
+  begin 
+  execute sp_ManipulateWaiver @rd_wvr1, @waiver_id output 
+   
+  if @waiver_id != 9999 
+   begin 
+   set @occasion_id = 3 
+    
+   execute sp_InsertWaiver179 @nwa_id,@waiver_id, 
+   @waiver_status_code,@rd_date, 
+   @rd_date,@occasion_id,@user_login,@update_date 
+   
+   end 
+  end 
+ 
+ if @RD_wvr2 not in ('   ','','YYY') and @rd_date is not null 
+  begin 
+  execute sp_ManipulateWaiver @rd_wvr2, @waiver_id output 
+   
+  if @waiver_id != 9999 
+   begin 
+   set @occasion_id = 3 
+ 
+   execute sp_InsertWaiver179 @nwa_id,@waiver_id, 
+   @waiver_status_code,@rd_date, 
+   @rd_date,@occasion_id,@user_login,@update_date 
+   
+   end 
+  end 
+ 
+ if @RD_wvr3 not in ('   ','','YYY') and @rd_date is not null 
+  begin 
+  execute sp_ManipulateWaiver @rd_wvr3, @waiver_id output 
+   
+  if @waiver_id != 9999 
+   begin 
+   set @occasion_id = 3 
+ 
+   execute sp_InsertWaiver179 @nwa_id,@waiver_id, 
+   @waiver_status_code,@rd_date, 
+   @rd_date,@occasion_id,@user_login,@update_date 
+   
+   end 
+  end 
+ 
+end 
+fetch waiver into 
+@mos_qual, @program_wvr, @delayed_wvr,  
+@con_moral_cd,@cont_wvr1,@cont_wvr2,@cont_wvr3,@sd_moral_cd, @sd_wvr1, @sd_wvr2, @sd_wvr3, 
+@rd_moral_cd, @rd_wvr1, @rd_wvr2, @rd_wvr3, @ssn, @contract_date,@ship_date, @rd_date 
+ 
+ 
+end 
+ 
+close waiver 
+deallocate waiver 
+ 
+drop table temp_waiver]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

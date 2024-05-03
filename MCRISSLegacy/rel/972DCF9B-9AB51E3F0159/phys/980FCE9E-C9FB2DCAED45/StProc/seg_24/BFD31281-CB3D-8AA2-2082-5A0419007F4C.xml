@@ -1,0 +1,49 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateAdjustedBusinessPercentage]" directorySegmentName="seg_24" id="BFD31281-CB3D-8AA2-2082-5A0419007F4C">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@Organiza.onID  int,  
+ @FiscalYear  int, 
+ @Month   int, 
+ @TCPercent  int, 
+ @OTPercent  int,   
+ @ACPercent  int, 
+ @HVPercent  int, 
+ @UserLogin  varchar(15) 
+AS 
+ 
+IF EXISTS (SELECT * FROM ADJUSTED_BUSINESS_PERCENTAGE  
+  WHERE ORGANIZATION_ID = @Organiza.onID AND 
+  FISCAL_YEAR = @FiscalYear AND  
+  MONTH_CODE = @Month) 
+ 
+BEGIN 
+ UPDATE ADJUSTED_BUSINESS_PERCENTAGE 
+ SET  
+  TC_PERCENT = @TCPercent,  
+  OT_PERCENT = @OTPercent, 
+  AC_PERCENT = @ACPercent, 
+  HV_PERCENT = @HVPercent, 
+  USER_LOGIN = @UserLogin, 
+  UPDATE_DATE = GETDATE() 
+ WHERE  
+  ORGANIZATION_ID = @Organiza.onID AND   
+  FISCAL_YEAR = @FiscalYear AND 
+  MONTH_CODE = @Month  
+END  
+ 
+ELSE 
+ 
+BEGIN 
+ INSERT INTO ADJUSTED_BUSINESS_PERCENTAGE  
+  (ORGANIZATION_ID, FISCAL_YEAR, MONTH_CODE, TC_PERCENT, OT_PERCENT,  
+  AC_PERCENT, HV_PERCENT, USER_LOGIN, UPDATE_DATE) 
+ VALUES 
+  (@Organiza.onID, @FiscalYear, @Month, @TCPercent, @OTPercent,  
+  @ACPercent, @HVPercent, @UserLogin, GETDATE())  
+END]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

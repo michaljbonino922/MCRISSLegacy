@@ -1,0 +1,44 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="ODSE_IMPORT_ERROR" directorySegmentName="seg_0" id="61F83E5F-0D0B-2728-EC72-C283C394E541">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<schemaObject>2A6D9360-3BB2-5CEA-6E99-790D76996FDF</schemaObject>
+<database>24B9F7BA-5DD4-EAB5-4EB1-35B911743E85</database>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="ERROR_LOG_ID" id="9A7A3AD0-24BB-2985-DEE6-EF6E9E03C466">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:15 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="UPDATE_DATE" id="CB935529-BEA4-4D13-8768-F33E51230B2A">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:15 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<defaultValue>(getdate())</defaultValue>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="SSN" id="CDDB1D01-6A97-5421-A4FD-BDE3D774BB59">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:15 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+</columnProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="FK_ODSEIMPORTERROR_ERRORLOG" id="903536CB-871A-1B51-5EEA-451139D99015">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:17 UTC</createdTime>
+<ownerDesignName>create MCRISS_ERROR script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="PK_ODSEIMPORT_ERROR" id="5A0053A5-D7D5-0A48-4FD0-4E94B360B3D6">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:15 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<clustered>true</clustered>
+<fillFactor>90</fillFactor>
+<partitioningColumn>0B2FC49C-E19F-A150-E3AE-118FFD0AD819</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+</TableProxySqlServerv2k5>

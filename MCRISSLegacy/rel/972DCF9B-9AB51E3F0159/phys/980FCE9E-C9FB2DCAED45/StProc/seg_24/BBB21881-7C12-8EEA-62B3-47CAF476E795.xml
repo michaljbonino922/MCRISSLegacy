@@ -1,0 +1,122 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateCandidateWaiverData]" directorySegmentName="seg_24" id="BBB21881-7C12-8EEA-62B3-47CAF476E795">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@CandidateWaiverID int = 0, 
+ @NWAID int, 
+ @SubmissionDate date.me, 
+ @OccasionID int, 
+ @CategoryID int, 
+ @TypeID int, 
+ @LevelID int, 
+ @ProgramID int  = NULL, 
+ @MOS char(4) = NULL, 
+ @AFQT char(1) = NULL, 
+ @Height char(1) = NULL, 
+ @APT char(1) = NULL, 
+ @HighestWaiverLevel char(1) = NULL, 
+ @GT char(1) = NULL, 
+ @Age char(1) = NULL, 
+ @EDPT char(1) = NULL, 
+ @SeriousMoralO.enses char(1) = NULL, 
+ @EL char(1) = NULL, 
+ @ColorPercep.on char(1) = NULL, 
+ @DLAB char(1) = NULL, 
+ @MarijuanaUse char(1) = NULL, 
+ @MM char(1) = NULL, 
+ @Vision char(1) = NULL, 
+ @PAOI char(1) = NULL, 
+ @AlgebraGrade char(1) = NULL, 
+ @CL char(1) = NULL, 
+ @WPMT char(1) = NULL, 
+ @MEOP char(1) = NULL, 
+ @Details varchar(255), 
+ @StatusCode char(1), 
+ @ApprovalDate date.me, 
+ @UserLogin varchar(15), 
+ @ID int OUTPUT 
+AS 
+ 
+SET NOCOUNT ON 
+ 
+DECLARE @DBID INT 
+DECLARE @DBNAME NVARCHAR(128) 
+ 
+SET @DBID = DB_ID()  
+SET @DBNAME = DB_NAME() 
+ 
+DECLARE @WaiverCategory char(1) 
+DECLARE @WaiverLevel char(1) 
+DECLARE @WaiverType char(1) 
+DECLARE @WaiverCode char(3) 
+ 
+SELECT @WaiverCategory = WAIVER_CATEGORY_CODE FROM WAIVER_CATEGORY WHERE WAIVER_CATEGORY_ID = @CategoryID 
+SELECT @WaiverLevel = WAIVER_LEVEL_CODE FROM WAIVER_LEVEL WHERE WAIVER_LEVEL_ID = @LevelID 
+SELECT @WaiverType = WAIVER_TYPE_CODE FROM WAIVER_TYPE WHERE WAIVER_TYPE_ID = @TypeID 
+ 
+/* WAIVER_CODE = WAIVER_CATEGORY + WAIVER_TYPE + WAIVER_LEVEL */ 
+SET @WaiverCode = @WaiverCategory + @WaiverType + @WaiverLevel 
+ 
+ 
+/* UPDATE THE CANDIDATE WAIVER RECORD */ 
+exec sp_UpdateCandidateWaiver  
+ @CandidateWaiverID = @CandidateWaiverID, 
+ @NWAID = @NWAID, 
+ @SubmissionDate = @SubmissionDate, 
+ @OccasionID = @OccasionID, 
+ @CategoryID = @CategoryID, 
+ @TypeID = @TypeID, 
+ @LevelID = @LevelID, 
+ @Details = @Details, 
+ @StatusCode = @StatusCode, 
+ @ApprovalDate = @ApprovalDate, 
+ @UserLogin = @UserLogin, 
+ @ID = @ID OUTPUT 
+ 
+IF @@ERROR <> 0  
+BEGIN 
+ RAISERROR ('An error occurred upda.ng the Candidate Waiver', 16, 1, @DBID, @DBNAME) 
+ RETURN 
+END  
+ 
+ 
+/* FOR XYB WAIVERS, UPDATE THE CANDIDATE_CRITERIA_WAIVER RECORD */ 
+IF @WaiverCode = 'XYB' 
+BEGIN 
+ /* USE THE @ID VALUE RETRIEVED FROM sp_UpdateCandidateWaiver */ 
+ EXEC sp_UpdateCandidateCriteriaWaiver  
+  @CandidateWaiverID  = @ID, 
+  @ProgramID   = @ProgramID, 
+  @MOS    = @MOS, 
+  @AFQT    = @AFQT, 
+  @GT    = @GT, 
+  @EL    = @EL, 
+  @MM    = @MM, 
+  @CL    = @CL, 
+  @Height   = @Height, 
+  @Age    = @Age, 
+  @ColorPercep.on  = @ColorPercep.on, 
+  @Vision   = @Vision, 
+  @WPMT    = @WPMT, 
+  @APT    = @APT, 
+  @EDPT    = @EDPT, 
+  @DLAB    = @DLAB, 
+  @PAOI    = @PAOI, 
+  @MEOP    = @MEOP, 
+  @HighestWaiverLevel  = @HighestWaiverLevel, 
+  @SeriousMoralO.enses  = @SeriousMoralO.enses, 
+  @MarijuanaUse   = @MarijuanaUse, 
+  @AlgebraGrade   = @AlgebraGrade, 
+  @UserLogin  = @UserLogin 
+END  
+ 
+IF @@ERROR <> 0  
+BEGIN 
+ RAISERROR ('An error occurred upda.ng the Candidate Criteria Waiver', 16, 2, @DBID, @DBNAME) 
+ RETURN 
+END]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

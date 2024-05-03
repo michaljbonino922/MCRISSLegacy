@@ -1,0 +1,65 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_2" id="392B4A14-68E7-A3F6-CBB8-20A2005ADB39" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="_dta_mv_238">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>A5F2E0CA-1D70-2022-F74B-BC4CC301AD40</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  [USMC].[MapsSectorZip].[Zip] as _col_1,  [USMC].[MapsSector].[SectorDesignator] as _col_2,  [USMC].[MapsSector].[SectorID] as _col_3,  [USMC].[MapsSectorZip].[SectorZipId] as _col_4 FROM  [USMC].[MapsSector],  [USMC].[MapsSectorZip]   WHERE  [USMC].[MapsSector].[SectorID] = [USMC].[MapsSectorZip].[SectorID]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[Zip]" id="2866D025-62AB-B4BE-B1ED-6FA9B04C8125">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_1</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_1</headerAlias>
+<expression>[Zip]</expression>
+<reference>false</reference>
+<viewID>392B4A14-68E7-A3F6-CBB8-20A2005ADB39</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[SectorDesignator]" id="FB51924B-F1E5-05F0-5A0A-12E65521DC04">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_2</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_2</headerAlias>
+<expression>[SectorDesignator]</expression>
+<reference>false</reference>
+<viewID>392B4A14-68E7-A3F6-CBB8-20A2005ADB39</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[SectorID]" id="3B89D0FF-D7A4-0EE6-89BC-8F7B290E9F98">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_3</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_3</headerAlias>
+<expression>[SectorID]</expression>
+<reference>false</reference>
+<viewID>392B4A14-68E7-A3F6-CBB8-20A2005ADB39</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[SectorZipId]" id="76F77B4E-CC9A-01E0-BFAB-578E19DD6499">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:12 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_4</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_4</headerAlias>
+<expression>[SectorZipId]</expression>
+<reference>false</reference>
+<viewID>392B4A14-68E7-A3F6-CBB8-20A2005ADB39</viewID>
+</viewElement>
+</viewElements>
+</TableView>

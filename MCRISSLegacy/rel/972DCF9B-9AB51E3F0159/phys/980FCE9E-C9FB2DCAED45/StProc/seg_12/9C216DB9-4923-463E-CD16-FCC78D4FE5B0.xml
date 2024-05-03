@@ -1,0 +1,125 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUpdateQSN]" directorySegmentName="seg_12" id="9C216DB9-4923-463E-CD16-FCC78D4FE5B0">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @strFY      varchar(4), 
+ @strQSNID   char(9) = '0', 
+ @charStatus   char(1), 
+ @intRecrui.ngOrgId int, 
+ @AssignedRSSOrgID int, 
+ @strRUC   varchar(5), 
+ @strMOS   varchar(4), 
+ @charGender   char(1), 
+ @charMSC   char(1), 
+ @charSplitIncrement  char(1), 
+ @strComponentCode  varchar(2), 
+ @dtPivotDate  date.me, 
+ @strUserLogin  varchar(50), 
+ @strQSNRequired  varchar(1) 
+) 
+AS 
+ 
+DECLARE @strMCCCode varchar(5) 
+SET @strMCCCode = (SELECT TOP 1 PRESENT_MCC FROM dbo.MARINE_ORGANIZATION WHERE PRESENT_RUC = @strRUC) 
+ 
+-- from sp_UpdateQSN 
+ 
+DECLARE @dtMOSCriteriaE.ec.veDate date.me 
+ 
+--- GET THE MOS CRITERIA EFFECTIVE DATE 
+SELECT @dtMOSCriteriaE.ec.veDate = MAX(MC.MOS_CRITERIA_ED_DATE) FROM dbo.MOS_CRITERIA MC WHERE MC.MOS = @strMOS AND MC.GENDER = @charGender 
+ 
+IF EXISTS (SELECT 1 FROM dbo.QSN WHERE QSN_ID = @strQSNID) 
+BEGIN  
+ DECLARE @dtPreviousPivotDate date.me 
+ SELECT @dtPreviousPivotDate = QSN_PIVOT_DATE FROM dbo.QSN WHERE  QSN_ID = @strQSNID 
+ 
+ IF DATEDIFF(DAY, @dtPreviousPivotDate, @dtPivotDate) != 0 
+ BEGIN 
+  --- IF THE PIVOT DATE CHANGES, ADD AN ENTRY TO THE QSN PIVOT DATE HISTORY TABLE  
+  --- BEFORE UPDATING THE QSN RECORD 
+  EXEC USMC.UpdateQSNPivotDateHistory 
+   @QSNID   = @strQSNID, 
+   @PreviousPivotDate = @dtPreviousPivotDate, 
+   @NewPivotDate  = @dtPivotDate, 
+   @LastEditBy  = @strUserLogin 
+ END 
+ 
+ --- UPDATE THE QSN 
+ UPDATE  
+  dbo.QSN  
+ SET   
+  STATUS     = @charStatus, 
+  FY                  = @strFY, 
+  RECRUITING_ORGANIZATION_ID  = @intRecrui.ngOrgId, 
+  ASSIGNED_ORG_ID   = @intRecrui.ngOrgId, 
+  AssignedRssOrgId    = @AssignedRSSOrgID, 
+  RUC     = @strRUC, 
+  MOS     = @strMOS, 
+  GENDER     = @charGender, 
+  MSC     = @charMSC, 
+  SPLIT_INCREMENT   = @charSplitIncrement, 
+  COMPONENT_CODE    = @strComponentCode, 
+  QSN_PIVOT_DATE    = @dtPivotDate, 
+  PROGRAM_CRITERIA_ED_DATE  = @dtMOSCriteriaE.ec.veDate, 
+  USER_LOGIN    = @strUserLogin, 
+  UPDATE_DATE    = GETDATE(), 
+  MCC_CODE    = @strMCCCode, 
+  QSN_REQUIRED  = @strQSNRequired 
+ WHERE  
+  QSN_ID = @strQSNID 
+END 
+ELSE 
+BEGIN 
+ /*  
+ Generate the new QSN ID  
+ Prior to FY 2003, the new QSN_ID has the following structure: 1st digit is the last digit of the FY 
+ next 5 digits are the RUC and the last 3 digits are the counter . 
+  
+ Star.ng in FY 2003, the new QSN_ID will have the following structure: 1st 4 digits are the FY and the 
+ last 5 digits are the counter. 
+ */ 
+ DECLARE @strNewQSNID  char(9) 
+ DECLARE @strCounter varchar(5) 
+  
+ IF CONVERT(INT, @strFY) >= 2003 
+ BEGIN 
+  SELECT @strCounter = COALESCE(CONVERT(VARCHAR(5), CONVERT(INT, (MAX(RIGHT(QSN_ID, 5)))) + 1), '00000') FROM dbo.QSN WHERE FY = @strFY   
+ 
+  --- MAKE SURE @strCounter IS 5 DIGITS 
+  IF LEN(@strCounter) < 5 
+  BEGIN 
+   --- SET @strCounter = REPLACE(SPACE(5 - LEN(@strCounter)) + @strCounter, ' ', '0') 
+   SET @strCounter = CONVERT(VARCHAR(5), REPLICATE('0', 5 - LEN(@strCounter)) + @strCounter) 
+  END   
+ 
+  SET @strNewQSNID = @strFY + @strCounter 
+ END 
+ ELSE  
+ BEGIN  
+  SELECT @strCounter = COALESCE(CONVERT(VARCHAR(3), CONVERT(INT, (MAX(RIGHT(QSN_ID, 3)))) + 1), '000') FROM dbo.QSN WHERE RUC = @strRUC and FY = @strFY 
+ 
+  --- MAKE SURE @strCounter IS 3 DIGITS 
+  IF LEN(@strCounter) < 3 
+  BEGIN 
+   --- SET @strCounter = REPLACE(SPACE(3 - LEN(@strCounter)) + @strCounter, ' ', '0') 
+   SET @strCounter = CONVERT(VARCHAR(3), REPLICATE('0', 3 - LEN(@strCounter)) + @strCounter) 
+  END   
+ 
+  SET @strNewQSNID = (RIGHT(@strFY, 1) + @strRUC + @strCounter)  
+ END 
+ 
+ --- INSERT THE NEW QSN 
+ INSERT INTO dbo.QSN  
+  (QSN_ID, FY, STATUS, RECRUITING_ORGANIZATION_ID, ASSIGNED_ORG_ID,AssignedRssOrgId, RUC, MOS, GENDER, MSC,  
+  SPLIT_INCREMENT, COMPONENT_CODE, QSN_PIVOT_DATE, PROGRAM_CRITERIA_ED_DATE, USER_LOGIN, UPDATE_DATE, MCC_CODE, QSN_REQUIRED) 
+ VALUES  
+  (@strNewQSNID, @strFY, @charStatus, @intRecrui.ngOrgId, @intRecrui.ngOrgId,@AssignedRSSOrgID, @strRUC, @strMOS, @charGender, @charMSC,  
+  @charSplitIncrement, @strComponentCode, @dtPivotDate, @dtMOSCriteriaE.ec.veDate, @strUserLogin, getdate(), @strMCCCode, @strQSNRequired) 
+END]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

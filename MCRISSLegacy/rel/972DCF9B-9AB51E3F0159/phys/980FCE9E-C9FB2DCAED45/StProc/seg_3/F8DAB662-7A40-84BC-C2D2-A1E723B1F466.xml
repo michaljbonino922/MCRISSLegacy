@@ -1,0 +1,45 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetCandidateByID]" directorySegmentName="seg_3" id="F8DAB662-7A40-84BC-C2D2-A1E723B1F466">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @PersonID int 
+) 
+AS 
+ 
+SELECT c.[MARINE_CANDIDATE_ID] 
+      ,c.[MARITAL_STATUS_CODE] 
+      ,c.[RACE_CODE] 
+      ,c.[ETHNIC_CODE] 
+      ,c.[GENDER_CODE] 
+      ,c.[RELIGION_CODE] 
+      ,c.[POPULATION_GROUP_CODE] 
+      ,c.[DATE_OF_BIRTH] 
+      ,c.[CITIZENSHIP] 
+      ,c.[COUNTRY_OF_ORIGIN] 
+      ,c.[BIRTH_CITY] 
+      ,c.[BIRTH_COUNTY] 
+      ,c.[BIRTH_STATE] 
+      ,c.[DRIVER_LICENSE_STATE] 
+      ,c.[DRIVER_LICENSE_NUM] 
+      ,c.[DRIVER_LICENSE_EXP] 
+      ,c.[MEPCOM_RACE_CODE] 
+      ,c.[MEPCOM_ETHNIC_CODE] 
+      ,c.[BestTimeToContact] 
+      ,c.Needs 
+      ,p.[PERSON_ID] 
+      ,p.[SOCIAL_SECURITY_NUMBER] 
+      ,p.[FIRST_NAME] 
+      ,p.[LEGAL_MIDDLE_NAME] 
+      ,p.[LAST_NAME] 
+      ,p.[SUFFIX_CD] 
+      ,p.[rowguid] 
+      ,p.[DOD_ID] 
+FROM [mcriss].[dbo].[MARINE_CANDIDATE] c WITH (NOLOCK)  
+INNER JOIN [mcriss].[dbo].[PERSON] p ON c.[MARINE_CANDIDATE_ID] = p.[PERSON_ID] 
+WHERE [MARINE_CANDIDATE_ID] = @PersonID]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,33 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_CheckReferralSSN]" directorySegmentName="seg_14" id="E592ED2B-CCC6-B247-64A7-6F337E0635E6">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@SSN   varchar(9), 
+ @SourceCode varchar(10), 
+ @SSNValid  char(1) output 
+AS 
+ 
+ 
+SET @SSNValid = CASE  
+   WHEN  
+    --- DEP REFERRALS MUST EXIST IN THE CONTRACT TABLE 
+    (@SourceCode = 'DEP' AND EXISTS (SELECT C.CONTRACT_ID FROM CONTRACT C 
+        INNER JOIN NWA N ON C.NWA_ID = N.NWA_ID 
+        INNER JOIN PERSON P ON N.MARINE_CANDIDATE_ID = P.PERSON_ID 
+        WHERE P.SOCIAL_SECURITY_NUMBER = @SSN)) OR 
+    --- ALL OTHER REFERRAL TYPES MUST EXIST IN EITHER THE MARINE TABLE OR THE CONTRACT TABLE 
+    (@SourceCode != 'DEP' AND (EXISTS (SELECT M.MARINE_ID FROM MARINE M  
+        INNER JOIN PERSON P ON M.MARINE_ID = P.PERSON_ID 
+        WHERE P.SOCIAL_SECURITY_NUMBER = @SSN) OR  
+        EXISTS (SELECT C.CONTRACT_ID FROM CONTRACT C 
+         INNER JOIN NWA N ON C.NWA_ID = N.NWA_ID 
+         INNER JOIN PERSON P ON N.MARINE_CANDIDATE_ID = P.PERSON_ID 
+         WHERE P.SOCIAL_SECURITY_NUMBER = @SSN)))  
+   THEN 'Y' 
+   ELSE 'N' 
+   END]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

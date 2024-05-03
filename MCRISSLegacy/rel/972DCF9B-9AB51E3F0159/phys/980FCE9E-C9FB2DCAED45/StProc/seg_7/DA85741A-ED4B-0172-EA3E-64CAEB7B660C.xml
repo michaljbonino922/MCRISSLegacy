@@ -1,0 +1,72 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUpdateMapsSectorZip]" directorySegmentName="seg_7" id="DA85741A-ED4B-0172-EA3E-64CAEB7B660C">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@SectorZipId     uniqueidentifier, 
+ @SectorID      uniqueidentifier, 
+ @Zip       varchar(5)=NULL, 
+ --@LastUpdateDate    date.me, 
+ @LastUpdateUserId    uniqueidentifier 
+ 
+AS 
+BEGIN 
+ 
+-- STEP 1: Start the transac.on 
+BEGIN TRANSACTION 
+declare @e.ec.ve date.me 
+set @e.ec.ve = getdate(); 
+ 
+if NOT EXISTS (select * from MapsSectorZipHist where SectorID=@SectorID) 
+set @e.ec.ve = dateadd(year, -2, getdate()); 
+ 
+-- STEP 2 & 3: Issue the data change statement(s), checking @@ERROR a.er each statement 
+IF NOT EXISTS(SELECT SectorZipId FROM MapsSectorZip WHERE SectorID=@SectorID and Zip=@Zip) 
+ 
+BEGIN 
+ -- if @intCount = 0, then the Employee does not exist.  INSERT. 
+ INSERT INTO MapsSectorZip (SectorZipId, 
+      SectorID, 
+      Zip, 
+      E.ec.veDate, 
+      LastUpdateDate, 
+      LastUpdateUserId) 
+    VALUES (@SectorZipId, 
+      @SectorID, 
+      @Zip, 
+      @e.ec.ve, 
+      GETDATE(), 
+      @LastUpdateUserId) 
+END 
+ 
+-- Rollback the transac.on if there were any errors 
+IF @@ERROR <> 0 
+ BEGIN 
+    -- Rollback the transac.on 
+    ROLLBACK TRANSACTION 
+ 
+    -- Raise an error and return 
+    RAISERROR ('Error occurred while performing the change.', 16, 1) 
+    RETURN 
+ END 
+ 
+-- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+IF @@ROWCOUNT > 1 
+BEGIN 
+    -- Rollback the transac.on 
+    ROLLBACK TRANSACTION 
+ 
+    -- Raise an error and return 
+    RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+    RETURN 
+END 
+  
+-- STEP 4: If we reach this point, the commands completed successfully 
+--         Commit the transac.on.... 
+COMMIT TRANSACTION 
+  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,29 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetEnlistedPoolBoardScheduledToShipSummary]" directorySegmentName="seg_5" id="7EB71304-B6A6-1E89-DE00-167A2A0E1AD1">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[(@Year int 
+ ,@Month int  
+ ,@OrgId int 
+ ) 
+ 
+AS  
+ 
+SELECT 
+ [RMNPS] AS RegularMaleNonPriorServiceCount 
+ ,[KG] AS MaleReserveGroundCount 
+ ,[KA] AS MaleReserveAirCount 
+ ,[RFNPS] AS RegularFemaleNonPriorServiceCount 
+ ,[KF] AS FemaleReserveGroundAndAirCount 
+ ,[PS] AS PriorServiceCount 
+FROM 
+ [usmc].[ScheduledToShip] 
+WHERE 
+ [FiscalYear] = @Year AND 
+ [Month] = @Month AND 
+ [Organiza.onId] = @OrgId]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

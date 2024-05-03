@@ -1,0 +1,174 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SPADDRECPERSON]" directorySegmentName="seg_26" id="43200642-F07D-A6D2-5197-7E5FC144B5EB">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@person_id          int, 
+ @org_id           int, 
+ @rec_role_id         varchar(2), 
+ @press_code          varchar(3), 
+ @deleted             char(1), 
+ @grad_date          date.me, 
+ @tour_begin_date     date.me, 
+ @tour_end_date      date.me, 
+ @est_tour_end_date     date.me, 
+ @rctr_school_class     varchar(20), 
+ @billet_begin_date     date.me, 
+ @billet_end_date     date.me, 
+ @non_prod_reason_code varchar(5), 
+ @approval_code      char(1), 
+ @request_approval     char(1), 
+ @request_code      char(1), 
+ @date_requested      date.me, 
+ @is_assigned      char(1), 
+ @on_produc.on      char(1), 
+ @user_login      varchar(15), 
+ @update_date      date.me, 
+ @arms_prod_month     int 
+AS 
+ 
+SET NOCOUNT ON 
+ 
+DECLARE @rank_code      varchar(10), 
+     @pay_grade_code varchar(3) 
+ 
+  if @grad_date = 'Jan  1 1900' 
+    set @grad_date = NULL 
+  if @tour_begin_date = 'Jan  1 1900' 
+    set @tour_begin_date = NULL 
+  if @tour_end_date = 'Jan  1 1900' 
+    set @tour_end_date = NULL 
+  if @est_tour_end_date = 'Jan  1 1900' 
+    set @est_tour_end_date = NULL 
+  if @billet_begin_date = 'Jan  1 1900' 
+    set @billet_begin_date = NULL 
+  if @billet_end_date = 'Jan  1 1900' 
+    set @billet_end_date = NULL 
+  if @date_requested = 'Jan  1 1900' 
+    set @date_requested = NULL 
+ 
+--sets the appropriate rank_code based on the Pay_grade_code 
+ 
+  if @press_code = 'E01' 
+     set @rank_code = 'Pvt' 
+  if @press_code = 'E02' 
+     set @rank_code = 'PFC' 
+  if @press_code = 'E03' 
+     set @rank_code = 'LCpl' 
+  if @press_code = 'E04' 
+     set @rank_code = 'Cpl' 
+  if @press_code = 'E05' 
+     set @rank_code = 'Sgt' 
+  if @press_code = 'E06' 
+     set @rank_code = 'SSgt' 
+  if @press_code = 'E07' 
+     set @rank_code = 'GySgt' 
+  if @press_code = 'E08' 
+     set @rank_code = 'MSgt' 
+  if @press_code = 'E09' 
+     set @rank_code = 'MGySgt' 
+  if @press_code = 'O1' 
+     set @rank_code = '2NDLT' 
+  if @press_code = 'O2' 
+     set @rank_code = '1STLT' 
+  if @press_code = 'O3' 
+     set @rank_code = 'CAPT' 
+  if @press_code = 'O4' 
+     set @rank_code = 'MAJ' 
+  if @press_code = 'O5' 
+     set @rank_code = 'LTCOL' 
+  if @press_code = 'O6' 
+     set @rank_code = 'COL' 
+  if @press_code = 'O7' 
+     set @rank_code = 'BGEN' 
+  if @press_code = 'O8' 
+     set @rank_code = 'MGEN' 
+  if @press_code = 'O9' 
+     set @rank_code = 'LTGEN' 
+  if @press_code = 'W1' 
+     set @rank_code = 'WO' 
+  if @press_code = 'W2' 
+     set @rank_code = 'CWO-2' 
+  if @press_code = 'W3' 
+     set @rank_code = 'CWO-3' 
+  if @press_code = 'W4' 
+     set @rank_code = 'CWO-4' 
+  if @press_code = 'W5' 
+     set @rank_code = 'CWO-5' 
+ 
+ 
+ 
+--renames the pay_grade_code for mcriss standards 
+ 
+  if @press_code = 'E01' 
+     set @pay_grade_code = 'E1' 
+  if @press_code = 'E02' 
+     set @pay_grade_code = 'E2' 
+  if @press_code = 'E03' 
+     set @pay_grade_code = 'E3' 
+  if @press_code = 'E04' 
+     set @pay_grade_code = 'E4' 
+  if @press_code = 'E05' 
+     set @pay_grade_code = 'E5' 
+  if @press_code = 'E06' 
+     set @pay_grade_code = 'E6' 
+  if @press_code = 'E07' 
+     set @pay_grade_code = 'E7' 
+  if @press_code = 'E08' 
+     set @pay_grade_code = 'E8A' 
+  if @press_code = 'E09' 
+     set @pay_grade_code = 'E9A' 
+if @press_code = 'O1' 
+     set @pay_grade_code = 'O1' 
+  if @press_code = 'O2' 
+     set @pay_grade_code = 'O2' 
+  if @press_code = 'O3' 
+     set @pay_grade_code = 'O3' 
+  if @press_code = 'O4' 
+     set @pay_grade_code = 'O4' 
+  if @press_code = 'O5' 
+     set @pay_grade_code = 'O5' 
+  if @press_code = 'O6' 
+     set @pay_grade_code = 'O6' 
+  if @press_code = 'O7' 
+     set @pay_grade_code = 'O7' 
+  if @press_code = 'O8' 
+     set @pay_grade_code = 'O8' 
+  if @press_code = 'O9' 
+     set @pay_grade_code = 'O9' 
+  if @press_code = 'W1' 
+     set @pay_grade_code = 'W1' 
+  if @press_code = 'W2' 
+     set @pay_grade_code = 'W2' 
+  if @press_code = 'W3' 
+     set @pay_grade_code = 'W3' 
+  if @press_code = 'W4' 
+     set @pay_grade_code = 'W4' 
+  if @press_code = 'W5' 
+     set @pay_grade_code = 'W5' 
+ 
+  if @pay_grade_code = NULL 
+    set @pay_grade_code = @press_code 
+ 
+  if @rank_code = NULL 
+    set @rank_code = @press_code 
+ 
+  insert into mcriss..RECRUITING_PERSON 
+ 
+ (RECRUITING_PERSON_ID,ORGANIZATION_ID,RECRUITING_ROLE_ID,RANK_CODE,PAY_GRADE_CODE, 
+ DELETED,GRAD_DATE,TOUR_BEGIN_DATE,TOUR_END_DATE,EST_TOUR_END_DATE,RCTR_SCHOOL_CLASS, 
+ BILLET_BEGIN_DATE,BILLET_END_DATE,NON_PROD_REASON_CODE,APPROVAL_CODE,REQUEST_APPROVAL, 
+ REQUEST_CODE,DATE_REQUESTED,IS_ASSIGNED,ON_PRODUCTION,USER_LOGIN,UPDATE_DATE, ARMS_PROD_MONTH) 
+ 
+  values(@person_id, @org_id, @rec_role_id, @rank_code, @pay_grade_code, @deleted,  
+         @grad_date, @tour_begin_date, @tour_end_date, @est_tour_end_date,  
+   @rctr_school_class, @billet_begin_date, @billet_end_date,  
+   @non_prod_reason_code,  @approval_code,  
+   @request_approval, @request_code, @date_requested, @is_assigned,  
+   @on_produc.on,@user_login,@update_date, @arms_prod_month) 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

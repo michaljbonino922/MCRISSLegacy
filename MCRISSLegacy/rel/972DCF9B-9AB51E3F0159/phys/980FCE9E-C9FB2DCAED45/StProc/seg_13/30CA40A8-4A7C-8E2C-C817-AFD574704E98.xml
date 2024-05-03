@@ -1,0 +1,79 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetListSchedulingCard]" directorySegmentName="seg_13" id="30CA40A8-4A7C-8E2C-C817-AFD574704E98">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @ListSchedulingCardId  uniqueiden..er 
+) 
+ 
+AS 
+ 
+BEGIN 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+SELECT 
+    hsp.rowguid as ListSchedulingCardId, 
+    ie2.ImportEventId, 
+ ie2.SchoolId, 
+ HS.HIGHSCHOOL_NAME as SchoolName, 
+ ie2.Gradua.onYear, 
+ ie2.Source as Source, 
+ ie2.DateObtained as DateObtained, 
+ ie2.DateCompleted as DateContact, 
+    ie2.DateAc.ve as DateAc.ve,  
+     
+    (SELECT Count( DISTINCT p.ProspectId) 
+   FROM usmc.ImportEvent ie 
+ inner JOIN usmc.prospectschool ps ON ps.schoolid = ie.schoolid inner join usmc.prospect p on  
+ p.prospec.d= ps.prospec.d and p.gradua.onyear = ie.gradua.onyear 
+ inner JOIN usmc.vwMcrissHighSchool HS ON ie.SchoolId = HS.rowguid  
+ inner JOIN usmc.Person per ON p.PersonId = per.PersonId 
+ INNER JOIN MCRISS.dbo.RECRUITING_ORGANIZATION org ON org.ORGANIZATION_ID = hs.ORGANIZATION_ID  
+    WHERE per.Gender = 'M' AND p.Recrui.ngOrganiza.onId = org.rowguid AND  ie.gradua.onyear = ie2.gradua.onyear and ie.schoolid = ie2.schoolid) AS TotalMales, 
+       
+    (SELECT Count( DISTINCT p.ProspectId) 
+   FROM usmc.ImportEvent ie 
+ inner JOIN usmc.prospectschool ps ON ps.schoolid = ie.schoolid inner join usmc.prospect p on  
+ p.prospec.d= ps.prospec.d and p.gradua.onyear = ie.gradua.onyear 
+ inner JOIN usmc.vwMcrissHighSchool HS ON ie.SchoolId = HS.rowguid  
+ inner JOIN usmc.Person per ON p.PersonId = per.PersonId 
+ INNER JOIN MCRISS.dbo.RECRUITING_ORGANIZATION org ON org.ORGANIZATION_ID = hs.ORGANIZATION_ID  
+    WHERE per.Gender = 'F'  AND p.Recrui.ngOrganiza.onId = org.rowguid AND  ie.gradua.onyear = ie2.gradua.onyear and ie.schoolid = ie2.schoolid) AS TotalFemales, 
+       
+ (SELECT Count( DISTINCT p.ProspectId) 
+    FROM usmc.ImportEvent ie 
+ inner JOIN usmc.prospectschool ps ON ps.schoolid = ie.schoolid inner join usmc.prospect p on  
+ p.prospec.d= ps.prospec.d and p.gradua.onyear = ie.gradua.onyear 
+ inner JOIN usmc.vwMcrissHighSchool HS ON ie.SchoolId = HS.rowguid  
+ inner JOIN usmc.Person per ON p.PersonId = per.PersonId 
+ INNER JOIN MCRISS.dbo.RECRUITING_ORGANIZATION org ON org.ORGANIZATION_ID = hs.ORGANIZATION_ID  
+ WHERE ((per.Gender is null or per.Gender = '') AND p.Recrui.ngOrganiza.onId = org.rowguid AND ie.gradua.onyear = ie2.gradua.onyear and ie.schoolid = ie2.schoolid)) AS TotalUnknownGender, 
+ 
+    (SELECT Count( DISTINCT p.ProspectId) 
+   FROM usmc.ImportEvent ie inner JOIN usmc.prospectschool ps ON ps.schoolid = ie.schoolid  
+       inner join usmc.prospect p on  
+ p.prospec.d= ps.prospec.d and p.gradua.onyear = ie.gradua.onyear 
+ inner JOIN usmc.vwMcrissHighSchool HS ON ie.SchoolId = HS.rowguid 
+ INNER JOIN MCRISS.dbo.RECRUITING_ORGANIZATION org ON org.ORGANIZATION_ID = hs.ORGANIZATION_ID  
+ WHERE  ie.gradua.onyear = ie2.gradua.onyear  AND p.Recrui.ngOrganiza.onId = org.rowguid and ie.schoolid = ie2.schoolid) AS TotalNo, 
+  
+ case when hsp.Class_Size is null then 0 else hsp.Class_Size end AS TotalHSCCClassSize, 
+ hsp.Male_Seniors AS TotalHSCCMales, 
+ hsp.Female_Seniors AS TotalHSCCFemales, 
+ ie2.ListCode AS ListCode 
+       
+FROM  usmc.vwMcrissHighSchool HS  inner join USMC.importevent ie2 ON ie2.SchoolId = HS.rowguid   
+Le. join MCRISS.DBO.HIGH_SCHOOL_PROFILE hsp on hsp.School_Year = ie2.Gradua.onYear 
+and hsp.School_Code = hs.School_Code 
+WHERE 
+ ie2.ImportEventId  = @ListSchedulingCardId 
+ 
+ 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

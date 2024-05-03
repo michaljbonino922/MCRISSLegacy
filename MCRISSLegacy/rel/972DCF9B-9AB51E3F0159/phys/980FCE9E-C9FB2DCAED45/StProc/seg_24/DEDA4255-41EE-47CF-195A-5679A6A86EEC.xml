@@ -1,0 +1,82 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateMEPSSchedule]" directorySegmentName="seg_24" id="DEDA4255-41EE-47CF-195A-5679A6A86EEC">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@ScheduleID    int   = 0, 
+ @NWAID     int, 
+ @ProcessingDate   date.me, 
+ @MEPSOrganiza.onID   int, 
+ @ArrivalDate    date.me  = NULL, 
+ @Transporta.onRequired  char(1)  = NULL, 
+ @LodgingRequired   char(1)  = NULL, 
+ @LastProcessedFor   varchar(1)  = NULL, 
+ @ASVABRequired    char(1), 
+ @SpecialExamRequired   char(1), 
+ @SpecialExamType   varchar(10)  = NULL, 
+ @CompletePhysical   char(1), 
+ @Inspec.onPhysical   char(1), 
+ @Consulta.onPhysical   char(1), 
+ @Consulta.onType   varchar(2)  = NULL, 
+ @Contract    char(1)  = NULL, 
+ @Ship     char(1)  = NULL, 
+ @OtherProcessing   char(1)  = NULL, 
+ @ProcessingStatus   char(1)  = NULL,  
+ @ProcessingNotes   varchar(250) = NULL, 
+ @UserLogin    varchar(15), 
+ @ID     int OUTPUT 
+AS 
+ 
+IF EXISTS (SELECT 1 FROM MEPS_SCHEDULE WHERE SCHEDULE_ID = @ScheduleID AND NWA_ID = @NWAID) 
+BEGIN   
+ UPDATE  
+  MEPS_SCHEDULE  
+ SET  
+  MEPS_ORGANIZATION_ID  = @MEPSOrganiza.onID, 
+  PROCESSING_DATE  = @ProcessingDate, 
+  ARRIVAL_DATE   = @ArrivalDate, 
+  ASVAB    = @ASVABRequired, 
+  SPECIAL_EXAM   = @SpecialExamRequired, 
+  COMPLETE_PHYSICAL  = @CompletePhysical, 
+  INSPECTION_PHYSICAL  = @Inspec.onPhysical, 
+  CONSULTATION_PHYSICAL  = @Consulta.onPhysical, 
+  CONSULTATION_TYPE  = @Consulta.onType, 
+  CONTRACT   = @Contract, 
+  SHIP    = @Ship, 
+  OTHER_PROCESSING  = @OtherProcessing, 
+  PROCESSING_STATUS  = @ProcessingStatus, 
+  LODGING_REQUIRED  = @LodgingRequired, 
+  TRANSPORTATION_REQUIRED = @Transporta.onRequired, 
+  SPECIAL_EXAM_TYPE  = @SpecialExamType, 
+  LAST_PROCESSED_FOR  = @LastProcessedFor, 
+  PROCESSING_NOTES  = @ProcessingNotes, 
+  USER_LOGIN   = @UserLogin, 
+  UPDATE_DATE   = GETDATE() 
+ WHERE  
+  SCHEDULE_ID   = @ScheduleID AND  
+  NWA_ID    = @NWAID 
+ 
+ --- GET THE ID OF THE SCHEDULE RECORD AND RETURN IT IN THE OUTPUT PARAMETER 
+ SET @ID = @ScheduleID 
+END 
+ELSE 
+BEGIN  
+ INSERT INTO MEPS_SCHEDULE  
+  (NWA_ID, MEPS_ORGANIZATION_ID, PROCESSING_DATE, ARRIVAL_DATE, ASVAB, SPECIAL_EXAM, COMPLETE_PHYSICAL, 
+  INSPECTION_PHYSICAL, CONSULTATION_PHYSICAL, CONSULTATION_TYPE, CONTRACT, SHIP, OTHER_PROCESSING, 
+  LODGING_REQUIRED, TRANSPORTATION_REQUIRED, SPECIAL_EXAM_TYPE, LAST_PROCESSED_FOR, PROCESSING_NOTES, 
+  PROCESSING_STATUS, USER_LOGIN, UPDATE_DATE) 
+ VALUES  
+  (@NWAID, @MEPSOrganiza.onID, @ProcessingDate, @ArrivalDate, @ASVABRequired, @SpecialExamRequired, @CompletePhysical, 
+  @Inspec.onPhysical, @Consulta.onPhysical, @Consulta.onType, @Contract, @Ship, @OtherProcessing, 
+  @LodgingRequired, @Transporta.onRequired, @SpecialExamType, @LastProcessedFor, @ProcessingNotes, 
+  @ProcessingStatus, @UserLogin, GETDATE()) 
+ 
+ 
+ --- GET THE ID OF THE SCHEDULE RECORD AND RETURN IT IN THE OUTPUT PARAMETER 
+ SET @ID = @@IDENTITY 
+END]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,109 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUpdateRecrui.ngAc.vityAchieved]" directorySegmentName="seg_12" id="BC603D92-A649-7364-BA85-DDF858A018B0">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+  @Organiza.onID  int, 
+  @Ac.vityDate  date.me, 
+  @TCAtempts   integer, 
+  @TCContacts   integer, 
+  @TCAppointments  integer, 
+  @TCInterviews  integer, 
+  @OTContacts   integer, 
+  @OTInterviews  integer, 
+  @ACContacts   integer, 
+  @ACAppointments  integer, 
+  @ACInterviews  integer, 
+  @HVAtempts   integer, 
+  @HVContacts   integer, 
+  @HVAppointments  integer, 
+  @HVInterviews  integer, 
+  @DCAtempts   integer, 
+  @DCContacts   integer, 
+  @DCAppointments  integer, 
+  @DCInterviews  integer, 
+  @LastEditBy   varchar(15) 
+ ) 
+AS 
+ 
+BEGIN   
+ 
+ IF EXISTS (SELECT 1 FROM [dbo].[RSS_ACTIVITY] WHERE ORGANIZATION_ID = @Organiza.onID AND ACTIVITY_DATE = @Ac.vityDate)  
+   
+  UPDATE  
+   [dbo].[RSS_ACTIVITY]  
+  SET   
+   TCS = @TCAtempts,  
+   TC_CONTACTS = @TCContacts, 
+   TC_APPOINTMENTS = @TCAppointments, 
+   TC_INTERVIEWS = @TCInterviews, 
+   OTS = @OTContacts, 
+   OT_INTERVIEWS = @OTInterviews, 
+   ACS = @ACContacts, 
+   AC_APPOINTMENTS = @ACAppointments, 
+   AC_INTERVIEWS = @ACInterviews, 
+   HVS = @HVAtempts, 
+   HV_CONTACTS = @HVContacts, 
+   HV_APPOINTMENTS = @HVAppointments, 
+   HV_INTERVIEWS = @HVInterviews, 
+   DCS = @DCAtempts, 
+   DC_CONTACTS = @DCContacts, 
+   DC_APPOINTMENTS = @DCAppointments, 
+   DC_INTERVIEWS = @DCInterviews, 
+   USER_LOGIN = @LastEditBy,  
+   UPDATE_DATE = GETDATE()  
+  WHERE  
+   ORGANIZATION_ID = @Organiza.onID AND  
+   ACTIVITY_DATE = @Ac.vityDate  
+ ELSE 
+  INSERT INTO [dbo].[RSS_ACTIVITY] ( 
+   ORGANIZATION_ID,  
+   ACTIVITY_DATE,  
+   TCS,  
+   TC_CONTACTS,  
+   TC_APPOINTMENTS,  
+   TC_INTERVIEWS,  
+   OTS,  
+   OT_INTERVIEWS,  
+   ACS,  
+   AC_APPOINTMENTS, 
+   AC_INTERVIEWS,  
+   HVS,  
+   HV_CONTACTS,  
+   HV_APPOINTMENTS,  
+   HV_INTERVIEWS, 
+   DCS,  
+   DC_CONTACTS,  
+   DC_APPOINTMENTS,  
+   DC_INTERVIEWS, 
+   USER_LOGIN,  
+   UPDATE_DATE) 
+  VALUES ( 
+   @Organiza.onID,  
+   @Ac.vityDate,  
+   @TCAtempts,  
+   @TCContacts,  
+   @TCAppointments,  
+   @TCInterviews,  
+   @OTContacts,  
+   @OTInterviews,    
+   @ACContacts,  
+   @ACAppointments,  
+   @ACInterviews,  
+   @HVAtempts,  
+   @HVContacts,  
+   @HVAppointments,  
+   @HVInterviews, 
+   @DCAtempts,  
+   @DCContacts,  
+   @DCAppointments,  
+   @DCInterviews, 
+   @LastEditBy,  
+   GETDATE()) 
+ 
+END]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

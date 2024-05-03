@@ -1,0 +1,32 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[DeleteCampusContact]" directorySegmentName="seg_0" id="22A8F6AE-1C0C-DB66-DD1B-8AC5338BECEA">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@CampusContactID uniqueiden..er 
+      
+ 
+AS 
+SET NOCOUNT ON 
+ 
+  
+ --ENTITY TYPEID is 6 
+ 
+ 
+ --IMPORTANT NOTE: Add begin and end transac.on 
+ 
+ --Join with CollegePro.le to ensure only valid school_codes are entered in the PointOfContact table 
+ IF EXISTS (SELECT '1' from  [MCRISS].[USMC].[CampusContact] 
+            where  CampusContactID = @CampusContactID)  
+   BEGIN 
+    
+   Delete [MCRISS].[USMC].[CampusContact]  where  CampusContactID = @CampusContactID 
+   
+   
+  END 
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

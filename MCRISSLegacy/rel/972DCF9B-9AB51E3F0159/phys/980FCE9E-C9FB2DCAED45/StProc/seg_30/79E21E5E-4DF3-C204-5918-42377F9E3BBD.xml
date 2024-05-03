@@ -1,0 +1,28 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SelectDocument]" directorySegmentName="seg_30" id="79E21E5E-4DF3-C204-5918-42377F9E3BBD">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:39 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @Sec.onItemId uniqueiden..er 
+) 
+AS 
+ 
+SELECT 
+ si.[Sec.onId], 
+ si.[FriendlyName], 
+ si.[Sec.onItemType], 
+ d.[Sec.onItemId], 
+ d.[DocumentType], 
+ d.[FileExtension], 
+ d.[Data] 
+FROM  
+ [ACP].[Document] d 
+INNER JOIN 
+ [ACP].[Sec.onItem] si ON si.[Sec.onItemId] = d.[Sec.onItemId] 
+WHERE 
+ d.[Sec.onItemId] = @Sec.onItemId]]></body>
+<schema>569A41D8-8F40-0619-141C-F4C9436AAF46</schema>
+<database>2D7ED536-DF8E-3523-7DC3-4228EBAF5F66</database>
+</StoredProcedureSqlServerv2k5>

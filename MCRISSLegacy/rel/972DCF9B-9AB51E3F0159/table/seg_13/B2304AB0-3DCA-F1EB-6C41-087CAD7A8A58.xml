@@ -1,0 +1,122 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_13" id="B2304AB0-3DCA-F1EB-6C41-087CAD7A8A58" schemaObject="2A6D9360-3BB2-5CEA-6E99-790D76996FDF" name="ROLLBACK_LOG">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>8C796CAA-D9E6-FA23-41C4-9D5A08532BC4</importedID>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="MIRS_IMPORT_ID" id="89A94660-49D9-58A4-C8E9-3E10D1AD52D7">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:15 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>663FC648-4DB5-D349-AB83-1FF49B1C7F3F</importedID>
+<use>0</use>
+<domain>8C77819C-1B2F-24A0-C36D-F924235A9668</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="70DCC127-7ED3-2FC1-AE64-F089893F9D09" referredColumn="79D037A8-4897-519A-D353-4A2BE8B6A963"/>
+</associations>
+</Column>
+<Column name="RESOLUTION" id="11E29868-BDF5-44F6-067B-27B9A89BF21B">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:15 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>B78B0922-5F20-74E5-C7C0-99594D07AA03</importedID>
+<use>0</use>
+<domain>D667A44A-427C-8171-AC91-1F760EF11F37</domain>
+<usesDefaultValue>true</usesDefaultValue>
+<defaultValue>(&apos;U&apos;)</defaultValue>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="UPDATE_DATE" id="F79BDCBF-5A40-DCA1-AD3A-699EC7B7695A">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:15 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>DB814915-43C4-1140-6774-BE3B97024AB3</importedID>
+<use>0</use>
+<domain>2E97BDFC-0C14-5942-50A0-B5BCBB88B35D</domain>
+<usesDefaultValue>true</usesDefaultValue>
+<defaultValue>(getdate())</defaultValue>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="USER_LOGIN" id="80142766-334E-9E74-7431-0F0193FC4D4C">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:15 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>344B6A72-42A9-BC85-F6F2-BA4FD64AF13D</importedID>
+<use>0</use>
+<domain>2E8EE7FC-99CE-D4AE-132C-50F4AADCC1F4</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="B43A672E-15D6-DD0E-8BDD-7FF3608D0085" name="PK_ROLLBACK_TRANSACTIONS">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:15 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>4DCAC9AC-C869-FC6D-8F97-0756A24F68C6</importedID>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="89A94660-49D9-58A4-C8E9-3E10D1AD52D7"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="D5AE97E7-9363-4EFF-2E34-520BBA094404" name="FK_ROLLBACKLOG_MIRSLOG">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:17 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="89A94660-49D9-58A4-C8E9-3E10D1AD52D7"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+<tableCheckConstraints itemClass="oracle.dbtools.crest.model.design.constraint.TableLevelConstraint">
+<tableCheckConstraint name="[dbo].[ROLLBACK_LOG]" directorySegmentName="seg_12" id="CB02A283-7FC5-AAE8-4185-DC93654CB78E">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:15 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>051377FC-E1D8-174B-488F-CA4B1DE54E65</importedID>
+<rule><![CDATA[CONSTRAINT [FK_ROLLBACKLOG_MIRSLOG]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="[CKC_RESOLUTION_ROLLBACK]" directorySegmentName="seg_12" id="E05B3928-76D1-9EE7-CE33-AC88EAD3D9A0">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:15 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>5EFEE377-EA9B-71A5-D371-A7B5D46383CF</importedID>
+<rule><![CDATA[([RESOLUTION] = 'O' or ([RESOLUTION] = 'U' or [RESOLUTION] = 'R' or [RESOLUTION] = 'E'))]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="[dbo].[ROLLBACK_LOG]v1" directorySegmentName="seg_12" id="7C090C5B-D353-CDAA-80BC-21D8C1356314">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:15 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>1CB93AEF-829F-E85B-FB93-16EB956B9615</importedID>
+<rule><![CDATA[CONSTRAINT [CKC_RESOLUTION_ROLLBACK]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITH" directorySegmentName="seg_12" id="E38264A1-AF07-6C23-4573-6388470AD04B">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:15 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>85CD53DD-B127-E95D-BD50-D185A523095D</importedID>
+</tableCheckConstraint>
+</tableCheckConstraints>
+</Table>

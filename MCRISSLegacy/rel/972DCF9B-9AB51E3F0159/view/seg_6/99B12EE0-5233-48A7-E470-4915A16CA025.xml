@@ -1,0 +1,34 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_6" id="99B12EE0-5233-48A7-E470-4915A16CA025" schemaObject="2A6D9360-3BB2-5CEA-6E99-790D76996FDF" name="vwGetPersonIDToArchive">
+<sourceDDLFile>create AFP script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>000BA7CE-63D5-0A2C-389D-85B2F3F00E9B</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT UP.PersonId 
+FROM         USMC.Package AS UP WITH (NOLOCK) INNER JOIN 
+                      MCRISS.dbo.PERSON AS MP WITH (NOLOCK) ON UP.SSN = MP.SOCIAL_SECURITY_NUMBER INNER JOIN 
+                      MCRISS.dbo.vwCurrentNWA AS N WITH (NOLOCK) ON N.MARINE_CANDIDATE_ID = MP.PERSON_ID INNER JOIN 
+                      MCRISS.dbo.CANDIDATE_STATUS AS CS WITH (NOLOCK) ON CS.NWA_ID = N.NWA_ID 
+WHERE     (CS.CANDIDATE_STATUS_ID IN 
+                          (SELECT     MAX(CANDIDATE_STATUS_ID) AS Expr1 
+                            FROM          MCRISS.dbo.CANDIDATE_STATUS AS CS2 WITH (NOLOCK) 
+                            WHERE      (NWA_ID = CS.NWA_ID))) AND ((CS.STATUS_TYPE + CS.STATUS_CODE + CS.DISPOSITION_CODE) IN ('ECN', 'ECP')) AND  
+                      (CS.STATUS_EFFECTIVE_DATE < '2010-10-01')]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="PersonId" id="4E4BC881-87F4-4F1B-3EDA-7DBCCC169EB1">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>PersonId</alias>
+<dataType>UNKNOWN</dataType>
+<expression>PersonId</expression>
+<reference>false</reference>
+<viewID>99B12EE0-5233-48A7-E470-4915A16CA025</viewID>
+</viewElement>
+</viewElements>
+</TableView>

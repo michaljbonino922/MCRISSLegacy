@@ -1,0 +1,216 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SearchAssetPersonnel]" directorySegmentName="seg_11" id="287F9701-C36B-E333-BCE4-5C1FEDA27A34">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:37 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @Organiza.onID int, 
+ @DisplayCode int, 
+ @Month varchar(2), 
+ @CalendarYear varchar(4) 
+) 
+AS 
+ 
+CREATE TABLE #BILLET_DATA  
+ (BILLET_ID int,  
+  BILLET_BEGIN_DATE VARCHAR(30),  
+     BILLET_END_DATE VARCHAR(30),  
+  RECRUITER_ID uniqueiden..er, 
+  ORGANIZATION_ID int) 
+ 
+CREATE TABLE #VIEW_DATA  
+   (RECRUITER_ID uniqueiden..er,  
+    ORGANIZATION_ID INT,  
+    PERSON_ID uniqueiden..er, 
+    FIRST_NAME VARCHAR(15),  
+    LAST_NAME VARCHAR(15),  
+    MIDDLE_NAME VARCHAR(10), 
+    SSN VARCHAR(9),  
+    RANK_ID INT,  
+    BILLET_ID INT, 
+    ON_PRODUCTION BIT,  
+    MONTH_CODE INT, 
+       CALENDAR_YEAR INT, 
+    NON_PROD_REASON_CODE VARCHAR(5), 
+    OTHER_REASON_DETAIL VARCHAR(50),    
+    BILLET_BEGIN_DATE DATETIME,  
+    BILLET_END_DATE DATETIME, 
+    BILLET_MOS VARCHAR(4), 
+    PRIMARY_MOS VARCHAR(4),  
+    TOUR_BEGIN_DATE DATETIME, 
+    TOUR_END_DATE DATETIME, 
+    EST_TOUR_END_DATE DATETIME 
+   ) 
+ 
+INSERT INTO #BILLET_DATA(BILLET_ID, 
+       BILLET_BEGIN_DATE, 
+       BILLET_END_DATE,           
+       RECRUITER_ID,         
+       ORGANIZATION_ID)  
+EXEC [dbo].[GetRecruiterBilletDataByMonthCalendarYear] 
+ @Organiza.onID=@Organiza.onID, 
+ @DisplayCode=@DisplayCode, 
+ @Month=@Month, 
+ @CalendarYear=@CalendarYear 
+ 
+DECLARE billet_cursor CURSOR FOR 
+SELECT *  
+FROM #BILLET_DATA  B1 
+WHERE  
+ BILLET_BEGIN_DATE =  
+ ( 
+  SELECT TOP 1 BILLET_BEGIN_DATE 
+  FROM #BILLET_DATA 
+  WHERE RECRUITER_ID = B1.RECRUITER_ID 
+   AND DATEDIFF(MONTH, BILLET_BEGIN_DATE, CONVERT(date.me, CONVERT(varchar,  CAST(@Month as varchar) + '/1/' + CAST(@CalendarYear as varchar)))) >=0 
+   ORDER BY DATEDIFF(MONTH, BILLET_BEGIN_DATE, CONVERT(date.me, CONVERT(varchar,  CAST(@Month as varchar) + '/1/' + CAST(@CalendarYear as varchar)))) 
+ ) 
+ AND 
+ RECRUITER_ID =  
+ ( 
+  SELECT TOP 1 RECRUITER_ID 
+  FROM #BILLET_DATA 
+  WHERE RECRUITER_ID = B1.RECRUITER_ID 
+   AND DATEDIFF(MONTH, BILLET_BEGIN_DATE, CONVERT(date.me, CONVERT(varchar,  CAST(@Month as varchar) + '/1/' + CAST(@CalendarYear as varchar)))) >=0 
+   ORDER BY DATEDIFF(MONTH, BILLET_BEGIN_DATE, CONVERT(date.me, CONVERT(varchar,  CAST(@Month as varchar) + '/1/' + CAST(@CalendarYear as varchar)))) 
+ ) 
+ AND  
+ ( 
+  BILLET_END_DATE = SPACE(0) 
+  OR 
+  ( 
+   BILLET_END_DATE <> SPACE(0) 
+   AND 
+   NOT EXISTS (SELECT BILLET_END_DATE 
+      FROM #BILLET_DATA 
+      WHERE RECRUITER_ID = B1.RECRUITER_ID 
+      AND (BILLET_END_DATE = SPACE(0) 
+        OR 
+        BILLET_END_DATE IS NULL 
+        ) 
+      ) 
+  ) 
+ ) 
+ 
+DECLARE 
+@billet_id int,  
+@billet_begin_date VARCHAR(30),  
+@billet_end_date VARCHAR(30), 
+@billet_mos VARCHAR(4),  
+@primary_mos VARCHAR(4), 
+@recruiter_id uniqueiden..er, 
+@organiza.on_id int, 
+@person_id uniqueiden..er, 
+@on_produc.on bit, 
+@month_code int, 
+@year int, 
+@non_prod_reason_code varchar(5), 
+@other_reason_detail varchar(50), 
+@tour_begin_date date.me, 
+@tour_end_date date.me, 
+@est_tour_end_date date.me, 
+@.rst_name varchar(15), 
+@last_name varchar(15), 
+@middle_name varchar(15), 
+@ssn varchar(9), 
+@rank int 
+ 
+OPEN billet_cursor 
+ 
+FETCH next from billet_cursor INTO  
+@billet_id, @billet_begin_date, @billet_end_date, @recruiter_id, @organiza.on_id 
+WHILE (@@fetch_status = 0) 
+ BEGIN  
+  SET @on_produc.on = 0 
+  SET @non_prod_reason_code ='' 
+  SET @other_reason_detail='' 
+   
+  SELECT TOP 1 @on_produc.on = OnProduc.on,  
+      @month_code=MonthCode,  
+      @year=CalendarYear, 
+      @non_prod_reason_code=NonProduc.onReasonCode, 
+      @other_reason_detail=OtherReasonDetail          
+       FROM dbo.Produc.onStatusHistory PH  
+       WHERE RecruiterID=@recruiter_id AND DATEDIFF(MONTH, CONVERT(date.me, CONVERT(varchar,  CAST(MonthCode as varchar) + '/1/' + CAST(CalendarYear as varchar))), CONVERT(date.me, CONVERT(varchar,  CAST(@Month as varchar) + '/1/' + CAST(@CalendarYear as varchar))))>=0 
+       ORDER BY PH.CalendarYear DESC, PH.MonthCode DESC 
+ 
+  SELECT 
+   @organiza.on_id = R.Organiza.onID, 
+   @tour_begin_date = R.TourBeginDate, 
+   @tour_end_date = R.TourEndDate, 
+   @est_tour_end_date = R.Es.matedTourEndDate, 
+   @person_id = P.PersonID, 
+   @last_name = P.LastName, 
+   @.rst_name = P.FirstName, 
+   @middle_name = P.MiddleName, 
+   @ssn = P.SSN, 
+   @rank = rank.RankID, 
+   @billet_begin_date=COALESCE(CONVERT(VARCHAR(11), R.BilletBeginDate, 101), SPACE(0)),  
+   @billet_end_date=COALESCE(CONVERT(VARCHAR(11), R.BilletEndDate, 101), SPACE(0)), 
+   @billet_mos = R.BilletMOS, 
+   @primary_mos = R.PrimaryMOS 
+  FROM Recruiter R 
+   INNER JOIN Person P ON R.PersonID = P.PersonID 
+   LEFT OUTER JOIN Rank rank ON rank.RankID = R.RankID  
+   LEFT OUTER JOIN Billet B ON B.BilletID = R.BilletID 
+  WHERE R.RecruiterID=@recruiter_id 
+     
+  INSERT INTO #VIEW_DATA VALUES(@recruiter_id,  
+           @organiza.on_id, 
+           @person_id,  
+           @.rst_name, 
+           @last_name, 
+           @middle_name, 
+           @ssn, 
+           @rank,          
+           @billet_id, 
+           @on_produc.on, 
+           @month_code, 
+           @year, 
+           @non_prod_reason_code, 
+           @other_reason_detail,        
+           @billet_begin_date, 
+           @billet_end_date, 
+           @billet_mos, 
+           @primary_mos, 
+           @tour_begin_date, 
+           @tour_end_date, 
+           @est_tour_end_date) 
+  FETCH next from billet_cursor INTO  
+   @billet_id, @billet_begin_date, @billet_end_date, @recruiter_id, @organiza.on_id 
+ END 
+ 
+CLOSE billet_cursor 
+DEALLOCATE billet_cursor 
+DROP TABLE #BILLET_DATA  
+ 
+SELECT  
+ RECRUITER_ID,  
+ ORGANIZATION_ID, 
+ PERSON_ID, 
+ FIRST_NAME,  
+ LAST_NAME,  
+ MIDDLE_NAME,  
+ SSN, 
+ RANK_ID, 
+ BILLET_ID, 
+ ON_PRODUCTION, 
+ MONTH_CODE, 
+ CALENDAR_YEAR, 
+ NON_PROD_REASON_CODE, 
+ OTHER_REASON_DETAIL, 
+ BILLET_BEGIN_DATE, 
+ BILLET_END_DATE, 
+ BILLET_MOS, 
+ PRIMARY_MOS, 
+ TOUR_BEGIN_DATE, 
+ TOUR_END_DATE, 
+ EST_TOUR_END_DATE 
+FROM #VIEW_DATA 
+ORDER BY LAST_NAME 
+ 
+DROP TABLE #VIEW_DATA]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+</StoredProcedureSqlServerv2k5>

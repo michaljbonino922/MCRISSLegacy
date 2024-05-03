@@ -1,0 +1,26 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetEventPersonVisibility]" directorySegmentName="seg_2" id="75410E03-EC2A-FBEA-3151-B8B8DF0036AB">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@EventId uniqueidentifier 
+AS 
+BEGIN 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+  
+ SELECT epv.ID, epv.EventID, RTrim(rp.Rank_Code) + ' ' + RTrim(p.Last_Name) + ' ' + RTrim(p.First_Name) + ' ' + RTrim(p.LEGAL_MIDDLE_NAME) as DisplayName, rp.rowguid as RecruiterID  
+ FROM  
+ USMC.vwMcrissRecrui.ngPerson rp, USMC.vwMcrissPerson p, USMC.EventPersonVisibility epv 
+ where  
+ rp.Recrui.ng_Person_ID = p.Person_ID AND 
+ rp.rowguid = epv.Recrui.ngPersonId AND 
+ EventId = @EventId 
+ ORDER BY DisplayName 
+  
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

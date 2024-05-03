@@ -1,0 +1,25 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetAdjustedBusinessPercentage]" directorySegmentName="seg_15" id="24C55E86-D388-C493-210B-ACE79FF47B5E">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@Organiza.onID int,  
+ @FiscalYear int, 
+ @Month   int 
+AS 
+ 
+SELECT  
+ ISNULL (ABP.TC_PERCENT, 0) AS TC_PERCENT, 
+ ISNULL (ABP.OT_PERCENT, 0) AS OT_PERCENT, 
+ ISNULL (ABP.AC_PERCENT, 0) AS AC_PERCENT, 
+ ISNULL (ABP.HV_PERCENT, 0) AS HV_PERCENT 
+FROM  
+ ADJUSTED_BUSINESS_PERCENTAGE ABP 
+WHERE  
+ ABP.ORGANIZATION_ID = @Organiza.onID AND 
+ ABP.FISCAL_YEAR = @FiscalYear AND 
+ ABP.MONTH_CODE = @Month]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,37 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetProgramQsnChangeRequestData]" directorySegmentName="seg_9" id="6C201E15-78FB-07C9-CACC-98EA0AD6D50A">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[(@NwaId int) 
+ 
+AS 
+ 
+SELECT 
+ CASE  
+  WHEN c.[COMPONENT_CODE] IN ('K4', 'K8', 'K9', 'B5') THEN 1 
+  ELSE 0 
+ END AS IsReservist   
+ ,p.[PROGRAM_CODE] AS ProgramCode 
+ ,p.[PROGRAM_DESCRIPTION] AS ProgramDescrip.on 
+ ,pt.[PROGRAM_TYPE_CODE] AS ProgramTypeCode 
+ ,pt.[PROGRAM_TYPE_DESCRIPTION] AS ProgramTypeDescrip.on 
+ ,q.[QSN_ID] + '/' + q.[MOS] AS Qsn 
+FROM  
+ [dbo].[NWA] n WITH (NOLOCK) 
+INNER JOIN [dbo].[CONTRACT] c 
+ ON c.NWA_ID = n.NWA_ID 
+LEFT OUTER JOIN [dbo].[PROGRAM_AVAILABILITY] pa 
+ ON pa.[CONTRACT_ID] = c.[CONTRACT_ID] 
+LEFT OUTER JOIN [dbo].[PROGRAM] p 
+ ON p.[PROGRAM_ID] = pa.[PROGRAM_ID] 
+LEFT OUTER JOIN [dbo].[PROGRAM_TYPE] pt 
+ ON pt.[PROGRAM_TYPE_CODE] = p.[PROGRAM_TYPE] 
+LEFT OUTER JOIN [dbo].[QSN] q 
+ ON q.[CONTRACT_ID] = c.[CONTRACT_ID] 
+WHERE 
+ n.NWA_ID = @NwaId]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

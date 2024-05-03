@@ -1,0 +1,97 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetAssignMOSCriteria]" directorySegmentName="seg_16" id="ADD8504C-4F87-3FD3-8C4D-227D5AA0FCD3">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@QSNID    char(9), 
+ @ContractBeginDate  date.me, 
+ @Gender   char(1), 
+ @TermOfEnlistment  int OUTPUT, 
+ @Ci.zenship  char(1) OUTPUT, 
+ @DriverLicense  char(1) OUTPUT, 
+ @HighestWaiverLevel int OUTPUT, --- char(1) OUTPUT, 
+ @HeightMin  int OUTPUT, 
+ @HeightMax  int OUTPUT, 
+ @Educa.onTier  varchar(2) OUTPUT, 
+ @AgeMin   int OUTPUT, 
+ @AgeMax   int OUTPUT, 
+ @Le.UncorrVis  varchar(10) OUTPUT, 
+ @RightUncorrVis  varchar(10) OUTPUT, 
+ @Le.CorrVis  varchar(10) OUTPUT, 
+ @RightCorrVis  varchar(10) OUTPUT, 
+ @AFQT   int OUTPUT, 
+ @GT   int OUTPUT, 
+ @EL   int OUTPUT, 
+ @PAOI   char(1) OUTPUT, 
+ @APT   int OUTPUT, 
+ @EDPT   int OUTPUT, 
+ @MM   int OUTPUT, 
+ @WPMT   int OUTPUT, 
+ @DLAB   int OUTPUT, 
+ @CL    int OUTPUT, 
+ --- @MEOP   decimal(5,2) OUTPUT, 
+ @MEOP   varchar(5) OUTPUT, 
+ @ColorPercep.on varchar(6) OUTPUT, 
+ @QSNGender  char(1) OUTPUT 
+AS 
+ 
+ 
+DECLARE @MOS   varchar(4) 
+DECLARE @E.ec.veDate  date.me 
+ 
+--- get the MOS code and Gender for the QSN 
+SELECT  
+ @MOS = MOS,  
+ @QSNGender = GENDER  
+FROM  
+ QSN  
+WHERE  
+ QSN_ID = @QSNID 
+ 
+--- get the most recent MOS Criteria E.ec.ve Date <= the Contract Begin Date for the MOS and Gender 
+SELECT   
+ @E.ec.veDate = MAX(MC.MOS_CRITERIA_ED_DATE)  
+FROM  
+ MOS_CRITERIA MC  
+WHERE   
+ MC.MOS = @MOS AND  
+ MC.GENDER = @Gender AND  
+ DATEDIFF(DAY, MC.MOS_CRITERIA_ED_DATE, @ContractBeginDate) >= 0 
+ 
+SELECT  
+ @Gender = GENDER,  
+ @TermOfEnlistment = TERM_OF_ENLISTMENT,  
+ @Ci.zenship = CITIZENSHIP,  
+ @DriverLicense = DRIVER_LICENSE,  
+ @HighestWaiverLevel = CONVERT(INT, HIGHEST_WAIVER_LEVEL), 
+ @HeightMin = HEIGHT_MINIMUM,  
+ @HeightMax = HEIGHT_MAXIMUM,  
+ @Educa.onTier = EDUCATION_TIER,  
+ @AgeMin = AGE_MINIMUM,  
+ @AgeMax = AGE_MAXIMUM,    
+ @Le.UncorrVis = VISION_LEFT_UNCORRECTED,  
+ @RightUncorrVis = VISION_RIGHT_UNCORRECTED,  
+ @Le.CorrVis = VISION_LEFT_CORRECTED, 
+ @RightCorrVis = VISION_RIGHT_CORRECTED,  
+ @AFQT = AFQT,  
+ @GT = GT,  
+ @EL = EL,  
+ @PAOI = PAOI,  
+ @APT = APT,  
+ @EDPT = EDPT,  
+ @MM = MM,  
+ @WPMT = WPMT,  
+ @DLAB = DLAB,  
+ @CL = CL, 
+ @MEOP = CONVERT(VARCHAR(5), MEOP),  
+ @ColorPercep.on = COLOR_PERCEPTION 
+FROM  
+ MOS_CRITERIA 
+WHERE  
+ MOS    = @MOS AND 
+ GENDER    = @Gender AND  
+ MOS_CRITERIA_ED_DATE  = @E.ec.veDate]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

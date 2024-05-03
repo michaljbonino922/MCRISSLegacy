@@ -1,0 +1,105 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_12" id="AAE87CD1-892A-E14C-ED13-291D36DDA0E4" schemaObject="2A6D9360-3BB2-5CEA-6E99-790D76996FDF" name="ERROR_MESSAGES">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>F2EC6AB1-C45F-463B-6763-F7E91979EE07</importedID>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="ERROR_CD" id="AD2DBBF3-281B-2D69-925A-2BB2CDB4386D">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>646907E4-CAAB-0ABC-40E8-ACA6892054C2</importedID>
+<use>0</use>
+<domain>8C77819C-1B2F-24A0-C36D-F924235A9668</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="ERROR_TYPE_CD" id="45632E37-1989-31EB-6F6F-8FEDD5340ACB">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>16626265-9D8A-FA1E-9A4C-8B66261D8937</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<domain>8C77819C-1B2F-24A0-C36D-F924235A9668</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="10FF3474-F719-2553-D194-90BE156AABFB" referredColumn="A6842D7C-8553-CF1E-9F08-9EC4BAA4C83E"/>
+</associations>
+</Column>
+<Column name="ERROR_DESC" id="1A9628E5-647E-516E-0D87-DF3F0B53D1C0">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>89776A5E-9B2D-2F13-DF9C-7AAE431814AA</importedID>
+<use>0</use>
+<domain>5D0BA1FE-4FC4-F210-E2F9-FBA674EB945E</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="UPDATE_DATE" id="F977E6D9-E2DD-E613-3E71-5C90429E8351">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>F2AFC445-FDB7-F6E6-7A47-BEB95400A39F</importedID>
+<use>0</use>
+<domain>2E97BDFC-0C14-5942-50A0-B5BCBB88B35D</domain>
+<usesDefaultValue>true</usesDefaultValue>
+<defaultValue>(getdate())</defaultValue>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="64E1E1BD-A7EE-7228-16F5-F76B600E2DFF" name="PK_ERROR_MESSAGES">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>DFF2BAF4-E337-1C15-EB08-735FF1FBF82E</importedID>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="AD2DBBF3-281B-2D69-925A-2BB2CDB4386D"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="1E7132C3-53C6-93CC-B358-C0AD996E9C63" name="FK_ERRORMSG_ERRORTYPE">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="45632E37-1989-31EB-6F6F-8FEDD5340ACB"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+<tableCheckConstraints itemClass="oracle.dbtools.crest.model.design.constraint.TableLevelConstraint">
+<tableCheckConstraint name="[dbo].[ERROR_MESSAGES]" directorySegmentName="seg_10" id="49308053-E471-75BA-CE76-1B0844490F8E">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>C1B3950F-2B4A-80FD-937F-7A1B049F7266</importedID>
+<rule><![CDATA[CONSTRAINT [FK_ERRORMSG_ERRORTYPE]]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="WITH" directorySegmentName="seg_10" id="3F377A91-D529-D0F6-F961-E7DAAAB384C7">
+<sourceDDLFile>create MCRISS_ERROR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:14 UTC</createdTime>
+<ownerDesignName>MCRISS</ownerDesignName>
+<importedID>9319D15A-6C88-60EE-0B6A-C24D633E8070</importedID>
+</tableCheckConstraint>
+</tableCheckConstraints>
+</Table>

@@ -1,0 +1,593 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<EntityView class="oracle.dbtools.crest.model.design.logical.EntityView" directorySegmentName="seg_0" id="CB6CB76D-D10A-7A1F-75A1-1169DE7A0CD0" name="USMC.vwO.cerPoolBoardCandidatesFutureTBS">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>F43DEC03-A107-D94E-508F-1856409D7C9B</generatorID>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT DISTINCT 
+  n.[NWA_ID] AS NwaId 
+  ,oc.[CONTRACT_ID] AS O.cerContractId 
+  ,mc.[MARINE_CANDIDATE_ID] AS MarineCandidateId 
+   
+  ,n.[rowguid] AS NwaRowGuid 
+  ,oc.[rowguid] AS O.cerContractRowGuid 
+  ,mc.[rowguid] AS MarineCandidateRowGuid 
+   
+  ,n.[ORGANIZATION_OF_RECORD_ID] AS Organiza.onOfRecordId 
+  ,n.[OFFICER_COMPONENT_CODE] AS O.cerComponentCode 
+   
+  ,COALESCE(RTRIM(p.[LAST_NAME]), SPACE(0))  + SPACE(1) +  
+   COALESCE(RTRIM(p.[FIRST_NAME]), SPACE(0)) + SPACE(1) +  
+   COALESCE(RTRIM(p.[LEGAL_MIDDLE_NAME]), SPACE(0)) AS Name 
+  ,p.[LAST_NAME] AS LastName 
+  ,p.[FIRST_NAME] AS FirstName 
+  ,p.[LEGAL_MIDDLE_NAME] AS MiddleName 
+  ,p.[SOCIAL_SECURITY_NUMBER] AS Ssn 
+   
+  ,oc.[PROJECTED_COMMISSION_DATE] AS ProjectedCommissionDate 
+    
+  ,mc.[RACE_CODE] AS RaceCode 
+  ,mc.[ETHNIC_CODE] AS EthnicCode 
+  
+  ,hs.[HIGHSCHOOL_NAME] AS SchoolName 
+  ,hs.[SCHOOL_CODE] AS SchoolCode 
+  ,hs.[rowguid] AS SchoolRowGuid 
+  ,cs.[STATUS_TYPE] AS StatusType 
+  ,cs.[STATUS_CODE] AS StatusCode 
+  ,cs.[DISPOSITION_CODE] AS Disposi.onCode 
+  ,oc.contract_begin_Date 
+  ,cs.STATUS_EFFECTIVE_DATE 
+   
+  ,mc.[GENDER_CODE] AS GenderCode 
+  ,ocsc.[CLASS_NUMBER] AS ClassNumber 
+  ,CASE 
+   WHEN n.[OFFICER_COMPONENT_CODE] IN ('0A', '0B', '0C', '0E', '0F') THEN 'PLC' 
+   WHEN n.[OFFICER_COMPONENT_CODE] IN ('1A', '1B', '1C', '1H', '1E') THEN 'OCC' 
+   END AS O.cerSourceCode 
+   ,n.[SHIP_MISSION] AS ShipMission 
+   ,oc.[PROJECTED_GRAD_DATE] AS ProjectedGradDate 
+   
+ FROM 
+  [dbo].[NWA] n WITH (NOLOCK) 
+ INNER JOIN [dbo].[OCS] o ON o.[NWA_ID] = n.[NWA_ID] 
+ INNER JOIN 
+  (SELECT MAX(OCS_CLASS_ID) MAXCLASS, NWA_ID FROM [dbo].[OCS] WHERE DISPLAY_RECORD = 'Y' GROUP BY NWA_ID) o2 ON o2.MAXCLASS = o.[OCS_CLASS_ID] AND o2.NWA_ID = o.[NWA_ID] 
+   
+ INNER JOIN [dbo].[OCS_CLASS] ocsc ON ocsc.[CLASS_ID] = o.[OCS_CLASS_ID] 
+ INNER JOIN [dbo].[MARINE_CANDIDATE] mc ON n.[MARINE_CANDIDATE_ID] = mc.[MARINE_CANDIDATE_ID] 
+ INNER JOIN [dbo].[PERSON] p ON p.PERSON_ID = n.MARINE_CANDIDATE_ID 
+ INNER JOIN [dbo].[OFFICER_CONTRACT] oc ON oc.[NWA_ID] = n.[NWA_ID] 
+ INNER JOIN [dbo].[CANDIDATE_EDUCATION] ce ON ce.[MARINE_CANDIDATE_ID] = n.[MARINE_CANDIDATE_ID] 
+ INNER JOIN 
+  (SELECT MAX(EDUCATION_LEVEL) MAXEDLEVEL, MARINE_CANDIDATE_ID FROM CANDIDATE_EDUCATION GROUP BY MARINE_CANDIDATE_ID) ceMAX ON ceMAX.MAXEDLEVEL = ce.EDUCATION_LEVEL AND ceMAX.MARINE_CANDIDATE_ID = ce.MARINE_CANDIDATE_ID 
+  AND ce.SCHOOL_CODE =  
+  (SELECT TOP 1 ceTOP.SCHOOL_CODE FROM CANDIDATE_EDUCATION ceTOP WHERE ceTOP.EDUCATION_LEVEL = ce.EDUCATION_LEVEL AND ceTOP.MARINE_CANDIDATE_ID = ce.MARINE_CANDIDATE_ID) 
+   
+ INNER JOIN [dbo].[HIGH_SCHOOL] hs ON (hs.[SCHOOL_CODE] = ce.[SCHOOL_CODE] AND hs.[SCHOOL_TYPE] IN ('2Y', '4Y', 'CC') AND hs.[DELETED] = 'N') 
+ INNER JOIN [dbo].[CANDIDATE_STATUS] cs ON cs.[NWA_ID] = n.[NWA_ID] 
+   and cs.[DISPOSITION_CODE]  
+    = (select top 1 cs2.[DISPOSITION_CODE]  from [dbo].[CANDIDATE_STATUS] cs2 where cs2.[NWA_ID] = cs.[NWA_ID]  order by 
+       STATUS_EFFECTIVE_DATE DESC) 
+      
+ WHERE 
+  -- This is checking if the person has ever been in TBS(if any of his TBS records have a begin date in the past) 
+  NOT(EXISTS(SELECT NULL FROM [dbo].[PRECOMMISSION_DATA] pd  
+    LEFT OUTER JOIN [dbo].[TBS] tbs ON tbs.[TBS_ID] = pd.[TBS_ID] 
+    WHERE pd.[NWA_ID] = n.[NWA_ID] AND tbs.[CLASS_BEGIN_DATE] < GetDate())) 
+     AND cs.STATUS_EFFECTIVE_DATE IN (SELECT MAX(CS2.STATUS_EFFECTIVE_DATE) FROM CANDIDATE_STATUS CS2 WHERE CS.NWA_ID = CS2.NWA_ID) 
+     AND 1 = (SELECT TOP 1 
+        CASE cs.[STATUS_TYPE] 
+         WHEN 'O' THEN 
+          CASE cs.[STATUS_CODE] 
+           WHEN 'B' THEN 
+            CASE cs.[DISPOSITION_CODE] 
+             WHEN 'AI' THEN 1 
+             WHEN 'AP' THEN 1 
+             WHEN 'AQ' THEN 1 
+             WHEN 'AR' THEN 1 
+             WHEN 'AS' THEN 1 
+             WHEN 'AT' THEN 1 
+             WHEN 'AU' THEN 1 
+             WHEN 'AV' THEN 1 
+             WHEN 'AW' THEN 1 
+             WHEN 'AY' THEN 1 
+             WHEN 'BA' THEN 1 
+             WHEN 'BC' THEN 1 
+             WHEN 'Q' THEN 1 
+             WHEN 'R' THEN 1 
+             WHEN 'S' THEN 1 
+             WHEN 'W' THEN 1 
+             WHEN 'X' THEN 1 
+             WHEN 'Y' THEN 1 
+             WHEN 'BD' THEN 1 
+             ELSE 0 
+            END 
+          WHEN 'D' THEN 
+           CASE cs.[DISPOSITION_CODE] 
+            WHEN 'C' THEN 1 
+            WHEN 'BB' THEN 1 
+           ELSE 0 
+          END 
+         ELSE 0 
+        END 
+       ELSE 0 
+      END 
+   FROM 
+    [dbo].[CANDIDATE_STATUS] cs 
+   WHERE 
+    cs.[NWA_ID] = n.[NWA_ID] 
+   ORDER BY 
+    cs.STATUS_EFFECTIVE_DATE DESC)]]></userDefinedSQL>
+<validSQL>false</validSQL>
+<viewType>EntityView</viewType>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="[NWA_ID]" id="B53B8902-9CA4-B142-F618-BB3665C098AF">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>E759A5A0-BD9E-5C84-72DE-25DCEBE8D8FC</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>NwaId</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[NWA_ID]</expression>
+<reference>false</reference>
+<viewID>CB6CB76D-D10A-7A1F-75A1-1169DE7A0CD0</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="[CONTRACT_ID]" id="947862BD-2D6A-3F9D-C85B-BE10A320A367">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>48780E2D-A249-6DC2-192E-6AF6D7A2A7E8</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>O.cerContractId</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[CONTRACT_ID]</expression>
+<reference>false</reference>
+<viewID>CB6CB76D-D10A-7A1F-75A1-1169DE7A0CD0</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="[MARINE_CANDIDATE_ID]" id="154E9D06-AC03-232B-1D60-D77FBB575DBF">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>09DF0FDA-0555-0809-7121-E3405705CB37</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>MarineCandidateId</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[MARINE_CANDIDATE_ID]</expression>
+<reference>false</reference>
+<viewID>CB6CB76D-D10A-7A1F-75A1-1169DE7A0CD0</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="[rowguid]" id="F425A74C-40BE-1C74-7FC6-E3DEACD5D024">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>FB367C79-5DEB-1C5C-1494-E36F6A972A6B</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>NwaRowGuid</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[rowguid]</expression>
+<reference>false</reference>
+<viewID>CB6CB76D-D10A-7A1F-75A1-1169DE7A0CD0</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="Attribute_460" id="DED478AD-AAB8-AE4C-CE4F-1044BF8A749E">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>C219E9BD-3F7B-37D5-A4F4-56A3F7B23D96</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>O.cerContractRowGuid</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[rowguid]</expression>
+<reference>false</reference>
+<viewID>CB6CB76D-D10A-7A1F-75A1-1169DE7A0CD0</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="Attribute_461" id="34A4C4EA-EFCB-4407-B689-D04B2FABCF2E">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>8A76570C-689F-7624-1D01-52BBEEFF94A5</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>MarineCandidateRowGuid</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[rowguid]</expression>
+<reference>false</reference>
+<viewID>CB6CB76D-D10A-7A1F-75A1-1169DE7A0CD0</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="[ORGANIZATION_OF_RECORD_ID]" id="2D8B5534-D1BE-AE7C-B45D-FAE61308B2E4">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>F56556FD-BA39-A9BD-F670-C7AB3E93E7CD</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Organiza.onOfRecordId</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[ORGANIZATION_OF_RECORD_ID]</expression>
+<reference>false</reference>
+<viewID>CB6CB76D-D10A-7A1F-75A1-1169DE7A0CD0</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="[OFFICER_COMPONENT_CODE]" id="03EE225A-A288-88BC-6B7C-251BC3BF9E16">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>7FE586BE-84ED-3ADC-25E1-01510E6644C5</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>O.cerComponentCode</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[OFFICER_COMPONENT_CODE]</expression>
+<reference>false</reference>
+<viewID>CB6CB76D-D10A-7A1F-75A1-1169DE7A0CD0</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="COALESCE(RTRIM(p.[LAST_NAME]),SPACE(0)) + SPACE(1) + COALESCE(RTRIM(p.[FIRST_NAME]),SPACE(0)) + SPACE(1) + COALESCE(RTRIM(p.[LEGAL_MIDDLE_NAME]),SPACE(0))" id="ABC2E2DF-B408-2A2B-2052-DD50D984025D">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>3A166E62-0B60-88EC-19ED-72315E76D3D2</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Name</alias>
+<dataType>UNKNOWN</dataType>
+<expression>COALESCE(RTRIM(p.[LAST_NAME]),SPACE(0)) + SPACE(1) + COALESCE(RTRIM(p.[FIRST_NAME]),SPACE(0)) + SPACE(1) + COALESCE(RTRIM(p.[LEGAL_MIDDLE_NAME]),SPACE(0))</expression>
+<reference>false</reference>
+<viewID>CB6CB76D-D10A-7A1F-75A1-1169DE7A0CD0</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="[LAST_NAME]" id="C896112C-A9D2-BB43-6D92-381C3EB28A46">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>087D43D7-C0C2-BFB6-AF2C-1232BD553D30</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>LastName</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[LAST_NAME]</expression>
+<reference>false</reference>
+<viewID>CB6CB76D-D10A-7A1F-75A1-1169DE7A0CD0</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="[FIRST_NAME]" id="764A6CEC-0261-4D11-D43F-57C2924EF2C1">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>6FCA30B9-E6CB-7EFD-6461-5C09A03FB3E8</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>FirstName</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[FIRST_NAME]</expression>
+<reference>false</reference>
+<viewID>CB6CB76D-D10A-7A1F-75A1-1169DE7A0CD0</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="[LEGAL_MIDDLE_NAME]" id="12DCEC0D-4C4E-86B5-F4D9-A1C6092E0233">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>76F80294-C0EE-7A37-D3D5-353A9C86D732</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>MiddleName</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[LEGAL_MIDDLE_NAME]</expression>
+<reference>false</reference>
+<viewID>CB6CB76D-D10A-7A1F-75A1-1169DE7A0CD0</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="[SOCIAL_SECURITY_NUMBER]" id="70AD46EA-0C0F-D890-9B29-7903D48F2765">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>9B9AC115-B4EF-900A-2D4A-1C8DBF13276D</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Ssn</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[SOCIAL_SECURITY_NUMBER]</expression>
+<reference>false</reference>
+<viewID>CB6CB76D-D10A-7A1F-75A1-1169DE7A0CD0</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="[PROJECTED_COMMISSION_DATE]" id="D32AB4D7-C613-84DB-CB49-97E49AAB7C9D">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>50E590B6-C6B6-76D8-7A9F-170399F13502</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>ProjectedCommissionDate</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[PROJECTED_COMMISSION_DATE]</expression>
+<reference>false</reference>
+<viewID>CB6CB76D-D10A-7A1F-75A1-1169DE7A0CD0</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="[RACE_CODE]" id="7AE85FF2-CD78-3D79-FDF8-030B15FEE3C1">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>418ECDB3-5940-E887-5F23-62C6180D8A13</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>RaceCode</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[RACE_CODE]</expression>
+<reference>false</reference>
+<viewID>CB6CB76D-D10A-7A1F-75A1-1169DE7A0CD0</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="[ETHNIC_CODE]" id="3495347A-9C4A-1FCB-2C13-E7C378722374">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>1A2FABDF-52DE-6EC7-0B9C-5268948070FF</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>EthnicCode</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[ETHNIC_CODE]</expression>
+<reference>false</reference>
+<viewID>CB6CB76D-D10A-7A1F-75A1-1169DE7A0CD0</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="[HIGHSCHOOL_NAME]" id="2B24157A-D0DF-D30E-2A55-F34FAAEFE8D1">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>B9E63537-4570-ADEC-4B89-D5DD61643AB9</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>SchoolName</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[HIGHSCHOOL_NAME]</expression>
+<reference>false</reference>
+<viewID>CB6CB76D-D10A-7A1F-75A1-1169DE7A0CD0</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="[SCHOOL_CODE]" id="C25B8D47-B13D-84A4-136D-BFD768BE67F4">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>42109460-4D0C-0958-668F-51FB0FD9A21A</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>SchoolCode</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[SCHOOL_CODE]</expression>
+<reference>false</reference>
+<viewID>CB6CB76D-D10A-7A1F-75A1-1169DE7A0CD0</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="Attribute_474" id="90FF5975-C0DD-A904-E74D-76A169AF9117">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>518E0ECE-60A7-4B6B-E7D4-7395063AD8BE</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>SchoolRowGuid</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[rowguid]</expression>
+<reference>false</reference>
+<viewID>CB6CB76D-D10A-7A1F-75A1-1169DE7A0CD0</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="[STATUS_TYPE]" id="D1A83178-F521-DCA5-A739-360CCB69ECF9">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>C8A25675-9FA6-30DE-514C-87EC68EA4230</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>StatusType</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[STATUS_TYPE]</expression>
+<reference>false</reference>
+<viewID>CB6CB76D-D10A-7A1F-75A1-1169DE7A0CD0</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="[STATUS_CODE]" id="D4FD7263-B703-A6B4-A604-A050B05D43E4">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>BC6B5D18-FFF7-4ADC-5DBC-C70D88F7235D</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>StatusCode</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[STATUS_CODE]</expression>
+<reference>false</reference>
+<viewID>CB6CB76D-D10A-7A1F-75A1-1169DE7A0CD0</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="[DISPOSITION_CODE]" id="7991ED40-1F4C-941B-9CAB-20F436631E4F">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>93AA0A90-352A-48B9-FEB8-C17DF386CF01</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Disposi.onCode</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[DISPOSITION_CODE]</expression>
+<reference>false</reference>
+<viewID>CB6CB76D-D10A-7A1F-75A1-1169DE7A0CD0</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="contract_begin_Date" id="7CCE2069-510B-FA1C-965B-28F46602E2EB">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>6230CDDA-43E6-D06B-909D-8409B8B0D325</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>contract_begin_Date</alias>
+<dataType>UNKNOWN</dataType>
+<expression>contract_begin_Date</expression>
+<reference>false</reference>
+<viewID>CB6CB76D-D10A-7A1F-75A1-1169DE7A0CD0</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="STATUS_EFFECTIVE_DATE" id="4221587E-CD7D-8864-AD15-541385DACB0C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>B7EC28C8-62F8-170D-5033-645C0AF811D5</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>STATUS_EFFECTIVE_DATE</alias>
+<dataType>UNKNOWN</dataType>
+<expression>STATUS_EFFECTIVE_DATE</expression>
+<reference>false</reference>
+<viewID>CB6CB76D-D10A-7A1F-75A1-1169DE7A0CD0</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="[GENDER_CODE]" id="B2D6E075-2707-A5A1-9C38-28D538F3D782">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>A1C1B0B0-CE5C-BD1D-BCEA-6591DC8A1BC2</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>GenderCode</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[GENDER_CODE]</expression>
+<reference>false</reference>
+<viewID>CB6CB76D-D10A-7A1F-75A1-1169DE7A0CD0</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="[CLASS_NUMBER]" id="1979DDC1-9B5B-8F64-B553-74C57D630E8A">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>8C2E4704-8008-2C3D-A94B-1E9E0B0FF87B</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>ClassNumber</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[CLASS_NUMBER]</expression>
+<reference>false</reference>
+<viewID>CB6CB76D-D10A-7A1F-75A1-1169DE7A0CD0</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="CASE WHEN n.[OFFICER_COMPONENT_CODE] IN (&apos;0A&apos;,&apos;0B&apos;,&apos;0C&apos;,&apos;0E&apos;,&apos;0F&apos;) THEN &apos;PLC&apos; WHEN n.[OFFICER_COMPONENT_CODE] IN (&apos;1A&apos;,&apos;1B&apos;,&apos;1C&apos;,&apos;1H&apos;,&apos;1E&apos;) THEN &apos;OCC&apos; END" id="B289A202-C98D-CFC1-FAFB-23C1A6D88F25">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>70E124B3-DBCA-774F-5F38-F46229EDF2FD</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>O.cerSourceCode</alias>
+<dataType>UNKNOWN</dataType>
+<expression>CASE WHEN n.[OFFICER_COMPONENT_CODE] IN (&apos;0A&apos;,&apos;0B&apos;,&apos;0C&apos;,&apos;0E&apos;,&apos;0F&apos;) THEN &apos;PLC&apos; WHEN n.[OFFICER_COMPONENT_CODE] IN (&apos;1A&apos;,&apos;1B&apos;,&apos;1C&apos;,&apos;1H&apos;,&apos;1E&apos;) THEN &apos;OCC&apos; END</expression>
+<reference>false</reference>
+<viewID>CB6CB76D-D10A-7A1F-75A1-1169DE7A0CD0</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="[SHIP_MISSION]" id="6C81103E-7F76-0FFA-B3E7-47F00E225781">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>1645AFD2-24D4-FCB0-9CE5-9B645A5B37AB</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>ShipMission</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[SHIP_MISSION]</expression>
+<reference>false</reference>
+<viewID>CB6CB76D-D10A-7A1F-75A1-1169DE7A0CD0</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="[PROJECTED_GRAD_DATE]" id="EBFB9087-6633-E3E5-9C9A-45BAFBF4ABC1">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>CC27ABBF-3EFA-E2C9-D606-DECCB8CD5196</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>ProjectedGradDate</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[PROJECTED_GRAD_DATE]</expression>
+<reference>false</reference>
+<viewID>CB6CB76D-D10A-7A1F-75A1-1169DE7A0CD0</viewID>
+</viewElement>
+</viewElements>
+</EntityView>

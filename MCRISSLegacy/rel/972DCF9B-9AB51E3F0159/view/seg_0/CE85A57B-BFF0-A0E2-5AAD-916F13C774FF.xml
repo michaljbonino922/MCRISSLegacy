@@ -1,0 +1,118 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_0" id="CE85A57B-BFF0-A0E2-5AAD-916F13C774FF" schemaObject="2A6D9360-3BB2-5CEA-6E99-790D76996FDF" name="dbo.aesoa.AppSe.ngsView">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>D8A16561-138F-D711-FA65-E089AC3AB8A6</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT    dbo.[aesoa.AppSe.ngs].ID,  
+   dbo.[aesoa.AppSe.ngs].TypeID,  
+   dbo.[aesoa.Type].TypeName, 
+   dbo.[aesoa.AppSe.ngs].Se.ngName,  
+   dbo.[aesoa.AppSe.ngs].Se.ngValue,  
+   dbo.[aesoa.AppSe.ngs].Se.ngDesc,  
+   dbo.[aesoa.AppSe.ngs].Ac.ve,  
+   dbo.[aesoa.Type].TypeDesc 
+FROM         dbo.[aesoa.AppSe.ngs] INNER JOIN 
+                      dbo.[aesoa.Type] ON dbo.[aesoa.AppSe.ngs].TypeID = dbo.[aesoa.Type].ID]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="AppSe.ngs].ID" id="EF042804-435A-569A-DBE2-0FCA4306A87C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>AppSe.ngs].ID</alias>
+<dataType>UNKNOWN</dataType>
+<expression>AppSe.ngs].ID</expression>
+<reference>false</reference>
+<viewID>CE85A57B-BFF0-A0E2-5AAD-916F13C774FF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="AppSe.ngs].TypeID" id="B467DC28-1041-C11A-0680-7A18503AE76A">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>AppSe.ngs].TypeID</alias>
+<dataType>UNKNOWN</dataType>
+<expression>AppSe.ngs].TypeID</expression>
+<reference>false</reference>
+<viewID>CE85A57B-BFF0-A0E2-5AAD-916F13C774FF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="Type].TypeName" id="F945018E-3528-69A3-5C90-84C2BC09D37F">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Type].TypeName</alias>
+<dataType>UNKNOWN</dataType>
+<expression>Type].TypeName</expression>
+<reference>false</reference>
+<viewID>CE85A57B-BFF0-A0E2-5AAD-916F13C774FF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="AppSe.ngs].Se.ngName" id="852CA91F-1A5A-23D9-A5BD-EBC53DE3EE93">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>AppSe.ngs].Se.ngName</alias>
+<dataType>UNKNOWN</dataType>
+<expression>AppSe.ngs].Se.ngName</expression>
+<reference>false</reference>
+<viewID>CE85A57B-BFF0-A0E2-5AAD-916F13C774FF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="AppSe.ngs].Se.ngValue" id="FB20A26D-8EF9-32B7-765B-4B9FFDAB4B31">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>AppSe.ngs].Se.ngValue</alias>
+<dataType>UNKNOWN</dataType>
+<expression>AppSe.ngs].Se.ngValue</expression>
+<reference>false</reference>
+<viewID>CE85A57B-BFF0-A0E2-5AAD-916F13C774FF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="AppSe.ngs].Se.ngDesc" id="BC8601DE-69B8-7449-FC4A-224854D5B975">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>AppSe.ngs].Se.ngDesc</alias>
+<dataType>UNKNOWN</dataType>
+<expression>AppSe.ngs].Se.ngDesc</expression>
+<reference>false</reference>
+<viewID>CE85A57B-BFF0-A0E2-5AAD-916F13C774FF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="AppSe.ngs].Ac.ve" id="24765483-8F5B-06BF-9D3B-1DD056BF0459">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>AppSe.ngs].Ac.ve</alias>
+<dataType>UNKNOWN</dataType>
+<expression>AppSe.ngs].Ac.ve</expression>
+<reference>false</reference>
+<viewID>CE85A57B-BFF0-A0E2-5AAD-916F13C774FF</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="Type].TypeDesc" id="4AE1E83E-91CC-0527-C149-651D62A465FD">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Type].TypeDesc</alias>
+<dataType>UNKNOWN</dataType>
+<expression>Type].TypeDesc</expression>
+<reference>false</reference>
+<viewID>CE85A57B-BFF0-A0E2-5AAD-916F13C774FF</viewID>
+</viewElement>
+</viewElements>
+</TableView>

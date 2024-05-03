@@ -1,0 +1,25 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[AssignNwaToApplicant]" directorySegmentName="seg_28" id="1EF716D5-C000-7FD6-8F1B-C0B0FD01A061">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:39 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @ApplicantId uniqueiden..er = NULL, 
+ @NwaId uniqueiden..er = NULL 
+) 
+AS 
+ 
+BEGIN 
+ 
+UPDATE  
+ [ACP].[Applicant] 
+SET 
+ [NwaId] = @NwaId 
+WHERE 
+ [PersonId] = @ApplicantId 
+  
+END]]></body>
+<schema>569A41D8-8F40-0619-141C-F4C9436AAF46</schema>
+<database>2D7ED536-DF8E-3523-7DC3-4228EBAF5F66</database>
+</StoredProcedureSqlServerv2k5>

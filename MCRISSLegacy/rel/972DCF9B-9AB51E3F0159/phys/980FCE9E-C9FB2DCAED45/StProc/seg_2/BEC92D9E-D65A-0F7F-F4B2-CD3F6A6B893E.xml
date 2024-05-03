@@ -1,0 +1,148 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetEnlistedHsccPro.leSheetEvents]" directorySegmentName="seg_2" id="BEC92D9E-D65A-0F7F-F4B2-CD3F6A6B893E">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@SchoolYear INT, 
+ @SchoolPro.leId UNIQUEIDENTIFIER 
+ 
+AS 
+BEGIN 
+  
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+ DECLARE @NextSchoolYearSchoolPro.leId uniqueidentifier 
+  
+ SELECT  
+  @NextSchoolYearSchoolPro.leId = rowguid  
+ FROM 
+  [MCRISS].[dbo].[HIGH_SCHOOL_PROFILE]  
+ WHERE  
+  School_Code IN ( SELECT School_Code FROM [MCRISS].[dbo].[HIGH_SCHOOL_PROFILE]  
+       WHERE 
+       rowguid = @SchoolPro.leId AND School_Year = @SchoolYear 
+      ) AND 
+  SCHOOL_YEAR = @SchoolYear + 1 
+ 
+ DECLARE 
+  @EventSourceId   int, 
+  @EventSourceTypeId  int, 
+  @CurrentSchoolYearStartDate date.me, 
+  @CurrentSchoolYearEndDate date.me, 
+  @NextSchoolYearStartDate date.me, 
+  @NextSchoolYearEndDate date.me 
+ 
+ SET @CurrentSchoolYearStartDate = DATETIMEFROMPARTS ( @SchoolYear-1, 7, 1, 0, 0, 0, 0 ) 
+ SET @CurrentSchoolYearEndDate =   DATETIMEFROMPARTS ( @SchoolYear, 6, 30, 23, 59, 59, 0 ) 
+ 
+ SET @NextSchoolYearStartDate = DATETIMEFROMPARTS ( @SchoolYear, 7, 1, 0, 0, 0, 0 ) 
+ SET @NextSchoolYearEndDate =   DATETIMEFROMPARTS ( @SchoolYear+1, 6, 30, 23, 59, 59, 0 ) 
+ 
+ SET @EventSourceId = 19; --HS/CC Visit 
+ SET @EventSourceTypeId = 2; -- S&R Book 
+ 
+ CREATE TABLE #CurrentSchoolYearEventTypeList 
+ ( 
+  Id int 
+ ); 
+ 
+ CREATE TABLE #NextSchoolYearEventTypeList 
+ ( 
+  Id int 
+ ); 
+  
+ --132 Ini.al Visit 
+ --136 YPF Schedule 
+ --137 Gradua.on 
+ --138 ASVAB Schedule 
+ --141 Band Talk 
+ --146 Final Visit Conducted 
+ INSERT INTO #CurrentSchoolYearEventTypeList  
+ VALUES (132),(136),(137),(138),(141),(146); 
+ 
+ --132 Ini.al Visit 
+ --138 ASVAB Schedule 
+ --139 NROTC Talk - Senior 
+ --140 NROTC Talk - Junior 
+ --141 Band Talk 
+ --142 Career Talk 
+ INSERT INTO #NextSchoolYearEventTypeList  
+ VALUES (132),(138),(139),(140),(141),(142); 
+ 
+ SELECT  
+  ROW_NUMBER() OVER(PARTITION BY e.EventTypeId ORDER BY StartDate DESC, LastUpdateDate DESC) AS RowNumber,    
+  e.EventTypeId, e.StartDate, e.ID 
+ INTO #CurrentSchoolYearTempEvents 
+ FROM  
+  [RSSOSS].[USMC].[Event] E 
+  INNER JOIN [RSSOSS].[USMC].[EventSubject] ESub ON E.ID = ESub.Even.d 
+  INNER JOIN #CurrentSchoolYearEventTypeList et ON e.EventTypeId = et.Id 
+    
+ WHERE  
+  ESub.SubjectId = @SchoolPro.leId and  
+  E.EventSourceId = @EventSourceId AND 
+  E.StartDate <= @CurrentSchoolYearEndDate  AND  
+  E.EndDate >= @CurrentSchoolYearStartDate  
+ 
+ -- Next School Year 
+ SELECT  
+  ROW_NUMBER() OVER(PARTITION BY e.EventTypeId ORDER BY StartDate DESC, LastUpdateDate DESC) AS RowNumber,    
+  e.EventTypeId, e.StartDate, e.ID 
+ INTO #NextSchoolYearTempEvents 
+ FROM  
+  [RSSOSS].[USMC].[Event] E 
+  INNER JOIN [RSSOSS].[USMC].[EventSubject] ESub ON E.ID = ESub.Even.d 
+  INNER JOIN #NextSchoolYearEventTypeList et ON e.EventTypeId = et.Id 
+    
+ WHERE  
+  ESub.SubjectId = @NextSchoolYearSchoolPro.leId and  
+  E.EventSourceId = @EventSourceId AND 
+  E.StartDate <= @NextSchoolYearEndDate  AND  
+  E.EndDate >= @NextSchoolYearStartDate  
+ 
+ SELECT 
+  1 AS IsCurrentSchoolYear,  
+  etl.Id AS EventTypeId,  
+  et.Type AS EventTypeName,  
+  t.StartDate,  
+  t.ID,  
+  ypf.NumberOfStudents 
+ FROM  
+  #CurrentSchoolYearEventTypeList etl  
+  INNER JOIN [RSSOSS].[USMC].[EventType] et on etl.Id = et.ID  
+  LEFT OUTER JOIN #CurrentSchoolYearTempEvents t ON etl.Id = t.EventTypeId 
+  LEFT OUTER JOIN [USMC].[YouthPhysicalFitnessEvent] ypf ON ypf.Id = t.ID   
+ WHERE 
+  RowNumber IS NULL OR RowNumber = 1 
+  
+ UNION 
+  
+ SELECT 
+  0 AS IsCurrentSchoolYear,   
+  etl.Id AS EventTypeId,  
+  et.Type AS EventTypeName,  
+  t.StartDate,  
+  t.ID,  
+  NULL AS NumberOfStudents 
+ FROM  
+  #NextSchoolYearEventTypeList etl  
+  INNER JOIN [RSSOSS].[USMC].[EventType] et on etl.Id = et.ID  
+  LEFT OUTER JOIN #NextSchoolYearTempEvents t ON etl.Id = t.EventTypeId  
+ WHERE 
+  RowNumber IS NULL OR RowNumber = 1 
+ ORDER BY  
+  IsCurrentSchoolYear DESC,EventTypeId, StartDate DESC 
+   
+ 
+ DROP TABLE #CurrentSchoolYearTempEvents; 
+ DROP TABLE #CurrentSchoolYearEventTypeList; 
+ 
+ DROP TABLE #NextSchoolYearTempEvents; 
+ DROP TABLE #NextSchoolYearEventTypeList; 
+ 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,445 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[ApproveMasterPlan]" directorySegmentName="seg_0" id="C59943E5-3F85-7C18-61FE-DF67431E1C47">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@SchoolYear   int, 
+    @Organiza.onId     int, 
+    @ApprovedBy   varchar(100), 
+    @RecruiterChanges   XML OUTPUT 
+        
+AS 
+BEGIN 
+ 
+ -- STEP 1: Start the transac.on 
+ BEGIN TRANSACTION 
+  
+ DECLARE @CurrentSchoolYear int 
+ DECLARE @Now date.me 
+ SET @Now = GETDATE() 
+ SET @CurrentSchoolYear = Year(@Now) 
+ 
+ IF MONTH(GETDATE()) >= 7 
+ BEGIN 
+  SET @CurrentSchoolYear = @CurrentSchoolYear + 1 
+ END 
+ 
+ /************************************************************************* 
+ *** Track the recruiter change made by the new plan 
+ *************************************************************************/ 
+ SET @RecruiterChanges =  
+ ( 
+  SELECT  
+   hsp.School_Code as '@SchoolCode', 
+   hsp.School_Year as '@SchoolYear', 
+   hsp.rowguid as '@Pro.leID',   
+   hsp.Recruiter_ID AS '@OldRecruiter',  
+   np.Recruiter_ID AS '@NewRecruiter', 
+      hs.ORGANIZATION_ID AS '@OrgID' 
+  FROM 
+   MCRISS.dbo.HIGH_SCHOOL hs 
+   INNER JOIN MCRISS.dbo.HIGH_SCHOOL_PROFILE hsp 
+    ON hs.School_Code = hsp.School_Code   
+   INNER JOIN [dbo].[HIGH_SCHOOL_NEW_PLAN] np 
+    ON hsp.[NEW_PLAN_ID] = np.ID 
+  WHERE 
+   ORGANIZATION_ID = @Organiza.onId  
+   AND hsp.SCHOOL_YEAR = @SchoolYear 
+   AND np.Recruiter_ID IS NOT NULL 
+   AND hsp.Recruiter_ID <> np.Recruiter_ID 
+  FOR XML PATH ('Item'), ROOT('SchoolChanges') 
+ ) 
+ 
+ /************************************************************************* 
+ *** Update the targeted school pro.le(same school year) with the new approved value 
+ *************************************************************************/ 
+ IF @SchoolYear >= @CurrentSchoolYear 
+ BEGIN 
+  UPDATE [dbo].[HIGH_SCHOOL_PROFILE] 
+  SET  
+   [PRIORITY_CODE] = np.PRIORITY_CODE 
+   ,[STATUS_CODE] =  np.STATUS_CODE 
+   ,[ACCESS_CODE] =  np.ACCESS_CODE 
+   ,[RECRUITER_ID] = np.RECRUITER_ID 
+   ,[USER_LOGIN] =   @ApprovedBy 
+   ,[UPDATE_DATE] = GETDATE() 
+  FROM 
+   MCRISS.dbo.HIGH_SCHOOL hs 
+   INNER JOIN MCRISS.dbo.HIGH_SCHOOL_PROFILE hsp 
+    ON hs.School_Code = hsp.School_Code   
+   INNER JOIN [dbo].[HIGH_SCHOOL_NEW_PLAN] np 
+    ON hsp.[NEW_PLAN_ID] = np.ID 
+  WHERE 
+   ORGANIZATION_ID = @Organiza.onId  
+   AND hsp.SCHOOL_YEAR = @SchoolYear  
+ END 
+ 
+  
+ /************************************************************************* 
+ *** Insert new school pro.le(next year's) for new shcools that have no exis.ng previous pro.le  
+ *************************************************************************/ 
+ INSERT INTO [HIGH_SCHOOL_PROFILE] 
+  ( 
+  [SCHOOL_CODE], 
+  [SCHOOL_YEAR], 
+  [PRIORITY_CODE], 
+  [STATUS_CODE], 
+  [ACCESS_CODE], 
+  [MALE_SENIORS], 
+  [FEMALE_SENIORS], 
+  [ASVAB_RESP], 
+  [USER_LOGIN], 
+  [UPDATE_DATE], 
+  [rowguid] 
+  ) 
+ SELECT  
+  hs.[SCHOOL_CODE], 
+  @SchoolYear + 1, 
+  '1', 
+  'WK', 
+  'F', 
+  0, 
+  0, 
+  'N', 
+  'SA', 
+  GETDATE(), 
+  NEWID() 
+ FROM  
+  MCRISS.dbo.HIGH_SCHOOL hs 
+  LEFT OUTER JOIN MCRISS.dbo.HIGH_SCHOOL_PROFILE hsp 
+   ON hs.School_Code = hsp.School_Code  
+ WHERE  
+  [ORGANIZATION_ID] = @Organiza.onId 
+  AND hsp.School_year IS NULL 
+ 
+ /************************************************************************* 
+ *** Insert new school pro.le(next year's) for shcools with the latest previous pro.le  
+ *************************************************************************/ 
+ SELECT   
+  hs.[SCHOOL_CODE], Max(hsp.School_Year) AS School_Year 
+ INTO #SchoolWithPrevPro.le 
+ FROM  
+  [dbo].[HIGH_SCHOOL] hs 
+  INNER JOIN [dbo].[HIGH_SCHOOL_PROFILE] hsp 
+   ON hs.School_Code = hsp.School_Code  
+ WHERE  
+  ORGANIZATION_ID = @Organiza.onId 
+  AND hsp.School_year <= @SchoolYear + 1 
+ group by hs.school_code 
+ having Max(hsp.School_Year) <> @SchoolYear + 1 
+ 
+ INSERT INTO [HIGH_SCHOOL_PROFILE] 
+ ( 
+ [SCHOOL_CODE], 
+ [SCHOOL_YEAR], 
+ [PRIORITY_CODE], 
+    [STATUS_CODE], 
+    [ACCESS_CODE], 
+    [RECRUITER_ID], 
+ [MALE_SENIORS], 
+ [FEMALE_SENIORS], 
+ [ASVAB_RESP], 
+ [USER_LOGIN], 
+ [UPDATE_DATE], 
+ [rowguid] 
+ ) 
+ SELECT 
+  hsp.[SCHOOL_CODE] 
+  ,@SchoolYear + 1 
+        ,ISNULL([PRIORITY_CODE], '1') 
+        ,ISNULL([STATUS_CODE], 'WK') 
+        ,ISNULL([ACCESS_CODE], 'F') 
+        ,[RECRUITER_ID] 
+  ,0 
+     ,0 
+  ,'N' 
+  ,@ApprovedBy  
+  ,GetDate() 
+  ,NewID()  
+ FROM  
+  [dbo].HIGH_SCHOOL_PROFILE hsp 
+  INNER JOIN #SchoolWithPrevPro.le t 
+   ON hsp.School_Code = t.School_Code AND hsp.School_Year = t.School_Year 
+ 
+ 
+ CREATE TABLE #APPROVED_NEW_PLAN_DATA 
+  (SCHOOL_CODE int, 
+   INITIAL_VISIT_PLAN date.me, 
+   SENIOR_LIST_PLAN date.me,  
+   JUNIOR_LIST_PLAN date.me, 
+   NROTC_SENIOR_PLAN date.me, 
+   NROTC_JUNIOR_PLAN date.me, 
+   CAREER_TALK_PLAN date.me, 
+   BAND_TALK_PLAN date.me, 
+   FIRST_SENIOR_PLAN date.me, 
+   Priority_Code char(1), 
+   Status_Code varchar(4), 
+   Access_Code char(1), 
+   Recruiter_ID int 
+  ) 
+ 
+ INSERT INTO #APPROVED_NEW_PLAN_DATA 
+   SELECT hs.SCHOOL_CODE, 
+       np.INITIAL_VISIT_NEW_PLAN, 
+       np.SENIOR_LIST_NEW_PLAN, 
+       np.JUNIOR_LIST_NEW_PLAN, 
+       np.NROTC_SENIOR_NEW_PLAN, 
+       np.NROTC_JUNIOR_NEW_PLAN, 
+       np.CAREER_TALK_NEW_PLAN, 
+       np.BAND_TALK_NEW_PLAN, 
+       np.FIRST_SENIOR_NEW_PLAN, 
+       np.Priority_Code, 
+       np.Status_Code, 
+       np.Access_Code, 
+       np.Recruiter_ID 
+     FROM dbo.HIGH_SCHOOL hs 
+  INNER JOIN dbo.HIGH_SCHOOL_PROFILE hsp ON hs.SCHOOL_CODE = hsp.SCHOOL_CODE and hsp.SCHOOL_YEAR = @SchoolYear 
+        INNER JOIN dbo.HIGH_SCHOOL_NEW_PLAN np ON hsp.NEW_PLAN_ID = np.ID 
+    WHERE hs.ORGANIZATION_ID = @Organiza.onId     
+  
+  
+ DECLARE @SchoolCode int 
+ 
+ DECLARE @INITIAL_VISIT_PLAN date.me 
+ DECLARE @SENIOR_LIST_PLAN date.me 
+ DECLARE @JUNIOR_LIST_PLAN date.me 
+ DECLARE @NROTC_SENIOR_PLAN date.me 
+ DECLARE @NROTC_JUNIOR_PLAN date.me 
+ DECLARE @CAREER_TALK_PLAN date.me 
+ DECLARE @BAND_TALK_PLAN date.me 
+ DECLARE @FIRST_SENIOR_PLAN date.me 
+  
+ DECLARE @GetSchoolCode CURSOR 
+ 
+ SET @GetSchoolCode = CURSOR FOR  
+  SELECT  
+    SCHOOL_CODE,  
+    INITIAL_VISIT_PLAN, 
+    SENIOR_LIST_PLAN,  
+    JUNIOR_LIST_PLAN, 
+    NROTC_SENIOR_PLAN, 
+    NROTC_JUNIOR_PLAN, 
+    CAREER_TALK_PLAN, 
+    BAND_TALK_PLAN, 
+    FIRST_SENIOR_PLAN  
+  FROM #APPROVED_NEW_PLAN_DATA  
+  
+ OPEN @GetSchoolCode 
+ FETCH NEXT FROM @GetSchoolCode INTO @SchoolCode, @INITIAL_VISIT_PLAN, @SENIOR_LIST_PLAN, @JUNIOR_LIST_PLAN, @NROTC_SENIOR_PLAN, @NROTC_JUNIOR_PLAN,  
+  @CAREER_TALK_PLAN, @BAND_TALK_PLAN, @FIRST_SENIOR_PLAN 
+ WHILE (@@FETCH_STATUS = 0) 
+   BEGIN 
+ 
+   /*********************************************************** 
+   *** STEP 3 Insert/Update record for: HIGH_SCHOOL_APPROVED_PLAN 
+   ***********************************************************/ 
+   IF NOT EXISTS(SELECT ID  
+                        FROM dbo.HIGH_SCHOOL_APPROVED_PLAN ap 
+                  INNER JOIN dbo.HIGH_SCHOOL_PROFILE p ON ap.ID = p.APPROVED_PLAN_ID 
+                       WHERE p.School_Code = @SchoolCode AND School_Year = (@SchoolYear + 1)) 
+   BEGIN 
+    DECLARE @ApprovedPlanId uniqueiden..er 
+    SET @ApprovedPlanId = NEWID() 
+     
+    -- Insert new record 
+    INSERT INTO [MCRISS].[dbo].[HIGH_SCHOOL_APPROVED_PLAN] 
+         ([ID] 
+         ,[INITIAL_VISIT_PLAN] 
+         ,[SENIOR_LIST_PLAN] 
+         ,[JUNIOR_LIST_PLAN] 
+         ,[NROTC_SENIOR_PLAN] 
+         ,[NROTC_JUNIOR_PLAN] 
+         ,[CAREER_TALK_PLAN] 
+         ,[BAND_TALK_PLAN] 
+         ,[FIRST_SENIOR_PLAN] 
+         ,[APPROVED_BY_USER] 
+         ,[APPROVED_DATE] 
+         ,[Priority_Code] 
+         ,[Status_Code] 
+         ,[Access_Code] 
+         ,[Recruiter_ID]) 
+      SELECT  
+         @ApprovedPlanId 
+         ,INITIAL_VISIT_PLAN 
+         ,SENIOR_LIST_PLAN 
+         ,JUNIOR_LIST_PLAN 
+         ,NROTC_SENIOR_PLAN 
+         ,NROTC_JUNIOR_PLAN 
+         ,CAREER_TALK_PLAN 
+         ,BAND_TALK_PLAN 
+         ,FIRST_SENIOR_PLAN 
+         ,@ApprovedBy 
+         ,@Now 
+         ,Priority_Code  
+         ,Status_Code 
+         ,Access_Code  
+         ,Recruiter_ID 
+        FROM #APPROVED_NEW_PLAN_DATA 
+       WHERE SCHOOL_CODE = @SchoolCode 
+ 
+    -- update pro.le with new id, priority, status, access, recru.er 
+    IF @SchoolYear >= @CurrentSchoolYear 
+    BEGIN  
+     UPDATE dbo.HIGH_SCHOOL_PROFILE 
+     SET  
+      APPROVED_PLAN_ID = @ApprovedPlanId 
+      ,Priority_Code = anp.Priority_Code 
+      ,Status_Code = anp.Status_Code 
+      ,Access_Code = anp.Access_Code 
+      ,Recruiter_ID = anp.Recruiter_ID 
+      ,UPDATE_DATE = @Now 
+     FROM 
+      dbo.HIGH_SCHOOL_PROFILE hsp 
+      INNER JOIN #APPROVED_NEW_PLAN_DATA anp 
+       ON hsp.School_Code = anp.School_Code 
+     WHERE hsp.SCHOOL_CODE = @SchoolCode AND 
+        hsp.SCHOOL_YEAR = (@SchoolYear + 1) 
+       END 
+       ELSE 
+       BEGIN 
+     UPDATE dbo.HIGH_SCHOOL_PROFILE 
+     SET  
+      APPROVED_PLAN_ID = @ApprovedPlanId 
+      ,UPDATE_DATE = @Now       
+     FROM 
+      dbo.HIGH_SCHOOL_PROFILE hsp 
+      INNER JOIN #APPROVED_NEW_PLAN_DATA anp 
+       ON hsp.School_Code = anp.School_Code 
+     WHERE hsp.SCHOOL_CODE = @SchoolCode AND 
+        hsp.SCHOOL_YEAR = (@SchoolYear + 1) 
+       END 
+ 
+   END 
+   ELSE 
+   BEGIN  
+    
+    -- Update exis.ng record 
+    UPDATE ap 
+       SET ap.INITIAL_VISIT_PLAN = npd.INITIAL_VISIT_PLAN 
+       ,ap.SENIOR_LIST_PLAN = npd.SENIOR_LIST_PLAN 
+       ,ap.JUNIOR_LIST_PLAN = npd.JUNIOR_LIST_PLAN 
+       ,ap.NROTC_SENIOR_PLAN = npd.NROTC_SENIOR_PLAN 
+       ,ap.NROTC_JUNIOR_PLAN = npd.NROTC_JUNIOR_PLAN 
+       ,ap.CAREER_TALK_PLAN = npd.CAREER_TALK_PLAN 
+       ,ap.BAND_TALK_PLAN = npd.BAND_TALK_PLAN 
+       ,ap.FIRST_SENIOR_PLAN = npd.FIRST_SENIOR_PLAN 
+       ,ap.APPROVED_BY_USER = @ApprovedBy 
+       ,ap.APPROVED_DATE = @Now 
+       ,ap.Priority_Code = npd.Priority_Code 
+       ,ap.Status_Code = npd.Status_Code 
+       ,ap.Access_Code = npd.Access_Code 
+       ,ap.Recruiter_ID = npd.Recruiter_ID 
+     FROM dbo.HIGH_SCHOOL_APPROVED_PLAN ap 
+     INNER JOIN dbo.HIGH_SCHOOL_PROFILE p  
+      ON ap.ID = p.APPROVED_PLAN_ID and 
+                     p.School_Code = @SchoolCode AND p.School_Year = (@SchoolYear + 1)       
+     INNER JOIN #APPROVED_NEW_PLAN_DATA npd ON p.School_Code = npd.School_Code  
+     
+    IF @SchoolYear >= @CurrentSchoolYear 
+    BEGIN 
+     UPDATE p 
+        SET  
+       p.Priority_Code = npd.Priority_Code 
+       ,p.Status_Code = npd.Status_Code 
+       ,p.Access_Code = npd.Access_Code 
+       ,p.Recruiter_ID = npd.Recruiter_ID 
+       ,p.UPDATE_DATE = @Now 
+      FROM  
+      dbo.HIGH_SCHOOL_PROFILE p  
+      INNER JOIN #APPROVED_NEW_PLAN_DATA npd  
+       ON p.School_Code = npd.School_Code  
+      WHERE    
+      p.School_Code = @SchoolCode AND p.School_Year = (@SchoolYear + 1) 
+    END   
+   END 
+    
+   /*********************************************************** 
+   *** STEP 4 Update record for: HIGH_SCHOOL_NEW_PLAN 
+   ***********************************************************/ 
+   UPDATE np 
+      SET np.NEW_PLAN_APPROVED = 1 
+      ,np.APPROVED_BY_USER = @ApprovedBy 
+      ,np.UPDATE_DATE = @Now 
+    FROM dbo.HIGH_SCHOOL_NEW_PLAN np 
+    INNER JOIN dbo.HIGH_SCHOOL_PROFILE p ON np.ID = p.NEW_PLAN_ID and 
+                           p.School_Code = @SchoolCode AND p.School_Year = @SchoolYear       
+    
+   /*********************************************************** 
+   *** STEP 5 Update HIGH_SCHOOL_PLAN for report 
+   ***********************************************************/ 
+   DECLARE @School_Year int 
+   SET @School_Year = @SchoolYear + 1 
+ 
+   --IF @INITIAL_VISIT_PLAN IS NOT NULL 
+   --BEGIN  
+    Execute [USMC].[InsertUpdateHighSchoolPlanFromApprovedNewPlan]  @SchoolCode, @School_Year, 'INV', @INITIAL_VISIT_PLAN, @ApprovedBy 
+   --END 
+ 
+   --IF @SENIOR_LIST_PLAN IS NOT NULL 
+   --BEGIN  
+    Execute [USMC].[InsertUpdateHighSchoolPlanFromApprovedNewPlan]  @SchoolCode, @School_Year, 'SRL', @SENIOR_LIST_PLAN, @ApprovedBy 
+   --END 
+ 
+   --IF @JUNIOR_LIST_PLAN IS NOT NULL 
+   --BEGIN  
+    Execute [USMC].[InsertUpdateHighSchoolPlanFromApprovedNewPlan]  @SchoolCode, @School_Year, 'JRL', @JUNIOR_LIST_PLAN, @ApprovedBy 
+   --END 
+ 
+   --IF @NROTC_SENIOR_PLAN IS NOT NULL 
+   --BEGIN  
+    Execute [USMC].[InsertUpdateHighSchoolPlanFromApprovedNewPlan]  @SchoolCode, @School_Year, 'SNT', @NROTC_SENIOR_PLAN, @ApprovedBy 
+   --END 
+ 
+   --IF @NROTC_JUNIOR_PLAN IS NOT NULL 
+   --BEGIN  
+    Execute [USMC].[InsertUpdateHighSchoolPlanFromApprovedNewPlan]  @SchoolCode, @School_Year, 'JNT', @NROTC_JUNIOR_PLAN, @ApprovedBy 
+   --END 
+ 
+   --IF @CAREER_TALK_PLAN IS NOT NULL 
+   --BEGIN  
+    Execute [USMC].[InsertUpdateHighSchoolPlanFromApprovedNewPlan]  @SchoolCode, @School_Year, 'CAT', @CAREER_TALK_PLAN, @ApprovedBy 
+   --END 
+ 
+   --IF @BAND_TALK_PLAN IS NOT NULL 
+   --BEGIN  
+    Execute [USMC].[InsertUpdateHighSchoolPlanFromApprovedNewPlan]  @SchoolCode, @School_Year, 'BAT', @BAND_TALK_PLAN, @ApprovedBy 
+   --END 
+ 
+   --IF @FIRST_SENIOR_PLAN IS NOT NULL 
+   --BEGIN  
+    Execute [USMC].[InsertUpdateHighSchoolPlanFromApprovedNewPlan]  @SchoolCode, @School_Year, '1SR', @FIRST_SENIOR_PLAN, @ApprovedBy 
+   --END 
+ 
+  FETCH NEXT FROM @GetSchoolCode INTO @SchoolCode, @INITIAL_VISIT_PLAN, @SENIOR_LIST_PLAN, @JUNIOR_LIST_PLAN, @NROTC_SENIOR_PLAN, @NROTC_JUNIOR_PLAN,  
+  @CAREER_TALK_PLAN, @BAND_TALK_PLAN, @FIRST_SENIOR_PLAN 
+   END 
+    
+ CLOSE @GetSchoolCode 
+ DEALLOCATE @GetSchoolCode 
+  
+ DROP TABLE #APPROVED_NEW_PLAN_DATA 
+  
+ DROP TABLE #SchoolWithPrevPro.le 
+ 
+ -- Rollback the transac.on if there were any errors 
+ IF @@ERROR <> 0 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+ 
+  -- Raise an error and return 
+  RAISERROR ('Error occurred while performing the change.', 16, 1) 
+  RETURN 
+ END 
+ 
+  
+ -- STEP 5: If we reach this point, the commands completed successfully 
+ --         Commit the transac.on.... 
+ COMMIT TRANSACTION 
+  
+ SELECT @RecruiterChanges 
+END]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

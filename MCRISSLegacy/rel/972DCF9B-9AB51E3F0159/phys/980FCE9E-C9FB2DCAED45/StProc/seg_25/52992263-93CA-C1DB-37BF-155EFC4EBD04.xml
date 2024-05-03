@@ -1,0 +1,60 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateLSIHistoryRecord]" directorySegmentName="seg_25" id="52992263-93CA-C1DB-37BF-155EFC4EBD04">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@PersonID int, 
+ @SponsorName varchar(100), 
+ @RankID int, 
+ @ServiceID int, 
+ @StatusID int, 
+ @Notes varchar(255), 
+ @UserLogin varchar(15), 
+ @LSIHistoryID int = 0 OUTPUT 
+AS 
+ 
+SET NOCOUNT ON 
+ 
+IF EXISTS (SELECT 1 FROM LSI_HISTORY WHERE LSI_HISTORY_ID = @LSIHistoryID) 
+BEGIN 
+ -- UPDATE THE RECORD IN LSI_HISTORY 
+ UPDATE 
+  LSI_HISTORY 
+ SET 
+  PERSON_ID = @PersonID, 
+  SPONSOR_NAME = @SponsorName, 
+  RANK_ID = @RankID, 
+  SERVICE_ID = @ServiceID, 
+  STATUS_ID = @StatusID, 
+  NOTES = @Notes, 
+  USER_LOGIN = @UserLogin 
+ WHERE 
+  LSI_HISTORY_ID = @LSIHistoryID 
+ 
+ -- RETURN THE @LSIHistoryID 
+ Set @LSIHistoryID = @@IDENTITY 
+END 
+ELSE 
+BEGIN 
+ -- INSERT THE NEW RECORD INTO LSI_HISTORY 
+ INSERT INTO LSI_HISTORY (PERSON_ID, SPONSOR_NAME, RANK_ID, SERVICE_ID, STATUS_ID, NOTES, USER_LOGIN, UPDATE_DATE) 
+ VALUES( 
+  @PersonID, 
+  @SponsorName, 
+  @RankID, 
+  @ServiceID, 
+  @StatusID, 
+  @Notes, 
+  @UserLogin, 
+  GetDate() 
+ ) 
+ 
+ -- RETURN THE @LSIHistoryID 
+ Set @LSIHistoryID = @@IDENTITY 
+END 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

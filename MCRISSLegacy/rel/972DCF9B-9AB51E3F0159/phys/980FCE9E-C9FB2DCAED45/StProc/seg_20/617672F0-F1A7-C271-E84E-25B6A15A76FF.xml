@@ -1,0 +1,110 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetQSNPivotDateHistory]" directorySegmentName="seg_20" id="617672F0-F1A7-C271-E84E-25B6A15A76FF">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@FiscalYear  int, 
+ @QSNID    char(9) = NULL, 
+ @OrgID   int = NULL, 
+ @RUC   varchar(5) = NULL, 
+ @MOS   varchar(4) = NULL, 
+ @PreviousPivotDate  date.me = NULL, 
+ @NewPivotDate   date.me = NULL, 
+ @ChangedBy  varchar(15) = NULL, 
+ @DateMoved  date.me = NULL 
+AS 
+ 
+SET NOCOUNT ON 
+ 
+-- If NULL, assume MCRC level (OrgID 900) 
+SET @OrgID = COALESCE(@OrgID, 900) 
+ 
+/* 
+------------------------------------------------------------------------------ 
+--- Create Temp Tables --- 
+ 
+The #SUBORGS table will be populated with all OrgIDs that are in the child hierarchy 
+of the input @OrgID.  USED is a bit that is necessary for popula.ng the data 
+to .ag whether an OrgID's children have been joined yet.  This is to make 
+sure the direct children of an OrgID are only inserted once. 
+ 
+The #IDS table is used only to temporarily store the OrgIDs that children are being 
+retrieved for.  Because it is an itera.ve process, this table is necessary so that 
+we know which OrgIDs to toggle the USED .ag on in the #SUBORGS table. 
+------------------------------------------------------------------------------ 
+*/ 
+CREATE TABLE #SUBORGS (ORG_ID int NOT NULL, ORG_TYPE varchar(3), USED bit NOT NULL) 
+CREATE TABLE #IDS (ORG_ID int NOT NULL) 
+ 
+-- Seed the temp table with the input OrgID 
+INSERT INTO #SUBORGS 
+SELECT ORGANIZATION_ID, 
+ ORGANIZATION_TYPE, 
+ 0 
+FROM RECRUITING_ORGANIZATION 
+WHERE ORGANIZATION_ID = @OrgID 
+ 
+-- Con.nue processing un.l we have goten to the RS level 
+WHILE (SELECT COUNT(1) FROM #SUBORGS WHERE USED = 0 AND ORG_TYPE = 'RS') = 0 
+BEGIN 
+ 
+-- Save all OrgIDs in the #SUBORGS table that we haven't goten children for yet. 
+INSERT INTO #IDS 
+SELECT ORG_ID 
+FROM #SUBORGS 
+WHERE USED = 0 
+ 
+-- Insert new children (with Used .ag = 0) into the #SUBORGS table. 
+INSERT INTO #SUBORGS 
+SELECT OM.CHILD_ORGANIZATION_ID, RO.ORGANIZATION_TYPE, 0 
+FROM ORGANIZATION_MAP OM INNER JOIN #SUBORGS SO ON OM.PARENT_ORGANIZATION_ID = SO.ORG_ID AND SO.USED = 0 
+ INNER JOIN RECRUITING_ORGANIZATION RO ON OM.CHILD_ORGANIZATION_ID = RO.ORGANIZATION_ID 
+ 
+-- Set the USED .ag to 1 for the OrgIDs that we just processed. 
+UPDATE #SUBORGS 
+SET USED = 1 
+WHERE ORG_ID IN (SELECT * FROM #IDS) 
+ 
+-- No need to save the OrgIDs that we just got children for.  They will remain in the #SUBORGS table 
+-- and are now marked as used/processed. 
+DELETE FROM #IDS 
+ 
+END 
+ 
+SELECT 
+ Q.QSN_ID, 
+ RO.[NAME], 
+ MO.UNIT_NAME + ' - ' + Q.RUC AS RUC, 
+ Q.MOS + ' - ' + M.SHORT_DESCRIPTION AS MOS, 
+ Q.GENDER, 
+ MSC.[DESCRIPTION] AS MSC, 
+ H.PREVIOUS_PIVOT_DATE, H.NEW_PIVOT_DATE, H.DATE_CHANGED, 
+ H.USER_LOGIN AS CHANGED_BY 
+FROM 
+ QSN_PIVOT_DATE_HISTORY H INNER JOIN QSN Q ON 
+  (Q.FY = @FiscalYear AND 
+  H.QSN_ID = Q.QSN_ID AND 
+  Q.QSN_ID = COALESCE(@QSNID, Q.QSN_ID) AND 
+  DATEDIFF(MONTH, H.PREVIOUS_PIVOT_DATE, COALESCE(@PreviousPivotDate, H.PREVIOUS_PIVOT_DATE)) = 0 AND 
+  DATEDIFF(MONTH, H.NEW_PIVOT_DATE, COALESCE(@NewPivotDate, H.NEW_PIVOT_DATE)) = 0 AND 
+  H.USER_LOGIN = COALESCE(@ChangedBy, H.USER_LOGIN) AND 
+  DATEDIFF(DAY, H.DATE_CHANGED, COALESCE(@DateMoved, H.DATE_CHANGED)) = 0) 
+ INNER JOIN #SUBORGS SO ON 
+  (Q.RECRUITING_ORGANIZATION_ID = SO.ORG_ID AND 
+  SO.ORG_TYPE = 'RS') 
+ INNER JOIN RECRUITING_ORGANIZATION RO ON 
+  Q.RECRUITING_ORGANIZATION_ID = RO.ORGANIZATION_ID 
+ INNER JOIN MARINE_ORGANIZATION MO ON 
+  (Q.RUC = MO.PRESENT_RUC AND 
+  Q.RUC = COALESCE(@RUC, Q.RUC) AND 
+  Q.MCC_CODE = MO.PRESENT_MCC) 
+ INNER JOIN MOS M ON 
+  (Q.MOS = M.MOS_CODE AND 
+  Q.MOS = COALESCE(@MOS, Q.MOS)) 
+ INNER JOIN MSC ON Q.MSC = MSC.CODE 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

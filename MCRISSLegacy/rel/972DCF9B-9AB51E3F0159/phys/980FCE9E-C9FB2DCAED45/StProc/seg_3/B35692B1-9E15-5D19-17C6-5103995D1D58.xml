@@ -1,0 +1,190 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetCarShipperData]" directorySegmentName="seg_3" id="B35692B1-9E15-5D19-17C6-5103995D1D58">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @Org_Id int, 
+ @BeginYear int, 
+ @BeginMonth int, 
+ @ToYear int, 
+ @ToMonth int 
+) 
+AS 
+BEGIN 
+ 
+ DECLARE @datBeginDate as DateTime 
+ DECLARE @datToDate as DateTime 
+ 
+ SET @datBeginDate = CAST(CAST(@BeginMonth as varchar) + '/1/' + CAST(@BeginYear as varchar) as date.me) 
+ 
+ -- Calculate the "to" date by .rst se.ng the date to be the .rst of the month following the ToMonth/ToYear; Then subtract one day 
+ SET @datToDate = CAST(CAST((@ToMonth) as varchar) + '/1/' + CAST(@ToYear as varchar) as date.me) 
+    SET @datToDate = DateAdd(Month, 1, @datToDate) 
+ SET @datToDate = DateAdd(day, -1, @datToDate) 
+ 
+ SELECT ORG_ID, 
+   sum(RMNPS_OBJECTIVE) as RMNPS_OBJECTIVE, 
+   sum(RFNPS_OBJECTIVE) as RFNPS_OBJECTIVE, 
+   sum(RESMG_OBJECTIVE) as RESMG_OBJECTIVE, 
+   sum(RESMA_OBJECTIVE) as RESMA_OBJECTIVE, 
+   sum(RESF_OBJECTIVE) as RESF_OBJECTIVE, 
+   sum(PS_OBJECTIVE) as PS_OBJECTIVE, 
+   sum(TOTAL_OBJECTIVE) as TOTAL_OBJECTIVE, 
+    
+   sum(RMNPS_ACHIEVED) as RMNPS_ACHIEVED, 
+   sum(RFNPS_ACHIEVED) as RFNPS_ACHIEVED, 
+   sum(RESMG_ACHIEVED) as RESMG_ACHIEVED, 
+   sum(RESMA_ACHIEVED) as RESMA_ACHIEVED, 
+   sum(RESF_ACHIEVED) as RESF_ACHIEVED, 
+   sum(PS_ACHIEVED) as PS_ACHIEVED, 
+   sum(TOTAL_ACHIEVED) as TOTAL_ACHIEVED, 
+    
+   sum(RMNPS_MG_I) as RMNPS_MG_I, 
+   sum(RFNPS_MG_I) as RFNPS_MG_I, 
+   sum(RESMG_MG_I) as RESMG_MG_I, 
+   sum(RESMA_MG_I) as RESMA_MG_I, 
+   sum(RESF_MG_I) as RESF_MG_I, 
+   sum(PS_USMC_MG_I) as PS_USMC_MG_I, 
+   sum(TOTAL_MG_I) as TOTAL_MG_I, 
+    
+   sum(RMNPS_MG_II) as RMNPS_MG_II, 
+   sum(RFNPS_MG_II) as RFNPS_MG_II, 
+   sum(RESMG_MG_II) as RESMG_MG_II, 
+   sum(RESMA_MG_II) as RESMA_MG_II, 
+   sum(RESF_MG_II) as RESF_MG_II, 
+   sum(PS_USMC_MG_II) as PS_USMC_MG_II, 
+   sum(TOTAL_MG_II) as TOTAL_MG_II, 
+ 
+   sum(RMNPS_MG_IIIA) as RMNPS_MG_IIIA, 
+   sum(RFNPS_MG_IIIA) as RFNPS_MG_IIIA, 
+   sum(RESMG_MG_IIIA) as RESMG_MG_IIIA, 
+   sum(RESMA_MG_IIIA) as RESMA_MG_IIIA, 
+   sum(RESF_MG_IIIA) as RESF_MG_IIIA, 
+   sum(PS_USMC_MG_IIIA) as PS_USMC_MG_IIIA, 
+   sum(TOTAL_MG_IIIA) as TOTAL_MG_IIIA, 
+ 
+   sum(RMNPS_TOTAL_MG_I_IIIA) as RMNPS_TOTAL_MG_I_IIIA, 
+   sum(RFNPS_TOTAL_MG_I_IIIA) as RFNPS_TOTAL_MG_I_IIIA, 
+   sum(RESMG_TOTAL_MG_I_IIIA) as RESMG_TOTAL_MG_I_IIIA, 
+   sum(RESMA_TOTAL_MG_I_IIIA) as RESMA_TOTAL_MG_I_IIIA, 
+   sum(RESF_TOTAL_MG_I_IIIA) as RESF_TOTAL_MG_I_IIIA, 
+   sum(PS_USMC_TOTAL_MG_I_IIIA) as PS_USMC_TOTAL_MG_I_IIIA, 
+   sum(TOTAL_TOTAL_MG_I_IIIA) as TOTAL_TOTAL_MG_I_IIIA, 
+ 
+   sum(RMNPS_MG_IIIB) as RMNPS_MG_IIIB, 
+   sum(RFNPS_MG_IIIB) as RFNPS_MG_IIIB, 
+   sum(RESMG_MG_IIIB) as RESMG_MG_IIIB, 
+   sum(RESMA_MG_IIIB) as RESMA_MG_IIIB, 
+   sum(RESF_MG_IIIB) as RESF_MG_IIIB, 
+   sum(PS_USMC_MG_IIIB) as PS_USMC_MG_IIIB, 
+   sum(TOTAL_MG_IIIB) as TOTAL_MG_IIIB, 
+ 
+   sum(RMNPS_MG_IV) as RMNPS_MG_IV, 
+   sum(RFNPS_MG_IV) as RFNPS_MG_IV, 
+   sum(RESMG_MG_IV) as RESMG_MG_IV, 
+   sum(RESMA_MG_IV) as RESMA_MG_IV, 
+   sum(RESF_MG_IV) as RESF_MG_IV, 
+   sum(PS_USMC_MG_IV) as PS_USMC_MG_IV, 
+   sum(TOTAL_MG_IV) as TOTAL_MG_IV, 
+ 
+   sum(RMNPS_TOE_TWO) as RMNPS_TOE_TWO, 
+   sum(RFNPS_TOE_TWO) as RFNPS_TOE_TWO, 
+   sum(RESMG_TOE_TWO) as RESMG_TOE_TWO, 
+   sum(RESMA_TOE_TWO) as RESMA_TOE_TWO, 
+   sum(RESF_TOE_TWO) as RESF_TOE_TWO, 
+   sum(PS_USMC_TOE_TWO) as PS_USMC_TOE_TWO, 
+   sum(TOTAL_TOE_TWO) as TOTAL_TOE_TWO, 
+ 
+   sum(RMNPS_TOE_THREE) as RMNPS_TOE_THREE, 
+   sum(RFNPS_TOE_THREE) as RFNPS_TOE_THREE, 
+   sum(RESMG_TOE_THREE) as RESMG_TOE_THREE, 
+   sum(RESMA_TOE_THREE) as RESMA_TOE_THREE, 
+   sum(RESF_TOE_THREE) as RESF_TOE_THREE, 
+   sum(PS_USMC_TOE_THREE) as PS_USMC_TOE_THREE, 
+   sum(TOTAL_TOE_THREE) as TOTAL_TOE_THREE, 
+ 
+   sum(RMNPS_TOE_FOUR) as RMNPS_TOE_FOUR, 
+   sum(RFNPS_TOE_FOUR) as RFNPS_TOE_FOUR, 
+   sum(RESMG_TOE_FOUR) as RESMG_TOE_FOUR, 
+   sum(RESMA_TOE_FOUR) as RESMA_TOE_FOUR, 
+   sum(RESF_TOE_FOUR) as RESF_TOE_FOUR, 
+   sum(PS_USMC_TOE_FOUR) as PS_USMC_TOE_FOUR, 
+   sum(TOTAL_TOE_FOUR) as TOTAL_TOE_FOUR, 
+ 
+   sum(RMNPS_TOE_FIVE) as RMNPS_TOE_FIVE, 
+   sum(RFNPS_TOE_FIVE) as RFNPS_TOE_FIVE, 
+   sum(RESMG_TOE_FIVE) as RESMG_TOE_FIVE, 
+   sum(RESMA_TOE_FIVE) as RESMA_TOE_FIVE, 
+   sum(RESF_TOE_FIVE) as RESF_TOE_FIVE, 
+   sum(PS_USMC_TOE_FIVE) as PS_USMC_TOE_FIVE, 
+   sum(TOTAL_TOE_FIVE) as TOTAL_TOE_FIVE, 
+ 
+   sum(RMNPS_TOE_SIX) as RMNPS_TOE_SIX, 
+   sum(RFNPS_TOE_SIX) as RFNPS_TOE_SIX, 
+   sum(RESMG_TOE_SIX) as RESMG_TOE_SIX, 
+   sum(RESMA_TOE_SIX) as RESMA_TOE_SIX, 
+   sum(RESF_TOE_SIX) as RESF_TOE_SIX, 
+   sum(PS_USMC_TOE_SIX) as PS_USMC_TOE_SIX, 
+   sum(TOTAL_TOE_SIX) as TOTAL_TOE_SIX, 
+ 
+   sum(RMNPS_TOE_INVALID) as RMNPS_TOE_INVALID, 
+   sum(RFNPS_TOE_INVALID) as RFNPS_TOE_INVALID, 
+   sum(RESMG_TOE_INVALID) as RESMG_TOE_INVALID, 
+   sum(RESMA_TOE_INVALID) as RESMA_TOE_INVALID, 
+   sum(RESF_TOE_INVALID) as RESF_TOE_INVALID, 
+   sum(PS_USMC_TOE_INVALID) as PS_USMC_TOE_INVALID, 
+   sum(TOTAL_TOE_INVALID) as TOTAL_TOE_INVALID, 
+ 
+   sum(RMNPS_TIER_ONE) as RMNPS_TIER_ONE, 
+   sum(RFNPS_TIER_ONE) as RFNPS_TIER_ONE, 
+   sum(RESMG_TIER_ONE) as RESMG_TIER_ONE, 
+   sum(RESMA_TIER_ONE) as RESMA_TIER_ONE, 
+   sum(RESF_TIER_ONE) as RESF_TIER_ONE, 
+   sum(PS_USMC_TIER_ONE) as PS_USMC_TIER_ONE, 
+   sum(TOTAL_TIER_ONE) as TOTAL_TIER_ONE, 
+ 
+   sum(RMNPS_TIER_TWO) as RMNPS_TIER_TWO, 
+   sum(RFNPS_TIER_TWO) as RFNPS_TIER_TWO, 
+   sum(RESMG_TIER_TWO) as RESMG_TIER_TWO, 
+   sum(RESMA_TIER_TWO) as RESMA_TIER_TWO, 
+   sum(RESF_TIER_TWO) as RESF_TIER_TWO, 
+   sum(PS_USMC_TIER_TWO) as PS_USMC_TIER_TWO, 
+   sum(TOTAL_TIER_TWO) as TOTAL_TIER_TWO, 
+ 
+   sum(RMNPS_TIER_THREE) as RMNPS_TIER_THREE, 
+   sum(RFNPS_TIER_THREE) as RFNPS_TIER_THREE, 
+   sum(RESMG_TIER_THREE) as RESMG_TIER_THREE, 
+   sum(RESMA_TIER_THREE) as RESMA_TIER_THREE, 
+   sum(RESF_TIER_THREE) as RESF_TIER_THREE, 
+   sum(PS_USMC_TIER_THREE) as PS_USMC_TIER_THREE, 
+   sum(TOTAL_TIER_THREE) as TOTAL_TIER_THREE, 
+ 
+   sum(MALE_SHIP_MCRD) as MALE_SHIP_MCRD, 
+   sum(MALE_I_IIIA_SHIP_MCRD) as MALE_I_IIIA_SHIP_MCRD, 
+   sum(FEMALE_SHIP_MCRD) as FEMALE_SHIP_MCRD, 
+   sum(FEMALE_I_IIIA_SHIP_MCRD) as FEMALE_I_IIIA_SHIP_MCRD, 
+   sum(TOTAL_SHIP_MCRD) as TOTAL_SHIP_MCRD, 
+   sum(TOTAL_I_IIIA_SHIP_MCRD) as TOTAL_I_IIIA_SHIP_MCRD, 
+ 
+   sum(MALE_MCRD_DISCHARGE) as MALE_MCRD_DISCHARGE, 
+   sum(MALE_I_IIIA_MCRD_DISCHARGE) as MALE_I_IIIA_MCRD_DISCHARGE, 
+   sum(FEMALE_MCRD_DISCHARGE) as FEMALE_MCRD_DISCHARGE, 
+   sum(FEMALE_I_IIIA_MCRD_DISCHARGE) as FEMALE_I_IIIA_MCRD_DISCHARGE, 
+   sum(TOTAL_MCRD_DISCHARGE) as TOTAL_MCRD_DISCHARGE, 
+   sum(TOTAL_I_IIIA_MCRD_DISCHARGE) as TOTAL_I_IIIA_MCRD_DISCHARGE, 
+ 
+   max(update_date) as UPDATE_DATE 
+ 
+  FROM CAR_SHIPPER  
+  WHERE ORG_ID = @Org_Id  
+   AND ( 
+     (CAST(CAST(RPT_MONTH as varchar) + '/1/' + CAST(RPT_YEAR as varchar) AS DateTime) 
+     BETWEEN @datBeginDate and @datToDate) 
+    ) 
+  GROUP BY ORG_ID 
+END]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

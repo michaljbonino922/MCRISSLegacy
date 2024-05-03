@@ -1,0 +1,73 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="Proc1121" directorySegmentName="seg_16" id="44852401-E391-CE20-A5FF-DFF7F67BE4F0">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:56 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@ID   uniqueiden..er, 
+ @PersonID    uniqueiden..er, 
+ @PersonPhoneTypeID  smallint, 
+ @PhoneNumber   varchar(25), 
+ @LastUpdateUserID  uniqueiden..er 
+AS 
+BEGIN 
+ 
+-- STEP 1: Start the transac.on 
+BEGIN TRANSACTION 
+ 
+-- STEP 2 & 3: Issue the data change statement(s), checking @@ERROR a.er each statement 
+IF EXISTS(SELECT PersonPhoneId FROM PersonPhone WHERE PersonPhoneId = @ID) 
+BEGIN 
+ -- if @intCount > 0, then the Employee already exists.  UPDATE. 
+ UPDATE 
+   PersonPhone 
+  SET       
+   PhoneNumber = @PhoneNumber, 
+   LastUpdateDate = GETDATE(), 
+   LastUpdateUserId = @LastUpdateUserID 
+  WHERE  
+   PersonPhoneId = @ID 
+END 
+ELSE 
+BEGIN 
+ -- if @intCount = 0, then the Employee does not exist.  INSERT. 
+ INSERT INTO PersonPhone  
+  VALUES (@ID,  
+    @PersonID,  
+    @PersonPhoneTypeID,  
+    @PhoneNumber,  
+    GETDATE(),  
+    @LastUpdateUserID) 
+END 
+ 
+-- Rollback the transac.on if there were any errors 
+IF @@ERROR <> 0 
+ BEGIN 
+    -- Rollback the transac.on 
+    ROLLBACK TRANSACTION 
+ 
+    -- Raise an error and return 
+    RAISERROR ('Error occurred while performing the change.', 16, 1) 
+    RETURN 
+ END 
+ 
+-- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+IF @@ROWCOUNT > 1 
+BEGIN 
+    -- Rollback the transac.on 
+    ROLLBACK TRANSACTION 
+ 
+    -- Raise an error and return 
+    RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+    RETURN 
+END 
+  
+-- STEP 4: If we reach this point, the commands completed successfully 
+--         Commit the transac.on.... 
+COMMIT TRANSACTION 
+ 
+  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

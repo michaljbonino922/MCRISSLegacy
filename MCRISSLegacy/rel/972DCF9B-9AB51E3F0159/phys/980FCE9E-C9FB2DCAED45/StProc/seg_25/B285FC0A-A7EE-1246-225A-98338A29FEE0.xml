@@ -1,0 +1,35 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateO.cerAccessionData]" directorySegmentName="seg_25" id="B285FC0A-A7EE-1246-225A-98338A29FEE0">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@NWAID   int, 
+ @AccessionDate  date.me,  
+ @UserLogin  varchar(15) 
+AS  
+ 
+IF EXISTS (SELECT 1 FROM OFFICER_ACCESSION WHERE NWA_ID = @NWAID) 
+BEGIN 
+ --- UPDATE ACCESSION DATA 
+ UPDATE  
+  OFFICER_ACCESSION 
+ SET 
+  ACCESSION_DATE   = @AccessionDate, 
+  USER_LOGIN   = @UserLogin, 
+  UPDATE_DATE   = GETDATE() 
+ WHERE 
+  NWA_ID     = @NWAID 
+ 
+END 
+ELSE 
+BEGIN 
+ --- INSERT ACCESSION DATA 
+ INSERT INTO OFFICER_ACCESSION 
+  (NWA_ID, ACCESSION_DATE, USER_LOGIN, UPDATE_DATE) 
+ VALUES 
+  (@NWAID, @AccessionDate, @UserLogin, GETDATE()) 
+END]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

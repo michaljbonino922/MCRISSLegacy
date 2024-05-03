@@ -1,0 +1,330 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetOssWFVPacCardRows]" directorySegmentName="seg_13" id="2430EE34-A130-8314-C271-A4F903DAAF73">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[(  
+ @OrgId uniqueiden..er = null, 
+ @RecruiterId uniqueiden..er = null, 
+ @ScheduledEventsStart date.me, 
+ @ScheduledEventsEnd date.me, 
+ @EventTypeID int = null,  
+ @OnlyNextScheduledEvent bit = 1 
+) 
+ 
+ 
+AS 
+  
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+  
+ SET NOCOUNT ON 
+ SET ARITHABORT ON 
+  
+ DECLARE @Organiza.onID INT 
+ SELECT @Organiza.onID = ORGANIZATION_ID FROM MCRISS.DBO.RECRUITING_ORGANIZATION WHERE rowguid = @orgid 
+ 
+ IF @Organiza.onID IS NULL 
+ BEGIN 
+  SET @Organiza.onID = 0 
+ END 
+ 
+ 
+ CREATE TABLE #Person 
+ (  
+   ProspectId   uniqueiden..er, 
+   PersonId   uniqueiden..er, 
+   ApplicantAssetName varchar(240), 
+   PACCreateDate  date.me, 
+   NwaId    uniqueiden..er, 
+   Disposi.on   varchar(75), 
+   RecruiterID   uniqueiden..er, 
+   Recruiter   varchar(240), 
+   RecruiterShortName  varchar(240), 
+   Source    varchar(240), 
+   SourceDual   varchar(240), 
+   Gender              varchar(1) 
+ ) 
+ 
+ CREATE TABLE #Pac 
+ (  
+   ProspectId   uniqueiden..er, 
+   PersonId   uniqueiden..er, 
+   ApplicantAssetName varchar(240), 
+   PACCreateDate  date.me, 
+   NwaId    uniqueiden..er, 
+   Disposi.on   varchar(75), 
+   RecruiterID   uniqueiden..er, 
+   Recruiter   varchar(240), 
+   RecruiterShortName  varchar(240), 
+   Source    varchar(240), 
+   SourceDual   varchar(240), 
+   Gender              varchar(1) 
+ ) 
+ 
+ CREATE TABLE #PacCardTable 
+ (  
+  ID int IDENTITY primary key,            
+  CreateDate date.me,       
+  ApplicantAssetID uniqueiden..er, 
+  ApplicantAssetName varchar(256), 
+  SecondaryID uniqueiden..er, 
+  RecruiterID uniqueiden..er, 
+  Recruiter varchar(256), 
+  RecruiterShortName varchar(256),   
+  Disposi.on varchar(256), 
+  EventID uniqueiden..er, 
+  EventDate date.me, 
+  Source    varchar(240), 
+  SourceDual   varchar(240), 
+  Gender              varchar(1), 
+  EventTypeOther      varchar(256), 
+  EventType           varchar(256) 
+    ) 
+ 
+ CREATE TABLE #FinalPacCardTable 
+ (  
+  ID int,            
+  CreateDate date.me,       
+  ApplicantAssetID uniqueiden..er, 
+  ApplicantAssetName varchar(256), 
+  SecondaryID uniqueiden..er, 
+  RecruiterID uniqueiden..er, 
+  Recruiter varchar(256), 
+  RecruiterShortName varchar(256),   
+  Disposi.on varchar(256), 
+  EventID uniqueiden..er, 
+  EventDate date.me, 
+  Source    varchar(240), 
+  SourceDual   varchar(240), 
+  Gender              varchar(1), 
+  EventTypeOther      varchar(256), 
+  EventType           varchar(256) 
+    ) 
+ 
+ INSERT INTO #Person 
+ SELECT  
+  pr.[ProspectId],  
+  pr.[PersonId], 
+  COALESCE(RTRIM(ps.LastName), SPACE(0))  + SPACE(1) +  
+  COALESCE(RTRIM(ps.FirstName), SPACE(0)) + SPACE(1) +  
+  COALESCE(RTRIM(ps.MiddleName), SPACE(0)) AS ApplicantAssetName, 
+  pr.PACCreateDate, 
+  pr.NwaId, 
+  CASE  
+   WHEN pr.NwaId IS NULL THEN  (SELECT Top 1 ProspectDisposi.onType FROM [USMC].[ProspectDisposi.on] WHERE ProspectDisposi.onId = pr.ProspectDisposi.onId) 
+   ELSE ( SELECT [DISPOSITION_DESCRIPTION] 
+     FROM 
+      MCRISS.dbo.NWA n 
+      INNER JOIN MCRISS.[dbo].[CANDIDATE_STATUS] cs ON n.NWA_ID = cs.NWA_ID 
+      INNER JOIN MCRISS.[dbo].[STATUS_DISPOSITION] sd ON  
+       cs.[STATUS_TYPE] = sd.[STATUS_TYPE]  AND  
+       cs.[STATUS_CODE] = sd.[STATUS_CODE] AND 
+       cs.[DISPOSITION_CODE] = sd.[DISPOSITION_CODE] 
+     WHERE 
+      n.rowguid = pr.NwaId 
+      AND cs.[CANDIDATE_STATUS_ID] = (SELECT MAX([CANDIDATE_STATUS_ID]) FROM MCRISS.[dbo].[CANDIDATE_STATUS] WHERE NWA_ID = n.NWA_ID) 
+   ) 
+  END AS Disposi.on, 
+  pr.Recrui.ngPersonId AS RecruiterID, 
+  COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+  COALESCE(RTRIM(rcp.LAST_NAME), SPACE(0))  + SPACE(1) +  
+  COALESCE(RTRIM(rcp.FIRST_NAME), SPACE(0)) + SPACE(1) +  
+  COALESCE(RTRIM(rcp.LEGAL_MIDDLE_NAME), SPACE(0))  
+  AS Recruiter, 
+  COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+  COALESCE(RTRIM(rcp.LAST_NAME), SPACE(0))  
+  AS RecruiterShortName, 
+  pr.source AS Source, 
+  pr.sourceDual AS SourceDual, 
+  ps.Gender 
+ FROM  
+  [PROSPECTING].[USMC].[Person] ps  
+  INNER JOIN [PROSPECTING].[USMC].[Prospect] pr ON ps.[PersonId] = pr.PersonId 
+  INNER JOIN MCRISS.[dbo].[RECRUITING_ORGANIZATION] ro ON ro.[rowguid] = pr.[Recrui.ngOrganiza.onId] 
+  INNER JOIN [MCRISS].[dbo].[RECRUITING_PERSON] rp ON pr.Recrui.ngPersonId = rp.rowguid 
+  INNER JOIN [MCRISS].[dbo].[PERSON] rcp ON rp.RECRUITING_PERSON_ID = rcp.PERSON_ID 
+ WHERE  
+  ro.[ORGANIZATION_ID] = @Organiza.onID AND [ProspectDisposi.onId] > 1 
+ 
+  
+ SELECT   
+  es.SubjectId AS ApplicantId 
+  ,e.ID AS EventID 
+  ,e.StartDate 
+  ,e.EventTypeID 
+  ,Organiza.onId, 
+  e.EventTypeOther, 
+  et.[Type] as EventType 
+ INTO #Events 
+ FROM  
+  #Person p 
+  INNER JOIN [RSSOSS].[USMC].EventSubject es ON (es.SubjectID = p.ProspectId ) 
+  INNER JOIN [RSSOSS].[USMC].[Event] e ON e.ID = es.EventID 
+  inner join [RSSOSS].[USMC].[EventType] et on et.ID = e.EventTypeId 
+ WHERE 
+  e.Organiza.onId = @Organiza.onID AND 
+  e.EventSourceId = 1 --- OSS PAC 
+      
+     
+ CREATE TABLE #EventVisibility 
+ (   
+  EventID uniqueiden..er  
+ ) 
+ 
+ IF (@RecruiterId IS NOT NULL) 
+ BEGIN -- need to apply Event visibility .lter by recruiter 
+   
+  INSERT INTO #EventVisibility 
+  SELECT DISTINCT 
+   ce.EventID 
+  FROM 
+   #Events ce 
+   INNER JOIN [RSSOSS].[USMC].[EventOwners] p ON ce.EventID = p.EventID 
+  WHERE 
+   OwnerID = @RecruiterId 
+   
+    
+  --SELECT DISTINCT 
+  -- s.[SubjectId] as ProspectID 
+  --INTO #VisibleApplicant 
+  --FROM 
+  -- #EventVisibility ev 
+  -- INNER JOIN RssOss.[USMC].[EventSubject] s ON ev.EventID = s.EventId 
+   
+ 
+  --INSERT INTO #Pac 
+  --SELECT * 
+  --FROM  
+   -- #Person p 
+  --WHERE 
+  -- p.RecruiterID = @RecruiterId OR 
+  -- p.ProspectId IN (SELECT ProspectID FROM #VisibleApplicant )  
+ 
+  --DROP TABLE #VisibleApplicant 
+   
+  INSERT INTO #Pac SELECT * FROM #Person 
+ 
+ END 
+ ELSE 
+ BEGIN 
+  INSERT INTO #Pac SELECT * FROM #Person 
+ END 
+ 
+  
+ INSERT INTO #PacCardTable  
+ (   
+   CreateDate, 
+   ApplicantAssetID, 
+   ApplicantAssetName, 
+   SecondaryID, 
+   RecruiterID, 
+   Recruiter, 
+   RecruiterShortName, 
+   Disposi.on, 
+   EventID, 
+   EventDate, 
+   Source, 
+   SourceDual, 
+   Gender, 
+   EventTypeOther, 
+            EventType 
+ 
+ ) 
+ SELECT  
+  p.PACCreateDate AS CreateDate 
+  ,p.[ProspectID] AS ApplicantAssetID  
+  ,p.ApplicantAssetName 
+  ,p.NwaId AS SecondaryID 
+  ,eo.OwnerId AS RecruiterID 
+  ,COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+      COALESCE(RTRIM(rcp.LAST_NAME), SPACE(0))  + SPACE(1) +  
+      COALESCE(RTRIM(rcp.FIRST_NAME), SPACE(0)) + SPACE(1) +  
+      COALESCE(RTRIM(rcp.LEGAL_MIDDLE_NAME), SPACE(0))  
+  AS Recruiter 
+     ,COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+      COALESCE(RTRIM(rcp.LAST_NAME), SPACE(0))  
+  AS RecruiterShortName  
+  ,p.Disposi.on 
+  ,e.EventID AS EventID 
+  ,e.StartDate AS NextScheduledEvent 
+  ,p.source AS Source 
+  ,p.sourceDual AS SourceDual 
+  ,p.Gender 
+  ,e.EventTypeOther 
+  ,e.EventType 
+ FROM  
+  #Pac p 
+  INNER JOIN #Events e on e.ApplicantId = p.prospec.d 
+  LEFT OUTER JOIN RssOss.[USMC].[EventOwners] eo ON e.EventID = eo.EventID 
+  INNER JOIN [MCRISS].[dbo].[RECRUITING_PERSON] rp ON eo.OwnerId = rp.rowguid 
+  INNER JOIN [MCRISS].[dbo].[PERSON] rcp ON rp.RECRUITING_PERSON_ID = rcp.PERSON_ID  
+ WHERE 
+    ( @EventTypeID IS NULL OR (  @EventTypeID IS NOT NULL AND e.EventTypeId = @EventTypeID)) 
+        AND (e.StartDate IN (  SELECT MIN(e2.StartDate) 
+         FROM #Events e2 
+         WHERE (e2.ApplicantId = e.ApplicantId) 
+         AND e2.StartDate >= GetDate() 
+         )  
+    OR @OnlyNextScheduledEvent = 0  ) 
+  AND ((LEFT(e.StartDate,11) >= Coalesce(@ScheduledEventsStart, LEFT(e.StartDate,11))) 
+   AND (LEFT(e.StartDate,11) <= Coalesce(@ScheduledEventsEnd, LEFT(e.StartDate,11)))  ) 
+      
+   
+ IF (@RecruiterId IS NOT NULL) 
+ BEGIN -- need to apply Event visibility .lter by recruiter 
+  INSERT INTO #FinalPacCardTable 
+   
+  SELECT DISTINCT pct.*  
+  FROM  
+   #PacCardTable pct 
+   INNER JOIN  [RSSOSS].[USMC].EventSubject es ON es.SubjectID = ApplicantAssetID  
+   INNER JOIN RSSOSS.USMC.Event e ON e.id = es.even.d 
+    
+  WHERE  
+   ((LEFT(e.StartDate,11) >= Coalesce(@ScheduledEventsStart, LEFT(e.StartDate,11))) 
+   AND (LEFT(e.StartDate,11) <= Coalesce(@ScheduledEventsEnd, LEFT(e.StartDate,11)))  ) 
+   AND ( (pct.EventID IS NULL) OR (pct.EventID IS NOT NULL AND pct.EventID IN (SELECT EventID FROM #EventVisibility ))  
+         --OR (RecruiterId = @RecruiterId AND @OnlyNextScheduledEvent = 1) 
+       ) 
+ END 
+ ELSE 
+ BEGIN 
+  INSERT INTO #FinalPacCardTable 
+   
+  SELECT DISTINCT pct.*  
+  FROM  
+   #PacCardTable pct 
+   INNER JOIN  [RSSOSS].[USMC].EventSubject es ON es.SubjectID = ApplicantAssetID  
+   INNER JOIN RSSOSS.USMC.Event e ON e.id = es.even.d  
+  WHERE  
+   ((LEFT(e.StartDate,11) >= Coalesce(@ScheduledEventsStart, LEFT(e.StartDate,11))) 
+   AND (LEFT(e.StartDate,11) <= Coalesce(@ScheduledEventsEnd, LEFT(e.StartDate,11)))  ) 
+ END 
+   
+ SELECT  
+  f.*, 
+  (SELECT  
+   rp.rowguid as '@Recrui.ngPersonId', 
+   COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+   COALESCE(RTRIM(p.LAST_NAME), SPACE(0)) as '@DisplayName' 
+   FROM RssOss.USMC.EventOwners eo 
+   INNER JOIN MCRISS.dbo.Recrui.ng_Person rp  ON rp.rowguid = eo.OwnerId 
+   INNER JOIN MCRISS.dbo.Person p ON rp.Recrui.ng_Person_ID = p.Person_ID   
+   WHERE  EventId = f.EventID FOR XML PATH('Owner'), TYPE, ROOT('Owners')   
+  ) AS 'EventOwners' 
+   
+ FROM  
+ #FinalPacCardTable f 
+   
+ 
+ DROP TABLE #Events 
+ DROP TABLE #EventVisibility 
+ DROP TABLE #Person 
+  
+ DROP TABLE #Pac 
+ DROP TABLE #PacCardTable  
+ DROP TABLE #FinalPacCardTable]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

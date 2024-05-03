@@ -1,0 +1,74 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetMIContractGoalForOrganiza.onType]" directorySegmentName="seg_6" id="C991335A-AE04-3553-3C0E-65DC780A6668">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+   @FiscalYear    INT, 
+   @OrgID         INT, 
+   @OrgType       VARCHAR (3)) 
+AS 
+   SELECT @FiscalYear AS FiscalYear, 
+          ORGANIZATION_ID AS OrgID, 
+          SHORT_NAME AS OrgName, 
+          Contrac.ngMissionType, 
+          ISNULL ([1], 0) AS [January], 
+          ISNULL ([2], 0) AS [February], 
+          ISNULL ([3], 0) AS [March], 
+          ISNULL ([4], 0) AS [April], 
+          ISNULL ([5], 0) AS [May], 
+          ISNULL ([6], 0) AS [June], 
+          ISNULL ([7], 0) AS [July], 
+          ISNULL ([8], 0) AS [August], 
+          ISNULL ([9], 0) AS [September], 
+          ISNULL ([10], 0) AS [October], 
+          ISNULL ([11], 0) AS [November], 
+          ISNULL ([12], 0) AS [December] 
+     FROM (SELECT ro.ORGANIZATION_ID, 
+                  cmp.CONTRACTING_MISSION_TYPE, 
+                  CASE 
+                     WHEN ctot.Contrac.ngMissionType = 'CMC' THEN 'MCRC' 
+                     ELSE COALESCE (ctot.Contrac.ngMissionType, 'MCRC') 
+                  END 
+                     AS Contrac.ngMissionType, 
+                  cmp.MONTH_CODE, 
+                  ISNULL (cmp.MISSION_VALUE, 0) AS MISSION_VALUE, 
+                  ro.SHORT_NAME 
+             FROM MCRISS.dbo.ORGANIZATION_MAP om WITH (NOLOCK) 
+                  INNER JOIN MCRISS.dbo.RECRUITING_ORGANIZATION ro 
+                     ON ro.ORGANIZATION_ID = om.CHILD_ORGANIZATION_ID 
+                  LEFT OUTER JOIN 
+                  MCRISS.USMC.Contrac.ngMissionType_Organiza.onType ctot 
+                     ON ctot.ORGANIZATIONTYPE = ro.ORGANIZATION_TYPE 
+                  LEFT OUTER JOIN 
+                  (SELECT * 
+                     FROM MCRISS.dbo.CONTRACTING_MISSION_PLAN_MICONTRACT 
+                    WHERE FISCAL_YEAR = @FiscalYear) cmp 
+                     ON     cmp.CONTRACTING_MISSION_TYPE = 
+                               ctot.Contrac.ngMissionType 
+                        AND ro.ORGANIZATION_ID = cmp.ORGANIZATION_ID 
+            WHERE     ro.ORGANIZATION_TYPE = @OrgType 
+                  AND om.PARENT_ORGANIZATION_ID = @OrgID 
+                  AND ([USMC].[GetFiscalYear] (ro.EFFECTIVE_DATE) <= 
+                          @FiscalYear) 
+                  AND (   ro.DateClosed IS NULL 
+                       OR [USMC].[GetFiscalYear] (ro.DateClosed) >= 
+                             @FiscalYear)) t PIVOT (SUM (MISSION_VALUE) 
+                                             FOR MONTH_CODE 
+                                             IN ([1], 
+                                                 [2], 
+                                                 [3], 
+                                                 [4], 
+                                                 [5], 
+                                                 [6], 
+                                                 [7], 
+                                                 [8], 
+                                                 [9], 
+                                                 [10], 
+                                                 [11], 
+                                                 [12])) p 
+   ORDER BY OrgName, RIGHT (Contrac.ngMissionType, 1)]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

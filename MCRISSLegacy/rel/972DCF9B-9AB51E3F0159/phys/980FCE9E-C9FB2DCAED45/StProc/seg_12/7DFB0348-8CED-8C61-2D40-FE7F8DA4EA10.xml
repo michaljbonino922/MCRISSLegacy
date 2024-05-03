@@ -1,0 +1,32 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[ManualGetOcsClassExportData_PJ_6_1_16]" directorySegmentName="seg_12" id="7DFB0348-8CED-8C61-2D40-FE7F8DA4EA10">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+  @Class varchar(8) = NULL 
+ ,@FY int = NULL 
+ ,@ClassNumber int = NULL 
+ ,@Class2 varchar(8) = NULL 
+ ,@FY2 int = NULL 
+ ,@ClassNumber2 int = NULL 
+) 
+AS 
+ 
+DECLARE @USNAGradDate DATETIME 
+DECLARE @ROW_COUNT INT 
+ 
+SELECT TOP 1 @USNAGradDate = OC.PROJECTED_COMMISSION_DATE 
+FROM vwCurrentNWA N 
+INNER JOIN OFFICER_CONTRACT OC ON OC.NWA_ID = N.NWA_ID 
+WHERE YEAR(OC.PROJECTED_COMMISSION_DATE) = YEAR(GETDATE()) 
+ AND N.OFFICER_COMPONENT_CODE = 'N8' 
+ 
+TRUNCATE TABLE OCS_EXPORT_TEMP 
+ 
+INSERT INTO OCS_EXPORT_TEMP 
+EXEC [USMC].[GetOCScombinedUSNAExportData] @Class, @FY, @ClassNumber, @Class2, @FY2, @ClassNumber2, @USNAGradDate]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

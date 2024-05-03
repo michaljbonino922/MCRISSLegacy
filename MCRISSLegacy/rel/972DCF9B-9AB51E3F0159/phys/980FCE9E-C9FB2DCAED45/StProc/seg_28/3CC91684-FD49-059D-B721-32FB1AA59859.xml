@@ -1,0 +1,39 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetRecrui.ngOrganiza.ons]" directorySegmentName="seg_28" id="3CC91684-FD49-059D-B721-32FB1AA59859">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:58:46 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[AS 
+ 
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+select 
+ organiza.on_id as Organiza.onId, 
+ organiza.on_type as Organiza.onType, 
+ meps_organiza.on_id as MepsOrganiza.onId, 
+ name as Name, 
+ short_name as ShortName, 
+ mcc_code as MccCode, 
+ street as 'Address/Street', 
+ street2 as 'Address/Street2', 
+ city as 'Address/City', 
+ state_code as 'Address/StateCode', 
+ zip_code as 'Address/ZipCode', 
+ isopen as 'IsOpen', 
+ is_assigned as IsAssigned, 
+ poc_email as PocEmail, 
+ OrgUnitId as OrgUnitId 
+from 
+ mcriss.dbo.recrui.ng_organiza.on 
+where 
+ organiza.on_type in ('RS', 'RSS', 'OSS') 
+and 
+ deleted = 'N' 
+and 
+ isopen = 'Y' 
+  
+FOR XML PATH('Recrui.ngOrganiza.on'), ROOT('Recrui.ngOrganiza.ons')]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>DC23F770-7DD9-7021-9572-6AE599ACA3AE</database>
+</StoredProcedureSqlServerv2k5>

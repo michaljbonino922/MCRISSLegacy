@@ -1,0 +1,310 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateNewWorkingApplicant]" directorySegmentName="seg_25" id="4F5666A9-1715-0100-7D34-954F86CF25A6">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@PersonID   int, 
+ @LastName   varchar(20), 
+ @FirstName   varchar(20), 
+ @MiddleName   varchar(20), 
+ @Su.x    varchar(5), 
+ @SSN    varchar(9), 
+ @DateOfBirth   date.me, 
+ @Gender    char(1), 
+ @Organiza.onOfRecordID  int, 
+ @Recrui.ngPersonID  int, 
+ @StatusCode   varchar(10), 
+ @Disposi.onCode  varchar(20), 
+ @UserLogin   varchar(15), 
+ @NWAID    int, 
+ @StatusE.ec.veDate      date.me, 
+ @NWADeclaredDate  date.me, 
+ @NWADateStartedWorking  date.me, 
+ @CategoryCode   varchar(6)  = NULL, 
+ @ProjectedShipMonth  int   = NULL, 
+ @ParentalConsent  char(1)  = NULL, 
+ @SourceCode   varchar(10), 
+ @SourceCodeDual   varchar(10)  = NULL, 
+ @Ac.vityCode   varchar(2), 
+ @PPC    varchar(8)  = NULL, 
+ @RaceCode   char(1), 
+ @MEPCOMRaceCategoryCode  char(1), 
+ @EthnicCode   varchar(2), 
+ @MEPCOMEthnicCategoryCode char(1),  
+ @MaritalStatusCode  char(1), 
+ @ReligionCode   varchar(2), 
+ @CountryOfOrigin  varchar(3), 
+ @Ci.zenship   varchar(2), 
+ @DriverLicNum   varchar(20)  = NULL, 
+ @DriverLicState   varchar(2)  = NULL, 
+ @DriverLicExp   date.me  = NULL, 
+ @ProjectedProgramChoice1 varchar(4)  = NULL, 
+ @ProjectedProgramChoice2 varchar(4)  = NULL, 
+ @ProjectedProgramChoice3 varchar(4)  = NULL, 
+ @NWALogNotes   varchar(20),  
+ @StatusType   char(1)  = 'E', 
+ @StatusUpdateNeeded  bit, 
+ @O.cerComponentCode  varchar(2)  = NULL, 
+ @Na.onalCallToService  char(1)  = NULL, 
+ --- @OCCR    char(1)  = NULL, 
+ @ShipMission   int   = NULL, 
+ @BachGradYear   int   = NULL, 
+ @ReferrerSSN   char(9)  = NULL, 
+ @ReferrerUnit   varchar(5)  = NULL, 
+ @CurAC    varchar(4)  = NULL, 
+ @CurTelephoneNumber  varchar(10) = NULL, 
+ @HorAC    varchar(4) = NULL, 
+ @HorTelephoneNumber  varchar(10) = NULL, 
+ @Addi.onalTelephoneType char(1)  = NULL, 
+ @Addi.onalAC   varchar(4)  = NULL, 
+ @Addi.onalTelephoneNumber varchar(10)  = NULL, 
+ @BachGradMonth    int  = NULL, 
+ @EmailAddress   varchar(50)  = NULL, 
+ @RAPPIssueDate   date.me  = NULL, 
+ @RAPPSubmitDate   date.me  = NULL 
+AS 
+ 
+DECLARE @PERSON_ID2    INT 
+DECLARE @DBID     INT 
+DECLARE @DBNAME    NVARCHAR(128) 
+ 
+DECLARE @UpdateCounter   INT 
+DECLARE @ErrMsg    varchar(100) 
+ 
+DECLARE @OldStatusCode   varchar(10) 
+DECLARE @OldDisposi.onCode  varchar(20) 
+ 
+SET NOCOUNT ON 
+ 
+--- INITIALIZE VARIABLES 
+SELECT  
+ @DBID   = DB_ID(),  
+ @DBNAME  = DB_NAME(), 
+ @UpdateCounter  = 1 
+ 
+ 
+--- UPDATE PERSON DATA 
+EXEC sp_UpdatePerson 
+ @PersonID   = @PersonID, 
+ @SocialSecurityNumber  = @SSN, 
+ @FirstName   = @FirstName, 
+ @LegalMiddleName  = @MiddleName, 
+ @LastName   = @LastName, 
+ @Su.xCD   = @Su.x, 
+ @UserLogin   = @UserLogin, 
+ @ID    = @PERSON_ID2 OUTPUT 
+ 
+IF @@ERROR != 0  
+BEGIN 
+ RAISERROR ('An error occurred upda.ng the NWA person record.', 16, @UpdateCounter, @DBID, @DBNAME) 
+ RETURN 
+END 
+ 
+--- INCREMENT THE UPDATE COUNTER 
+SET @UpdateCounter = @UpdateCounter + 1 
+ 
+--- UPDATE MARINE CANDIDATE DATA 
+EXEC sp_UpdateMarineCandidate  
+ @PersonID    = @PersonID, 
+ @MaritalStatusCode    = @MaritalStatusCode, 
+ @RaceCode     = @RaceCode, 
+ @MEPCOMRaceCategoryCode  = @MEPCOMRaceCategoryCode, 
+ @EthnicCode     = @EthnicCode, 
+ @MEPCOMEthnicCategoryCode = @MEPCOMEthnicCategoryCode, 
+ @GenderCode     = @Gender, 
+ @ReligionCode     = @ReligionCode, 
+ @Popula.onGroupCode    = NULL, 
+ @DateOfBirth     = @DateOfBirth, 
+ @Ci.zenship     = @Ci.zenship, 
+ @CountryOfOrigin    = @CountryOfOrigin, 
+ @DriverLicenseState    = @DriverLicState, 
+ @DriverLicenseNum    = @DriverLicNum, 
+ @DriverLicenseExp    = @DriverLicExp, 
+ @InterviewDate    = NULL, 
+ @UserLogin    = @UserLogin 
+ 
+IF @@ERROR != 0  
+BEGIN 
+ RAISERROR ('An error occurred adding the NWA marine candidate record.', 16, @UpdateCounter, @DBID, @DBNAME) 
+ RETURN 
+END 
+ 
+--- INCREMENT THE UPDATE COUNTER 
+SET @UpdateCounter = @UpdateCounter + 1 
+ 
+--- RETRIEVE THE APPLICANT'S CURRENT EDUCATION LEVEL, EDUCATION CODE AND COMP CHANGE FLAG 
+--- AND PASS THEM TO sp_UpdateNWA 
+DECLARE @Educa.onCode  char(1) 
+DECLARE @Educa.onLevel varchar(2) 
+DECLARE @CompChangeFlag char(1) 
+ 
+SELECT  
+ @Educa.onCode  = N.EDUCATION_CODE,  
+ @Educa.onLevel = N.EDUCATION_LEVEL,  
+ @CompChangeFlag = N.COMP_CHANGE_FLAG 
+FROM 
+  NWA N 
+WHERE  
+ N.NWA_ID = @NWAID 
+ 
+--- UPDATE NWA DATA 
+EXEC sp_UpdateNWA 
+ @PersonID   = @PersonID, 
+ @NWAID    = @NWAID, 
+ @NWADeclaredDate  = @NWADeclaredDate, 
+ @NWADateStartedWorking  = @NWADateStartedWorking, 
+ @ParentalConsent   = @ParentalConsent, 
+ @ProjectedShipMonth   = @ProjectedShipMonth,  
+ @NWALogNotes    = @NWALogNotes, 
+ @ProjectProgramChoice1  = @ProjectedProgramChoice1, 
+ @ProjectProgramChoice2  = @ProjectedProgramChoice2, 
+        @ProjectProgramChoice3  = @ProjectedProgramChoice3, 
+ @Ac.vityCode    = @Ac.vityCode, 
+ @SourceCode    = @SourceCode, 
+ @SourceCodeDual  = @SourceCodeDual, 
+ @RecruiterofRecordID   = @Recrui.ngPersonID, 
+ @Organiza.onofRecordID = @Organiza.onOfRecordID, 
+ @WorkingRecruiterID   = @Recrui.ngPersonID, 
+ @CategoryCode    = @CategoryCode, 
+ @Educa.onLevel   = @Educa.onLevel, 
+ @Educa.onCode   = @Educa.onCode, 
+ @PPC     = @PPC, 
+ @CompChangeFlag   = @CompChangeFlag, 
+ @BachGradYear   = @BachGradYear, 
+ @BachGradMonth   = @BachGradMonth, 
+ @O.cerComponentCode  = @O.cerComponentCode, 
+ @Na.onalCallToService = @Na.onalCallToService, 
+ --- @OCCR   = @OCCR, 
+ @EmailAddress  = @EmailAddress, 
+ @ShipMission   = @ShipMission, 
+ @RAPPIssueDate  = @RAPPIssueDate, 
+ @RAPPSubmitDate  = @RAPPSubmitDate, 
+ @StatusType  = @StatusType, 
+ @UserLogin   = @UserLogin, 
+ @ID    = @NWAID OUTPUT 
+ 
+ 
+IF @@ERROR != 0  
+BEGIN 
+ RAISERROR ('An error occurred upda.ng the NWA record.', 16, @UpdateCounter, @DBID, @DBNAME) 
+ RETURN 
+END 
+ 
+--- INCREMENT THE UPDATE COUNTER 
+SET @UpdateCounter = @UpdateCounter + 1 
+ 
+ 
+--- If the @StatusUpdateNeeded .ag is set, call sp_UpdateCandidateStatus to update the candidate status 
+IF @StatusUpdateNeeded = 1 
+BEGIN 
+ --- UPDATE CANDIDATE STATUS DATA 
+ EXEC sp_UpdateCandidateStatus 
+  @NWAID    = @NWAID, 
+  @StatusE.ec.veDate  = @StatusE.ec.veDate, 
+  @StatusType   = @StatusType, 
+  @StatusCode   = @StatusCode,  
+  @Disposi.onCode  = @Disposi.onCode, 
+  @UserLogin   = @UserLogin 
+ 
+ IF @@ERROR != 0   
+ BEGIN 
+  RAISERROR ('An error occurred upda.ng the NWA candidate status record.', 16, @UpdateCounter, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ 
+ --- INCREMENT THE UPDATE COUNTER 
+ SET @UpdateCounter = @UpdateCounter + 1 
+END  
+ 
+ 
+IF @CurTelephoneNumber IS NOT NULL 
+BEGIN 
+ --- UPDATE CURRENT TELEPHONE DATA 
+ EXEC sp_UpdateCandidateTelephone 
+  @PersonID   = @PersonID, 
+  @TelephoneType   = 'C', 
+  @AreaCode   = @CurAC, 
+  @TelephoneNumber  = @CurTelephoneNumber, 
+  @UserLogin   = @UserLogin 
+ 
+ IF @@ERROR != 0  
+ BEGIN 
+  RAISERROR ('An error occurred upda.ng the current telephone.', 16, @UpdateCounter, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ 
+ --- INCREMENT THE UPDATE COUNTER 
+ SET @UpdateCounter = @UpdateCounter + 1 
+END 
+ 
+ 
+IF @HorTelephoneNumber IS NOT NULL 
+BEGIN 
+ --- UPDATE HOR TELEPHONE DATA 
+ EXEC sp_UpdateCandidateTelephone 
+  @PersonID   = @PersonID, 
+  @TelephoneType   = 'H', 
+  @AreaCode   = @HorAC, 
+  @TelephoneNumber  = @HorTelephoneNumber, 
+  @UserLogin   = @UserLogin 
+ 
+ IF @@ERROR != 0  
+ BEGIN 
+  RAISERROR ('An error occurred upda.ng the home of record telephone.', 16, @UpdateCounter, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ 
+ --- INCREMENT THE UPDATE COUNTER 
+ SET @UpdateCounter = @UpdateCounter + 1 
+END 
+ 
+ 
+IF @Addi.onalTelephoneType IS NOT NULL AND @Addi.onalTelephoneNumber IS NOT NULL 
+BEGIN 
+ --- UPDATE ADDITIONAL TELEPHONE DATA 
+ EXEC sp_UpdateCandidateTelephone 
+  @PersonID   = @PersonID, 
+  @TelephoneType   = @Addi.onalTelephoneType, 
+  @AreaCode   = @Addi.onalAC, 
+  @TelephoneNumber  = @Addi.onalTelephoneNumber, 
+  @UserLogin   = @UserLogin 
+ 
+ IF @@ERROR != 0  
+ BEGIN 
+  DECLARE @TelephoneTypeDesc varchar(50) 
+ 
+  --- RETRIEVE THE TELEPHONE TYPE    
+  SELECT @TelephoneTypeDesc = COALESCE(TT.TELEPHONE_TYPE, 'addi.onal') FROM TELEPHONE_TYPE TT  
+  WHERE TT.TELEPHONE_TYPE_CODE = @Addi.onalTelephoneType 
+ 
+ 
+  SET @ErrMsg = 'An error occurred upda.ng the ' + @TelephoneTypeDesc + ' telephone.' 
+  RAISERROR (@ErrMsg, 16, @UpdateCounter, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ 
+ --- INCREMENT THE UPDATE COUNTER 
+ SET @UpdateCounter = @UpdateCounter + 1 
+END 
+ 
+ 
+--- call sp_UpdateO.cerReferral so referrals can be deleted if necessary 
+EXEC sp_UpdateO.cerReferral   
+ @NWAID   = @NWAID, 
+ @ReferralType  = @SourceCode, 
+ @ReferrerSSN = @ReferrerSSN, 
+ @UserLogin  = @UserLogin 
+ 
+IF @@ERROR != 0  
+BEGIN 
+ SET @ErrMsg = 'An error occurred adding the referral data.' 
+ RAISERROR (@ErrMsg, 16, @UpdateCounter, @DBID, @DBNAME) 
+ RETURN 
+ 
+ --- INCREMENT THE UPDATE COUNTER 
+ SET @UpdateCounter = @UpdateCounter + 1 
+END]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

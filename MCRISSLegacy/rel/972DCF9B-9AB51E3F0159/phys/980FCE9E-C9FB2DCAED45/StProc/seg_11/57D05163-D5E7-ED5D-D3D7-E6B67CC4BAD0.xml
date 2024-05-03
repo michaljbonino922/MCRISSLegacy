@@ -1,0 +1,123 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertPreCommissionData]" directorySegmentName="seg_11" id="57D05163-D5E7-ED5D-D3D7-E6B67CC4BAD0">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @AccessionDate date.me, 
+ @Ac.veDutyFY int, 
+ @CommissionDate date.me, 
+ @ContractID int, 
+ @FlightHours int, 
+ @HasFlightIndoctrina.on char(1), 
+ @HasPrivatePilotLicense char(1), 
+ @IsCrossCountryCer..ed char(1), 
+ @NwaID int, 
+ @ProjectedLawGradDate date.me, 
+ @RequestForAppointmentDate date.me, 
+ @TBSClass int, 
+ @TBSFY int, 
+ @LastEditBy varchar(15) 
+) 
+AS  
+BEGIN 
+IF (@NwaID > 0) 
+ BEGIN 
+  DECLARE @TBS_ID int 
+  SET @TBS_ID = (SELECT TOP 1 TBS_ID FROM TBS WHERE CLASS = @TBSClass AND FY = @TBSFY) 
+ 
+  INSERT INTO [mcriss].[dbo].[PRECOMMISSION_DATA] 
+       ([NWA_ID] 
+       ,[CONTRACT_ID] 
+       ,[TBS_ID] 
+       ,[FY_ACTIVE_DUTY_ASSIGNMENT] 
+       ,[PROJ_LAW_GRAD_DATE] 
+       ,[FLIGHT_INDOCTRINATION] 
+       ,[PRIVATE_PILOT] 
+       ,[FLIGHT_HOURS] 
+       ,[CERTIFIED_CROSS_COUNTRY] 
+       ,[REQUEST_FOR_APPOINTMENT_DATE] 
+       ,[USER_LOGIN] 
+       ,[UPDATE_DATE]) 
+    VALUES 
+       (@NwaID 
+       ,@ContractID 
+       ,@TBS_ID 
+       ,@Ac.veDutyFY 
+       ,@ProjectedLawGradDate 
+       ,@HasFlightIndoctrina.on 
+       ,@HasPrivatePilotLicense 
+       ,@FlightHours 
+       ,@IsCrossCountryCer..ed 
+       ,@RequestForAppointmentDate 
+       ,@LastEditBy 
+       ,GetDate() 
+       ) 
+ 
+  IF ((@NwaID IS NOT NULL) AND (@AccessionDate IS NOT NULL) AND (@LastEditBy IS NOT NULL)) 
+  BEGIN 
+   INSERT INTO [mcriss].[dbo].[OFFICER_ACCESSION] 
+     (NWA_ID 
+     ,ACCESSION_DATE 
+     ,USER_LOGIN 
+     ,UPDATE_DATE 
+     ) 
+    VALUES 
+     (@NwaID 
+     ,@AccessionDate 
+     ,@LastEditBy 
+     ,GetDate() 
+     ) 
+  END 
+ 
+  -- If the OCS ID can be found, make sure that there is a Commissionee table entry for this NWA... 
+  DECLARE @intOCSID INT 
+ 
+  SELECT @intOCSID = Max(OCS_ID) 
+   FROM OCS 
+   WHERE NWA_ID = @NwaID 
+ 
+  IF (@intOCSID > 0) 
+  BEGIN 
+   -- Do we INSERT or do we UPDATE 
+   DECLARE @intCount int 
+   SELECT @intCount = Count(*)  
+    FROM [mcriss].[dbo].[COMMISSIONEE] 
+    WHERE 
+     CONTRACT_ID = @ContractID 
+   IF (@intCount = 0)  
+   BEGIN 
+    -- INSERT NEW ROW 
+    INSERT INTO [mcriss].[dbo].[COMMISSIONEE] 
+       (OCS_ID 
+       ,CONTRACT_ID 
+       ,COMMISSION_DATE 
+       ,USER_LOGIN 
+       ,UPDATE_DATE 
+       ) 
+     VALUES 
+       (@intOCSID 
+       ,@ContractID 
+       ,@CommissionDate 
+       ,@LastEditBy 
+       ,GetDate() 
+       ) 
+   END 
+   ELSE 
+   BEGIN 
+    -- UPDATE THE EXISTING ROW 
+    UPDATE [mcriss].[dbo].[COMMISSIONEE] 
+       SET 
+       [COMMISSION_DATE] = @CommissionDate 
+       ,[USER_LOGIN] = @LastEditBy 
+       ,[UPDATE_DATE] = GetDate() 
+     WHERE 
+     [CONTRACT_ID] = @ContractID 
+   END 
+  END 
+ END 
+END]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,19 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetAllComponentCode]" directorySegmentName="seg_1" id="D04961E8-606E-EFF7-ADE6-1EE5789EB578">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[AS 
+ 
+SELECT      
+ - 1 AS ID,  
+ COMPONENT_CODE AS Code,  
+ COMPONENT_DESCRIPTION AS Descrip.on,  
+ Usage AS Usage, 
+ RESERVE AS Reserve 
+FROM         dbo.COMPONENT_CODE WITH (NOLOCK) 
+ORDER BY Usage, Descrip.on]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

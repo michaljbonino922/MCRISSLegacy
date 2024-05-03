@@ -1,0 +1,137 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetNumberOfContractsForRSS]" directorySegmentName="seg_7" id="4ABFD122-3C0D-47DF-21DF-62C9A5AC27FE">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@Recrui.ngOrgID integer,  
+ @BeginDate date.me, 
+ @NewRSS  bit,  
+ @Contracts  integer OUTPUT 
+AS 
+ 
+SET ArithAbort ON 
+SET NOCOUNT ON 
+ 
+--- IF THE RSS HAS BEEN OPEN AT LEAST 3 MONTHS (@NEWRSS = 0) THEN GET ITS NUMBER OF CONTRACTS 
+--- (e.g., FOR 01 Nov 2004 COUNT ALL CONTRACTS FROM 01 Aug 2004 THROUGH 31 Oct 2004) 
+IF @NewRSS = 0 
+BEGIN 
+  
+ SELECT 
+  n.NWA_ID, n.MARINE_CANDIDATE_ID 
+ INTO #Nwa 
+ FROM  
+  [dbo].[MICONTRACT] c WITH (NOLOCK) 
+  INNER JOIN [dbo].[NWA] n 
+   ON (c.NWA_ID = n.NWA_ID AND 
+    n.ORGANIZATION_OF_RECORD_ID = @Recrui.ngOrgID  
+    AND 
+    c.CONTRACT_BEGIN_DATE BETWEEN DATEADD(m, -3, @BeginDate) AND DATEADD(d, -1, @BeginDate)) 
+ 
+ -- records created as a result of a Component Code change. 
+ SELECT DISTINCT n.NWA_ID 
+ INTO #NwaZkc 
+ FROM  
+  #Nwa N  
+  INNER JOIN MCRISS.dbo.NWA N_OLD  
+   ON N_OLD.MARINE_CANDIDATE_ID = N.MARINE_CANDIDATE_ID  
+      AND N_OLD.NWA_ID = (SELECT MAX(N2.NWA_ID)  
+          FROM NWA N2  
+          WHERE N2.NWA_ID < N.Nwa_ID  
+          AND N.MARINE_CANDIDATE_ID = N2.MARINE_CANDIDATE_ID) 
+  INNER JOIN MCRISS.dbo.CONTRACT C_OLD  
+   ON C_OLD.NWA_ID = N_OLD.NWA_ID 
+ WHERE  
+  C_OLD.DISCHARGE_CODE = 'ZKC' 
+  AND N_OLD.NWA_ID < N.Nwa_ID 
+  
+ -- Component Code is no longer excluded 
+ --DELETE FROM #Nwa WHERE NWA_ID IN (SELECT NWA_ID FROM #NwaZkc) 
+ 
+ SELECT @Contracts = COUNT(NWA_ID)  
+ FROM #Nwa 
+ 
+ DROP TABLE #Nwa 
+ DROP TABLE #NwaZkc 
+END 
+ELSE 
+BEGIN 
+ DECLARE @TotalContracts DECIMAL 
+ DECLARE @NumRSSs  INT 
+ 
+ --- IF THIS RSS HAS BEEN OPEN LESS THAN 3 MONTHS THEN GET THE AVERAGE NUMBER OF CONTRACTS FOR 
+ --- ALL THE RSSs UNDER THE PARENT RS 
+  
+ --- GET THE PARENT RS ID 
+ DECLARE @RSID int 
+ SELECT @RSID = RS.PARENT_ORGANIZATION_ID FROM [dbo].[ORGANIZATION_MAP] RS WITH (NOLOCK) WHERE RS.CHILD_ORGANIZATION_ID = @Recrui.ngOrgID 
+ 
+ --- COUNT THE CONTRACTS FOR THE RS 
+ --- THE [dbo].[CONTRACT] TABLE ONLY CONTAINS ENLISTED RECORDS  
+ --- SO WE DON'T HAVE TO FILTER OUT OFFICER DATA 
+ SELECT  
+  n.NWA_ID, n.MARINE_CANDIDATE_ID 
+ INTO #Nwa2    
+ FROM  
+  [dbo].[MICONTRACT] c WITH (NOLOCK) 
+  INNER JOIN [dbo].[NWA] n 
+   ON (c.NWA_ID = n.NWA_ID AND 
+    c.CONTRACT_BEGIN_DATE BETWEEN DATEADD(m, -3, @BeginDate) AND DATEADD(d, -1, @BeginDate)) 
+  INNER JOIN [dbo].[ORGANIZATION_MAP] rss 
+   ON (rss.PARENT_ORGANIZATION_ID = @RSID AND 
+    rss.CHILD_ORGANIZATION_ID = n.ORGANIZATION_OF_RECORD_ID) 
+  
+ -- records created as a result of a Component Code change. 
+ SELECT DISTINCT n.NWA_ID 
+ INTO #NwaZkc2 
+ FROM  
+  #Nwa2 N  
+  INNER JOIN MCRISS.dbo.NWA N_OLD  
+   ON N_OLD.MARINE_CANDIDATE_ID = N.MARINE_CANDIDATE_ID  
+      AND N_OLD.NWA_ID = (SELECT MAX(N2.NWA_ID)  
+          FROM NWA N2  
+          WHERE N2.NWA_ID < N.Nwa_ID  
+          AND N.MARINE_CANDIDATE_ID = N2.MARINE_CANDIDATE_ID) 
+  INNER JOIN MCRISS.dbo.CONTRACT C_OLD  
+   ON C_OLD.NWA_ID = N_OLD.NWA_ID 
+ WHERE  
+  C_OLD.DISCHARGE_CODE = 'ZKC' 
+  AND N_OLD.NWA_ID < N.Nwa_ID 
+ 
+ -- Component Code is no longer excluded 
+ --DELETE FROM #Nwa2 WHERE NWA_ID IN (SELECT NWA_ID FROM #NwaZkc2) 
+ 
+ SELECT  
+  @TotalContracts = COUNT(NWA_ID)  
+ FROM  
+  #Nwa2 
+ 
+ DROP TABLE #Nwa2 
+ DROP TABLE #NwaZkc2 
+ 
+ --- MAKE SURE WE COUNT ONLY RSSs 
+ SELECT  
+  @NumRSSs = COUNT(RSS.ORGANIZATION_ID)  
+ FROM  
+  [dbo].[RECRUITING_ORGANIZATION] RSS WITH (NOLOCK) 
+   INNER JOIN [dbo].[ORGANIZATION_MAP] RS ON  
+   (RS.PARENT_ORGANIZATION_ID = @RSID AND 
+   RSS.ORGANIZATION_ID = RS.CHILD_ORGANIZATION_ID AND 
+   RSS.ORGANIZATION_TYPE = 'RSS' AND  
+   RSS.ISOPEN = 'Y') 
+ 
+ --- ROUND THE AVERAGE UP AND RETURN THE VALUE 
+ SET @Contracts = CASE @NumRSSs 
+   WHEN 0 THEN 0 
+   ELSE CEILING(@TotalContracts/@NumRSSs) 
+   END 
+    
+END 
+ SELECT @Contracts 
+ 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

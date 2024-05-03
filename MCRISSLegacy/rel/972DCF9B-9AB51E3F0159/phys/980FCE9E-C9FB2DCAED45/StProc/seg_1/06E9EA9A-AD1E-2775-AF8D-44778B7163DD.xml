@@ -1,0 +1,18 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetActualAc.vityData]" directorySegmentName="seg_1" id="06E9EA9A-AD1E-2775-AF8D-44778B7163DD">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@SchoolCode as integer, @SchoolYear as integer 
+AS 
+ 
+SELECT HIGH_SCHOOL_PLAN.PLAN_TYPE AS PLAN_TYPE, IsNULL(Substring(DATENAME(MM, ACTUAL_MONTH),0,4) + ' ' + CAST(YEAR(ACTUAL_MONTH) AS VARCHAR(4)),'')  AS ACTUAL_MONTH,  
+'' AS PLANNED_MONTH, SHORT_DESCRIPTION 
+FROM HIGH_SCHOOL_PLAN, HIGH_SCHOOL_PLAN_TYPE WITH (NOLOCK) 
+WHERE HIGH_SCHOOL_PLAN.PLAN_TYPE=HIGH_SCHOOL_PLAN_TYPE.PLAN_TYPE 
+AND SCHOOL_CODE = @SchoolCode AND 
+SCHOOL_YEAR = @SchoolYear]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

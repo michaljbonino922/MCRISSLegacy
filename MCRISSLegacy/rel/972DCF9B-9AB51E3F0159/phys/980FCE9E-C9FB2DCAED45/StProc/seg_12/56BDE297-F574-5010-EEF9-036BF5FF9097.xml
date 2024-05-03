@@ -1,0 +1,31 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertWaiver]" directorySegmentName="seg_12" id="56BDE297-F574-5010-EEF9-036BF5FF9097">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[(@WaiverCategoryID int 
+ ,@WaiverTypeID int 
+ ,@WaiverLevelID int 
+ ,@E.ec.veDate date.me 
+ ,@UserLogin varchar(15)) 
+ 
+AS 
+ 
+INSERT INTO [dbo].[WAIVER] 
+ ([WAIVER_CATEGORY_ID] 
+ ,[WAIVER_TYPE_ID] 
+ ,[WAIVER_LEVEL_ID] 
+ ,[EFFECTIVE_DATE] 
+ ,[USER_LOGIN] 
+ ,[UPDATE_DATE]) 
+VALUES 
+ (@WaiverCategoryID 
+ ,@WaiverTypeID 
+ ,@WaiverLevelID 
+ ,@E.ec.veDate 
+ ,@UserLogin 
+ ,GetDate())]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

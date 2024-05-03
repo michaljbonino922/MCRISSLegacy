@@ -1,0 +1,51 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_5" id="2AB667D0-63E6-73B9-75DA-D25E971C72B6" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="dbo.Event_Beni.t_and_Type">
+<sourceDDLFile>create RSSOSS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>E1591949-B182-D7D5-1C86-93C396A2F0F3</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT        eb.EventOutcomeId, ebt.Name, eb.Bene.tPriority 
+FROM            USMC.EventBene.t AS eb INNER JOIN 
+                         USMC.EventBene.tType AS ebt ON eb.Bene.tTypeId = ebt.ID]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="EventOutcomeId" id="C1831C39-C1C9-0B9B-1A2F-372805EAABDB">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>EventOutcomeId</alias>
+<dataType>UNKNOWN</dataType>
+<expression>EventOutcomeId</expression>
+<reference>false</reference>
+<viewID>2AB667D0-63E6-73B9-75DA-D25E971C72B6</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="Name" id="36483719-1E26-78B2-94A6-D42AE1B1F6F7">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Name</alias>
+<dataType>UNKNOWN</dataType>
+<expression>Name</expression>
+<reference>false</reference>
+<viewID>2AB667D0-63E6-73B9-75DA-D25E971C72B6</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="tPriority" id="33E725BA-C6F6-ACA6-109F-A3AC227E2881">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>tPriority</alias>
+<dataType>UNKNOWN</dataType>
+<expression>tPriority</expression>
+<reference>false</reference>
+<viewID>2AB667D0-63E6-73B9-75DA-D25E971C72B6</viewID>
+</viewElement>
+</viewElements>
+</TableView>

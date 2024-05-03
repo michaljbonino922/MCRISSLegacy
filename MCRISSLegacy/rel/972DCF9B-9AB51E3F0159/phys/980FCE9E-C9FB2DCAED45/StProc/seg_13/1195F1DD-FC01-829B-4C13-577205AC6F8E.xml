@@ -1,0 +1,411 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetIMOAc.vi.esList]" directorySegmentName="seg_13" id="1195F1DD-FC01-829B-4C13-577205AC6F8E">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@ac.vity varchar(2), 
+ @type varchar(5), 
+    @RecruiterID   uniqueiden..er = null, 
+    @OrgID   int = null, 
+    @DateFrom date.me = null, 
+    @DateTo date.me = null, 
+    @IsApproved bit = 0 
+ 
+AS 
+BEGIN 
+  
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+  
+IF (@ac.vity = 'TC') 
+BEGIN  
+ IF (@type = 'M') 
+ BEGIN 
+  SELECT DISTINCT  pc.prospectCommentId AS ID,  pac.Ac.vity AS CardType, USMC.Person.LastName + ', ' + USMC.Person.FirstName + ' ' + IsNull(USMC.Person.MiddleName,'') AS Name, pc.ProspectDate as LastUpdateDate, pac.Ac.vity, pct.ProspectCommentType,  
+                      pct.ProspectCommentDescrip.on, 0 as [year], UPPER(@ac.vity) as [type], pc.prospectId as primaryguid, pc.prospectId as addi.onalguid, '0' as sector 
+  FROM         USMC.ProspectComment AS pc INNER JOIN 
+                      USMC.ProspectAc.vityComment AS pac ON pac.ProspectAc.vityCommentId = pc.ProspectAc.vityCommentId INNER JOIN 
+                      USMC.ProspectCommentType AS pct ON pct.ProspectCommentTypeId = pac.ProspectCommentTypeId INNER JOIN 
+                      USMC.Prospect ON pc.ProspectId = USMC.Prospect.ProspectId INNER JOIN 
+                      USMC.Person ON USMC.Prospect.PersonId = USMC.Person.PersonId 
+  WHERE pac.Ac.vity = 'TC' AND 
+     pct.ProspectCommentType IN ('CM', 'Col', 'Col-S', 'Col-R', 'NI', 'NA', 'NH', 'NHCB', 'NHLM') 
+     AND (LEFT(pc.ProspectDate,11) >= Coalesce(@dateFrom, LEFT(pc.ProspectDate,11))) 
+  AND (LEFT(pc.ProspectDate,11) <= Coalesce(@dateTo, LEFT(pc.ProspectDate,11)))  
+  AND pc.IsApproved = @IsApproved    
+  AND pc.ProspectId IN (SELECT P.ProspectId  
+                           FROM Prospec.ng.USMC.Prospect P 
+                     INNER JOIN USMC.vwMcrissRecrui.ngOrganiza.on Org ON P.Recrui.ngOrganiza.onId=Org.rowguid 
+                          WHERE (pc.Recrui.ngPersonId=@RecruiterID OR @RecruiterID IS NULL) 
+                            AND (ORGANIZATION_ID=@OrgID OR @OrgID IS NULL) ) 
+ END 
+ ELSE IF (@type = 'C') 
+ BEGIN    
+    
+  SELECT DISTINCT  pc.prospectCommentId AS ID,  pac.Ac.vity AS CardType, USMC.Person.LastName + ', ' + USMC.Person.FirstName + ' ' + IsNull(USMC.Person.MiddleName,'') AS Name, pc.ProspectDate as LastUpdateDate, pac.Ac.vity, pct.ProspectCommentType,  
+                      pct.ProspectCommentDescrip.on, 0 as [year], UPPER(@ac.vity) as [type], pc.prospectId as primaryguid, pc.prospectId as addi.onalguid, '0' as sector 
+       ,pc.Comment as Note 
+                   ,pct.ProspectCommentType + ' - ' + pct.ProspectCommentDescrip.on as Comment 
+                ,dp.ProspectDisposi.onType as disposi.on 
+  FROM         USMC.ProspectComment AS pc INNER JOIN 
+                      USMC.ProspectAc.vityComment AS pac ON pac.ProspectAc.vityCommentId = pc.ProspectAc.vityCommentId INNER JOIN 
+                      USMC.ProspectCommentType AS pct ON pct.ProspectCommentTypeId = pac.ProspectCommentTypeId INNER JOIN 
+                      USMC.Prospect p ON pc.ProspectId = p.ProspectId INNER JOIN 
+                      USMC.Person ON p.PersonId = USMC.Person.PersonId 
+       INNER JOIN Prospec.ng.USMC.ProspectDisposi.on dp ON p.ProspectDisposi.onId = dp.ProspectDisposi.onId 
+  WHERE pac.Ac.vity = 'TC' AND 
+   pct.ProspectCommentType IN ('CM', 'Col', 'Col-S', 'Col-R', 'NI') 
+   AND (pc.IsApproved = @IsApproved) 
+      AND (LEFT(pc.ProspectDate,11) >= Coalesce(@dateFrom, LEFT(pc.ProspectDate,11))) 
+   AND (LEFT(pc.ProspectDate,11) <= Coalesce(@dateTo, LEFT(pc.ProspectDate,11)))   
+   AND pc.ProspectId IN (SELECT P.ProspectId  
+                           FROM Prospec.ng.USMC.Prospect P 
+                     INNER JOIN USMC.vwMcrissRecrui.ngOrganiza.on Org ON P.Recrui.ngOrganiza.onId=Org.rowguid 
+                          WHERE (pc.Recrui.ngPersonId=@RecruiterID OR @RecruiterID IS NULL) 
+                            AND (ORGANIZATION_ID=@OrgID OR @OrgID IS NULL)  
+                        ) 
+  END                       
+ 
+ ELSE IF (@type = 'A') 
+ BEGIN 
+ 
+  SELECT dis.nct  e.ID, s.SubjectName AS Name,  UPPER(@ac.vity) as CardType, e.StartDate as LastUpdateDate,0 as [year], UPPER(@ac.vity) as [type], s.SubjectId as primaryguid, s.SubjectId as addi.onalguid, '0' as sector 
+   FROM  
+ RSSOSS.USMC.Event e,  
+ RSSOSS.USMC.EventOwners eo,  
+ RSSOSS.USMC.EventSubject s,  
+ Prospec.ng.USMC.Prospect p 
+  WHERE  
+  e.ID=s.EventId 
+  AND e.ID = eo.EventId 
+  AND s.subjectId=p.ProspectId 
+  AND e.IsApproved = @IsApproved 
+  AND e.EventSourceId = 16  
+  AND e.EventTypeId = 85 
+  AND (@RecruiterID IS NULL OR @RecruiterID = eo.OwnerId) 
+  AND (@OrgID IS NULL OR e.Organiza.onId = @OrgID)  
+  AND (Ac.vity='TC') 
+  AND (LEFT(StartDate,11) >= Coalesce(@dateFrom, LEFT(StartDate,11))) 
+  AND (LEFT(StartDate,11) <= Coalesce(@dateTo, LEFT(StartDate,11)))    
+   
+ END 
+  
+ ELSE IF (@type = 'I') 
+ BEGIN 
+  SELECT dis.nct  e.ID, s.SubjectName AS Name,  UPPER(@ac.vity) as CardType, e.StartDate as LastUpdateDate,0 as [year], UPPER(@ac.vity) as [type], s.SubjectId as primaryguid, s.SubjectId as addi.onalguid, '0' as sector 
+    FROM RSSOSS.USMC.Event e 
+INNER JOIN RSSOSS.USMC.EventOwners eo ON e.ID = eo.EventId    
+INNER JOIN RSSOSS.USMC.EventSubject s ON e.ID = s.EventId  
+INNER JOIN RSSOSS.USMC.EventOutcome oc ON e.ID = oc.EventId 
+INNER JOIN RSSOSS.USMC.EventType et ON e.EventTypeId = et.ID 
+INNER JOIN Prospec.ng.USMC.Prospect p ON s.subjectId = p.ProspectId 
+  WHERE (InterviewOutcomeId=1 or InterviewOutcomeId=2) -- New Working Applicant or Follow-up 
+  AND et.Type != 'Follow Up' 
+  AND e.IsApproved = @IsApproved 
+  AND (@RecruiterID IS NULL OR @RecruiterID = eo.OwnerId) 
+  AND (@OrgID IS NULL OR e.Organiza.onId = @OrgID) 
+  AND (Ac.vity='TC' ) 
+  AND (LEFT(StartDate,11) >= Coalesce(@dateFrom, LEFT(StartDate,11))) 
+  AND (LEFT(StartDate,11) <= Coalesce(@dateTo, LEFT(StartDate,11)))    
+    END    
+END 
+ 
+ELSE IF (@ac.vity = 'OT') 
+BEGIN 
+ IF (@type = 'M') 
+ BEGIN 
+ 
+  SELECT DISTINCT  pc.prospectCommentId AS ID,  pac.Ac.vity AS CardType, USMC.Person.LastName + ', ' + USMC.Person.FirstName + ' ' + IsNull(USMC.Person.MiddleName,'') AS Name, pc.ProspectDate as LastUpdateDate, pac.Ac.vity, pct.ProspectCommentType,  
+                      pct.ProspectCommentDescrip.on, 0 as [year], UPPER(@ac.vity) as [type], pc.prospectId as primaryguid, pc.prospectId as addi.onalguid, '0' as sector 
+       ,pc.Comment as Note 
+                   ,pct.ProspectCommentType + ' - ' + pct.ProspectCommentDescrip.on as Comment 
+                ,dp.ProspectDisposi.onType as disposi.on 
+  FROM         USMC.ProspectComment AS pc INNER JOIN 
+                      USMC.ProspectAc.vityComment AS pac ON pac.ProspectAc.vityCommentId = pc.ProspectAc.vityCommentId INNER JOIN 
+                      USMC.ProspectCommentType AS pct ON pct.ProspectCommentTypeId = pac.ProspectCommentTypeId INNER JOIN 
+                      USMC.Prospect p ON pc.ProspectId = p.ProspectId INNER JOIN 
+                      USMC.Person ON p.PersonId = USMC.Person.PersonId 
+       INNER JOIN Prospec.ng.USMC.ProspectDisposi.on dp ON p.ProspectDisposi.onId = dp.ProspectDisposi.onId 
+  WHERE pac.Ac.vity = 'OT' AND 
+     pct.ProspectCommentType IN ('OT-S', 'Col', 'Col-S', 'Col-R', 'NI') 
+     AND (pc.IsApproved = @IsApproved) 
+     AND (LEFT(pc.ProspectDate,11) >= Coalesce(@dateFrom, LEFT(pc.ProspectDate,11))) 
+  AND (LEFT(pc.ProspectDate,11) <= Coalesce(@dateTo, LEFT(pc.ProspectDate,11)))  
+  AND pc.ProspectId IN (SELECT P.ProspectId  
+                           FROM Prospec.ng.USMC.Prospect P 
+                     INNER JOIN USMC.vwMcrissRecrui.ngOrganiza.on Org ON P.Recrui.ngOrganiza.onId=Org.rowguid 
+                          WHERE (pc.Recrui.ngPersonId=@RecruiterID OR @RecruiterID IS NULL) 
+                            AND (ORGANIZATION_ID=@OrgID OR @OrgID IS NULL) ) 
+ END 
+ ELSE IF (@type = 'I') 
+ BEGIN 
+ 
+  SELECT dis.nct  e.ID, s.SubjectName AS Name,  UPPER(@ac.vity) as CardType, e.StartDate as LastUpdateDate,0 as [year], UPPER(@ac.vity) as [type], s.SubjectId as primaryguid, s.SubjectId as addi.onalguid, '0' as sector 
+   FROM RSSOSS.USMC.Event e 
+INNER JOIN RSSOSS.USMC.EventOwners eo ON e.ID = eo.EventId    
+INNER JOIN RSSOSS.USMC.EventSubject s ON e.ID = s.EventId  
+INNER JOIN RSSOSS.USMC.EventOutcome oc ON e.ID = oc.EventId 
+INNER JOIN RSSOSS.USMC.EventType et ON e.EventTypeId = et.ID 
+INNER JOIN Prospec.ng.USMC.Prospect p ON s.subjectId = p.ProspectId 
+  WHERE (InterviewOutcomeId=1 or InterviewOutcomeId=2) -- New Working Applicant or Follow-up 
+  AND et.Type != 'Follow Up' 
+  AND e.IsApproved = @IsApproved 
+  AND (@RecruiterID IS NULL OR @RecruiterID = eo.OwnerId) 
+  AND (@OrgID IS NULL OR e.Organiza.onId = @OrgID) 
+  AND (Ac.vity='OT' ) 
+  AND (LEFT(StartDate,11) >= Coalesce(@dateFrom, LEFT(StartDate,11))) 
+  AND (LEFT(StartDate,11) <= Coalesce(@dateTo, LEFT(StartDate,11)))    
+ END  
+END 
+        
+ELSE IF (@ac.vity = 'AC') 
+BEGIN        
+ IF (@type = 'M') 
+ BEGIN 
+  SELECT DISTINCT  pc.prospectCommentId AS ID,  pac.Ac.vity AS CardType, USMC.Person.LastName + ', ' + USMC.Person.FirstName + ' ' + IsNull(USMC.Person.MiddleName,'') AS Name, pc.ProspectDate as LastUpdateDate, pac.Ac.vity, pct.ProspectCommentType,  
+                      pct.ProspectCommentDescrip.on, 0 as [year], UPPER(@ac.vity) as [type], pc.prospectId as primaryguid, pc.prospectId as addi.onalguid, '0' as sector 
+       ,pc.Comment as Note 
+                   ,pct.ProspectCommentType + ' - ' + pct.ProspectCommentDescrip.on as Comment 
+                ,dp.ProspectDisposi.onType as disposi.on 
+  FROM         USMC.ProspectComment AS pc INNER JOIN 
+                      USMC.ProspectAc.vityComment AS pac ON pac.ProspectAc.vityCommentId = pc.ProspectAc.vityCommentId INNER JOIN 
+                      USMC.ProspectCommentType AS pct ON pct.ProspectCommentTypeId = pac.ProspectCommentTypeId INNER JOIN 
+                      USMC.Prospect p ON pc.ProspectId = p.ProspectId INNER JOIN 
+                      USMC.Person ON p.PersonId = USMC.Person.PersonId 
+       INNER JOIN Prospec.ng.USMC.ProspectDisposi.on dp ON p.ProspectDisposi.onId = dp.ProspectDisposi.onId 
+  WHERE pac.Ac.vity = 'AC' AND 
+     pct.ProspectCommentType IN ('CM', 'Col', 'Col-S', 'Col-R', 'NI') 
+     AND (pc.IsApproved = @IsApproved) 
+     AND (LEFT(pc.ProspectDate,11) >= Coalesce(@dateFrom, LEFT(pc.ProspectDate,11))) 
+  AND (LEFT(pc.ProspectDate,11) <= Coalesce(@dateTo, LEFT(pc.ProspectDate,11)))  
+  AND pc.ProspectId IN (SELECT P.ProspectId  
+                           FROM Prospec.ng.USMC.Prospect P 
+                     INNER JOIN USMC.vwMcrissRecrui.ngOrganiza.on Org ON P.Recrui.ngOrganiza.onId=Org.rowguid 
+                          WHERE (pc.Recrui.ngPersonId=@RecruiterID OR @RecruiterID IS NULL) 
+                            AND (ORGANIZATION_ID=@OrgID OR @OrgID IS NULL) ) 
+ END 
+ ELSE IF (@type = 'A') 
+ BEGIN                             
+  SELECT dis.nct  e.ID, s.SubjectName AS Name,  UPPER(@ac.vity) as CardType, e.StartDate as LastUpdateDate,0 as [year], UPPER(@ac.vity) as [type], s.SubjectId as primaryguid, s.SubjectId as addi.onalguid, '0' as sector 
+   FROM  
+ RSSOSS.USMC.Event e,  
+ RSSOSS.USMC.EventOwners eo,  
+ RSSOSS.USMC.EventSubject s,  
+ Prospec.ng.USMC.Prospect p 
+  WHERE  
+  e.ID=s.EventId  
+  AND e.ID = eo.EventId  
+  AND s.subjectId=p.ProspectId 
+  AND e.IsApproved = @IsApproved 
+  AND e.EventSourceId = 16  
+  AND e.EventTypeId = 85 
+  AND (@RecruiterID IS NULL OR @RecruiterID = eo.OwnerId) 
+  AND (@OrgID IS NULL OR e.Organiza.onId = @OrgID)  
+  AND (Ac.vity='AC') 
+  AND (LEFT(StartDate,11) >= Coalesce(@dateFrom, LEFT(StartDate,11))) 
+  AND (LEFT(StartDate,11) <= Coalesce(@dateTo, LEFT(StartDate,11)))   
+ END 
+ ELSE IF (@type = 'I') 
+ BEGIN 
+ 
+  SELECT dis.nct  e.ID, s.SubjectName AS Name,  UPPER(@ac.vity) as CardType, e.StartDate as LastUpdateDate,0 as [year], UPPER(@ac.vity) as [type], s.SubjectId as primaryguid, s.SubjectId as addi.onalguid, '0' as sector 
+   FROM RSSOSS.USMC.Event e 
+INNER JOIN RSSOSS.USMC.EventOwners eo ON e.ID = eo.EventId    
+INNER JOIN RSSOSS.USMC.EventSubject s ON e.ID = s.EventId  
+INNER JOIN RSSOSS.USMC.EventOutcome oc ON e.ID = oc.EventId 
+INNER JOIN RSSOSS.USMC.EventType et ON e.EventTypeId = et.ID 
+INNER JOIN Prospec.ng.USMC.Prospect p ON s.subjectId = p.ProspectId 
+  WHERE (InterviewOutcomeId=1 or InterviewOutcomeId=2) -- New Working Applicant or Follow-up 
+  AND et.Type != 'Follow Up' 
+  AND e.IsApproved = @IsApproved 
+  AND (@RecruiterID IS NULL OR @RecruiterID = eo.OwnerId) 
+  AND (@OrgID IS NULL OR e.Organiza.onId = @OrgID) 
+  AND (Ac.vity='AC' ) 
+  AND (LEFT(StartDate,11) >= Coalesce(@dateFrom, LEFT(StartDate,11))) 
+  AND (LEFT(StartDate,11) <= Coalesce(@dateTo, LEFT(StartDate,11)))   
+ END 
+ 
+END 
+ 
+ELSE IF (@ac.vity = 'HV') 
+BEGIN        
+ IF (@type = 'M') 
+ BEGIN 
+  
+  SELECT DISTINCT  pc.prospectCommentId AS ID,  pac.Ac.vity AS CardType, USMC.Person.LastName + ', ' + USMC.Person.FirstName + ' ' + IsNull(USMC.Person.MiddleName,'') AS Name, pc.ProspectDate as LastUpdateDate, pac.Ac.vity, pct.ProspectCommentType,  
+                      pct.ProspectCommentDescrip.on, 0 as [year], UPPER(@ac.vity) as [type], pc.prospectId as primaryguid, pc.prospectId as addi.onalguid, '0' as sector 
+  FROM         USMC.ProspectComment AS pc INNER JOIN 
+                      USMC.ProspectAc.vityComment AS pac ON pac.ProspectAc.vityCommentId = pc.ProspectAc.vityCommentId INNER JOIN 
+                      USMC.ProspectCommentType AS pct ON pct.ProspectCommentTypeId = pac.ProspectCommentTypeId INNER JOIN 
+                      USMC.Prospect ON pc.ProspectId = USMC.Prospect.ProspectId INNER JOIN 
+                      USMC.Person ON USMC.Prospect.PersonId = USMC.Person.PersonId 
+  WHERE pac.Ac.vity = 'HV' AND 
+     pct.ProspectCommentType IN ('CM', 'Col', 'Col-S', 'Col-R', 'NI', 'HV-NA', 'HV-NH') 
+  AND (pc.IsApproved = @IsApproved) 
+     AND (LEFT(pc.ProspectDate,11) >= Coalesce(@dateFrom, LEFT(pc.ProspectDate,11))) 
+  AND (LEFT(pc.ProspectDate,11) <= Coalesce(@dateTo, LEFT(pc.ProspectDate,11)))  
+  AND pc.ProspectId IN (SELECT P.ProspectId  
+                           FROM Prospec.ng.USMC.Prospect P 
+                     INNER JOIN USMC.vwMcrissRecrui.ngOrganiza.on Org ON P.Recrui.ngOrganiza.onId=Org.rowguid 
+                          WHERE (pc.Recrui.ngPersonId=@RecruiterID OR @RecruiterID IS NULL) 
+                            AND (ORGANIZATION_ID=@OrgID OR @OrgID IS NULL) ) 
+  END 
+  ELSE IF (@type = 'C') 
+  BEGIN                       
+  SELECT DISTINCT  pc.prospectCommentId AS ID,  pac.Ac.vity AS CardType, USMC.Person.LastName + ', ' + USMC.Person.FirstName + ' ' + IsNull(USMC.Person.MiddleName,'') AS Name, pc.ProspectDate as LastUpdateDate, pac.Ac.vity, pct.ProspectCommentType,  
+                      pct.ProspectCommentDescrip.on, 0 as [year], UPPER(@ac.vity) as [type], pc.prospectId as primaryguid, pc.prospectId as addi.onalguid, '0' as sector 
+       ,pc.Comment as Note 
+                   ,pct.ProspectCommentType + ' - ' + pct.ProspectCommentDescrip.on as Comment 
+                ,dp.ProspectDisposi.onType as disposi.on 
+  FROM         USMC.ProspectComment AS pc INNER JOIN 
+                      USMC.ProspectAc.vityComment AS pac ON pac.ProspectAc.vityCommentId = pc.ProspectAc.vityCommentId INNER JOIN 
+                      USMC.ProspectCommentType AS pct ON pct.ProspectCommentTypeId = pac.ProspectCommentTypeId INNER JOIN 
+                      USMC.Prospect p ON pc.ProspectId = p.ProspectId INNER JOIN 
+                      USMC.Person ON p.PersonId = USMC.Person.PersonId 
+       INNER JOIN Prospec.ng.USMC.ProspectDisposi.on dp ON p.ProspectDisposi.onId = dp.ProspectDisposi.onId 
+  WHERE pac.Ac.vity = 'HV' AND 
+     pct.ProspectCommentType IN ('CM', 'Col', 'Col-S', 'Col-R', 'NI') 
+  AND (pc.IsApproved = @IsApproved) 
+     AND (LEFT(pc.ProspectDate,11) >= Coalesce(@dateFrom, LEFT(pc.ProspectDate,11))) 
+  AND (LEFT(pc.ProspectDate,11) <= Coalesce(@dateTo, LEFT(pc.ProspectDate,11)))  
+  AND pc.ProspectId IN (SELECT P.ProspectId  
+                           FROM Prospec.ng.USMC.Prospect P 
+                     INNER JOIN USMC.vwMcrissRecrui.ngOrganiza.on Org ON P.Recrui.ngOrganiza.onId=Org.rowguid 
+                          WHERE (pc.Recrui.ngPersonId=@RecruiterID OR @RecruiterID IS NULL) 
+                            AND (ORGANIZATION_ID=@OrgID OR @OrgID IS NULL) ) 
+   END 
+   ELSE IF (@type = 'A') 
+   BEGIN                      
+  
+  SELECT dis.nct  e.ID, s.SubjectName AS Name,  UPPER(@ac.vity) as CardType, e.StartDate as LastUpdateDate,0 as [year], UPPER(@ac.vity) as [type], s.SubjectId as primaryguid, s.SubjectId as addi.onalguid, '0' as sector 
+   FROM  
+ RSSOSS.USMC.Event e,  
+ RSSOSS.USMC.EventOwners eo,  
+ RSSOSS.USMC.EventSubject s,  
+ Prospec.ng.USMC.Prospect p 
+  WHERE  
+  e.ID=s.EventId 
+  AND e.ID = eo.EventId 
+  AND s.subjectId=p.ProspectId 
+  AND e.IsApproved = @IsApproved 
+  AND e.EventSourceId = 16  
+  AND e.EventTypeId = 85 
+  AND (@RecruiterID IS NULL OR @RecruiterID = eo.OwnerId) 
+  AND (@OrgID IS NULL OR e.Organiza.onId = @OrgID)  
+  AND (Ac.vity='HV') 
+  AND (LEFT(StartDate,11) >= Coalesce(@dateFrom, LEFT(StartDate,11))) 
+  AND (LEFT(StartDate,11) <= Coalesce(@dateTo, LEFT(StartDate,11)))  
+ END 
+ ELSE IF (@type = 'I') 
+ BEGIN      
+  
+  SELECT dis.nct  e.ID, s.SubjectName AS Name,  UPPER(@ac.vity) as CardType, e.StartDate as LastUpdateDate,0 as [year], UPPER(@ac.vity) as [type], s.SubjectId as primaryguid, s.SubjectId as addi.onalguid, '0' as sector 
+   FROM RSSOSS.USMC.Event e 
+INNER JOIN RSSOSS.USMC.EventOwners eo ON e.ID = eo.EventId    
+INNER JOIN RSSOSS.USMC.EventSubject s ON e.ID = s.EventId  
+INNER JOIN RSSOSS.USMC.EventOutcome oc ON e.ID = oc.EventId 
+INNER JOIN RSSOSS.USMC.EventType et ON e.EventTypeId = et.ID 
+INNER JOIN Prospec.ng.USMC.Prospect p ON s.subjectId = p.ProspectId 
+  WHERE (InterviewOutcomeId=1 or InterviewOutcomeId=2) -- New Working Applicant or Follow-up 
+  AND et.Type != 'Follow Up' 
+  AND e.IsApproved = @IsApproved 
+  AND (@RecruiterID IS NULL OR @RecruiterID = eo.OwnerId) 
+  AND (@OrgID IS NULL OR e.Organiza.onId = @OrgID) 
+  AND (Ac.vity='HV' ) 
+  AND (LEFT(StartDate,11) >= Coalesce(@dateFrom, LEFT(StartDate,11))) 
+  AND (LEFT(StartDate,11) <= Coalesce(@dateTo, LEFT(StartDate,11)))  
+     END 
+END      
+ELSE IF (@ac.vity = 'DC') 
+BEGIN 
+     IF (@type = 'M') 
+     BEGIN   
+  SELECT DISTINCT  pc.prospectCommentId AS ID,  pac.Ac.vity AS CardType, USMC.Person.LastName + ', ' + USMC.Person.FirstName + ' ' + IsNull(USMC.Person.MiddleName,'') AS Name, pc.ProspectDate as LastUpdateDate, pac.Ac.vity, pct.ProspectCommentType,  
+                      pct.ProspectCommentDescrip.on, 0 as [year], UPPER(@ac.vity) as [type], pc.prospectId as primaryguid, pc.prospectId as addi.onalguid, '0' as sector 
+  FROM         USMC.ProspectComment AS pc INNER JOIN 
+                      USMC.ProspectAc.vityComment AS pac ON pac.ProspectAc.vityCommentId = pc.ProspectAc.vityCommentId INNER JOIN 
+                      USMC.ProspectCommentType AS pct ON pct.ProspectCommentTypeId = pac.ProspectCommentTypeId INNER JOIN 
+                      USMC.Prospect ON pc.ProspectId = USMC.Prospect.ProspectId INNER JOIN 
+                      USMC.Person ON USMC.Prospect.PersonId = USMC.Person.PersonId 
+  WHERE pac.Ac.vity = 'DC' AND 
+     pct.ProspectCommentType IN ('CM', 'Col', 'Col-S', 'Col-R', 'NI', 'DC-U', 'DC-M', 'DC-R') 
+  AND (pc.IsApproved = @IsApproved) 
+     AND (LEFT(pc.ProspectDate,11) >= Coalesce(@dateFrom, LEFT(pc.ProspectDate,11))) 
+  AND (LEFT(pc.ProspectDate,11) <= Coalesce(@dateTo, LEFT(pc.ProspectDate,11)))  
+  AND pc.ProspectId IN (SELECT P.ProspectId  
+                           FROM Prospec.ng.USMC.Prospect P 
+                     INNER JOIN USMC.vwMcrissRecrui.ngOrganiza.on Org ON P.Recrui.ngOrganiza.onId=Org.rowguid 
+                          WHERE (pc.Recrui.ngPersonId=@RecruiterID OR @RecruiterID IS NULL) 
+                            AND (ORGANIZATION_ID=@OrgID OR @OrgID IS NULL) ) 
+ END 
+ ELSE IF (@type = 'C') 
+ BEGIN                             
+  SELECT DISTINCT  pc.prospectCommentId AS ID,  pac.Ac.vity AS CardType, USMC.Person.LastName + ', ' + USMC.Person.FirstName + ' ' + IsNull(USMC.Person.MiddleName,'') AS Name, pc.ProspectDate as LastUpdateDate, pac.Ac.vity, pct.ProspectCommentType,  
+                      pct.ProspectCommentDescrip.on, 0 as [year], UPPER(@ac.vity) as [type], pc.prospectId as primaryguid, pc.prospectId as addi.onalguid, '0' as sector 
+       ,pc.Comment as Note 
+                   ,pct.ProspectCommentType + ' - ' + pct.ProspectCommentDescrip.on as Comment 
+                ,dp.ProspectDisposi.onType as disposi.on 
+  FROM         USMC.ProspectComment AS pc INNER JOIN 
+                      USMC.ProspectAc.vityComment AS pac ON pac.ProspectAc.vityCommentId = pc.ProspectAc.vityCommentId INNER JOIN 
+                      USMC.ProspectCommentType AS pct ON pct.ProspectCommentTypeId = pac.ProspectCommentTypeId INNER JOIN 
+                      USMC.Prospect p ON pc.ProspectId = p.ProspectId INNER JOIN 
+                      USMC.Person ON p.PersonId = USMC.Person.PersonId 
+       INNER JOIN Prospec.ng.USMC.ProspectDisposi.on dp ON p.ProspectDisposi.onId = dp.ProspectDisposi.onId 
+  WHERE pac.Ac.vity = 'DC' AND 
+     pct.ProspectCommentType IN ('CM', 'Col', 'Col-S', 'Col-R', 'NI') 
+  AND (pc.IsApproved = @IsApproved) 
+     AND (LEFT(pc.ProspectDate,11) >= Coalesce(@dateFrom, LEFT(pc.ProspectDate,11))) 
+  AND (LEFT(pc.ProspectDate,11) <= Coalesce(@dateTo, LEFT(pc.ProspectDate,11)))  
+  AND pc.ProspectId IN (SELECT P.ProspectId  
+                           FROM Prospec.ng.USMC.Prospect P 
+                     INNER JOIN USMC.vwMcrissRecrui.ngOrganiza.on Org ON P.Recrui.ngOrganiza.onId=Org.rowguid 
+                          WHERE (pc.Recrui.ngPersonId=@RecruiterID OR @RecruiterID IS NULL) 
+                            AND (ORGANIZATION_ID=@OrgID OR @OrgID IS NULL) ) 
+ END                        
+ ELSE IF (@type = 'A') 
+ BEGIN 
+  SELECT dis.nct  e.ID, s.SubjectName AS Name,  UPPER(@ac.vity) as CardType, e.StartDate as LastUpdateDate,0 as [year], UPPER(@ac.vity) as [type], s.SubjectId as primaryguid, s.SubjectId as addi.onalguid, '0' as sector 
+   FROM  
+ RSSOSS.USMC.Event e,  
+ RSSOSS.USMC.EventOwners eo,  
+ RSSOSS.USMC.EventSubject s,  
+ Prospec.ng.USMC.Prospect p 
+  WHERE  
+  e.ID=s.EventId 
+  AND e.ID = eo.EventId 
+  AND s.subjectId=p.ProspectId 
+  AND e.IsApproved = @IsApproved 
+  AND e.EventSourceId = 16  
+  AND e.EventTypeId = 85 
+  AND (@RecruiterID IS NULL OR @RecruiterID = eo.OwnerId) 
+  AND (@OrgID IS NULL OR e.Organiza.onId = @OrgID)  
+  AND (Ac.vity='DC') 
+  AND (LEFT(StartDate,11) >= Coalesce(@dateFrom, LEFT(StartDate,11))) 
+  AND (LEFT(StartDate,11) <= Coalesce(@dateTo, LEFT(StartDate,11)))  
+ END 
+ ELSE IF (@type = 'I') 
+ BEGIN     
+ 
+  SELECT dis.nct  e.ID, s.SubjectName AS Name,  UPPER(@ac.vity) as CardType, e.StartDate as LastUpdateDate,0 as [year], UPPER(@ac.vity) as [type], s.SubjectId as primaryguid, s.SubjectId as addi.onalguid, '0' as sector 
+   FROM RSSOSS.USMC.Event e 
+INNER JOIN RSSOSS.USMC.EventOwners eo ON e.ID = eo.EventId    
+INNER JOIN RSSOSS.USMC.EventSubject s ON e.ID = s.EventId  
+INNER JOIN RSSOSS.USMC.EventOutcome oc ON e.ID = oc.EventId 
+INNER JOIN RSSOSS.USMC.EventType et ON e.EventTypeId = et.ID 
+INNER JOIN Prospec.ng.USMC.Prospect p ON s.subjectId = p.ProspectId 
+  WHERE (InterviewOutcomeId=1 or InterviewOutcomeId=2) -- New Working Applicant or Follow-up 
+  AND et.Type != 'Follow Up' 
+  AND e.IsApproved = @IsApproved 
+  AND (@RecruiterID IS NULL OR @RecruiterID = eo.OwnerId) 
+  AND (@OrgID IS NULL OR e.Organiza.onId = @OrgID) 
+  AND (Ac.vity='DC' ) 
+  AND (LEFT(StartDate,11) >= Coalesce(@dateFrom, LEFT(StartDate,11))) 
+  AND (LEFT(StartDate,11) <= Coalesce(@dateTo, LEFT(StartDate,11)))  
+ END 
+END 
+     
+  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

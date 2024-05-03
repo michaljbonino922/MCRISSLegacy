@@ -1,0 +1,220 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetOssEventOwnersByOrgId]" directorySegmentName="seg_8" id="CA8DA8DB-4DEA-F9FA-0DCA-596A3DC6EBD2">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@Organiza.onID int 
+    
+AS 
+BEGIN 
+  
+ SET ARITHABORT ON 
+ SET NOCOUNT ON 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+  
+ DECLARE @CalendarYear int, @Month int 
+ 
+ SET @CalendarYear = DATEPART(year,GETDATE()) 
+ SET @Month = DATEPART(month,GETDATE()) 
+ 
+ /******  BEGIN  Get Recruiters From Org ****/ 
+ CREATE TABLE #BILLET_DATA  
+ (SHORT_DESCRIPTION VARCHAR(62),  
+  BILLET_BEGIN_DATE VARCHAR(30),  
+     BILLET_END_DATE VARCHAR(30),  
+  UNIT_ABBREVIATION varchar(50),  
+  RECRUITING_PERSON_ID int, 
+  ORGANIZATION_ID int) 
+ 
+ CREATE TABLE #Recruiter_Data  
+ ( 
+  RECRUITING_PERSON_ID INT,  
+  ORGANIZATION_ID INT,  
+  RECRUITER_NAME VARCHAR(60),  
+  RANK VARCHAR(20),  
+  SHORT_DESCRIPTION varchar(60), --BILLET 
+  ON_PRODUCTION BIT,  
+  MONTH_CODE INT, 
+     CALENDAR_YEAR INT, 
+  NON_PROD_REASON_CODE VARCHAR(5), 
+  NON_PROD_REASON_DESC VARCHAR(50), 
+  OTHER_REASON_DETAIL VARCHAR(50),    
+  BILLET_BEGIN_DATE DATETIME,  
+  BILLET_END_DATE DATETIME,  
+  TOUR_BEGIN_DATE DATETIME, 
+  TOUR_END_DATE DATETIME, 
+  EST_TOUR_END_DATE DATETIME, 
+  UNIT_DISPLAY VARCHAR(50), 
+  ORG_NAME VARCHAR(50), 
+  RECRUITER_RowGuid uniqueiden..er, 
+  PRIMARY KEY (RECRUITING_PERSON_ID, SHORT_DESCRIPTION) 
+ ) 
+  
+ CREATE NONCLUSTERED INDEX [NCIndex-20140124-165419] ON #Recruiter_Data 
+ ( 
+  RECRUITER_RowGuid ASC 
+ ) 
+ 
+ INSERT INTO #BILLET_DATA(SHORT_DESCRIPTION, 
+         BILLET_BEGIN_DATE, 
+         BILLET_END_DATE,           
+         UNIT_ABBREVIATION, 
+         RECRUITING_PERSON_ID,         
+         ORGANIZATION_ID)  
+ 
+ EXEC MCRISS.[USMC].[GetRecruiterBilletDataByMonthCalendarYear] 
+  @Organiza.onID=@Organiza.onID, 
+  @DisplayCode=1, 
+  @Month=@Month, 
+  @CalendarYear=@CalendarYear 
+ 
+ DECLARE billet_cursor CURSOR FOR 
+ SELECT *  
+ FROM #BILLET_DATA  B1 
+ WHERE  
+  BILLET_BEGIN_DATE =  
+  ( 
+   SELECT TOP 1 BILLET_BEGIN_DATE 
+   FROM #BILLET_DATA 
+   WHERE RECRUITING_PERSON_ID = B1.RECRUITING_PERSON_ID 
+    AND DATEDIFF(MONTH, BILLET_BEGIN_DATE, CONVERT(date.me, CONVERT(varchar,  CAST(@Month as varchar) + '/1/' + CAST(@CalendarYear as varchar)))) >=0 
+   ORDER BY DATEDIFF(MONTH, BILLET_BEGIN_DATE, CONVERT(date.me, CONVERT(varchar,  CAST(@Month as varchar) + '/1/' + CAST(@CalendarYear as varchar)))) 
+  ) 
+  AND 
+  RECRUITING_PERSON_ID =  
+  ( 
+   SELECT TOP 1 RECRUITING_PERSON_ID 
+   FROM #BILLET_DATA 
+   WHERE RECRUITING_PERSON_ID = B1.RECRUITING_PERSON_ID 
+    AND DATEDIFF(MONTH, BILLET_BEGIN_DATE, CONVERT(date.me, CONVERT(varchar,  CAST(@Month as varchar) + '/1/' + CAST(@CalendarYear as varchar)))) >=0 
+   ORDER BY DATEDIFF(MONTH, BILLET_BEGIN_DATE, CONVERT(date.me, CONVERT(varchar,  CAST(@Month as varchar) + '/1/' + CAST(@CalendarYear as varchar)))) 
+  ) 
+ 
+ DECLARE 
+  @billet VARCHAR(62),  
+  @billet_begin_date VARCHAR(30),  
+  @billet_end_date VARCHAR(30),  
+  @unit_display varchar(50),  
+  @recrui.ng_person_id int, 
+  @organiza.on_id int, 
+  @on_produc.on bit, 
+  @month_code int, 
+  @year int, 
+  @non_prod_reason_code varchar(5), 
+  @non_prod_reason_desc varchar(50), 
+  @other_reason_detail varchar(50), 
+  @tour_begin_date date.me, 
+  @tour_end_date date.me, 
+  @est_tour_end_date date.me, 
+  @name varchar(60), 
+  @rank varchar(20), 
+     @org_name varchar(50), 
+  @recruiter_rowguid uniqueiden..er 
+ 
+ OPEN billet_cursor 
+ 
+  FETCH next from billet_cursor INTO  
+   @billet, @billet_begin_date, @billet_end_date, @unit_display,@recrui.ng_person_id, @organiza.on_id 
+ 
+  WHILE (@@fetch_status = 0) 
+  BEGIN  
+   SET @on_produc.on = 0 
+   SET @non_prod_reason_code ='' 
+   SET @non_prod_reason_desc='' 
+   SET @other_reason_detail='' 
+   
+   select TOP 1 @on_produc.on = ON_PRODUCTION,  
+       @month_code=MONTH_CODE,  
+       @year=CALENDAR_YEAR, 
+       @non_prod_reason_code=NON_PROD_REASON_CODE, 
+       @non_prod_reason_desc= SHORT_DESC, 
+       @other_reason_detail=OTHER_REASON_DETAIL          
+   FROM MCRISS.dbo.PRODUCTION_STATUS_HISTORY PH LEFT JOIN MCRISS.dbo.NON_PRODUCTION_REASON NPR ON PH.NON_PROD_REASON_CODE=NPR.REASON_CODE 
+   where PERSON_ID=@recrui.ng_person_id AND DATEDIFF(MONTH, CONVERT(date.me, CONVERT(varchar,  CAST(MONTH_CODE as varchar) + '/1/' + CAST(CALENDAR_YEAR as varchar))), CONVERT(date.me, CONVERT(varchar,  CAST(@Month as varchar) + '/1/' + CAST(@CalendarYear as varchar))))>=0 
+   ORDER BY PH.CALENDAR_YEAR DESC, PH.MONTH_CODE DESC 
+ 
+   SELECT 
+    @organiza.on_id = RP.ORGANIZATION_ID, 
+    @tour_begin_date = RP.TOUR_BEGIN_DATE, 
+    @tour_end_date = RP.TOUR_END_DATE, 
+    @est_tour_end_date = RP.EST_TOUR_END_DATE, 
+    @name = ISNULL(RTRIM(P.LAST_NAME), ' ') + ', ' + ISNULL(RTRIM(P.FIRST_NAME), ' ') + COALESCE(SPACE(1) + P.LEGAL_MIDDLE_NAME, SPACE(0)), 
+    @rank = LTRIM(RTRIM(RP.RANK_CODE)), 
+    @billet_begin_date=COALESCE(CONVERT(VARCHAR(11), RP.BILLET_BEGIN_DATE, 101), SPACE(0)),  
+    @billet_end_date=COALESCE(CONVERT(VARCHAR(11), RP.BILLET_END_DATE, 101), SPACE(0)), 
+    @org_name = ro.ORGANIZATION_TYPE + ' ' + ro.NAME, 
+    @recruiter_rowguid = rp.rowguid 
+   FROM MCRISS.dbo.RECRUITING_PERSON RP WITH (NOLOCK) 
+    INNER JOIN MCRISS.dbo.RECRUITING_ORGANIZATION RO ON RP.ORGANIZATION_ID = RO.ORGANIZATION_ID 
+    INNER JOIN MCRISS.dbo.PERSON P ON RP.RECRUITING_PERSON_ID = P.PERSON_ID 
+    INNER JOIN MCRISS.dbo.RECRUITING_ROLE RR ON RP.RECRUITING_ROLE_ID = RR.RECRUITING_ROLE_ID 
+   WHERE RP.RECRUITING_PERSON_ID=@recrui.ng_person_id 
+    
+   
+   INSERT INTO #Recruiter_Data VALUES(@recrui.ng_person_id,  
+            @organiza.on_id,  
+            @name, 
+            @rank,          
+            @billet, 
+            @on_produc.on, 
+            @month_code, 
+            @year, 
+            @non_prod_reason_code, 
+            @non_prod_reason_desc, 
+            @other_reason_detail,        
+            @billet_begin_date, 
+            @billet_end_date, 
+            @tour_begin_date, 
+            @tour_end_date, 
+            @est_tour_end_date, 
+            @unit_display, 
+            @org_name, 
+            @recruiter_rowguid) 
+   FETCH next from billet_cursor INTO  
+    @billet, @billet_begin_date, @billet_end_date, @unit_display, @recrui.ng_person_id, @organiza.on_id 
+  END 
+ 
+ CLOSE billet_cursor 
+ DEALLOCATE billet_cursor 
+ 
+ -- one recruiter can be in both role at the same month 
+ SELECT Recrui.ng_Person_ID, count(*) as total  
+ INTO #DupList 
+ FROM #Recruiter_Data 
+ WHERE  
+  SHORT_DESCRIPTION IN ('OSA', 'OSO') 
+ GROUP BY Recrui.ng_person_id 
+ having count(*) > 1 
+ 
+ -- only keep the OSO role 
+ DELETE FROM #Recruiter_Data 
+ FROM   
+  #Recruiter_Data rd  
+     INNER JOIN #DupList d ON rd.Recrui.ng_Person_ID = d.Recrui.ng_Person_ID 
+ WHERE 
+  rd.SHORT_DESCRIPTION = 'OSA' 
+ 
+ 
+ SELECT  
+  RECRUITER_RowGuid as ID, 
+  ISNULL(RTRIM(P.LAST_NAME), ' ') as LAST_NAME,  
+  ISNULL(RTRIM(P.FIRST_NAME), ' ') as FIRST_NAME, 
+  COALESCE(P.LEGAL_MIDDLE_NAME, SPACE(0)) as LEGAL_MIDDLE_NAME, 
+  LTRIM(RTRIM(RP.RANK_CODE)) as [Rank]  
+ FROM  
+  #Recruiter_Data rd  
+  INNER JOIN MCRISS.dbo.RECRUITING_PERSON rp ON rp.RECRUITING_PERSON_ID = rd.RECRUITING_PERSON_ID 
+  INNER JOIN MCRISS.dbo.RECRUITING_ORGANIZATION RO ON RP.ORGANIZATION_ID = RO.ORGANIZATION_ID 
+  INNER JOIN MCRISS.dbo.PERSON P ON rp.RECRUITING_PERSON_ID = P.PERSON_ID 
+ WHERE  
+  SHORT_DESCRIPTION = 'OSO' 
+ 
+ DROP TABLE #BILLET_DATA 
+ DROP TABLE #DupList  
+ DROP TABLE #Recruiter_Data 
+ 
+END]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

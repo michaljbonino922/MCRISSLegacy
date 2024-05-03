@@ -1,0 +1,85 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SaveEmail]" directorySegmentName="seg_11" id="A490D844-5DEA-81BC-3AB8-25865BFDBD05">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:37 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @EmailAddressID uniqueiden..er, 
+ @LeadID uniqueiden..er,  
+ @EmailAddressTypeID int, 
+ @Email varchar(255), 
+ @DateUpdated date.me, 
+ @IsCurrent bit 
+) 
+ 
+AS 
+BEGIN 
+ 
+ BEGIN TRANSACTION 
+  
+ IF EXISTS(SELECT EmailAddressID FROM [dbo].[EmailAddress] WHERE [EmailAddressID] = @EmailAddressID) 
+ BEGIN 
+  UPDATE 
+   [dbo].[EmailAddress] 
+  SET 
+   [EmailAddressID] = @EmailAddressID, 
+   [LeadID] = @LeadID, 
+   [EmailAddressTypeID] = @EmailAddressTypeID, 
+   [Email] = @Email, 
+   [DateUpdated] = @DateUpdated, 
+   [IsCurrent] = @IsCurrent 
+  WHERE 
+   [EmailAddressID] = @EmailAddressID 
+ END 
+ ELSE 
+ BEGIN 
+  INSERT INTO [dbo].[EmailAddress] 
+  ( 
+   [EmailAddressID] , 
+   [LeadID], 
+   [EmailAddressTypeID], 
+   [Email], 
+   [DateUpdated], 
+   [IsCurrent] 
+  ) 
+  VALUES 
+  ( 
+   @EmailAddressID, 
+   @LeadID,  
+   @EmailAddressTypeID, 
+   @Email, 
+   @DateUpdated, 
+   @IsCurrent 
+  ) 
+  
+ END 
+  
+    -- Rollback the transac.on if there were any errors 
+ IF @@ERROR <> 0 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+  
+  -- Raise an error and return 
+  RAISERROR ('Error occurred while performing the change.', 16, 1) 
+  RETURN 
+ END 
+  
+ -- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+ IF @@ROWCOUNT > 1 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+  
+  -- Raise an error and return 
+  RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+  RETURN 
+ END 
+  
+ -- If we reach this point, the commands completed successfully. 
+ COMMIT TRANSACTION 
+END]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+</StoredProcedureSqlServerv2k5>

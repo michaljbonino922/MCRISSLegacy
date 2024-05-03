@@ -1,0 +1,35 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetCounselingRecords]" directorySegmentName="seg_2" id="C5FA0F02-8316-042F-564E-B5C14509940F">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@TrainingFileId UNIQUEIDENTIFIER  
+AS 
+BEGIN 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+SELECT C.ID, 
+    C.TrainingFileID, 
+       C.RecordDate, 
+    C.Subject, 
+       C.Remarks, 
+       C.NCOICSignatureID, 
+       U1.FirstName SNCOICFirstName, 
+       U1.MiddleName SNCOICMiddleName, 
+    U1.LastName SNCOICLastName, 
+    C.RecruiterSignatureID, 
+    U2.FirstName RecruiterFirstName, 
+       U2.MiddleName RecruiterMiddleName, 
+    U2.LastName RecruiterLastName 
+  FROM USMC.Counseling C 
+  LEFT OUTER JOIN [usmc].[vwMcrissUserMgmtUser] AS U1 ON U1.UserID = C.NCOICSignatureID 
+  LEFT OUTER JOIN [usmc].[vwMcrissUserMgmtUser] AS U2 ON U2.UserID = C.RecruiterSignatureID 
+ WHERE TrainingFileID = @TrainingFileId    
+   
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

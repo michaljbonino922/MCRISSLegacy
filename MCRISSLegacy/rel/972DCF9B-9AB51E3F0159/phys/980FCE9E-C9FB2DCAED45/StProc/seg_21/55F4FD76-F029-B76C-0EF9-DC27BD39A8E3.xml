@@ -1,0 +1,45 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_mg_InsertARMSAddress]" directorySegmentName="seg_21" id="55F4FD76-F029-B76C-0EF9-DC27BD39A8E3">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[as 
+declare 
+  @ARMS_city_text as varchar(30), 
+  @city_text as varchar(30), 
+  @county_code as varchar(3), 
+  @state_code as varchar(2) 
+ 
+  declare cur_arms cursor for 
+    select  
+      arms_city_text, 
+      city_text, 
+      county_code, 
+      state_code 
+      from temp_arms_o.cer_new_geo_loca.on 
+ 
+  open cur_arms 
+  fetch cur_arms into 
+    @arms_city_text, 
+    @city_text, 
+    @county_code, 
+    @state_code 
+ 
+  while (@@FETCH_STATUS = 0) 
+  begin 
+     
+    exec sp_mg_InsertGeoLoca.on @city_text, @county_code, @state_code 
+ 
+    fetch cur_arms into 
+    @arms_city_text, 
+    @city_text, 
+    @county_code, 
+    @state_code 
+  end 
+ 
+  close cur_arms 
+  deallocate cur_arms]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

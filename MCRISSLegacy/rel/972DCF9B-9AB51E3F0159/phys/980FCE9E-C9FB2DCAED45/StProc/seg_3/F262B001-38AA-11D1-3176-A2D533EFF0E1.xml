@@ -1,0 +1,21 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetIRTStop]" directorySegmentName="seg_3" id="F262B001-38AA-11D1-3176-A2D533EFF0E1">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@StopID  uniqueidentifier   
+AS 
+BEGIN 
+ 
+  
+SELECT  StopID, IRTCardID, StopNumber, Organiza.onName, Street, City, State, ZipCode, PhoneNumber, Time,  
+  Comments, LastUpdateDate, LastUpdateUser, Title, FirstName, MI, LastName,  
+  CountyCode, CityCode, StateCode, Country, CountryCode, Street2 
+FROM    IRTStops 
+WHERE   (StopID = @StopID) 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

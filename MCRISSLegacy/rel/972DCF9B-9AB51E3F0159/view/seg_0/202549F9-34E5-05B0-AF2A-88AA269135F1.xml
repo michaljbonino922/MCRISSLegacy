@@ -1,0 +1,80 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_0" id="202549F9-34E5-05B0-AF2A-88AA269135F1" schemaObject="2A6D9360-3BB2-5CEA-6E99-790D76996FDF" name="dbo.aesoa.SystemMessageView">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>091043B8-3439-ABF7-F001-F47D4EAC2AE2</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT S.[ID] 
+      ,T.[TypeName] as [MessageType] 
+      ,S.[SysDate]  
+      ,S.[SysMethod] 
+ ,S.[SystemMessage] as [SystemMessage] 
+FROM [MCRISS].[dbo].[aesoa.SystemMessage] S JOIN [dbo].[aesoa.Type] T ON S.[TypeID] = T.[ID]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[ID]" id="FC5BCEAE-8E4E-19E3-1287-0E24636B5722">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>[ID]</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[ID]</expression>
+<reference>false</reference>
+<viewID>202549F9-34E5-05B0-AF2A-88AA269135F1</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[TypeName]" id="7B8CE21F-51CC-84C3-107C-82A8CB001F0E">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>MessageType</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>MessageType</headerAlias>
+<expression>[TypeName]</expression>
+<reference>false</reference>
+<viewID>202549F9-34E5-05B0-AF2A-88AA269135F1</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[SysDate]" id="90A58C8E-9641-CEE7-7BC5-F18235FC5142">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>[SysDate]</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[SysDate]</expression>
+<reference>false</reference>
+<viewID>202549F9-34E5-05B0-AF2A-88AA269135F1</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[SysMethod]" id="5A0FFC78-3732-23F8-0C08-1527C7788B2B">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>[SysMethod]</alias>
+<dataType>UNKNOWN</dataType>
+<expression>[SysMethod]</expression>
+<reference>false</reference>
+<viewID>202549F9-34E5-05B0-AF2A-88AA269135F1</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[SystemMessage]" id="E09282B6-6CCF-CE91-EE0E-9E08983800BF">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>SystemMessage</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>SystemMessage</headerAlias>
+<expression>[SystemMessage]</expression>
+<reference>false</reference>
+<viewID>202549F9-34E5-05B0-AF2A-88AA269135F1</viewID>
+</viewElement>
+</viewElements>
+</TableView>

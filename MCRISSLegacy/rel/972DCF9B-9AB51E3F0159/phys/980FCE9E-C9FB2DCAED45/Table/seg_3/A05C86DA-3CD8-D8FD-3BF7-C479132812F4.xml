@@ -1,0 +1,94 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="MissionData" directorySegmentName="seg_3" id="A05C86DA-3CD8-D8FD-3BF7-C479132812F4">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:50 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<schemaObject>2A6D9360-3BB2-5CEA-6E99-790D76996FDF</schemaObject>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="Mission" id="09E9A478-CF2A-A258-6839-FC4D812B9E52">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:03 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="IsOpen" id="3D731B77-690C-BC7D-00FD-DDBA3F9C38F7">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:03 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="PayGradeType" id="4815EFE7-78B5-6779-8E44-79A6040AF581">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:03 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="CalendarYear" id="66A18FC3-F9E9-D02E-1704-46BBB539ED82">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:03 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="OrgUnitID" id="9E06F961-6CAD-923F-1D3F-6C7CE888A588">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:03 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="ApplicantPackageTypeID" id="C18FD5C6-8FA8-5A45-F298-DC644A0D4D38">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:03 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="Month" id="D6B68FC9-1433-AA07-9B04-47F724760A3C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:03 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="MissionDataID" id="E12E3E73-7469-9ADA-A88B-B8033CEC875A">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:03 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<defaultValue>(newid())</defaultValue>
+</ColumnProxy>
+</columnProxies>
+<indexProxies>
+<IndexProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.IndexProxySqlServerv2k12" name="ORGUNITID_PJ_20180509" id="647D5F64-C61B-6E81-E0F0-FCB2B8DF5ABF">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:03 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<recomputeStatistics>ON</recomputeStatistics>
+</IndexProxy>
+<IndexProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.IndexProxySqlServerv2k12" name="IDX_MissionData_5_10_18" id="936F5F2C-EA9E-5FBD-C4CF-36B9A9AB6864">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:03 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<recomputeStatistics>ON</recomputeStatistics>
+</IndexProxy>
+<IndexProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.IndexProxySqlServerv2k12" name="IDX_MissionData_Org_Year_Month_PackageType_IsOpen" id="BDCFD927-99B0-3A97-BD73-1528985AA027">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:03 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<recomputeStatistics>ON</recomputeStatistics>
+</IndexProxy>
+</indexProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="FK_MissionData_ApplicantPackageType" id="71E88FA2-2E25-D5F2-C557-4606802CF2AA">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:25 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="FK_MissionData_OrgUnit" id="992F3BBD-9ED3-3546-841D-226A221B08A4">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:25 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="PK_MemoSheet" id="1552EA57-A65A-9A22-87C2-4FCCE42016C5">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:03 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<clustered>true</clustered>
+<fillFactor>90</fillFactor>
+<partitioningColumn>E12E3E73-7469-9ADA-A88B-B8033CEC875A</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+</TableProxySqlServerv2k5>

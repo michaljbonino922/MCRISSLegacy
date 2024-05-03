@@ -1,0 +1,52 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_6" id="D38EAC0A-B024-E720-4335-4B79A243FB5F" schemaObject="2A6D9360-3BB2-5CEA-6E99-790D76996FDF" name="vwUsersInfo">
+<sourceDDLFile>create UserMgmt script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:51 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>FDC12191-4D1E-BFD3-2D25-FB0A5FD6C581</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT   UserName 
+  ,Phone 
+  ,Email 
+FROM [user]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="UserName" id="193964CC-025E-2B98-C9C3-D04C9206D660">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:51 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>UserName</alias>
+<dataType>UNKNOWN</dataType>
+<expression>UserName</expression>
+<reference>false</reference>
+<viewID>D38EAC0A-B024-E720-4335-4B79A243FB5F</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="Phone" id="005DE02B-27ED-8BAF-DB85-4A7F720652DF">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:51 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Phone</alias>
+<dataType>UNKNOWN</dataType>
+<expression>Phone</expression>
+<reference>false</reference>
+<viewID>D38EAC0A-B024-E720-4335-4B79A243FB5F</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="Email" id="1783AD55-D436-5972-7611-403D06F3253E">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:51 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Email</alias>
+<dataType>UNKNOWN</dataType>
+<expression>Email</expression>
+<reference>false</reference>
+<viewID>D38EAC0A-B024-E720-4335-4B79A243FB5F</viewID>
+</viewElement>
+</viewElements>
+</TableView>

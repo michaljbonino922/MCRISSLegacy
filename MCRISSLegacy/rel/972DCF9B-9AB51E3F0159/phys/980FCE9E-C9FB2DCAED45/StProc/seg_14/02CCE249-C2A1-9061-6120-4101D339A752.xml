@@ -1,0 +1,259 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetProspectRecruiterAc.vi.esResults]" directorySegmentName="seg_14" id="02CCE249-C2A1-9061-6120-4101D339A752">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @SectorIds xml = null, 
+ @SchoolIds xml = null,  
+ @ZipCodes xml = null, 
+ @Ac.vityFromDate DateTime = null, 
+ @Ac.vityToDate DateTime = null,  
+ @Gradua.onYear int = null 
+) 
+--WITH RECOMPILE 
+AS 
+BEGIN 
+ 
+  
+ SET NOCOUNT ON 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+ DECLARE @Ac.vityFromDt date.me  
+ IF (@Ac.vityFromDate IS NOT NULL) 
+ BEGIN 
+  SET @Ac.vityFromDt = CAST( (STR(Year(@Ac.vityFromDate)) + '-' + STR(MONTH(@Ac.vityFromDate)) + '-' + STR(DAY(@Ac.vityFromDate)) ) AS date.me) 
+ END  
+ ELSE 
+ BEGIN 
+  SET @Ac.vityFromDt = NULL 
+ END  
+   
+ DECLARE @Ac.vityToDt date.me 
+ IF (@Ac.vityToDate IS NOT NULL) 
+ BEGIN 
+  SET @Ac.vityToDt = CAST( (STR(Year(@Ac.vityToDate)) + '-' + STR(MONTH(@Ac.vityToDate)) + '-' + STR(DAY(@Ac.vityToDate)) ) AS date.me) 
+  SET @Ac.vityToDt = DATEADD(MILLISECOND,-1,DATEADD(DAY,1,@Ac.vityToDt))   
+ END 
+ ELSE 
+ BEGIN 
+  SET @Ac.vityToDt = NULL 
+ END 
+   
+ CREATE TABLE #SECTOR_IDS (ID uniqueiden..er) 
+ INSERT INTO #SECTOR_IDS (ID) 
+ SELECT ParamValues.ID.value('.','VARCHAR(36)') 
+ FROM @SectorIds.nodes('/SectorIds/id') as ParamValues(ID) 
+  
+  SELECT  
+  msr.Recrui.ngPersonId, 
+  ms.SectorDesignator, 
+  ms.SectorId, 
+  msr.LastUpdateDate 
+ INTO #MAPS_SECTOR_RECRUITER  
+ FROM [RSSOSS].[USMC].[MapsSector] ms 
+ LEFT OUTER JOIN [RSSOSS].[USMC].[MapsSectorRecruiter] msr ON msr.SectorId = ms.SectorId 
+                AND ( msr.LastUpdateDate in (SELECT MAX(msr2.LastUpdateDate) 
+                    FROM RssOss.USMC.MapsSectorRecruiter msr2 
+                    INNER JOIN RssOss.USMC.MapsSector ms2 ON ms2.SectorId = msr2.SectorId 
+                    WHERE msr2.SectorId = msr.SectorId) 
+                   ) 
+ WHERE ms.SectorID IN (SELECT ID FROM #SECTOR_IDS) 
+ 
+ 
+ CREATE TABLE #RESULTS 
+ ( 
+  ProspectId uniqueiden..er, 
+  NwaId int, 
+  LastName varchar(75), 
+  FirstName varchar(75),  
+  PrimaryZipCode varchar(9), 
+  HIGHSCHOOL_NAME varchar(60), 
+  PrimaryPhoneNumber varchar(25), 
+  Ac.vity varchar(MAX), 
+  Sector varchar(10), 
+  Recruiter varchar(60), 
+  ProspectDisposi.on varchar(40), 
+  Gradua.onYear int, 
+  Ac.vityTimeDisplay char(5), 
+  Ac.vityDateDisplay char(11), 
+  ProspectDate date.me, 
+  ProspectCommentType varchar(5), 
+  ProspectCommentDescrip.on varchar(50), 
+  Comments varchar(2500), 
+  ContactTimes varchar(250), 
+  ContactDates varchar(MAX), 
+  ProspectSector varchar(10), 
+  Recrui.ngOrganiza.onId uniqueiden..er, 
+  Recrui.ngPersonId uniqueiden..er 
+ ) 
+  
+ CREATE TABLE #ZIPCODES (ID varchar(5))   
+ IF @ZipCodes IS NOT null 
+ BEGIN 
+  INSERT INTO #ZIPCODES (ID) 
+  SELECT ParamValues.ID.value('.','VARCHAR(5)') 
+  FROM @ZipCodes.nodes('ZipCodes/id') as ParamValues(ID)  
+ END  
+   
+ CREATE TABLE #SCHOOLS (ID uniqueiden..er) 
+ IF @SchoolIDs IS NOT NULL 
+ BEGIN 
+  INSERT INTO #SCHOOLS (ID) 
+  SELECT ParamValues.ID.value('.','VARCHAR(36)') 
+  FROM @SchoolIds.nodes('/Schools/id') as ParamValues(ID) 
+ END 
+  
+ INSERT INTO #RESULTS 
+ SELECT  
+  Pr.ProspectId, 
+  nwa.nwa_id as NwaId, 
+  P.LastName, 
+  P.FirstName,  
+  PA_PRIMARY.ZipCode as PrimaryZipCode, 
+  HS.HIGHSCHOOL_NAME,     
+  PP_PRIMARY.PhoneNumber as PrimaryPhoneNumber, 
+  STUFF((SELECT '; ' + pac.Ac.vity 
+          FROM [USMC].[ProspectComment] pc  
+    inner join [USMC].[ProspectAc.vityComment] pac on (pac.ProspectAc.vityCommentId = pc.ProspectAc.vityCommentId) 
+          WHERE ps.ProspectId = pc.ProspectId 
+    ORDER BY pc.ProspectDate DESC 
+          FOR XML PATH('')), 1, 1, '') as Ac.vity, 
+  COALESCE(RTRIM(msr.SectorDesignator), SPACE(0)) AS Sector, 
+  COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+  COALESCE(RTRIM(person.LAST_NAME), SPACE(0))  + SPACE(1) +  
+  COALESCE(RTRIM(person.FIRST_NAME), SPACE(0)) + SPACE(1) AS Recruiter, 
+  pdt.ProspectDisposi.onType AS Disposi.on,   
+  pr.Gradua.onYear, 
+  CONVERT(char(5), pc.ProspectDate, 108) AS Ac.vityTimeDisplay, 
+  pc.ProspectDate AS Ac.vityDateDisplay, 
+  pc.ProspectDate, 
+  pct.ProspectCommentType, 
+  pct.ProspectCommentDescrip.on, 
+  STUFF((SELECT '; ' + pct.ProspectCommentDescrip.on -- CONCAT(pct.ProspectCommentType,' - ',pct.ProspectCommentDescrip.on) 
+          FROM [USMC].[ProspectComment] pc 
+   inner join [USMC].[ProspectAc.vityComment] pac on (pac.ProspectAc.vityCommentId = pc.ProspectAc.vityCommentId) 
+   inner join [USMC].[ProspectCommentType] pct on (pct.ProspectCommentTypeId = pac.ProspectCommentTypeId)  
+          WHERE ps.ProspectId = pc.ProspectId 
+    ORDER BY pc.ProspectDate DESC 
+          FOR XML PATH('')), 1, 1, '') as Comments, 
+  STUFF((SELECT '; ' + CONVERT(char(5), pc.ProspectDate, 108) 
+          FROM [USMC].[ProspectComment] pc 
+          WHERE ps.ProspectId = pc.ProspectId 
+    ORDER BY pc.ProspectDate DESC 
+          FOR XML PATH('')), 1, 1, '') as ContactTimes, 
+  STUFF((SELECT '; ' + CONVERT(char(12), pc.ProspectDate, 107) 
+          FROM [USMC].[ProspectComment] pc 
+          WHERE ps.ProspectId = pc.ProspectId 
+    ORDER BY pc.ProspectDate DESC 
+          FOR XML PATH('')), 1, 1, '') as ContactDates, 
+   null AS ProspectSector, 
+   pr.Recrui.ngOrganiza.onid, 
+   pr.Recrui.ngPersonid 
+ FROM  
+  [usmc].[Person] P  
+  INNER JOIN [usmc].[Prospect] pr on (p.PersonID = pr.PersonID) 
+  INNER JOIN [usmc].[ProspectSchool] ps on (pr.ProspectId = ps.ProspectId)   
+  INNER JOIN mcriss.dbo.high_SCHOOL hs on hs.rowguid = ps.SchoolId 
+  INNER JOIN [usmc].[ProspectDisposi.on] pdt on (pr.ProspectDisposi.onId = pdt.ProspectDisposi.onId) 
+  INNER JOIN MCRISS.dbo.RECRUITING_PERSON RP on (Pr.Recrui.ngPersonId = RP.rowguid)  
+  LEFT OUTER JOIN MCRISS.dbo.Person PERSON on (RP.RECRUITING_PERSON_ID=PERSON.PERSON_ID) 
+  LEFT OUTER JOIN [USMC].[PersonAddress] PA_PRIMARY ON ((PA_PRIMARY.PersonId = P.PersonId) AND (PA_PRIMARY.PersonAddressTypeId = 1)) 
+  LEFT OUTER JOIN [USMC].[PersonPhone] PP_PRIMARY ON ((PP_PRIMARY.PersonId = P.PersonId) AND (PP_PRIMARY.PersonPhoneTypeId = 1)) 
+  LEFT OUTER JOIN [USMC].[PersonEmail] PE_PRIMARY ON ((PE_PRIMARY.PersonId = P.PersonId) AND (PE_PRIMARY.PersonEmailTypeId = 1)) 
+  LEFT OUTER JOIN MCRISS.dbo.NWA nwa ON pr.NwaId = nwa.rowguid 
+  INNER JOIN #MAPS_SECTOR_RECRUITER msr ON msr.Recrui.ngPersonId = pr.Recrui.ngPersonId    
+  INNER JOIN [USMC].[ProspectComment] pc on (ps.ProspectId = pc.ProspectId ) 
+  inner join [USMC].[ProspectAc.vityComment] pac on (pac.ProspectAc.vityCommentId = pc.ProspectAc.vityCommentId) 
+  inner join [USMC].[ProspectCommentType] pct on (pct.ProspectCommentTypeId = pac.ProspectCommentTypeId)  
+ WHERE (@Gradua.onYear IS NULL OR (pr.Gradua.onYear = @Gradua.onYear and @Gradua.onYear IS NOT NULL))    
+  AND (@Ac.vityFromDt is null OR (pc.ProspectDate >= @Ac.vityFromDt AND @Ac.vityFromDt IS NOT NULL)) 
+  AND (@Ac.vityToDt is null OR (pc.ProspectDate <= @Ac.vityToDt AND @Ac.vityToDt IS NOT NULL))  
+  AND ( 
+    ( Le.(HS.ZIP_CODE,5) IN (SELECT * FROM #ZIPCODES))  
+     OR  
+    (ps.SchoolId IN (SELECT * FROM #SCHOOLS)) 
+   ) 
+ 
+ --Contracted dudes 
+ update r 
+ set r.ProspectSector = isnull(ms.sectordesignator, c.sector) 
+ from #RESULTS r inner join MCRISS.dbo.[CONTRACT] c on r.nwaid = c.nwa_id le. join RSSOSS.USMC.MapsSector ms on c.SectorID = ms.sectorid 
+  
+ --Recrui.ng Person sectors 
+ update #RESULTS 
+ set #RESULTS.ProspectSector = (select top 1 ms.sectordesignator from RSSOSS.USMC.MapsSectorZip msz   
+  inner join RSSOSS.USMC.MapsSector ms on ms.sectorid = msz.sectorid  
+  inner join RSSOSS.USMC.MapsSectorRecruiter msr on msz.sectorid = msr.sectorid 
+  WHERE msr.recrui.ngpersonid = #RESULTS.Recrui.ngPersonId AND ms.recrui.ngorganiza.onid = #RESULTS.Recrui.ngOrganiza.onId  and msz.zip = #RESULTS.PrimaryZipCode 
+  order by ms.LastUpdateDate desc) 
+  WHERE #RESULTS.ProspectSector is null 
+ 
+ --Recrui.ng Person sectors 
+ update #RESULTS 
+ set #RESULTS.ProspectSector = (select top 1 ms.sectordesignator from  RSSOSS.USMC.MapsSectorZip msz 
+  inner join RSSOSS.USMC.MapsSector ms on ms.sectorid = msz.sectorid  
+  where ms.recrui.ngorganiza.onid = #RESULTS.recrui.ngorganiza.onid and msz.zip = #RESULTS.PrimaryZipCode 
+  order by ms.LastUpdateDate desc) 
+  WHERE #RESULTS.ProspectSector is null 
+ 
+ update #RESULTS 
+ set ProspectSector = 'OA' 
+ Where ProspectSector is null; 
+ 
+  
+ SELECT cs.NWA_ID, MAX(cs.CANDIDATE_STATUS_ID) as CANDIDATE_STATUS_ID 
+ INTO #CandidateMaxStatus 
+ FROM  
+  MCRISS.dbo.CANDIDATE_STATUS cs 
+  INNER JOIN #RESULTS r 
+   ON r.NwaId = cs.NWA_ID 
+ GROUP BY cs.NWA_ID 
+ 
+ SELECT cs.*  
+ INTO #CandidateStatus 
+ FROM  
+  MCRISS.dbo.CANDIDATE_STATUS cs 
+  INNER JOIN #CandidateMaxStatus cs2 
+   ON cs.CANDIDATE_STATUS_ID = cs2.CANDIDATE_STATUS_ID 
+  
+ /* add disposi.on based upon whether Nwa or not */ 
+ SELECT ROW_NUMBER() OVER(Order By LASTNAME, FIRSTNAME),ProspectId,NwaId,LastName,FirstName, PrimaryZipCode ,HIGHSCHOOL_NAME,PrimaryPhoneNumber ,Sector ,Recruiter ,ProspectDisposi.on ,Gradua.onYear ,MIN(ContactTimes) AS ContactTimes,MIN(ContactDates) AS ContactDates,MIN(Comments) AS Comments,MIN(Ac.vity) AS Ac.vity, 
+   Disposi.on, ProspectSector 
+ FROM 
+ (SELECT   
+   R.*, 
+   ProspectDisposi.on AS Disposi.on 
+ FROM #RESULTS r     
+ WHERE r.NwaId IS NULL 
+  
+ UNION ALL 
+  
+ SELECT   
+   R.*, 
+   sd.Disposi.on_Descrip.on AS Disposi.on 
+ FROM #RESULTS r   
+  INNER JOIN #CandidateStatus cs ON r.NwaId = cs.NWA_ID 
+  INNER JOIN MCRISS.dbo.Status_Disposi.on sd on sd.Status_Type = cs.Status_Type  
+   AND sd.Disposi.on_Code = cs.Disposi.on_Code 
+ WHERE r.NwaId IS NOT NULL) AS T 
+ GROUP BY ProspectId,NwaId,LastName,FirstName ,PrimaryZipCode ,HIGHSCHOOL_NAME,PrimaryPhoneNumber,Sector ,Recruiter ,ProspectDisposi.on ,Gradua.onYear,Disposi.on, ProspectSector 
+    ORDER BY LastName, FirstName 
+ 
+ DROP TABLE #SECTOR_IDS 
+  
+ DROP TABLE #ZIPCODES 
+ DROP TABLE #SCHOOLS 
+  
+ DROP TABLE #MAPS_SECTOR_RECRUITER  
+ 
+ DROP TABLE #RESULTS 
+  
+ DROP TABLE #CandidateMaxStatus 
+ DROP TABLE #CandidateStatus 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

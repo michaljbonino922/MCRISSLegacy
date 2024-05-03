@@ -1,0 +1,28 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetMOSs]" directorySegmentName="seg_18" id="82DC16B8-4F97-7F12-082C-BB4253372FF1">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@Occupa.onCode char(2) = NULL 
+AS 
+ 
+SET @Occupa.onCode = COALESCE(@Occupa.onCode, SPACE(0)) 
+ 
+SELECT  
+ MOS_CODE,  
+ CASE 
+  WHEN @Occupa.onCode IS NULL OR LEN(@Occupa.onCode) = 0 THEN MOS_CODE + ' - ' 
+  ELSE SPACE(0) 
+ END + SHORT_DESCRIPTION AS SHORT_DESCRIPTION, 
+ OCCUPATION_CODE 
+FROM 
+ MOS 
+WHERE 
+ MOS_CODE Not In(5942) and (LEN(@Occupa.onCode) > 0 AND RIGHT(MOS_CODE, 2) != '00' AND OCCUPATION_CODE = @Occupa.onCode) OR 
+ (LEN(@Occupa.onCode) = 0)  
+ORDER BY  
+ MOS_CODE]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

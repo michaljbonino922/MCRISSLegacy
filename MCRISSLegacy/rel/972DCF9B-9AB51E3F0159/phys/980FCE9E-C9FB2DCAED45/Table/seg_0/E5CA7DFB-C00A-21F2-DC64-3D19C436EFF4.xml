@@ -1,0 +1,47 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="RssDataSheetSector" directorySegmentName="seg_0" id="E5CA7DFB-C00A-21F2-DC64-3D19C436EFF4">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<schemaObject>454547C7-2829-9C8F-6E0C-35E4CFDC8E47</schemaObject>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="SectorProblems" id="2E64EB68-B265-80B5-E58B-48DF810C8672">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:07 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="RssDataSheetId" id="A1BFF797-995E-3AD0-BDF8-FA4D8081DE50">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:07 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="RssDataSheetSectorId" id="A3672D94-FA64-AF47-47EB-001C52FE1C48">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:07 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="SectorDesignator" id="C14EE477-5212-D348-D4EE-E9122725616C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:07 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+</columnProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="._RssDataSheetSector_RssDatasheet" id="839EF987-7253-C2E5-C458-978E991BF1CF">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:13 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="pk_RssDataSheetSector" id="4A8609E9-8674-2459-BAD4-3AD66F9D1EDC">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:07 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<clustered>true</clustered>
+<partitioningColumn>A3672D94-FA64-AF47-47EB-001C52FE1C48</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+</TableProxySqlServerv2k5>

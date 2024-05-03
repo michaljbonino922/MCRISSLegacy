@@ -1,0 +1,31 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetReferralRSs]" directorySegmentName="seg_20" id="8726603E-BC0A-D84A-9C5D-E539A6E7BB51">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@RUC VARCHAR(5) 
+AS 
+ 
+SET NOCOUNT ON 
+ 
+DECLARE @FY int 
+SET @FY = dbo.GetFY(GETDATE()) 
+ 
+SELECT 
+ DISTINCT RO.ORGANIZATION_ID, 
+ RO.NAME 
+FROM 
+ MCRISS..RECRUITING_ORGANIZATION RO 
+ INNER JOIN MCRISS..QSN Q ON RO.ORGANIZATION_ID = Q.RECRUITING_ORGANIZATION_ID 
+WHERE 
+ Q.RUC = @RUC AND 
+ RO.ORGANIZATION_TYPE = 'RS' AND 
+ Q.FY = @FY AND 
+ RO.ISOPEN = 'Y' AND 
+ NOT Q.RUC = 'XXXXX' 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

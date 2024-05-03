@@ -1,0 +1,247 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetWorkingApplicantSheet]" directorySegmentName="seg_6" id="B81BA480-29F0-DE2D-6D69-81AC151E1A03">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@ToDate date.me, 
+ @FromDate date.me, 
+ @Disposi.onCode varchar(3), 
+ @OrgID int, 
+ @RecruiterID uniqueidentifier = null 
+ 
+AS 
+ 
+CREATE TABLE #Temp_Results 
+( 
+ PERSON_ID int NULL, 
+ NWA_ID int NULL,  
+ NWAID uniqueidentifier NULL, 
+ ORGANIZATION_OF_RECORD_ID int NULL, 
+ SSN varchar(9) NULL,  
+ FIRST_NAME varchar(20) NULL,  
+ MIDDLE_NAME varchar(20) NULL,  
+ LAST_NAME varchar(20) NULL,  
+ SUFFIX varchar(5) NULL,  
+ DECL DateTime NULL, 
+ DSW DateTime NULL, 
+ AGE int NULL, 
+ GENDER_CODE varchar(1), 
+ CATEGORY_CODE varchar(6) NULL, 
+ RECRUITER_OF_RECORD_ID int NULL, 
+ PROJECTED_SHIP_MONTH int NULL, 
+ NOTES varchar(50) NULL, 
+ DISPOSITION_CODE varchar(20) NULL, 
+ STATUS_TYPE varchar(4) NULL, 
+ EDUCATION_SortOrder int NULL, 
+ EDUCATION_LEVEL varchar(2) NULL, 
+ EDUCATION_CODE varchar(2) NULL, 
+ ASVAB_DATE date.me NULL, 
+ AFQT_SCORE int NULL, 
+ GT_SCORE int NULL, 
+ DISPOSITION_DESCRIPTION varchar(40) NULL, 
+ RECRUITER_NAME varchar(20) NULL, 
+ EMAIL_ADDRESS varchar(50) NULL, 
+ CATEGORY_DESCRIPTION varchar(50) NULL, 
+ MEDICAL_EXAM_DATE date.me NULL, 
+ MEDICAL_DISPOSITION varchar(1) NULL, 
+ SOURCE_DESCRIPTION varchar(30) NULL, 
+ ACTIVITY_DESCRIPTION varchar(25) NULL, 
+ PROFESSED_EXAM_TYPE varchar(10) NULL, 
+ PROFESSED_EXAM_SCORE int NULL, 
+ RECRUITER_ID uniqueidentifier NULL 
+ ) 
+Begin 
+ If @disposi.oncode='ALL' 
+  
+ INSERT INTO #Temp_Results 
+  
+ SELECT  
+  p.Person_ID, 
+  n.NWA_ID, 
+  n.rowguid as 'NWAID', 
+  ORGANIZATION_OF_RECORD_ID, 
+  p.SOCIAL_SECURITY_NUMBER, 
+  p.FIRST_NAME, 
+  p.LEGAL_MIDDLE_NAME, 
+  p.LAST_NAME, 
+  p.SUFFIX_CD, 
+  NWA_DECLARED_DATE, 
+  NWA_DATE_STARTED_WORKING, 
+  DATEDIFF(YY, pp.DateOfBirth, GETDATE()) - 
+   CASE 
+    WHEN DATEADD(YY, DATEDIFF(YY, pp.DateOfBirth, GETDATE()), pp.DateOfBirth) > GETDATE() THEN 1 ELSE 0 
+   END, 
+  GENDER_CODE, 
+  CATEGORY_CODE,  
+  RECRUITER_OF_RECORD_ID, 
+  PROJECTED_SHIP_MONTH, 
+  NWA_LOG_NOTES, 
+  DISPOSITION_CODE, 
+  cs.STATUS_TYPE, 
+  CASE ce.EDUCATION_LEVEL 
+   WHEN 'K' THEN 16 
+   WHEN 'N' THEN 17 
+   WHEN 'W' THEN 20 
+   ELSE CAST(ce.EDUCATION_LEVEL as int) 
+  END, 
+  ce.EDUCATION_LEVEL, 
+  ce.EDUCATION_CODE, 
+  null, 
+  null, 
+  null, 
+  null, 
+  null, 
+  n.EMAIL_ADDRESS, 
+  null, 
+  null, 
+  null, 
+  null, 
+  null, 
+  null, 
+  null, 
+  null 
+ FROM mcriss.dbo.PERSON p WITH (NOLOCK) 
+  INNER JOIN mcriss.dbo.NWA n on p.Person_ID = n.MARINE_CANDIDATE_ID  
+  INNER JOIN mcriss.dbo.MARINE_CANDIDATE c on p.Person_ID = c.MARINE_CANDIDATE_ID  
+  INNER JOIN mcriss.dbo.CANDIDATE_STATUS cs ON cs.CANDIDATE_STATUS_ID = [mcriss].[dbo].GetMaxStatusID(n.NWA_ID) 
+  INNER JOIN mcriss.dbo.CANDIDATE_EDUCATION CE ON ce.MARINE_CANDIDATE_ID = p.PERSON_ID AND (ce.SCHOOL_END_DATE = (SELECT MAX(a.SCHOOL_END_DATE) FROM mcriss.dbo.CANDIDATE_EDUCATION a WHERE a.MARINE_CANDIDATE_ID = p.PERSON_ID)) 
+  INNER JOIN [Prospec.ng].[USMC].[Prospect] pro ON pro.nwaid = n.rowguid 
+  INNER JOIN [Prospec.ng].[USMC].[Person] pp ON pp.personid = pro.personid 
+   
+ WHERE (n.Organiza.on_of_Record_id = @OrgID) 
+    AND (NWA_DECLARED_DATE Between @FromDate AND @ToDate) 
+   --AND ((DISPOSITION_CODE = @Disposi.onCode) OR (@Disposi.onCode = 'ALL')) 
+--AND ( (@Disposi.onCode = 'ALL') OR  
+ 
+Else 
+INSERT INTO #Temp_Results 
+ SELECT  
+  p.Person_ID, 
+  n.NWA_ID, 
+  n.rowguid as 'NWAID', 
+  ORGANIZATION_OF_RECORD_ID, 
+  p.SOCIAL_SECURITY_NUMBER, 
+  p.FIRST_NAME, 
+  p.LEGAL_MIDDLE_NAME, 
+  p.LAST_NAME, 
+  p.SUFFIX_CD, 
+  NWA_DECLARED_DATE, 
+  NWA_DATE_STARTED_WORKING, 
+  DATEDIFF(YY, pp.DateOfBirth, GETDATE()) - 
+   CASE 
+    WHEN DATEADD(YY, DATEDIFF(YY, pp.DateOfBirth, GETDATE()), pp.DateOfBirth) > GETDATE() THEN 1 ELSE 0 
+   END, 
+  GENDER_CODE, 
+  CATEGORY_CODE,  
+  RECRUITER_OF_RECORD_ID, 
+  PROJECTED_SHIP_MONTH, 
+  NWA_LOG_NOTES, 
+  DISPOSITION_CODE, 
+  cs.STATUS_TYPE, 
+  CASE ce.EDUCATION_LEVEL 
+   WHEN 'K' THEN 16 
+   WHEN 'N' THEN 17 
+   WHEN 'W' THEN 20 
+   ELSE CAST(ce.EDUCATION_LEVEL as int) 
+  END, 
+  ce.EDUCATION_LEVEL, 
+  ce.EDUCATION_CODE, 
+  null, 
+  null, 
+  null, 
+  null, 
+  null, 
+  n.EMAIL_ADDRESS, 
+  null, 
+  null, 
+  null, 
+  null, 
+  null, 
+  null, 
+  null, 
+  null 
+ FROM mcriss.dbo.PERSON p WITH (NOLOCK) 
+  INNER JOIN mcriss.dbo.NWA n on p.Person_ID = n.MARINE_CANDIDATE_ID  
+  INNER JOIN mcriss.dbo.MARINE_CANDIDATE c on p.Person_ID = c.MARINE_CANDIDATE_ID  
+  INNER JOIN mcriss.dbo.CANDIDATE_STATUS cs ON cs.CANDIDATE_STATUS_ID = [mcriss].[dbo].GetMaxStatusID(n.NWA_ID) 
+  INNER JOIN mcriss.dbo.CANDIDATE_EDUCATION CE ON ce.MARINE_CANDIDATE_ID = p.PERSON_ID AND (ce.SCHOOL_END_DATE = (SELECT MAX(a.SCHOOL_END_DATE) FROM mcriss.dbo.CANDIDATE_EDUCATION a WHERE a.MARINE_CANDIDATE_ID = p.PERSON_ID)) 
+  INNER JOIN [Prospec.ng].[USMC].[Prospect] pro ON pro.nwaid = n.rowguid 
+  INNER JOIN [Prospec.ng].[USMC].[Person] pp ON pp.personid = pro.personid 
+   
+ WHERE (n.Organiza.on_of_Record_id = @OrgID) 
+    AND (NWA_DECLARED_DATE Between @FromDate AND @ToDate) 
+   AND (DISPOSITION_CODE = @Disposi.onCode)  
+End 
+ 
+UPDATE #Temp_Results 
+SET RECRUITER_ID = rp.rowguid 
+FROM #Temp_Results t 
+ INNER JOIN USMC.vwMcrissRecrui.ngPerson rp ON rp.Recrui.ng_Person_ID = t.RECRUITER_OF_RECORD_ID     
+  
+   
+UPDATE #Temp_Results 
+SET 
+ ASVAB_DATE = ca.ASVAB_DATE, 
+ AFQT_SCORE = ca.AFQT_SCORE, 
+ GT_SCORE = ca.GT_SCORE 
+FROM #Temp_Results t  
+ INNER JOIN mcriss.dbo.CANDIDATE_ASVAB ca ON t.Person_ID = ca.MARINE_CANDIDATE_ID AND ca.ASVAB_DATE =  
+  (SELECT MAX(a.ASVAB_DATE) FROM mcriss.dbo.CANDIDATE_ASVAB a WHERE a.MARINE_CANDIDATE_ID = t.PERSON_ID) 
+ 
+UPDATE #Temp_Results  
+SET  
+ DISPOSITION_DESCRIPTION = fad.[DISPOSITION_DESCRIPTION], 
+ RECRUITER_NAME = p.[LAST_NAME] 
+FROM #Temp_Results t 
+ INNER JOIN mcriss.dbo.PERSON p on p.PERSON_ID = t.RECRUITER_OF_RECORD_ID 
+ INNER JOIN mcriss.dbo.STATUS_DISPOSITION fad on t.DISPOSITION_CODE = fad.DISPOSITION_CODE 
+ 
+UPDATE #Temp_Results 
+SET 
+ MEDICAL_EXAM_DATE = cme.MEDICAL_EXAM_DATE, 
+ MEDICAL_DISPOSITION = cme.MEDICAL_DISPOSITION 
+FROM #Temp_Results t  
+ INNER JOIN mcriss.dbo.CANDIDATE_MEDICAL_EXAM cme ON cme.MEDICAL_EXAM_DATE =  
+  (SELECT MAX(a.MEDICAL_EXAM_DATE) FROM mcriss.dbo.CANDIDATE_MEDICAL_EXAM a WHERE a.MARINE_CANDIDATE_ID = t.PERSON_ID) 
+ 
+UPDATE #Temp_Results 
+SET 
+ CATEGORY_DESCRIPTION = 
+  CASE t.STATUS_TYPE 
+   WHEN 'E' THEN  
+    CASE n.CATEGORY_CODE   
+     WHEN 'R' THEN 'Regular' 
+     WHEN 'G' THEN 'Reserve-Ground' 
+     WHEN 'A' THEN 'Reseve-Air' 
+     WHEN 'P' THEN 'Prior-Service' 
+     WHEN 'O' THEN 'President''s Own' 
+     ELSE SPACE(0) 
+    END  
+   WHEN 'O' THEN COALESCE(cc.COMPONENT_DESCRIPTION, SPACE(0)) 
+   ELSE SPACE(0) 
+  END,  
+ SOURCE_DESCRIPTION = rs.SOURCE_DESCRIPTION, 
+ ACTIVITY_DESCRIPTION = ra.ACTIVITY_DESCRIPTION 
+FROM #Temp_Results t  
+ INNER JOIN mcriss.dbo.NWA n on t.NWA_ID = n.NWA_ID 
+ INNER JOIN mcriss.dbo.RECRUITING_SOURCE rs on n.SOURCE_CODE = rs.SOURCE_CODE 
+ INNER JOIN mcriss.dbo.RECRUITING_ACTIVITY ra on n.ACTIVITY_CODE = ra.ACTIVITY_CODE 
+ LEFT OUTER JOIN mcriss.dbo.COMPONENT_CODE cc ON n.OFFICER_COMPONENT_CODE = cc.COMPONENT_CODE 
+ 
+UPDATE #Temp_Results 
+SET 
+ PROFESSED_EXAM_TYPE = p.PROFESSED_EXAM_SHORT_DESC, 
+ PROFESSED_EXAM_SCORE = cpe.EXAM_SCORE   
+FROM #Temp_Results t 
+ INNER JOIN mcriss.dbo.CANDIDATE_PROFESSED_EXAM cpe ON cpe.MARINE_CANDIDATE_ID = t.PERSON_ID AND cpe.EXAM_DATE =  
+  (SELECT MAX(a.EXAM_DATE) FROM mcriss.dbo.CANDIDATE_PROFESSED_EXAM a WHERE a.MARINE_CANDIDATE_ID = t.PERSON_ID) 
+ INNER JOIN MCRISS.dbo.PROFESSED_EXAM p ON cpe.PROFESSED_EXAM_TYPE = p.PROFESSED_EXAM_TYPE 
+ 
+SELECT * FROM #Temp_Results t  
+WHERE t.RECRUITER_ID = coalesce(@RecruiterID, t.RECRUITER_ID)  
+ 
+drop table #Temp_Results]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

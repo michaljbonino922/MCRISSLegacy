@@ -1,0 +1,54 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUpdateAlienRegistra.on]" directorySegmentName="seg_11" id="85DEAB52-2445-5212-E737-5EBE16D8E137">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @PersonID int, 
+ @AlienRegistra.onNumber varchar(9), 
+ @ARNDiscrepancyID int, 
+ @ARNStatusID int, 
+ @LastEditBy varchar(15) 
+) 
+AS 
+ 
+IF @AlienRegistra.onNumber IS NOT NULL 
+BEGIN 
+ IF EXISTS (SELECT 1 FROM [mcriss].[dbo].[ALIEN_REGISTRATION] WHERE [MARINE_CANDIDATE_ID] = @PersonID) 
+  BEGIN 
+   UPDATE [mcriss].[dbo].[ALIEN_REGISTRATION] SET 
+    [ARN] = @AlienRegistra.onNumber 
+    ,[ARN_STATUS] = @ARNStatusID 
+    ,[ARN_DISCREPANCY] = @ARNDiscrepancyID 
+    ,[USER_LOGIN] = @LastEditBy 
+    ,[UPDATE_DATE] = GetDate() 
+   WHERE [MARINE_CANDIDATE_ID] = @PersonID 
+  END 
+ ELSE 
+  BEGIN 
+   INSERT INTO [mcriss].[dbo].[ALIEN_REGISTRATION] 
+    ([MARINE_CANDIDATE_ID] 
+    ,[ARN] 
+    ,[ARN_STATUS] 
+    ,[ARN_DISCREPANCY] 
+    ,[USER_LOGIN] 
+    ,[UPDATE_DATE]) 
+   VALUES 
+    (@PersonID 
+    ,@AlienRegistra.onNumber 
+    ,@ARNStatusID 
+    ,@ARNDiscrepancyID 
+    ,@LastEditBy 
+    ,GetDate()) 
+  END 
+END 
+ELSE 
+BEGIN 
+ 
+  DELETE FROM [mcriss].[dbo].[ALIEN_REGISTRATION] WHERE [MARINE_CANDIDATE_ID] = @PersonID 
+ 
+END]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

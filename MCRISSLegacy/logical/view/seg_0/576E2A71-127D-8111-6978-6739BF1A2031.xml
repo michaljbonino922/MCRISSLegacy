@@ -1,0 +1,277 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<EntityView class="oracle.dbtools.crest.model.design.logical.EntityView" directorySegmentName="seg_0" id="576E2A71-127D-8111-6978-6739BF1A2031" name="dbo.vw ODSE O.cer">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>EDDE1094-C10A-DDA3-9B01-D312E1C40FE1</generatorID>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT        SSN, COMMANDING_OFFICER_DATE, COMMANDING_OFFICER_FLAG, COMMISSION_SERVICE_TOTAL, CRUISE_SERVICE_TOTAL, ACTIVE_NAVAL_SERVICE_DATE, JOINT_MIL_OCC_SPEC_EFF_DATE,  
+                         DATE_ACCEPTED_FIRST_COMMISSION, DATE_RANK_LDO_1ST_COMMISSION, CONTRACT_LEGAL_AGREEMENT, LINEAL_CONTROL_NBR_WAR_OFFICER, LINEAL_CONTROL_NUMBER,  
+                         LINEAL_PRECEDENCE_YEAR_DATE, OFFICER_ACTIVE_DUTY_BASE_DATE, MANDATORY_RET_SEPARATION_DATE, OFFICER_SERVICE_FROM_DATE, OFFICER_SERVICE_TO_DATE,  
+                         SERVICE_ACADEMY_MONTHS_ATTEND, PROSPECTIV_OFFICER_SOURCE_CODE, INCURRED_OBLIGATED_SERVICE_CD, INCURRED_OBLIGATED_SERVICE_DT, CYCLE_DATE,  
+                         ACDU_CAREER_DESIGNATION_CODE, ACDU_CAREER_DESIG_CONSIDER_DT, TRICARE_PROJ_ACDU_DATE, TRICARE_ELIG_BEGIN_DATE 
+FROM            dbo.OFFICER]]></userDefinedSQL>
+<validSQL>false</validSQL>
+<viewType>EntityView</viewType>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="SSN" id="6F9C2B79-FFD1-81CF-B2C4-51A166BC851A">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>3C4BE115-1D2C-D01C-5968-42900076F480</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>SSN</alias>
+<dataType>UNKNOWN</dataType>
+<expression>SSN</expression>
+<reference>false</reference>
+<viewID>576E2A71-127D-8111-6978-6739BF1A2031</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="COMMANDING_OFFICER_DATE" id="C37BFB3D-09C0-F87F-7EEB-94BBDEFCC6CE">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>4A0384A3-3A2C-F1FE-F804-2DA62C896DBA</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>COMMANDING_OFFICER_DATE</alias>
+<dataType>UNKNOWN</dataType>
+<expression>COMMANDING_OFFICER_DATE</expression>
+<reference>false</reference>
+<viewID>576E2A71-127D-8111-6978-6739BF1A2031</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="COMMANDING_OFFICER_FLAG" id="EC884DEE-7CD1-921F-58C4-A98D64C07FA3">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>6157DEC3-6424-B008-5BD8-E4CAD8676EFD</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>COMMANDING_OFFICER_FLAG</alias>
+<dataType>UNKNOWN</dataType>
+<expression>COMMANDING_OFFICER_FLAG</expression>
+<reference>false</reference>
+<viewID>576E2A71-127D-8111-6978-6739BF1A2031</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="COMMISSION_SERVICE_TOTAL" id="DEEF04D3-D8E1-136B-F384-49D58095B4C8">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>155F4434-75FF-6DDE-543A-2D7E4A2F9119</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>COMMISSION_SERVICE_TOTAL</alias>
+<dataType>UNKNOWN</dataType>
+<expression>COMMISSION_SERVICE_TOTAL</expression>
+<reference>false</reference>
+<viewID>576E2A71-127D-8111-6978-6739BF1A2031</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="CRUISE_SERVICE_TOTAL" id="B50EA6A8-EE54-FA5E-7479-0D26D68C1C39">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>B52CBF27-397D-ED74-3546-F9BFE2B4AA35</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>CRUISE_SERVICE_TOTAL</alias>
+<dataType>UNKNOWN</dataType>
+<expression>CRUISE_SERVICE_TOTAL</expression>
+<reference>false</reference>
+<viewID>576E2A71-127D-8111-6978-6739BF1A2031</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="ACTIVE_NAVAL_SERVICE_DATE" id="40239535-25E9-4E71-E29B-02102C9D00DD">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>7F827312-C4B9-42DC-43E3-8AC8BAD39056</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>ACTIVE_NAVAL_SERVICE_DATE</alias>
+<dataType>UNKNOWN</dataType>
+<expression>ACTIVE_NAVAL_SERVICE_DATE</expression>
+<reference>false</reference>
+<viewID>576E2A71-127D-8111-6978-6739BF1A2031</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="JOINT_MIL_OCC_SPEC_EFF_DATE" id="612F0584-E997-0223-7063-5933D5B462EA">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>B9F717F5-4981-8B9E-977D-00D5855AB006</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>JOINT_MIL_OCC_SPEC_EFF_DATE</alias>
+<dataType>UNKNOWN</dataType>
+<expression>JOINT_MIL_OCC_SPEC_EFF_DATE</expression>
+<reference>false</reference>
+<viewID>576E2A71-127D-8111-6978-6739BF1A2031</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="DATE_ACCEPTED_FIRST_COMMISSION" id="C6344ABB-9681-1673-C16D-89E58CC7EE4B">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>67F80911-17EA-6F82-207E-EF0F4901A976</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>DATE_ACCEPTED_FIRST_COMMISSION</alias>
+<dataType>UNKNOWN</dataType>
+<expression>DATE_ACCEPTED_FIRST_COMMISSION</expression>
+<reference>false</reference>
+<viewID>576E2A71-127D-8111-6978-6739BF1A2031</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="DATE_RANK_LDO_1ST_COMMISSION" id="85D2C069-EC01-C54B-7454-7681C227FD57">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>EF29A677-A35A-6C96-75CE-E43777069FAA</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>DATE_RANK_LDO_1ST_COMMISSION</alias>
+<dataType>UNKNOWN</dataType>
+<expression>DATE_RANK_LDO_1ST_COMMISSION</expression>
+<reference>false</reference>
+<viewID>576E2A71-127D-8111-6978-6739BF1A2031</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="CONTRACT_LEGAL_AGREEMENT" id="6A62D037-1D6B-DFC9-0EFD-FBBB8DD9097E">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>6BEE6C64-42B4-3A5D-3172-6CCB3D67047B</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>CONTRACT_LEGAL_AGREEMENT</alias>
+<dataType>UNKNOWN</dataType>
+<expression>CONTRACT_LEGAL_AGREEMENT</expression>
+<reference>false</reference>
+<viewID>576E2A71-127D-8111-6978-6739BF1A2031</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="LINEAL_CONTROL_NBR_WAR_OFFICER" id="ADB87668-38EC-648A-71D9-D3495997693A">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>C5621198-C083-7516-5B18-0C7006F75214</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>LINEAL_CONTROL_NBR_WAR_OFFICER</alias>
+<dataType>UNKNOWN</dataType>
+<expression>LINEAL_CONTROL_NBR_WAR_OFFICER</expression>
+<reference>false</reference>
+<viewID>576E2A71-127D-8111-6978-6739BF1A2031</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="LINEAL_CONTROL_NUMBER" id="89812A29-1031-C36D-EC53-612399494A33">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>9E46D913-319E-80C0-1336-708FB21EE7A1</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>LINEAL_CONTROL_NUMBER</alias>
+<dataType>UNKNOWN</dataType>
+<expression>LINEAL_CONTROL_NUMBER</expression>
+<reference>false</reference>
+<viewID>576E2A71-127D-8111-6978-6739BF1A2031</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="LINEAL_PRECEDENCE_YEAR_DATE" id="BCC5F9D3-D3ED-ED8A-21AA-6F30D545CC37">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>4CBC24D3-8CFC-C4C1-4CDF-8E2683134EEB</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>LINEAL_PRECEDENCE_YEAR_DATE</alias>
+<dataType>UNKNOWN</dataType>
+<expression>LINEAL_PRECEDENCE_YEAR_DATE</expression>
+<reference>false</reference>
+<viewID>576E2A71-127D-8111-6978-6739BF1A2031</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="OFFICER_ACTIVE_DUTY_BASE_DATE" id="421F53C6-FB90-682E-B658-A29A37F9083C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>435BB1D9-8A6D-6598-0BB3-DE21362ADE0A</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>OFFICER_ACTIVE_DUTY_BASE_DATE</alias>
+<dataType>UNKNOWN</dataType>
+<expression>OFFICER_ACTIVE_DUTY_BASE_DATE</expression>
+<reference>false</reference>
+<viewID>576E2A71-127D-8111-6978-6739BF1A2031</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="MANDATORY_RET_SEPARATION_DATE" id="2A326D1B-609A-8A2E-2931-C79117D467EE">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>0CA4E9E1-665B-3C3C-1B62-4D453DE88D75</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>MANDATORY_RET_SEPARATION_DATE</alias>
+<dataType>UNKNOWN</dataType>
+<expression>MANDATORY_RET_SEPARATION_DATE</expression>
+<reference>false</reference>
+<viewID>576E2A71-127D-8111-6978-6739BF1A2031</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="OFFICER_SERVICE_" id="A18F68B0-D6BE-C8A5-4389-CBB8D36E5E19">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>BF0A189F-E3F6-E3E4-4E50-99EB2AD31296</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>OFFICER_SERVICE_</alias>
+<dataType>UNKNOWN</dataType>
+<expression>OFFICER_SERVICE_</expression>
+<reference>false</reference>
+<viewID>576E2A71-127D-8111-6978-6739BF1A2031</viewID>
+</viewElement>
+</viewElements>
+</EntityView>

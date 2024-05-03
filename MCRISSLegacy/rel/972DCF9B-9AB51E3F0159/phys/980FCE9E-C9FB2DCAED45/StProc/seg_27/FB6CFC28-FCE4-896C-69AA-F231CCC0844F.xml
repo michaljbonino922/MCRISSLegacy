@@ -1,0 +1,89 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateNWA]" directorySegmentName="seg_27" id="FB6CFC28-FCE4-896C-69AA-F231CCC0844F">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @ID int, 
+ @PPC_ControlNumber varchar(8), 
+ @DeclaredDate date.me, 
+ @DualRecrui.ngSourceID varchar(10), 
+ @Educa.onCodeID char(1), 
+ @Educta.onLevelID varchar(2), 
+ @EmailAddress varchar(50), 
+ @HasReceivedParentalConsent bit, 
+ @MonthWorkingFor int, 
+ @NwaCategoryID varchar(6), 
+ @NwaViewNotes varchar(50), 
+ @PersonID int, 
+ @ProgramChoice1 varchar(4), 
+ @ProgramChoice2 varchar(4), 
+ @ProgramChoice3 varchar(4), 
+ @RecruiterOfRecordID int, 
+ @RecruiterWorkingID int, 
+ @Recrui.ngAc.vityID varchar(2), 
+ @Recrui.ngSourceID varchar(10), 
+ @Recrui.ngOrgID int, 
+ @StartedWorkingDate date.me, 
+ @Evalua.on varchar(50) = null, 
+ @1stDutySta.on varchar(200) = null, 
+ @ProvenPerformer bit = null, 
+ @LastEditBy varchar(15), 
+ @ReferrerSSN varchar(9) = NULL, 
+ @Miscellaneous1 varchar(15) = null, 
+ @Miscellaneous2 varchar(15) = null, 
+ @Miscellaneous3 varchar(15) = null 
+) 
+AS 
+DECLARE @ParentalConsent char(1) 
+ 
+IF(@HasReceivedParentalConsent = 1) 
+ SET @ParentalConsent = 'Y' 
+ELSE 
+ SET @ParentalConsent = 'N' 
+  
+UPDATE [mcriss].[dbo].[NWA] SET 
+ [MARINE_CANDIDATE_ID] = @PersonID 
+ ,[NWA_DECLARED_DATE] = @DeclaredDate 
+ ,[NWA_DATE_STARTED_WORKING] = @StartedWorkingDate 
+ ,[PARENTAL_CONSENT] = @ParentalConsent 
+ ,[PROJECTED_SHIP_MONTH] = @MonthWorkingFor 
+ ,[NWA_LOG_NOTES] = @NwaViewNotes 
+ ,[PROJECTED_PROG_CHOICE1] = @ProgramChoice1 
+ ,[PROJECTED_PROG_CHOICE2] = @ProgramChoice2 
+ ,[PROJECTED_PROG_CHOICE3] = @ProgramChoice3 
+ ,[ACTIVITY_CODE] = @Recrui.ngAc.vityID 
+ ,[SOURCE_CODE] = @Recrui.ngSourceID 
+ ,[SOURCE_CODE_DUAL] = @DualRecrui.ngSourceID 
+ ,[RECRUITER_OF_RECORD_ID] = @RecruiterOfRecordID 
+ ,[ORGANIZATION_OF_RECORD_ID] = @Recrui.ngOrgID 
+ ,[WORKING_RECRUITER_ID] = @RecruiterWorkingID 
+ ,[CATEGORY_CODE] = @NwaCategoryID 
+ ,[EDUCATION_LEVEL] = @Educta.onLevelID 
+ ,[EDUCATION_CODE] = @Educa.onCodeID 
+ ,[PPC] = @PPC_ControlNumber 
+ --,[BACH_GRAD_YEAR] =  
+ ,[USER_LOGIN] = @LastEditBy 
+ ,[UPDATE_DATE] = GetDate() 
+ --,[rowguid] =  
+ --,[OFFICER_COMPONENT_CODE] =  
+ --,[SHIP_MISSION] =  
+ ,[EMAIL_ADDRESS] = @EmailAddress 
+ --,[RAPP_ISSUE_DATE] =  
+ --,[RAPP_SUBMIT_DATE] =  
+ --,[BACH_GRAD_MONTH] =  
+ --,[NATIONAL_CALL_TO_SERVICE] =  
+ --,[OCCR] =  
+ ,[Evalua.on] = @Evalua.on 
+ ,[1stDutySta.on] = @1stDutySta.on 
+ ,[ProvenPerformer] = @ProvenPerformer 
+ ,[ReferralSSN] = @ReferrerSSN 
+ ,[Miscellaneous1] = @Miscellaneous1 
+ ,[Miscellaneous2] = @Miscellaneous2 
+ ,[Miscellaneous3] = @Miscellaneous3 
+ --,[PTAD_POOL_MEMBER] = (CASE WHEN (@ProvenPerformer = 1) THEN @ProvenPerformer ELSE [PTAD_POOL_MEMBER] END) 
+WHERE [NWA_ID] = @ID]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

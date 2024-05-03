@@ -1,0 +1,66 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[O.cerPoolBoardFindPerson]" directorySegmentName="seg_13" id="075AD719-4776-7A5E-DA22-CA7525C64732">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[(@LastName varchar(50) = null 
+ ,@FirstName varchar(50) = null 
+ ,@Ssn varchar(20) = null 
+ ,@OrgId int) 
+ 
+AS 
+ 
+SELECT 
+  c.[NwaId] 
+ ,c.[NwaRowGuid]  
+ ,c.[O.cerContractId] 
+ ,c.[O.cerContractRowGuid] 
+ ,c.[Name] 
+ ,c.[RaceCode] 
+ ,c.[EthnicCode] 
+ ,c.[SchoolName] 
+ ,c.[SchoolCode] 
+ ,c.[SchoolRowGuid]  
+ ,c.[GenderCode] 
+ ,c.[ClassNumber] 
+ ,c.[O.cerSourceCode] 
+ ,c.[ShipMission] 
+ ,oss.[NAME] AS OssName 
+ ,(SELECT TOP 1 
+  com.[COMMISSION_DATE] 
+  FROM [dbo].[COMMISSIONEE] com 
+  WHERE com.[CONTRACT_ID] = c.[O.cerContractId]) AS CommissionDate 
+ ,(SELECT TOP 1 
+   ot.[TRAINING_TYPE_DESC]  
+  FROM [dbo].[OCS] o 
+  INNER JOIN [dbo].[OCS_CLASS] oc  
+   ON (oc.[CLASS_ID] = o.[OCS_CLASS_ID] AND 
+    o.[NWA_ID] = c.[NwaId]) 
+  INNER JOIN [dbo].[OCS_TRAINING_TYPE] ot 
+   ON ot.[TRAINING_TYPE_CODE] = oc.[TRAINING_TYPE_CODE] 
+  ORDER BY oc.[CLASS_BEGIN_DATE]) AS OcsTrainingType 
+ ,(SELECT TOP 1 
+   oc.CLASS_NUMBER  
+  FROM [dbo].[OCS] o 
+  INNER JOIN [dbo].[OCS_CLASS] oc  
+   ON oc.[CLASS_ID] = o.[OCS_CLASS_ID] AND 
+    o.[NWA_ID] = c.[NwaId] 
+  ORDER BY oc.[CLASS_BEGIN_DATE]) AS ClassNumber 
+ ,(SELECT TOP 1 
+   cc.[COMPONENT_DESCRIPTION] 
+  FROM [dbo].[COMPONENT_CODE] cc 
+  WHERE cc.[COMPONENT_CODE] = c.[O.cerComponentCode]) AS Program 
+FROM 
+ [usmc].[vwO.cerPoolBoardCandidates] c 
+INNER JOIN [dbo].[RECRUITING_ORGANIZATION] oss 
+ ON oss.[ORGANIZATION_ID] = c.[Organiza.onOfRecordId] 
+WHERE 
+ c.[Organiza.onOfRecordId] = @OrgId AND  
+ (c.[LastName] LIKE @LastName OR @LastName IS NULL OR @LastName = '') AND 
+ (c.[FirstName] LIKE @FirstName OR @FirstName IS NULL OR @FirstName = '') AND  
+ (c.[Ssn] LIKE @Ssn OR @Ssn = NULL OR @Ssn = '') 
+ORDER BY c.[Name]]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

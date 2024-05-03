@@ -1,0 +1,187 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUpdatePhysicalIstByMcriss]" directorySegmentName="seg_15" id="04C7DE44-3CCD-F80A-38F1-65C5DE786A9D">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:56 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@NwaRowGuid uniqueiden..er, 
+ @TestDate date, 
+ @Height decimal(4,2), 
+ @Weight int, 
+ @RunTimeMinute int, 
+ @RunTimeSecond int, 
+ @PuHang int = null, 
+ @Crunch int, 
+ @LastUpdateBy uniqueiden..er, 
+ @PullUp int = null, 
+ @FlexedArmHang int = null, 
+ @AmmoCanLi. int = null, 
+ @AmmoCanLi.Date date = null, 
+ @PushUp int = null, 
+ @PlankMinute int = null, 
+ @PlankSecond int = null 
+ 
+AS 
+BEGIN 
+  
+ DECLARE @ProspectID uniqueiden..er 
+ 
+ SELECT @ProspectID = ProspectID  
+ FROM  
+  USMC.Prospect 
+ WHERE 
+  NwaID = @NwaRowGuid 
+ 
+ 
+ IF @ProspectID IS NOT NULL 
+ BEGIN 
+ 
+  -- Only Non Empty IST data get processed 
+  IF @TestDate IS NOT NULL  
+     --AND @RunTimeMinute IS NOT NULL AND 
+     --@RunTimeSecond IS NOT NULL AND 
+     --@Crunch IS NOT NULL  
+  BEGIN 
+    
+   -- Get Height From Latest Medical record 
+   SELECT TOP 1 @Height = e.HEIGHT 
+   FROM  
+    MCRISS.dbo.CANDIDATE_MEDICAL_EXAM e 
+    INNER JOIN MCRISS.dbo.NWA n ON e.MARINE_CANDIDATE_ID = n.MARINE_CANDIDATE_ID 
+   WHERE  
+    n.rowguid = @NwaRowGuid 
+    AND e.HEIGHT IS NOT NULL 
+   ORDER BY  
+    e.MEDICAL_EXAM_DATE DESC, e.UPDATE_DATE DESC 
+    
+ 
+ 
+   SELECT ID 
+   INTO #IstUpdate  
+   FROM  
+    PROSPECTING.USMC.ProspectPhysicalIst 
+   WHERE  
+    ProspectID = @ProspectID  
+    AND CAST(TestDate as date) = @TestDate 
+    
+   -- Update IST record(s) with the same test Date 
+   IF EXISTS(SELECT ID FROM #IstUpdate) 
+   BEGIN 
+    UPDATE PROSPECTING.USMC.ProspectPhysicalIst 
+    SET 
+       Height = @Height 
+      ,[Weight] = @Weight   
+      ,RunTimeMinute = @RunTimeMinute 
+      ,RunTimeSecond = @RunTimeSecond 
+      ,PuHang = @PuHang 
+      ,Crunch = @Crunch 
+      ,LastUpdateDate = GETDATE() 
+      ,LastUpdateBy = @LastUpdateBy 
+      ,Pullup = @PullUp 
+      ,Pushup = @PushUp 
+      ,Hang = @FlexedArmHang 
+      ,PlankMinute = @PlankMinute 
+      ,PlankSecond = @PlankSecond 
+    FROM 
+     PROSPECTING.USMC.ProspectPhysicalIst p 
+     INNER JOIN #IstUpdate i ON p.ID = i.ID 
+   END 
+   ELSE 
+   BEGIN 
+     
+    INSERT INTO USMC.ProspectPhysicalIst 
+    (ID 
+    ,ProspectID 
+    ,TestDate 
+    ,Height 
+    ,Weight 
+    ,RunTimeMinute 
+    ,RunTimeSecond 
+    ,PuHang 
+    ,Crunch 
+    ,LastUpdateDate 
+    ,LastUpdateBy 
+    ,Pullup 
+    ,Pushup 
+    ,Hang 
+    ,PlankMinute 
+    ,PlankSecond 
+    ) 
+    VALUES 
+     (NEWID() 
+     ,@ProspectID 
+     ,@TestDate 
+     ,@Height 
+     ,@Weight 
+     ,@RunTimeMinute 
+     ,@RunTimeSecond 
+     ,@PuHang 
+     ,@Crunch 
+     ,GETDATE() 
+     ,@LastUpdateBy 
+     ,@PullUp 
+     ,@PushUp 
+     ,@FlexedArmHang 
+     ,@PlankMinute 
+     ,@PlankSecond 
+     ) 
+   END 
+ 
+   DROP TABLE #IstUpdate 
+  END -- IST por.on 
+ 
+  IF @AmmoCanLi.Date IS NOT NULL AND @AmmoCanLi. IS NOT NULL 
+  BEGIN 
+   SELECT ID 
+   INTO #AmmoCanLi.Update  
+   FROM  
+    PROSPECTING.USMC.ProspectPhysicalIst 
+   WHERE  
+    ProspectID = @ProspectID  
+    AND CAST(TestDate as date) = @AmmoCanLi.Date 
+    
+   -- Update Ammo Can Li. record(s) with the same test Date 
+   IF EXISTS(SELECT ID FROM #AmmoCanLi.Update) 
+   BEGIN 
+    UPDATE PROSPECTING.USMC.ProspectPhysicalIst 
+    SET 
+      AmmoCanLi. = @AmmoCanLi. 
+      ,LastUpdateDate = GETDATE() 
+      ,LastUpdateBy = @LastUpdateBy 
+       
+    FROM 
+     PROSPECTING.USMC.ProspectPhysicalIst p 
+     INNER JOIN #AmmoCanLi.Update i ON p.ID = i.ID 
+   END 
+   ELSE 
+   BEGIN 
+     
+    INSERT INTO USMC.ProspectPhysicalIst 
+    (ID 
+    ,ProspectID 
+    ,TestDate 
+    ,LastUpdateDate 
+    ,LastUpdateBy 
+    ,AmmoCanLi. 
+    ) 
+    VALUES 
+     (NEWID() 
+     ,@ProspectID 
+     ,@AmmoCanLi.Date 
+     ,GETDATE() 
+     ,@LastUpdateBy 
+     ,@AmmoCanLi. 
+     ) 
+   END 
+ 
+   DROP TABLE #AmmoCanLi.Update 
+ 
+  END 
+ 
+ 
+ END -- @ProspectID is not null  
+  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,156 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetWFVContactCardRows]" directorySegmentName="seg_14" id="EB3831A4-6F34-6BC4-DCB9-7547C597C238">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:56 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[(  
+ @OrgId uniqueiden..er = null, 
+ @RecruiterId uniqueiden..er = null, 
+ @ScheduledEventsStart date.me, 
+ @ScheduledEventsEnd date.me, 
+ @EventTypeId int = null, 
+ @OnlyNextScheduledEvent bit = 1 
+) 
+ 
+AS 
+ 
+SET NOCOUNT ON 
+ 
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+  
+DECLARE @Organiza.onID INT  
+ 
+SELECT @Organiza.onID = ORGANIZATION_ID FROM MCRISS.DBO.RECRUITING_ORGANIZATION WHERE rowguid = @orgid   
+ 
+SELECT 
+ rp.RECRUITING_PERSON_ID,  
+ rp.rowguid, 
+ rp.RANK_CODE, 
+ rcrtr.LAST_NAME, 
+ rcrtr.FIRST_NAME, 
+ rcrtr.LEGAL_MIDDLE_NAME 
+INTO #Recrui.ngPerson 
+FROM [MCRISS].[dbo].[RECRUITING_PERSON] rp  
+INNER JOIN [MCRISS].[dbo].[PERSON] rcrtr ON rp.RECRUITING_PERSON_ID = rcrtr.PERSON_ID  
+WHERE ((rp.RowGuid = @RecruiterId AND @RecruiterId IS NOT NULL) OR (@RecruiterId IS NULL))  
+  
+SELECT 
+ msz.SectorID, 
+ msz.Zip 
+INTO #MapsSectorZip 
+FROM RSSOSS.USMC.MapsSectorZip msz 
+WHERE msz.LastUpdateDate IN (SELECT MAX(msz2.LastUpdateDate) 
+       FROM RSSOSS.USMC.MapsSectorZip msz2 
+       WHERE msz.Zip = msz2.Zip) 
+      
+SELECT DISTINCT 
+ ms.SectorID, 
+ ms.Recrui.ngOrganiza.onId 
+INTO #MapsSector 
+FROM RSSOSS.USMC.MapsSector ms 
+INNER JOIN #MapsSectorZip msz ON msz.SectorID = ms.SectorID 
+WHERE ms.LastUpdateDate IN (SELECT MAX(ms2.LastUpdateDate) 
+       FROM RSSOSS.USMC.MapsSector ms2 
+       WHERE ms.SectorID = ms2.SectorID) 
+ 
+SELECT  
+ ro.rowguid 
+INTO #Recrui.ngOrganiza.on 
+FROM #MapsSector ms 
+INNER JOIN [MCRISS].[dbo].[RECRUITING_ORGANIZATION] ro ON ms.Recrui.ngOrganiza.onId = ro.rowguid 
+WHERE @Organiza.onId = ro.ORGANIZATION_ID OR @Organiza.onId IS NULL 
+ 
+SELECT DISTINCT 
+ msr.Recrui.ngPersonId, 
+ msr.SectorID 
+INTO #MapsSectorRecruiter 
+FROM RSSOSS.USMC.MapsSectorRecruiter msr 
+INNER JOIN #MapsSectorZip msz ON msz.SectorID = msr.SectorID 
+       AND msr.LastUpdateDate IN ( SELECT TOP 1 MAX(msr2.LastUpdateDate) 
+              FROM RSSOSS.USMC.MapsSectorRecruiter msr2 
+              WHERE msr.SectorID = msr2.SectorID) 
+SELECT 
+ cc.ID, 
+ cc.DatePrepared, 
+ cc.LastName, 
+ cc.FirstName, 
+ msz.SectorID 
+INTO #TempContactCard  
+FROM [RSSOSS].[USMC].ContactCard cc 
+INNER JOIN #MapsSectorZip msz ON SUBSTRING(cc.Work_ZipCode,1,5) = msz.Zip 
+ 
+SELECT e.StartDate AS NextEvent 
+INTO #NextEvent 
+FROM #TempContactCard cc 
+INNER JOIN [RSSOSS].[USMC].EventSubject es ON es.SubjectID = cc.ID 
+INNER JOIN [RSSOSS].[USMC].Event e ON e.id = es.even.d 
+WHERE e.StartDate >= GetDate() 
+ 
+SELECT es.SubjectID, 
+ e.ID AS EventID, 
+ e.StartDate, 
+ e.EventTypeId, 
+ e.EventTypeOther, 
+ et.[Type] as EventType 
+INTO #ContactCardEvent 
+FROM #TempContactCard cc 
+INNER JOIN RSSOSS.USMC.EventSubject es ON es.SubjectId = cc.ID 
+INNER JOIN RSSOSS.USMC.Event e ON e.id = es.even.d 
+       AND (e.StartDate IN (SELECT NextEvent  
+             FROM #NextEvent) 
+            OR (@OnlyNextScheduledEvent = 0 AND e.StartDate >= GetDate()) 
+-- this returns all future events when set to 0 
+        ) 
+inner join [RSSOSS].[USMC].[EventType] et on et.ID = e.EventTypeId        
+  
+SELECT 
+ cc.ID, 
+ cc.DatePrepared, 
+ cc.LastName, 
+ cc.FirstName, 
+ cc.SectorID,  
+ msr.Recrui.ngPersonId 
+INTO #ContactCard 
+FROM #TempContactCard cc 
+INNER JOIN #MapsSector ms ON cc.SectorID = ms.SectorID 
+INNER JOIN #Recrui.ngOrganiza.on ro ON ms.Recrui.ngOrganiza.onId = ro.rowguid   
+INNER JOIN #MapsSectorRecruiter msr ON cc.SectorID = msr.SectorID 
+  
+   
+SELECT dis.nct 
+  cc.ID AS ApplicantAssetID 
+  ,cc.ID AS CardID  
+  ,cc.DatePrepared AS CreateDate   
+  ,COALESCE(RTRIM(cc.LastName), SPACE(0)) + SPACE(1)  +  
+   COALESCE(RTRIM(cc.FirstName), SPACE(0)) AS ApplicantAssetName  
+  ,COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+  COALESCE(RTRIM(rp.LAST_NAME), SPACE(0))  + SPACE(1) +  
+  COALESCE(RTRIM(rp.FIRST_NAME), SPACE(0)) + SPACE(1) +  
+  COALESCE(RTRIM(rp.LEGAL_MIDDLE_NAME), SPACE(0)) AS Recruiter 
+  ,COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+  COALESCE(RTRIM(rp.LAST_NAME), SPACE(0)) AS RecruiterShortName 
+  ,rp.[rowguid] AS RecruiterID 
+  ,cce.EventID AS EventID 
+  ,cce.StartDate AS EventDate 
+  ,cce.EventTypeOther 
+  ,cce.EventType 
+FROM #ContactCard cc 
+  INNER JOIN #Recrui.ngPerson rp ON cc.Recrui.ngPersonID = rp.rowguid   
+  INNER JOIN #ContactCardEvent cce ON cce.SubjectID =  cc.ID   
+WHERE cce.StartDate >= @ScheduledEventsStart   
+ AND cce.StartDate < @ScheduledEventsEnd 
+ AND (cce.EventTypeId = @EventTypeId OR @EventTypeId IS NULL) 
+ 
+DROP TABLE #MapsSector 
+DROP TABLE #MapsSectorZip   
+DROP TABLE #MapsSectorRecruiter 
+DROP TABLE #Recrui.ngOrganiza.on 
+DROP TABLE #Recrui.ngPerson 
+DROP TABLE #TempContactCard 
+DROP TABLE #NextEvent 
+DROP TABLE #ContactCardEvent 
+DROP TABLE #ContactCard]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

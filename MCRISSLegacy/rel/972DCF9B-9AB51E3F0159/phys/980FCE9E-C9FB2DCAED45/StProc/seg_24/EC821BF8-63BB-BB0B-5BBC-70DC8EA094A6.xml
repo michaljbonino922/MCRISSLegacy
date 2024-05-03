@@ -1,0 +1,66 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateFacility]" directorySegmentName="seg_24" id="EC821BF8-63BB-BB0B-5BBC-70DC8EA094A6">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@ParentOrgID as integer = 0, 
+ @Organiza.onID as integer = 0, 
+ @Organiza.onType as varchar(3) = NULL, 
+ @IsOpen as Char(1), 
+ @Name as varchar(45), 
+ @ShortName as varchar(15), 
+ @MCCCode as varchar(5), 
+ @Street as varchar(40), 
+ @Street2 as varchar(40) = NULL, 
+ @City as varchar(20), 
+ @StateCode as varchar(2), 
+ @Zipcode as varchar(9), 
+ @MepsOrganiza.onID as integer = NULL, 
+ @E.ec.veDate as date.me,   
+ @UserLogin as varchar(15) 
+ 
+AS 
+ 
+IF @Organiza.onID > 0 
+ BEGIN   
+  IF EXISTS (SELECT 1 FROM RECRUITING_ORGANIZATION WHERE RECRUITING_ORGANIZATION.ORGANIZATION_ID = @Organiza.onID) 
+   BEGIN 
+ 
+    UPDATE RECRUITING_ORGANIZATION SET STATE_CODE = @StateCode, 
+    ORGANIZATION_TYPE = @Organiza.onType, MEPS_ORGANIZATION_ID = @MepsOrganiza.onID, 
+    NAME = @Name, SHORT_NAME = @ShortName, MCC_CODE = @MCCCode,  
+    STREET = @Street, STREET2 = @Street2, CITY = @City, ZIP_CODE = @Zipcode, 
+    ISOPEN = @IsOpen, EFFECTIVE_DATE = @E.ec.veDate, USER_LOGIN = @UserLogin, UPDATE_DATE = GETDATE() 
+    WHERE ORGANIZATION_ID = @Organiza.onID 
+   END 
+  ELSE 
+ 
+   BEGIN 
+ 
+    INSERT INTO RECRUITING_ORGANIZATION (STATE_CODE, ORGANIZATION_TYPE, MEPS_ORGANIZATION_ID, 
+    NAME, SHORT_NAME, MCC_CODE, STREET, STREET2, CITY, ZIP_CODE, ISOPEN, IS_ASSIGNED, DELETED, EFFECTIVE_DATE, USER_LOGIN, UPDATE_DATE) VALUES 
+    (@StateCode, @Organiza.onType, @MepsOrganiza.onID, @Name, @ShortName, @MCCCode,  
+    @Street, @Street2, @City, @Zipcode, @IsOpen, 'Y', 'N', @E.ec.veDate, @UserLogin, GETDATE()) 
+ 
+    INSERT INTO ORGANIZATION_MAP (PARENT_ORGANIZATION_ID, CHILD_ORGANIZATION_ID, EFFECTIVE_DATE, USER_LOGIN, UPDATE_DATE) VALUES 
+    (@ParentOrgID, @@IDENTITY, @E.ec.veDate, @UserLogin, GETDATE()) 
+   END  
+ 
+ END  
+ 
+ELSE 
+  BEGIN 
+ 
+   INSERT INTO RECRUITING_ORGANIZATION (STATE_CODE, ORGANIZATION_TYPE, MEPS_ORGANIZATION_ID, 
+   NAME, SHORT_NAME, MCC_CODE, STREET, STREET2, CITY, ZIP_CODE, ISOPEN, IS_ASSIGNED, DELETED, EFFECTIVE_DATE, USER_LOGIN, UPDATE_DATE) VALUES 
+   (@StateCode, @Organiza.onType, @MepsOrganiza.onID, @Name, @ShortName, @MCCCode,  
+   @Street, @Street2, @City, @Zipcode, @IsOpen, 'Y', 'N', @E.ec.veDate,  @UserLogin, GETDATE()) 
+ 
+   INSERT INTO ORGANIZATION_MAP (PARENT_ORGANIZATION_ID, CHILD_ORGANIZATION_ID, EFFECTIVE_DATE, USER_LOGIN, UPDATE_DATE) VALUES 
+   (@ParentOrgID, @@IDENTITY, @E.ec.veDate, @UserLogin, GETDATE()) 
+ 
+  END]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,98 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_DBAMigrateSchools]" directorySegmentName="seg_14" id="D54E8286-9F23-EC48-AEEA-6AC31C55C3C1">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[as 
+ 
+declare 
+@school_code  int, 
+@mcc   varchar(5), 
+@organiza.on_id int, 
+@state   varchar(2), 
+@name   varchar(40), 
+@phone   varchar(10), 
+@street   varchar(40), 
+@city   varchar(20), 
+@zip   varchar(9), 
+@user   varchar(15), 
+@update_date  date.me, 
+@deleted  char(1), 
+@dod_code  varchar(20), 
+@school_type  char(2) 
+ 
+declare migra.on cursor for 
+ 
+select MCC_CODE,SCHOOL_NAME,DOD_CODE,PHONE,STREET,CITY,STATE,ZIP 
+from arms..HIGH_MIGRATION 
+ 
+open migra.on  
+ 
+fetch migra.on into 
+@mcc,@name,@dod_code, @phone, @street, @city, @state, @zip 
+ 
+ 
+set @user = 'migra.on' 
+set @update_date = getdate() 
+set @deleted = 'N' 
+ 
+ 
+while (@@fetch_status = 0) 
+begin 
+ 
+ set @organiza.on_id = (select organiza.on_id from recrui.ng_organiza.on where 
+    MCC_CODE = @mcc) 
+ if substring(@dod_code,1,2) = 'CC' 
+ set @school_type = 'CC' 
+ else set @school_type = 'HS' 
+ 
+ if @organiza.on_id is not null 
+ begin 
+  
+  if not exists (select 1 from HIGH_SCHOOL where DOD_CODE = @dod_code) 
+  begin 
+   insert into HIGH_SCHOOL 
+   (ORGANIZATION_ID,STATE_CODE,HIGHSCHOOL_NAME,TELEPHONE_NUMBER,STREET, 
+   CITY,ZIP_CODE,DELETED,DOD_CODE,SCHOOL_TYPE,USER_LOGIN,UPDATE_DATE) 
+   values 
+   (@organiza.on_id, @state, @name, @phone, @street, 
+   @city, @zip, @deleted, @dod_code, @school_type, @user, @update_date) 
+    
+   print 'HIGH_SCHOOL INSERTED' 
+ 
+  end 
+  else begin 
+   update HIGH_SCHOOL 
+   set  
+   ORGANIZATION_ID = @organiza.on_id, 
+   STATE_CODE = @state, 
+   HIGHSCHOOL_NAME = @name, 
+   TELEPHONE_NUMBER = @phone, 
+   STREET = @street, 
+   CITY = @city,  
+   ZIP_CODE = @zip, 
+   DELETED = @deleted, 
+   DOD_CODE = @dod_code, 
+   SCHOOL_TYPE = @school_type, 
+   USER_LOGIN = @user, 
+   UPDATE_DATE = @update_date 
+   where DOD_CODE = @dod_code 
+ 
+   print 'HIGH_SCHOOL UPDATED' 
+  end 
+ end 
+ else print @mcc + ''+ 'Is not a valid MCC_CODE' 
+ 
+ 
+ 
+fetch migra.on into 
+@mcc,@name,@dod_code, @phone, @street, @city, @state, @zip 
+ 
+end 
+ 
+close migra.on 
+deallocate migra.on]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

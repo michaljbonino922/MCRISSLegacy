@@ -1,0 +1,91 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetMedicalExamByID]" directorySegmentName="seg_13" id="0CFD41EB-274C-761A-8F11-ACBFB7937B78">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@ProspectMedicalExamID uniqueIden..er = NULL 
+AS 
+BEGIN 
+   
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+  
+DECLARE @VISUAL_COLOR_DISPOSITION CHAR(1) 
+DECLARE @PREVIOUS_VISUAL_COLOR_DISPOSITION CHAR(1) 
+DECLARE @ProspectID UNIQUEIDENTIFIER 
+DEClARE @MedicalExamDate DATETIME 
+ 
+ SELECT  
+  ProspectMedicalExamID,   
+  ProspectID, 
+  MedicalExamDate,  
+  MedicalExamType,  
+  MepsOrganiza.onID, 
+ P_GeneralBodyBuild,  
+ U_UpperBody,  
+ L_LowerBody, 
+ H_Hearing,E_Eyes,  
+ VisualColor, 
+ VisualColorDisposi.on, 
+ Le.CorrVisualAcuity, 
+ RightCorrVisualAcuity, 
+ Le.UncorrVisualAcuity, 
+ RightUncorrVisualAcuity, 
+ Height, 
+ Weight, 
+ MedicalDisposi.on, 
+ S_MentalPsychological, 
+ Consulta.onType, 
+ D_Drugs 
+ INTO #EXAM_BY_ID  
+ FROM USMC.ProspectMedicalExam 
+ WHERE ProspectMedicalExamID = @ProspectMedicalExamID 
+ ORDER BY MedicalExamDate 
+  
+ SELECT TOP 1 
+  @VISUAL_COLOR_DISPOSITION = VisualColorDisposi.on, 
+  @ProspectID = ProspectID, 
+  @MedicalExamDate = MedicalExamDate   
+ FROM  
+  #EXAM_BY_ID    
+   
+   
+--PER ECP 399  IF MEPCOM returns an X check that there are no previous records  
+--that indicate color disposi.on passed or failed 
+IF @VISUAL_COLOR_DISPOSITION = 'X' OR @VISUAL_COLOR_DISPOSITION IS  NULL 
+BEGIN  
+ 
+ SELECT  
+  @PREVIOUS_VISUAL_COLOR_DISPOSITION = PME.VisualColorDisposi.on 
+ FROM  
+  USMC.ProspectMedicalExam PME 
+ WHERE   
+  PME.ProspectID = @ProspectID 
+ AND  
+  PME.VisualColorDisposi.on is not null 
+ AND  
+  PME.VisualColorDisposi.on <> 'X' 
+ AND 
+  PME.MedicalExamDate < @MedicalExamDate 
+ ORDER BY    
+  PME.MedicalExamDate 
+ DESC  
+END  
+  
+--PER ECP 399 if marine has a Color disposi.on that is P or F from a previous exam  
+--and the current one X or null display previous exam's color disposi.on  
+IF @PREVIOUS_VISUAL_COLOR_DISPOSITION = 'P' OR 
+   @PREVIOUS_VISUAL_COLOR_DISPOSITION = 'F' 
+BEGIN  
+ 
+ UPDATE #EXAM_BY_ID 
+ SET VisualColorDisposi.on = @PREVIOUS_VISUAL_COLOR_DISPOSITION 
+END 
+ 
+SELECT * FROM #EXAM_BY_ID 
+DROP TABLE #EXAM_BY_ID 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

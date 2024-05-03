@@ -1,0 +1,675 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetMARAc.vi.es]" directorySegmentName="seg_3" id="3EA6182F-07F5-B67D-CD0C-AE1A7CB6D497">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@Recrui.ngPersonId uniqueidentifier = null, 
+@StartDate date.me, 
+@EndDate date.me, 
+@OrgId int = null, 
+@ProgramFilter varchar(3) = null, 
+@ClassFilter int = null 
+  
+AS 
+ 
+BEGIN 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+ CREATE TABLE #ACTIVITIES 
+ ( 
+  Ac.vity VARCHAR(10) 
+ ) 
+ 
+ CREATE TABLE #RESULTS 
+ ( 
+   ActType VARCHAR(10) 
+  ,ContactCount INT  
+  ,ContactCount_Female INT  
+  ,AppCount INT 
+  ,AppCount_Female INT 
+  ,IntviewCount INT 
+  ,IntviewCount_Female INT 
+  ,NwaCount INT 
+  ,NwaCount_Female INT 
+  ,ContactCountAA INT 
+  ,ContactCountAA_Female INT 
+  ,AppCountAA INT 
+  ,AppCountAA_Female INT 
+  ,IntviewCountAA INT 
+  ,IntviewCountAA_Female INT 
+        ,NwaCountAA INT 
+  ,NwaCountAA_Female INT 
+  ,ContactCountWhite INT 
+  ,ContactCountWhite_Female INT 
+  ,AppCountWhite INT 
+  ,AppCountWhite_Female INT 
+  ,IntviewCountWhite INT 
+  ,IntviewCountWhite_Female INT 
+        ,NwaCountWhite INT 
+  ,NwaCountWhite_Female INT 
+  ,ContactCountH INT 
+  ,ContactCountH_Female INT 
+  ,AppCountH INT 
+  ,AppCountH_Female INT 
+  ,IntviewCountH INT 
+  ,IntviewCountH_Female INT 
+  ,NwaCountH INT   
+  ,NwaCountH_Female INT      
+  ,ContactCountO INT 
+  ,ContactCountO_Female INT 
+  ,AppCountO INT 
+  ,AppCountO_Female INT 
+  ,IntviewCountO INT 
+  ,IntviewCountO_Female INT 
+        ,NwaCountO INT 
+  ,NwaCountO_Female INT  
+ ) 
+  
+ CREATE TABLE #PROSPECT_DIVERSITY 
+ ( 
+   ProspectId UNIQUEIDENTIFIER 
+  ,Ac.vity VARCHAR(10) 
+  ,Ac.vityDate DATETIME 
+  ,NwaId UNIQUEIDENTIFIER 
+  ,DiversityCode VARCHAR(10) 
+  ,Gender varchar(1) 
+        ,SocialSecurityNumber    char(9) 
+        ,Program   varchar(4) 
+ ) 
+    
+ SET  @StartDate = CAST( (STR(Year(@StartDate)) + '-' + STR(MONTH(@StartDate)) + '-' + STR(DAY(@StartDate)) ) AS date.me) 
+      
+ SET  @EndDate = CAST( (STR(Year(@EndDate)) + '-' + STR(MONTH(@EndDate)) + '-' + STR(DAY(@EndDate)) ) AS date.me) 
+ SET  @EndDate = DATEADD(day, 1, @EndDate) 
+ 
+  
+ INSERT INTO #ACTIVITIES 
+ SELECT 'TC' 
+ 
+ INSERT INTO #ACTIVITIES 
+ SELECT 'DC' 
+ 
+ INSERT INTO #ACTIVITIES 
+ SELECT 'AC' 
+ 
+ INSERT INTO #ACTIVITIES 
+ SELECT 'OT' 
+ 
+    declare @StartCompDate date.me 
+    if (month(@StartDate) > 9) 
+        select @StartCompDate = convert(date.me, '10/1/' + cast(year(@StartDate) as varchar(4))) 
+    else 
+         select @StartCompDate = convert(date.me, '10/1/' + cast(year(@StartDate)-1 as varchar(4))) 
+ 
+   --print @StartCompDate 
+  
+ SELECT P.*  
+ INTO #Prospect 
+ FROM  
+  PROSPECTING.USMC.PROSPECT P INNER JOIN  
+        MCRISS.DBO.RECRUITING_ORGANIZATION RO ON RO.ROWGUID = P.Recrui.ngOrganiza.onId 
+        AND RO.Organiza.on_Id = @OrgId 
+  
+ SELECT *  
+ INTO #Event 
+ FROM  
+  RSSOSS.USMC.Event e 
+ WHERE 
+  @OrgId IS NOT NULL AND e.Organiza.onId = @OrgId  
+  AND (e.StartDate >= @StartDate AND e.StartDate < @EndDate)  
+ 
+   --select * from  #Event 
+  
+ SELECT DISTINCT s.*, startdate, eventypeid  
+ INTO #EventSubject 
+ FROM  
+  RSSOSS.USMC.EventSubject s 
+  INNER JOIN #Event e 
+   ON e.ID = s.EventId     
+ 
+    SELECT *  
+ INTO #Event2 
+ FROM  
+  RSSOSS.USMC.Event e 
+ WHERE 
+  @OrgId IS NOT NULL AND e.Organiza.onId = @OrgId  
+  AND (e.StartDate >= @StartCompDate AND e.StartDate < @EndDate)  
+ 
+   --select * from  #Event2  
+  
+ SELECT DISTINCT s.*, startdate, eventypeid  
+ INTO #EventSubject2 
+ FROM  
+  RSSOSS.USMC.EventSubject s 
+  INNER JOIN #Event2 e 
+   ON e.ID = s.EventId     
+ 
+--select * from  #EventSubject2 order by Subjec.d 
+       
+ SELECT DISTINCT oc.* 
+ INTO #EventOutcome 
+ FROM  
+  RSSOSS.USMC.EventOutcome oc 
+  INNER JOIN #Event e 
+   ON e.ID = oc.EventId 
+  
+  
+ IF @ProgramFilter = 'OCC' 
+ BEGIN   
+  INSERT INTO #PROSPECT_DIVERSITY 
+  SELECT pro.ProspectId 
+    ,pro.Ac.vity 
+    ,pro.Ac.vityDate 
+    ,pro.NwaId 
+    ,CASE 
+     WHEN opp.Diversity IS NULL THEN 
+     CASE    
+      WHEN (per.Race + per.Ethnicity) IN 
+        ('AA', 
+         'C1','C2','C3','C4','C5','C6','C7','C9','CA','CB','CD','CE','CF','CG','CH','CJ', 
+         'CK','CL','CP','CQ','CS','CT','CV','CW','CZ', 
+         'EA','FA') THEN 'AA' 
+      WHEN (per.Race + per.Ethnicity) IN 
+       ('A4','A6','A9','AB','AS','BB','DB','E1','E4','E6','E9','EB','ES','F1','F4','F6', 
+        'F9','FB','FS') THEN 'H' 
+      WHEN (per.Race + per.Ethnicity) IN 
+       ('EP','EZ','FP','FZ') THEN 'W' 
+      WHEN (per.Race + per.Ethnicity) IN 
+       ('A1','A2','A3','A5','A7','AD','AE','AF','AG','AH','AJ','AK','AL','AP','AQ','AT','AV','AW','AZ', 
+        'B1','B2','B3','B4','B5','B6','B7','B9','BA', 
+        'D1','D2','D3','D4','D5','D6','D7','D9','DA',   
+        'BD','BE','BF','BG','BH','BJ','BK','BL','BP','BQ','BS','BT','BV','BW','BZ', 
+        'DD','DE','DF','DG','DH','DJ','DK','DL','DP','DQ','DS','DT','DV','DW','DZ', 
+        'E2','E3','E5','E7','ED','EE','EF','EG','EH','EJ','EK','EL','EQ','ET','EV','EW', 
+        'F2','F3','F5','F7','FD','FE','FF','FG','FH','FJ','FK','FL','FQ','FT','FV','FW' 
+       ) THEN 'O' 
+      ELSE NULL      
+     END 
+     ELSE 
+     CASE      
+      WHEN (opp.Diversity + opp.EthnicCode) IN 
+        ('AA', 
+         'C1','C2','C3','C4','C5','C6','C7','C9','CA','CB','CD','CE','CF','CG','CH','CJ', 
+         'CK','CL','CP','CQ','CS','CT','CV','CW','CZ', 
+         'EA','FA') THEN 'AA' 
+      WHEN (opp.Diversity + opp.EthnicCode) IN 
+       ('A4','A6','A9','AB','AS','BB','DB','E1','E4','E6','E9','EB','ES','F1','F4','F6', 
+        'F9','FB','FS') THEN 'H' 
+      WHEN (opp.Diversity + opp.EthnicCode) IN 
+       ('EP','EZ','FP','FZ') THEN 'W' 
+      WHEN (opp.Diversity + opp.EthnicCode) IN 
+       ('A1','A2','A3','A5','A7','AD','AE','AF','AG','AH','AJ','AK','AL','AP','AQ','AT','AV','AW','AZ', 
+        'B1','B2','B3','B4','B5','B6','B7','B9','BA', 
+        'D1','D2','D3','D4','D5','D6','D7','D9','DA',   
+        'BD','BE','BF','BG','BH','BJ','BK','BL','BP','BQ','BS','BT','BV','BW','BZ', 
+        'DD','DE','DF','DG','DH','DJ','DK','DL','DP','DQ','DS','DT','DV','DW','DZ', 
+        'E2','E3','E5','E7','ED','EE','EF','EG','EH','EJ','EK','EL','EQ','ET','EV','EW', 
+        'F2','F3','F5','F7','FD','FE','FF','FG','FH','FJ','FK','FL','FQ','FT','FV','FW' 
+       ) THEN 'O' 
+      ELSE NULL      
+     END 
+    END AS DiversityCode 
+    ,per.Gender 
+    ,per.SocialSecurityNumber 
+    ,opp.Program 
+  FROM #Prospect pro 
+  LEFT OUTER JOIN Prospec.ng.USMC.O.cerProspectPac opp ON pro.ProspectId = opp.ProspectId 
+  INNER JOIN Prospec.ng.USMC.Person per ON pro.PersonId = per.PersonId 
+  WHERE opp.TrainingType = 'OCC' and opp.ClassIncrement = ISNULL(@ClassFilter, opp.ClassIncrement) 
+    
+  END 
+  ELSE IF @ProgramFilter = 'PLC' 
+  BEGIN 
+  INSERT INTO #PROSPECT_DIVERSITY 
+  SELECT pro.ProspectId 
+    ,pro.Ac.vity 
+    ,pro.Ac.vityDate 
+    ,pro.NwaId 
+    ,CASE 
+     WHEN opp.Diversity IS NULL THEN 
+     CASE    
+      WHEN (per.Race + per.Ethnicity) IN 
+        ('AA', 
+         'C1','C2','C3','C4','C5','C6','C7','C9','CA','CB','CD','CE','CF','CG','CH','CJ', 
+         'CK','CL','CP','CQ','CS','CT','CV','CW','CZ', 
+         'EA','FA') THEN 'AA' 
+      WHEN (per.Race + per.Ethnicity) IN 
+       ('A4','A6','A9','AB','AS','BB','DB','E1','E4','E6','E9','EB','ES','F1','F4','F6', 
+        'F9','FB','FS') THEN 'H' 
+      WHEN (per.Race + per.Ethnicity) IN 
+       ('EP','EZ','FP','FZ') THEN 'W' 
+      WHEN (per.Race + per.Ethnicity) IN 
+       ('A1','A2','A3','A5','A7','AD','AE','AF','AG','AH','AJ','AK','AL','AP','AQ','AT','AV','AW','AZ', 
+        'B1','B2','B3','B4','B5','B6','B7','B9','BA', 
+        'D1','D2','D3','D4','D5','D6','D7','D9','DA',   
+        'BD','BE','BF','BG','BH','BJ','BK','BL','BP','BQ','BS','BT','BV','BW','BZ', 
+        'DD','DE','DF','DG','DH','DJ','DK','DL','DP','DQ','DS','DT','DV','DW','DZ', 
+        'E2','E3','E5','E7','ED','EE','EF','EG','EH','EJ','EK','EL','EQ','ET','EV','EW', 
+        'F2','F3','F5','F7','FD','FE','FF','FG','FH','FJ','FK','FL','FQ','FT','FV','FW' 
+       ) THEN 'O' 
+      ELSE NULL      
+     END 
+     ELSE 
+     CASE      
+      WHEN (opp.Diversity + opp.EthnicCode) IN 
+        ('AA', 
+         'C1','C2','C3','C4','C5','C6','C7','C9','CA','CB','CD','CE','CF','CG','CH','CJ', 
+         'CK','CL','CP','CQ','CS','CT','CV','CW','CZ', 
+         'EA','FA') THEN 'AA' 
+      WHEN (opp.Diversity + opp.EthnicCode) IN 
+       ('A4','A6','A9','AB','AS','BB','DB','E1','E4','E6','E9','EB','ES','F1','F4','F6', 
+        'F9','FB','FS') THEN 'H' 
+      WHEN (opp.Diversity + opp.EthnicCode) IN 
+       ('EP','EZ','FP','FZ') THEN 'W' 
+      WHEN (opp.Diversity + opp.EthnicCode) IN 
+       ('A1','A2','A3','A5','A7','AD','AE','AF','AG','AH','AJ','AK','AL','AP','AQ','AT','AV','AW','AZ', 
+        'B1','B2','B3','B4','B5','B6','B7','B9','BA', 
+        'D1','D2','D3','D4','D5','D6','D7','D9','DA',   
+        'BD','BE','BF','BG','BH','BJ','BK','BL','BP','BQ','BS','BT','BV','BW','BZ', 
+        'DD','DE','DF','DG','DH','DJ','DK','DL','DP','DQ','DS','DT','DV','DW','DZ', 
+        'E2','E3','E5','E7','ED','EE','EF','EG','EH','EJ','EK','EL','EQ','ET','EV','EW', 
+        'F2','F3','F5','F7','FD','FE','FF','FG','FH','FJ','FK','FL','FQ','FT','FV','FW' 
+       ) THEN 'O' 
+      ELSE NULL      
+     END 
+    END AS DiversityCode 
+    ,per.Gender 
+    ,per.SocialSecurityNumber 
+    ,opp.Program 
+  FROM #Prospect pro 
+  LEFT OUTER JOIN Prospec.ng.USMC.O.cerProspectPac opp ON pro.ProspectId = opp.ProspectId 
+  INNER JOIN Prospec.ng.USMC.Person per ON pro.PersonId = per.PersonId 
+  WHERE (opp.TrainingType = 'PLCCOMB' OR opp.TrainingType = 'PLCJR') and opp.ProjCommFiscalYear = ISNULL(@ClassFilter, opp.ProjCommFiscalYear) 
+  END 
+  ELSE 
+  BEGIN 
+  INSERT INTO #PROSPECT_DIVERSITY 
+  SELECT pro.ProspectId 
+    ,pro.Ac.vity 
+    ,pro.Ac.vityDate 
+    ,pro.NwaId 
+    ,CASE 
+     WHEN opp.Diversity IS NULL THEN 
+     CASE    
+      WHEN (per.Race + per.Ethnicity) IN 
+        ('AA', 
+         'C1','C2','C3','C4','C5','C6','C7','C9','CA','CB','CD','CE','CF','CG','CH','CJ', 
+         'CK','CL','CP','CQ','CS','CT','CV','CW','CZ', 
+         'EA','FA') THEN 'AA' 
+      WHEN (per.Race + per.Ethnicity) IN 
+       ('A4','A6','A9','AB','AS','BB','DB','E1','E4','E6','E9','EB','ES','F1','F4','F6', 
+        'F9','FB','FS') THEN 'H' 
+      WHEN (per.Race + per.Ethnicity) IN 
+       ('EP','EZ','FP','FZ') THEN 'W' 
+      WHEN (per.Race + per.Ethnicity) IN 
+       ('A1','A2','A3','A5','A7','AD','AE','AF','AG','AH','AJ','AK','AL','AP','AQ','AT','AV','AW','AZ', 
+        'B1','B2','B3','B4','B5','B6','B7','B9','BA', 
+        'D1','D2','D3','D4','D5','D6','D7','D9','DA',   
+        'BD','BE','BF','BG','BH','BJ','BK','BL','BP','BQ','BS','BT','BV','BW','BZ', 
+        'DD','DE','DF','DG','DH','DJ','DK','DL','DP','DQ','DS','DT','DV','DW','DZ', 
+        'E2','E3','E5','E7','ED','EE','EF','EG','EH','EJ','EK','EL','EQ','ET','EV','EW', 
+        'F2','F3','F5','F7','FD','FE','FF','FG','FH','FJ','FK','FL','FQ','FT','FV','FW' 
+       ) THEN 'O' 
+      ELSE NULL      
+     END 
+     ELSE 
+     CASE      
+      WHEN (opp.Diversity + opp.EthnicCode) IN 
+        ('AA', 
+         'C1','C2','C3','C4','C5','C6','C7','C9','CA','CB','CD','CE','CF','CG','CH','CJ', 
+         'CK','CL','CP','CQ','CS','CT','CV','CW','CZ', 
+         'EA','FA') THEN 'AA' 
+      WHEN (opp.Diversity + opp.EthnicCode) IN 
+       ('A4','A6','A9','AB','AS','BB','DB','E1','E4','E6','E9','EB','ES','F1','F4','F6', 
+        'F9','FB','FS') THEN 'H' 
+      WHEN (opp.Diversity + opp.EthnicCode) IN 
+       ('EP','EZ','FP','FZ') THEN 'W' 
+      WHEN (opp.Diversity + opp.EthnicCode) IN 
+       ('A1','A2','A3','A5','A7','AD','AE','AF','AG','AH','AJ','AK','AL','AP','AQ','AT','AV','AW','AZ', 
+        'B1','B2','B3','B4','B5','B6','B7','B9','BA', 
+        'D1','D2','D3','D4','D5','D6','D7','D9','DA',   
+        'BD','BE','BF','BG','BH','BJ','BK','BL','BP','BQ','BS','BT','BV','BW','BZ', 
+        'DD','DE','DF','DG','DH','DJ','DK','DL','DP','DQ','DS','DT','DV','DW','DZ', 
+        'E2','E3','E5','E7','ED','EE','EF','EG','EH','EJ','EK','EL','EQ','ET','EV','EW', 
+        'F2','F3','F5','F7','FD','FE','FF','FG','FH','FJ','FK','FL','FQ','FT','FV','FW' 
+       ) THEN 'O' 
+      ELSE NULL      
+     END 
+    END AS DiversityCode 
+    ,per.Gender 
+    ,per.SocialSecurityNumber 
+    ,opp.Program 
+  FROM #Prospect pro 
+  LEFT OUTER JOIN Prospec.ng.USMC.O.cerProspectPac opp ON pro.ProspectId = opp.ProspectId 
+  INNER JOIN Prospec.ng.USMC.Person per ON pro.PersonId = per.PersonId 
+  END 
+   -- get rid of duplicated interviews  
+    SELECT rst.*  
+    INTO #EventSubjectInt  
+    FROM  
+  ( 
+   (  
+    -- for applicants with SSN  
+    SELECT  
+     es1.*, p.Ac.vity, p.Gender, p.DiversityCode, p.NwaId    
+    FROM  
+     #EventSubject es1  
+     INNER JOIN #PROSPECT_DIVERSITY p ON es1.subjectId = p.ProspectId 
+     INNER JOIN #ACTIVITIES a ON a.Ac.vity = p.Ac.vity  
+     INNER JOIN RSSOSS.USMC.EventOutcome oc on es1.EventId = oc.EventId  
+    WHERE  
+     oc.InterviewOutcomeId IN (1,2) 
+     AND StartDate = ( 
+          SELECT min(es2.StartDate)  
+          FROM  
+           #EventSubject2 es2  
+           INNER JOIN #PROSPECT_DIVERSITY p2 on es2.subjectId = p2.ProspectId 
+           INNER JOIN RSSOSS.USMC.EventOutcome oc2 on es2.EventId = oc2.EventId   
+          WHERE  
+           p.SocialSecurityNumber= p2.SocialSecurityNumber 
+           and es2.startDate between @StartCompDate and @EndDate 
+           and Program in ('0A', '0B', '0C', '0E', '0F', '1A', '1B', '1C', '1H') 
+           and es1.eventypeid = es2.eventypeid and oc2.InterviewOutcomeId IN (1,2) 
+           and es1.EventId in ( SELECT id  
+                 FROM  
+                  #Event 
+                 WHERE  
+                  eventypeid in (1,85,88)  
+                ) 
+         )  
+     AND Program in ('0A', '0B', '0C', '0E', '0F', '1A', '1B', '1C', '1H')  
+      
+     UNION  
+      
+     -- for applicants without SSN 
+     SELECT es1.*, p.Ac.vity, p.Gender, p.DiversityCode, p.NwaId    
+     FROM  
+      #EventSubject es1  
+      INNER join #PROSPECT_DIVERSITY p ON es1.subjectId = p.ProspectId 
+      INNER JOIN #ACTIVITIES a ON a.Ac.vity = p.Ac.vity  
+      inner join RSSOSS.USMC.EventOutcome oc on es1.EventId = oc.EventId  
+     WHERE  
+      InterviewOutcomeId IN (1,2) 
+      and Program in ('0A', '0B', '0C', '0E', '0F', '1A', '1B', '1C', '1H') 
+      and eventypeid in (1,85,88) 
+      AND SocialSecurityNumber IS NULL 
+   ) 
+    
+   UNION ALL 
+       
+      ( 
+    -- for applicants with SSN  
+    SELECT  
+     es1.*, p.Ac.vity, p.Gender, p.DiversityCode, p.NwaId    
+    FROM  
+     #EventSubject es1  
+     INNER JOIN #PROSPECT_DIVERSITY p ON es1.subjectId = p.ProspectId 
+     INNER JOIN #ACTIVITIES a ON a.Ac.vity = p.Ac.vity  
+     INNER JOIN RSSOSS.USMC.EventOutcome oc on es1.EventId = oc.EventId  
+    WHERE  
+     oc.InterviewOutcomeId IN (1,2) 
+     and StartDate = ( SELECT min(es2.StartDate)  
+          FROM  
+           #EventSubject2 es2  
+           INNER JOIN #PROSPECT_DIVERSITY p2 on es2.subjectId = p2.ProspectId 
+           INNER JOIN RSSOSS.USMC.EventOutcome oc2 on es2.EventId = oc2.EventId   
+          WHERE  
+           p.SocialSecurityNumber = p2.SocialSecurityNumber 
+           and p.Program = p2.Program  
+           and p.Program in ('1E') 
+           and es2.startDate between @StartCompDate and @EndDate 
+           and es1.eventypeid = es2.eventypeid and oc2.InterviewOutcomeId in (1,2) 
+           and es1.EventId in ( SELECT id  
+                 FROM  
+                  #Event 
+                 WHERE  
+                  eventypeid in (1,85,88)  
+                ) 
+         ) 
+     
+    UNION 
+     
+    -- for applicants without SSN  
+    SELECT es1.*, p.Ac.vity, p.Gender, p.DiversityCode, p.NwaId    
+    FROM  
+     #EventSubject es1  
+     INNER join #PROSPECT_DIVERSITY p ON es1.subjectId = p.ProspectId 
+     INNER JOIN #ACTIVITIES a ON a.Ac.vity = p.Ac.vity  
+     inner join RSSOSS.USMC.EventOutcome oc on es1.EventId = oc.EventId  
+    WHERE  
+     oc.InterviewOutcomeId IN (1,2) 
+     and Program in ('1E') 
+     and eventypeid in (1,85,88) 
+     AND SocialSecurityNumber IS NULL 
+   ) 
+  ) rst 
+ 
+ select * 
+ into #NWA 
+ from [MCRISS].[dbo].[NWA] 
+ WHERE nwa.NWA_DECLARED_DATE >= @StartDate AND nwa.NWA_DECLARED_DATE < @EndDate 
+  -- select * from #EventSubjectInt  
+ select pro.* 
+ into #ProspectNWA 
+ FROM #PROSPECT_DIVERSITY pro inner join #NWA on pro.nwaid = #NWA.rowguid; 
+ 
+ INSERT INTO #RESULTS 
+ SELECT  p.Ac.vity AS ActType 
+   ,0 AS ContactCount 
+   ,0 AS ContactCount_Female 
+   ,ISNULL(SUM(CASE WHEN e.EventSourceId = 1 and e.EventTypeId = 1 THEN 1 ELSE 0 END), 0) as AppCount 
+   ,ISNULL(SUM(CASE WHEN e.EventSourceId = 1 and e.EventTypeId = 1 AND p.Gender = 'F' THEN 1 ELSE 0 END), 0) as AppCount_Female 
+   ,0 AS IntviewCount --,ISNULL(SUM(CASE WHEN oc.InterviewOutcomeId IN (1,2) THEN 1 ELSE 0 END),0) AS IntviewCount 
+   ,0 AS IntviewCount_Female --,ISNULL(SUM(CASE WHEN oc.InterviewOutcomeId IN (1,2) AND p.Gender = 'F' THEN 1 ELSE 0 END),0) AS IntviewCount_Female 
+   ,0 AS NwaCount 
+   ,0 AS NwaCount_Female 
+   ,0 AS ContactCountAA 
+   ,0 AS ContactCountAA_Female 
+   ,ISNULL(SUM(CASE WHEN e.EventSourceId = 1 and e.EventTypeId = 1 AND p.DiversityCode = 'AA' THEN 1 ELSE 0 END), 0) as AppCountAA 
+   ,ISNULL(SUM(CASE WHEN e.EventSourceId = 1 and e.EventTypeId = 1 AND p.DiversityCode = 'AA' AND p.Gender = 'F' THEN 1 ELSE 0 END), 0) as AppCountAA_Female 
+   ,0 AS IntviewCountAA--,ISNULL(SUM(CASE WHEN oc.InterviewOutcomeId IN (1,2) AND p.DiversityCode = 'AA' THEN 1 ELSE 0 END),0) AS IntviewCountAA 
+   ,0 AS IntviewCountAA_Female --,ISNULL(SUM(CASE WHEN oc.InterviewOutcomeId IN (1,2) AND p.DiversityCode = 'AA' AND p.Gender = 'F' THEN 1 ELSE 0 END),0) AS IntviewCountAA_Female 
+            ,0 AS NwaCountAA 
+   ,0 AS NwaCountAA_Female 
+   ,0 AS ContactCountWhite 
+   ,0 AS ContactCountWhite_Female 
+   ,ISNULL(SUM(CASE WHEN e.EventSourceId = 1 and e.EventTypeId = 1 AND p.DiversityCode = 'W' THEN 1 ELSE 0 END), 0) as AppCountWhite 
+   ,ISNULL(SUM(CASE WHEN e.EventSourceId = 1 and e.EventTypeId = 1 AND p.DiversityCode = 'W' AND p.Gender = 'F' THEN 1 ELSE 0 END), 0) as AppCountWhite_Female 
+   ,0 AS IntviewCountWhite --,ISNULL(SUM(CASE WHEN oc.InterviewOutcomeId IN (1,2) AND p.DiversityCode = 'W' THEN 1 ELSE 0 END),0) AS IntviewCountWhite 
+   ,0 AS IntviewCountWhite_Female --,ISNULL(SUM(CASE WHEN oc.InterviewOutcomeId IN (1,2) AND p.DiversityCode = 'W' AND p.Gender = 'F' THEN 1 ELSE 0 END),0) AS IntviewCountWhite_Female 
+            ,0 AS NwaCountWhite 
+   ,0 AS NwaCountWhite_Female 
+   ,0 AS ContactCountH 
+   ,0 AS ContactCountH_Female 
+   ,ISNULL(SUM(CASE WHEN e.EventSourceId = 1 and e.EventTypeId = 1 AND p.DiversityCode = 'H' THEN 1 ELSE 0 END), 0) as AppCountH 
+   ,ISNULL(SUM(CASE WHEN e.EventSourceId = 1 and e.EventTypeId = 1 AND p.DiversityCode = 'H' AND p.Gender = 'F'  THEN 1 ELSE 0 END), 0) as AppCountH_Female 
+   ,0 IntviewCountH --ISNULL(SUM(CASE WHEN oc.InterviewOutcomeId IN (1,2) AND p.DiversityCode = 'H' THEN 1 ELSE 0 END),0) AS IntviewCountH 
+   ,0 IntviewCountH_Female --ISNULL(SUM(CASE WHEN oc.InterviewOutcomeId IN (1,2) AND p.DiversityCode = 'H' AND p.Gender = 'F' THEN 1 ELSE 0 END),0) AS IntviewCountH_Female 
+   ,0 AS NwaCountH   
+   ,0 AS NwaCountH_Female           
+   ,0 AS ContactCountO 
+   ,0 AS ContactCountO_Female 
+   ,ISNULL(SUM(CASE WHEN e.EventSourceId = 1 and e.EventTypeId = 1 AND p.DiversityCode = 'O' THEN 1 ELSE 0 END), 0) as AppCountO 
+   ,ISNULL(SUM(CASE WHEN e.EventSourceId = 1 and e.EventTypeId = 1 AND p.DiversityCode = 'O' AND p.Gender = 'F' THEN 1 ELSE 0 END), 0) as AppCountO_Female 
+   ,0 IntviewCountO --ISNULL(SUM(CASE WHEN oc.InterviewOutcomeId IN (1,2) AND p.DiversityCode = 'O' THEN 1 ELSE 0 END),0) AS IntviewCountO 
+   ,0 IntviewCountO_Female --ISNULL(SUM(CASE WHEN oc.InterviewOutcomeId IN (1,2) AND p.DiversityCode = 'O' THEN 1 ELSE 0 END),0) AS IntviewCountO_Female 
+   ,0 AS NwaCountO  
+   ,0 AS NwaCountO_Female  
+ FROM #Event e 
+  INNER JOIN #EventSubject s ON e.ID = s.EventId 
+  Right OUTER JOIN #PROSPECT_DIVERSITY p ON s.subjectId = p.ProspectId 
+  INNER JOIN #ACTIVITIES a ON a.Ac.vity = p.Ac.vity 
+  LEFT OUTER JOIN #EventOutcome oc ON e.ID = oc.EventId  
+ GROUP BY p.Ac.vity 
+ 
+    update #Results 
+    set IntviewCount = rst.cnt from (SELECT COUNT(*) cnt, Ac.vity FROM #EventSubjectInt group by Ac.vity) rst 
+    inner join #Results rt on rt.ActType = rst.Ac.vity 
+ 
+    update #Results 
+    set IntviewCount_Female =rst.cnt from (SELECT COUNT(*) cnt, Ac.vity FROM #EventSubjectInt  
+     where Gender = 'F' group by Ac.vity) rst 
+    inner join #Results rt on rt.ActType = rst.Ac.vity 
+ 
+      update #Results 
+    set IntviewCountAA = rst.cnt from (SELECT COUNT(*) cnt, Ac.vity FROM #EventSubjectInt  
+    where DiversityCode = 'AA' group by Ac.vity) rst 
+    inner join #Results rt on rt.ActType = rst.Ac.vity 
+ 
+    update #Results 
+    set IntviewCountAA_Female =rst.cnt from (SELECT COUNT(*) cnt, Ac.vity FROM #EventSubjectInt  
+     where Gender = 'F' and DiversityCode = 'AA' group by Ac.vity) rst 
+    inner join #Results rt on rt.ActType = rst.Ac.vity 
+ 
+     update #Results 
+    set IntviewCountWhite = rst.cnt from (SELECT COUNT(*) cnt, Ac.vity FROM #EventSubjectInt  
+    where DiversityCode = 'W' group by Ac.vity) rst 
+    inner join #Results rt on rt.ActType = rst.Ac.vity 
+ 
+    update #Results 
+    set IntviewCountWhite_Female =rst.cnt from (SELECT COUNT(*) cnt, Ac.vity FROM #EventSubjectInt  
+     where Gender = 'F' and DiversityCode = 'W' group by Ac.vity) rst 
+    inner join #Results rt on rt.ActType = rst.Ac.vity 
+ 
+    update #Results 
+    set IntviewCountH  = rst.cnt from (SELECT COUNT(*) cnt, Ac.vity FROM #EventSubjectInt  
+    where DiversityCode = 'H' group by Ac.vity) rst 
+    inner join #Results rt on rt.ActType = rst.Ac.vity 
+ 
+    update #Results 
+    set IntviewCountH_Female  =rst.cnt from (SELECT COUNT(*) cnt, Ac.vity FROM #EventSubjectInt  
+     where Gender = 'F' and DiversityCode = 'H' group by Ac.vity) rst 
+    inner join #Results rt on rt.ActType = rst.Ac.vity 
+ 
+    update #Results 
+    set IntviewCountO  = rst.cnt from (SELECT COUNT(*) cnt, Ac.vity FROM #EventSubjectInt  
+    where DiversityCode = 'O' group by Ac.vity) rst 
+    inner join #Results rt on rt.ActType = rst.Ac.vity 
+ 
+    update #Results 
+    set IntviewCountO_Female  =rst.cnt from (SELECT COUNT(*) cnt, Ac.vity FROM #EventSubjectInt  
+     where Gender = 'F' and DiversityCode = 'O' group by Ac.vity) rst 
+    inner join #Results rt on rt.ActType = rst.Ac.vity 
+    
+    
+ 
+ UPDATE #RESULTS 
+ SET ContactCount = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'TC'),0) 
+  ,ContactCount_Female = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'TC' AND p.Gender = 'F'),0) 
+  ,ContactCountAA = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'TC' AND p.DiversityCode = 'AA'),0) 
+  ,ContactCountAA_Female = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'TC' AND p.DiversityCode = 'AA' AND p.Gender = 'F'),0)  
+  ,ContactCountWhite = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'TC' AND p.DiversityCode = 'W'),0) 
+  ,ContactCountWhite_Female = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'TC' AND p.DiversityCode = 'W' AND p.Gender = 'F'),0)  
+  ,ContactCountH = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'TC' AND p.DiversityCode = 'H'),0)  
+  ,ContactCountH_Female = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'TC' AND p.DiversityCode = 'H' AND p.Gender = 'F'),0)    
+  ,ContactCountO = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'TC' AND p.DiversityCode = 'O'),0) 
+  ,ContactCountO_Female = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'TC' AND p.DiversityCode = 'O' AND p.Gender = 'F'),0) 
+   
+        ,NwaCount = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p WHERE p.Ac.vity = 'TC'),0) 
+  ,NwaCount_Female = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p WHERE  p.Ac.vity = 'TC' AND p.Gender = 'F'),0) 
+  ,NwaCountAA = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p WHERE  p.Ac.vity = 'TC' AND p.DiversityCode = 'AA'),0) 
+  ,NwaCountAA_Female = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p WHERE  p.Ac.vity = 'TC' AND p.DiversityCode = 'AA' AND p.Gender = 'F'),0) 
+  ,NwaCountWhite = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p WHERE  p.Ac.vity = 'TC' AND p.DiversityCode = 'W'),0) 
+  ,NwaCountWhite_Female = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p WHERE  p.Ac.vity = 'TC' AND p.DiversityCode = 'W' AND p.Gender = 'F'),0) 
+  ,NwaCountH = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p WHERE  p.Ac.vity = 'TC' AND p.DiversityCode = 'H'),0)  
+  ,NwaCountH_Female = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p WHERE  p.Ac.vity = 'TC' AND p.DiversityCode = 'H' AND p.Gender = 'F'),0)    
+  ,NwaCountO = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p WHERE  p.Ac.vity = 'TC' AND p.DiversityCode = 'O'),0) 
+  ,NwaCountO_Female = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p WHERE  p.Ac.vity = 'TC' AND p.DiversityCode = 'O' AND p.Gender = 'F'),0) 
+ WHERE ActType = 'TC' 
+  
+ UPDATE #RESULTS 
+ SET ContactCount = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'DC'),0) 
+  ,ContactCount_Female = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'DC' AND p.Gender = 'F'),0) 
+  ,ContactCountAA = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'DC' AND p.DiversityCode = 'AA'),0) 
+  ,ContactCountAA_Female = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'DC' AND p.DiversityCode = 'AA' AND p.Gender = 'F'),0)  
+  ,ContactCountWhite = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'DC' AND p.DiversityCode = 'W'),0) 
+  ,ContactCountWhite_Female = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'DC' AND p.DiversityCode = 'W' AND p.Gender = 'F'),0)  
+  ,ContactCountH = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'DC' AND p.DiversityCode = 'H'),0)  
+  ,ContactCountH_Female = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'DC' AND p.DiversityCode = 'H' AND p.Gender = 'F'),0)    
+  ,ContactCountO = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'DC' AND p.DiversityCode = 'O'),0) 
+  ,ContactCountO_Female = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'DC' AND p.DiversityCode = 'O' AND p.Gender = 'F'),0) 
+  ,NwaCount = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p  WHERE p.Ac.vity = 'DC'),0) 
+  ,NwaCount_Female = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p  WHERE  p.Ac.vity = 'DC' AND p.Gender = 'F'),0) 
+  ,NwaCountAA = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p  WHERE  p.Ac.vity = 'DC' AND p.DiversityCode = 'AA'),0) 
+  ,NwaCountAA_Female = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p  WHERE  p.Ac.vity = 'DC' AND p.DiversityCode = 'AA' AND p.Gender = 'F'),0) 
+  ,NwaCountWhite = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p  WHERE  p.Ac.vity = 'DC' AND p.DiversityCode = 'W'),0) 
+  ,NwaCountWhite_Female = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p WHERE  p.Ac.vity = 'DC' AND p.DiversityCode = 'W' AND p.Gender = 'F'),0) 
+  ,NwaCountH = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p  WHERE  p.Ac.vity = 'DC' AND p.DiversityCode = 'H'),0)  
+  ,NwaCountH_Female = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p  WHERE  p.Ac.vity = 'DC' AND p.DiversityCode = 'H' AND p.Gender = 'F'),0)    
+  ,NwaCountO = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p  WHERE  p.Ac.vity = 'DC' AND p.DiversityCode = 'O'),0) 
+  ,NwaCountO_Female = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p  WHERE  p.Ac.vity = 'DC' AND p.DiversityCode = 'O' AND p.Gender = 'F'),0) 
+ WHERE ActType = 'DC' 
+ 
+ UPDATE #RESULTS 
+ SET ContactCount = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY  p WHERE  p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate and p.Ac.vity = 'AC'),0) 
+  ,ContactCount_Female = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'AC' AND p.Gender = 'F'),0) 
+  ,ContactCountAA = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'AC' AND p.DiversityCode = 'AA'),0) 
+  ,ContactCountAA_Female = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'AC' AND p.DiversityCode = 'AA' AND p.Gender = 'F'),0)  
+  ,ContactCountWhite = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'AC' AND p.DiversityCode = 'W'),0) 
+  ,ContactCountWhite_Female = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'AC' AND p.DiversityCode = 'W' AND p.Gender = 'F'),0)  
+  ,ContactCountH = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'AC' AND p.DiversityCode = 'H'),0)  
+  ,ContactCountH_Female = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'AC' AND p.DiversityCode = 'H' AND p.Gender = 'F'),0)    
+  ,ContactCountO = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'AC' AND p.DiversityCode = 'O'),0) 
+  ,ContactCountO_Female = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'AC' AND p.DiversityCode = 'O' AND p.Gender = 'F'),0) 
+  ,NwaCount = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p  WHERE p.Ac.vity = 'AC'),0) 
+  ,NwaCount_Female = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p  WHERE p.Ac.vity = 'AC' AND p.Gender = 'F'),0) 
+  ,NwaCountAA = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p  WHERE p.Ac.vity = 'AC' AND p.DiversityCode = 'AA'),0) 
+  ,NwaCountAA_Female = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p  WHERE  p.Ac.vity = 'AC' AND p.DiversityCode = 'AA' AND p.Gender = 'F'),0) 
+  ,NwaCountWhite = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p  WHERE  p.Ac.vity = 'AC' AND p.DiversityCode = 'W'),0) 
+  ,NwaCountWhite_Female = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p  WHERE  p.Ac.vity = 'AC' AND p.DiversityCode = 'W' AND p.Gender = 'F'),0) 
+  ,NwaCountH = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p  WHERE  p.Ac.vity = 'AC' AND p.DiversityCode = 'H'),0)  
+  ,NwaCountH_Female = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p  WHERE  p.Ac.vity = 'AC' AND p.DiversityCode = 'H' AND p.Gender = 'F'),0)    
+  ,NwaCountO = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p  WHERE  p.Ac.vity = 'AC' AND p.DiversityCode = 'O'),0) 
+  ,NwaCountO_Female = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p  WHERE  p.Ac.vity = 'TC' AND p.DiversityCode = 'O' AND p.Gender = 'F'),0)  
+WHERE ActType = 'AC' 
+ 
+ UPDATE #RESULTS 
+ SET ContactCount = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'OT'),0) 
+  ,ContactCount_Female = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'OT' AND p.Gender = 'F'),0) 
+  ,ContactCountAA = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'OT' AND p.DiversityCode = 'AA'),0) 
+  ,ContactCountAA_Female = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'OT' AND p.DiversityCode = 'AA' AND p.Gender = 'F'),0)  
+  ,ContactCountWhite = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'OT' AND p.DiversityCode = 'W'),0) 
+  ,ContactCountWhite_Female = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'OT' AND p.DiversityCode = 'W' AND p.Gender = 'F'),0)  
+  ,ContactCountH = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'OT' AND p.DiversityCode = 'H'),0)  
+  ,ContactCountH_Female = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'OT' AND p.DiversityCode = 'H' AND p.Gender = 'F'),0)    
+  ,ContactCountO = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'OT' AND p.DiversityCode = 'O'),0) 
+  ,ContactCountO_Female = ISNULL((SELECT COUNT(*) FROM #PROSPECT_DIVERSITY p WHERE p.Ac.vityDate >= @StartDate AND p.Ac.vityDate < @EndDate AND p.Ac.vity = 'OT' AND p.DiversityCode = 'O' AND p.Gender = 'F'),0) 
+  ,NwaCount = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p  WHERE  p.Ac.vity = 'OT'),0) 
+  ,NwaCount_Female = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p  WHERE  p.Ac.vity = 'OT' AND p.Gender = 'F'),0) 
+  ,NwaCountAA = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p  WHERE  p.Ac.vity = 'OT' AND p.DiversityCode = 'AA'),0) 
+  ,NwaCountAA_Female = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p  WHERE  p.Ac.vity = 'OT' AND p.DiversityCode = 'AA' AND p.Gender = 'F'),0) 
+  ,NwaCountWhite = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p  WHERE  p.Ac.vity = 'OT' AND p.DiversityCode = 'W'),0) 
+  ,NwaCountWhite_Female = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p  WHERE  p.Ac.vity = 'OT' AND p.DiversityCode = 'W' AND p.Gender = 'F'),0) 
+  ,NwaCountH = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p WHERE  p.Ac.vity = 'OT' AND p.DiversityCode = 'H'),0)  
+  ,NwaCountH_Female = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p  WHERE  p.Ac.vity = 'OT' AND p.DiversityCode = 'H' AND p.Gender = 'F'),0)    
+  ,NwaCountO = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p  WHERE  p.Ac.vity = 'OT' AND p.DiversityCode = 'O'),0) 
+  ,NwaCountO_Female = ISNULL((SELECT COUNT(*) FROM #ProspectNWA p  WHERE  p.Ac.vity = 'OT' AND p.DiversityCode = 'O' AND p.Gender = 'F'),0) 
+ WHERE ActType = 'OT' 
+ 
+ INSERT INTO #RESULTS 
+ SELECT a.Ac.vity, 0, 0 ,0 ,0, 0, 0 ,0 ,0, 0, 0 ,0 ,0, 0, 0 ,0 ,0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ,0, 0, 0, 0, 0, 0 , 0, 0, 0, 0, 0, 0, 0, 0, 0 
+ FROM #ACTIVITIES a 
+ LEFT OUTER JOIN #RESULTS r ON a.Ac.vity = r.ActType 
+ WHERE r.ActType IS NULL 
+ 
+ SELECT * FROM #RESULTS  
+ 
+ DROP TABLE #RESULTS  
+ DROP TABLE #ACTIVITIES 
+ DROP TABLE #Event 
+ DROP TABLE #EventSubject 
+    DROP TABLE #Event2 
+ DROP TABLE #EventSubject2 
+ DROP TABLE #EventOutcome 
+ DROP TABLE #PROSPECT_DIVERSITY 
+ DROP TABLE #Prospect  
+    DROP TABLE #EventSubjectInt 
+ DROP TABLE #NWA 
+ DROP TABLE #ProspectNWA 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,123 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="Proc212" directorySegmentName="seg_28" id="7F5FAA92-2379-980E-27FB-6F5AB5666CFE">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[-------------------------------------------------------------------------------- 
+-- Purpose: Shrink transac.on log of the current database in SQL Server 7.0. 
+-- Author:  Andrew Zanevsky, AZ Databases, Inc., 12/25/1999, v5 - 08/18/2000 
+--          zanevsky@azdatabases.com 
+-------------------------------------------------------------------------------- 
+    @target_percent .nyint = 0, 
+    @target_size_MB int = 10, 
+    @max_itera.ons int = 1000, 
+    @backup_log_opt nvarchar(1000) = 'with truncate_only' 
+as 
+set nocount on 
+ 
+declare @db         sysname,  
+        @last_row   int, 
+        @log_size   decimal(15,2), 
+        @unused1    decimal(15,2), 
+        @unused     decimal(15,2), 
+        @shrinkable decimal(15,2), 
+        @itera.on  int, 
+ @.le_max   int, 
+ @.le     int, 
+ @.leid     varchar(5) 
+ 
+select  @db = db_name(), 
+        @itera.on = 0 
+ 
+create table #loginfo (  
+    id          int iden.ty,  
+    FileId      int,  
+    FileSize    numeric(22,0),  
+    StartO.set numeric(22,0),  
+    FSeqNo      int,  
+    Status      int,  
+    Parity      smallint,  
+    CreateTime  varchar(100) 
+) 
+ 
+create unique clustered index loginfo_FSeqNo on #loginfo ( FSeqNo, StartO.set ) 
+ 
+create table #log.les ( id int iden.ty(1,1), .leid varchar(5) not null ) 
+insert #log.les ( .leid ) select convert( varchar, .leid ) from sys.les where status & 0x40 = 0x40         
+select @.le_max = @@rowcount 
+ 
+if object_id( 'table_to_force_shrink_log' ) is null 
+ exec( 'create table table_to_force_shrink_log ( x nchar(3000) not null )' ) 
+ 
+insert  #loginfo ( FileId, FileSize, StartO.set, FSeqNo, Status, Parity, CreateTime) exec ( 'dbcc loginfo' ) 
+select  @last_row = @@rowcount 
+ 
+select  @log_size = sum( FileSize ) / 1048576.00, 
+        @unused = sum( case when Status = 0 then FileSize else 0 end ) / 1048576.00, 
+        @shrinkable = sum( case when id < @last_row - 1 and Status = 0 then FileSize else 0 end ) / 1048576.00 
+from    #loginfo 
+ 
+select  @unused1 = @unused -- save for later 
+ 
+select  'itera.on'          = @itera.on, 
+        'log size, MB'       = @log_size, 
+        'unused log, MB'     = @unused, 
+        'shrinkable log, MB' = @shrinkable, 
+        'shrinkable %'       = convert( decimal(6,2), @shrinkable * 100 / @log_size ) 
+ 
+while @shrinkable * 100 / @log_size > @target_percent  
+  and @shrinkable > @target_size_MB  
+  and @itera.on < @max_itera.ons begin 
+    select  @itera.on = @itera.on + 1 -- this is just a precau.on 
+ 
+    exec( 'insert table_to_force_shrink_log select name from sysobjects 
+           delete table_to_force_shrink_log') 
+ 
+    select @.le = 0 
+    while @.le < @.le_max begin 
+        select @.le = @.le + 1 
+        select @.leid = .leid from #log.les where id = @.le 
+        exec( 'dbcc shrink.le( ' + @.leid + ' )' ) 
+    end 
+ 
+    exec( 'backup log [' + @db + '] ' + @backup_log_opt ) 
+ 
+    truncate table #loginfo  
+    insert  #loginfo ( FileId, FileSize, StartO.set, FSeqNo, Status, Parity, CreateTime ) exec ( 'dbcc loginfo' ) 
+    select  @last_row = @@rowcount 
+ 
+    select  @log_size = sum( FileSize ) / 1048576.00, 
+            @unused = sum( case when Status = 0 then FileSize else 0 end ) / 1048576.00, 
+     @shrinkable = sum( case when id < @last_row - 1 and Status = 0 then FileSize else 0 end ) / 1048576.00 
+    from    #loginfo 
+ 
+    select  'itera.on'          = @itera.on, 
+            'log size, MB'       = @log_size, 
+            'unused log, MB'     = @unused, 
+            'shrinkable log, MB' = @shrinkable, 
+            'shrinkable %'       = convert( decimal(6,2), @shrinkable * 100 / @log_size ) 
+end 
+ 
+if @unused1 < @unused  
+select  'A.er ' + convert( varchar, @itera.on ) +  
+        ' itera.ons the unused por.on of the log has grown from ' + 
+        convert( varchar, @unused1 ) + ' MB to ' + 
+        convert( varchar, @unused ) + ' MB.' 
+union all 
+select 'Since the remaining unused por.on is larger than 10 MB,' where @unused > 10 
+union all 
+select 'you may try running this procedure again with a higher number of itera.ons.' where @unused > 10 
+union all 
+select 'Some.mes the log would not shrink to a size smaller than several Megabytes.' where @unused <= 10 
+ 
+else 
+select  'It took ' + convert( varchar, @itera.on ) +  
+        ' itera.ons to shrink the unused por.on of the log from ' + 
+        convert( varchar, @unused1 ) + ' MB to ' + 
+        convert( varchar, @unused ) + ' MB' 
+ 
+exec( 'drop table table_to_force_shrink_log' )]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

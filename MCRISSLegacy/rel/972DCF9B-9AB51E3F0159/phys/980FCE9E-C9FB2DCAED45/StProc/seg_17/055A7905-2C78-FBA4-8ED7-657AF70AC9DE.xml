@@ -1,0 +1,25 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetMarineDataBySSN]" directorySegmentName="seg_17" id="055A7905-2C78-FBA4-8ED7-657AF70AC9DE">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@SSN char(9) 
+AS 
+ 
+SELECT  
+ P.PERSON_ID AS MARINE_ID,  
+ ISNULL(RTRIM(P.LAST_NAME) + ', ', SPACE(0)) + ISNULL(RTRIM(P.FIRST_NAME) + SPACE(1), SPACE(0)) + ISNULL(LEFT(P.LEGAL_MIDDLE_NAME, 1), SPACE(0)) AS MARINE_NAME, 
+ P.SOCIAL_SECURITY_NUMBER AS MARINE_SSN, 
+ ISNULL(RP.RANK_CODE, '') AS RANK, 
+ ISNULL(M.PRESENT_MONITORED_COMMAND_CODE, '') AS PRESENT_MCC, 
+ ISNULL(CONVERT(VARCHAR(11), M.EXPIRATION_OF_ACTIVE_SERVICE, 106), '')  AS EAS, 
+ ISNULL(CONVERT(VARCHAR(11), M.EXPIRATION_OF_CURRENT_CONTRACT, 106), '')  AS ECC 
+FROM  
+ PERSON P INNER JOIN MARINE M ON P.PERSON_ID = M.MARINE_ID 
+ LEFT OUTER JOIN RECRUITING_PERSON RP ON P.PERSON_ID = RP.RECRUITING_PERSON_ID 
+WHERE 
+ P.SOCIAL_SECURITY_NUMBER = @SSN]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

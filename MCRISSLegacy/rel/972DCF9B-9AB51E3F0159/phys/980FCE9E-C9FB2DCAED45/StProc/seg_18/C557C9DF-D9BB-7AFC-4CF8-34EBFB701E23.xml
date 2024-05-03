@@ -1,0 +1,39 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetNumberofContracts]" directorySegmentName="seg_18" id="C557C9DF-D9BB-7AFC-4CF8-34EBFB701E23">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@Organiza.onID integer,  
+ @BeginDate  date.me,  
+ @EndDate date.me = NULL, 
+ @Contracts  integer OUTPUT 
+AS 
+ 
+SET NOCOUNT ON  
+ 
+DECLARE @MonthsInDateRange int 
+ 
+SELECT @EndDate = COALESCE(@EndDate, @BeginDate) 
+ 
+SELECT @MonthsInDateRange = DATEDIFF(MONTH, @BeginDate, @EndDate)  
+ 
+SELECT * INTO #ORGS FROM dbo.GetOrgHierarchy (@Organiza.onID)  
+ 
+SELECT  
+ @Contracts = COUNT(C.CONTRACT_ID)  
+FROM   
+ #ORGS O INNER JOIN NWA N ON  
+  (O.ORG_ID = N.ORGANIZATION_OF_RECORD_ID AND  
+  O.ORG_TYPE = 'RSS' AND 
+  COALESCE(N.COMP_CHANGE_FLAG, 'N') != 'Y') 
+ INNER JOIN CONTRACT C ON  
+  (N.NWA_ID = C.NWA_ID AND 
+  DATEDIFF(MONTH, C.CONTRACT_BEGIN_DATE, @BeginDate) BETWEEN 1 - @MonthsInDateRange AND 3) 
+ 
+--- CLEAN UP 
+DROP TABLE #ORGS  
+SET NOCOUNT OFF]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

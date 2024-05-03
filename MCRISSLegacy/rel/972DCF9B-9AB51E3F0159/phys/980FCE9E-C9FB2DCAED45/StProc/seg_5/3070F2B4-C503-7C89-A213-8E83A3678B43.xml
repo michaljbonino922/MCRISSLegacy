@@ -1,0 +1,53 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetMepsScheduleByID]" directorySegmentName="seg_5" id="3070F2B4-C503-7C89-A213-8E83A3678B43">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( @ScheduleID INT ) 
+AS 
+    SELECT 
+        [SCHEDULE_ID], 
+        [NWA_ID], 
+        [MEPS_ORGANIZATION_ID], 
+        [PROCESSING_DATE], 
+        [ARRIVAL_DATE], 
+        [ASVAB], 
+        [SPECIAL_EXAM], 
+        [COMPLETE_PHYSICAL], 
+        [INSPECTION_PHYSICAL], 
+        [CONSULTATION_PHYSICAL], 
+        [CONSULTATION_TYPE], 
+        [CONTRACT], 
+        [DEP_HOLD], 
+        [SHIP], 
+        [OTHER_PROCESSING], 
+        [PROCESSING_STATUS], 
+        [LODGING_REQUIRED], 
+        [TRANSPORTATION_REQUIRED], 
+        [SPECIAL_EXAM_TYPE], 
+        [LAST_PROCESSED_FOR], 
+        [PROCESSING_NOTES], 
+        [DELETED], 
+        [s].[PROJECTION_TYPE_ID], 
+        t.[DESCRIPTION], 
+        s.ASVAB_TEST_TYPE, 
+        s.MEDICAL_SPECIAL_EXAM_TYPE, 
+        s.REEXAMINATION, 
+        s.MET_SITE, 
+  [MIRS_PROJECTION_TYPE], 
+  [MIRS_ASVAB_ACTIVITY], 
+  [MIRS_MEDICAL_CONSULT_ACTIVITY], 
+  [MIRS_LIAISON_ACTIVITY], 
+  [MIRS_FINGERPRINT_ACTIVITY], 
+  [MIRS_SPECIAL_EXAM_ACTIVITIES], 
+  [NONMEPS_SHIP], 
+  [MIRS_MET_SITE_CODE] 
+    FROM 
+        MCRISS.[dbo].[MEPS_SCHEDULE] s 
+        LEFT JOIN MCRISS.dbo.MEPS_PROJECTION_TYPE t ON s.PROJECTION_TYPE_ID = t.ID 
+    WHERE 
+        SCHEDULE_ID = @ScheduleID;]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

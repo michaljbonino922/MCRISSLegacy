@@ -1,0 +1,109 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[DBAGetTLogByDateRange]" directorySegmentName="seg_0" id="045B532D-A004-0D81-8FA0-F4ACE720B057">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:44 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@StartDate date.me, 
+ @EndDate date.me 
+AS 
+ 
+SELECT ro.* 
+  ,v.* 
+  ,hq.SHORT_NAME AS HQ_SHORT_NAME 
+  ,region.SHORT_NAME AS REGION_SHORT_NAME 
+  ,district.SHORT_NAME AS DISTRICT_SHORT_NAME 
+  ,rs.SHORT_NAME AS RS_SHORT_NAME 
+  ,rss.SHORT_NAME AS RSS_SHORT_NAME 
+  ,oss.SHORT_NAME AS OSS_SHORT_NAME 
+  ,CONCAT(ro.[name], ' : ', hq.SHORT_NAME, ' | ', region.SHORT_NAME, ' | ', district.SHORT_NAME, ' | ',rs.SHORT_NAME, ' | ',rss.SHORT_NAME, oss.SHORT_NAME) AS ORG_INFO 
+INTO #TEMP_ORGS 
+FROM [MCRISS].[dbo].[RECRUITING_ORGANIZATION] ro 
+LEFT OUTER JOIN [MCRISS].[USMC].[vwRecrui.ngOrgIDs] v ON v.[root] = ro.ORGANIZATION_ID 
+LEFT OUTER JOIN [MCRISS].[dbo].[RECRUITING_ORGANIZATION] hq on hq.ORGANIZATION_ID = v.HQ 
+LEFT OUTER JOIN [MCRISS].[dbo].[RECRUITING_ORGANIZATION] region on region.ORGANIZATION_ID = v.region 
+LEFT OUTER JOIN [MCRISS].[dbo].[RECRUITING_ORGANIZATION] district on district.ORGANIZATION_ID = v.district 
+LEFT OUTER JOIN [MCRISS].[dbo].[RECRUITING_ORGANIZATION] rs on rs.ORGANIZATION_ID = v.rs 
+LEFT OUTER JOIN [MCRISS].[dbo].[RECRUITING_ORGANIZATION] rss on rss.ORGANIZATION_ID = v.rss 
+LEFT OUTER JOIN [MCRISS].[dbo].[RECRUITING_ORGANIZATION] oss on oss.ORGANIZATION_ID = v.oss 
+ 
+ 
+SELECT [TRANSACTION_ID] 
+      ,[UserID] 
+      ,[Username] 
+      ,[TRAN_TYPE] 
+      ,[TRAN_NAME] 
+      ,[NEW_TRAN_VALUE] 
+      ,[OLD_TRAN_VALUE] 
+ 
+   ,CASE WHEN ([TRAN_TYPE] = 'CREATE' OR [TRAN_TYPE] = 'MODIFIED') AND [TRAN_NAME] = 'UserTypeID' THEN ( 
+  SELECT [Descrip.on] 
+  FROM [UserMgmt].[dbo].[UserType] ut 
+  WHERE ut.ID = CONVERT(INT,[NEW_TRAN_VALUE]) 
+  ) 
+   END AS NEW_USER_TYPE 
+ 
+   ,CASE WHEN ([TRAN_TYPE] = 'DELETE' OR [TRAN_TYPE] = 'MODIFIED') AND [TRAN_NAME] = 'UserTypeID' THEN ( 
+  SELECT [Descrip.on] 
+  FROM [UserMgmt].[dbo].[UserType] ut 
+  WHERE ut.ID = CONVERT(INT,[OLD_TRAN_VALUE]) 
+  ) 
+   END AS OLD_USER_TYPE 
+ 
+   ,CASE WHEN ([TRAN_TYPE] = 'CREATE' OR [TRAN_TYPE] = 'MODIFIED') AND [TRAN_NAME] = 'Sta.on_OrgUnitID' THEN ( 
+  SELECT temp.ORG_INFO 
+  FROM #TEMP_ORGS temp 
+  WHERE temp.OrgUnitID = CONVERT(INT,[NEW_TRAN_VALUE]) 
+  ) 
+   END AS NEW_STATION_ORG 
+ 
+   ,CASE WHEN ([TRAN_TYPE] = 'DELETE' OR [TRAN_TYPE] = 'MODIFIED') AND [TRAN_NAME] = 'Sta.on_OrgUnitID' THEN ( 
+  SELECT temp.ORG_INFO 
+  FROM #TEMP_ORGS temp 
+  WHERE temp.OrgUnitID = CONVERT(INT,[OLD_TRAN_VALUE]) 
+  ) 
+   END AS OLD_STATION_ORG 
+ 
+   ,CASE WHEN ([TRAN_TYPE] = 'CREATE' OR [TRAN_TYPE] = 'MODIFIED') AND [TRAN_NAME] = 'PostID' THEN ( 
+  SELECT r.[Descrip.on] 
+  FROM [UserMgmt].[dbo].[Role] r 
+  INNER JOIN [UserMgmt].[dbo].[Post] p on p.RoleID = r.ID 
+  WHERE p.ID = CONVERT(INT,[NEW_TRAN_VALUE]) 
+  ) 
+   END AS ADDED_ROLE 
+ 
+   ,CASE WHEN ([TRAN_TYPE] = 'CREATE' OR [TRAN_TYPE] = 'MODIFIED') AND [TRAN_NAME] = 'PostID' THEN ( 
+  SELECT temp.ORG_INFO 
+  FROM #TEMP_ORGS temp 
+  INNER JOIN [UserMgmt].[dbo].[Post] p on p.OrgUnitID = temp.OrgUnitID 
+  WHERE p.ID = CONVERT(INT,[NEW_TRAN_VALUE]) 
+  ) 
+   END AS ADDED_ROLE_ORG 
+ 
+   ,CASE WHEN ([TRAN_TYPE] = 'DELETE' OR [TRAN_TYPE] = 'MODIFIED') AND [TRAN_NAME] = 'PostID' THEN ( 
+  SELECT r.[Descrip.on] 
+  FROM [UserMgmt].[dbo].[Role] r 
+  INNER JOIN [UserMgmt].[dbo].[Post] p on p.RoleID = r.ID 
+  WHERE p.ID = CONVERT(INT,[OLD_TRAN_VALUE]) 
+  ) 
+   END AS REMOVED_ROLE 
+ 
+   ,CASE WHEN ([TRAN_TYPE] = 'DELETE' OR [TRAN_TYPE] = 'MODIFIED') AND [TRAN_NAME] = 'PostID' THEN ( 
+  SELECT temp.ORG_INFO 
+  FROM #TEMP_ORGS temp 
+  INNER JOIN [UserMgmt].[dbo].[Post] p on p.OrgUnitID = temp.OrgUnitID 
+  WHERE p.ID = CONVERT(INT,[OLD_TRAN_VALUE]) 
+  ) 
+   END AS REMOVED_ROLE_ORG 
+ 
+      ,[USER_LOGIN] 
+      ,[TRANSACTION_DATE] 
+  FROM [UserMgmt].[dbo].[USER_TRANS_LOG] 
+  WHERE [TRANSACTION_DATE] >= @StartDate AND [TRANSACTION_DATE] <= @EndDate 
+  ORDER BY [TRANSACTION_DATE] 
+ 
+ 
+  DROP TABLE #TEMP_ORGS]]></body>
+<schema>83D3778E-22FC-1B9B-E3A5-96CA5869EFE3</schema>
+<database>30378C7E-748C-F803-F9A3-93DBFA86C9A7</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,20 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetO.cerPrograms]" directorySegmentName="seg_7" id="518AA115-BC9C-B022-2E85-8AAF4D2E99CD">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[AS 
+ 
+SELECT  
+ COMPONENT_CODE, COMPONENT_DESCRIPTION  
+FROM  
+ COMPONENT_CODE WITH (NOLOCK) 
+WHERE  
+ TYPE = 'O' OR 
+ COMPONENT_CODE IN ('0A', '0B', '0C', '0E', '0F', '1A', '1B', '1C', '1H') 
+ORDER BY 
+ COMPONENT_DESCRIPTION]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

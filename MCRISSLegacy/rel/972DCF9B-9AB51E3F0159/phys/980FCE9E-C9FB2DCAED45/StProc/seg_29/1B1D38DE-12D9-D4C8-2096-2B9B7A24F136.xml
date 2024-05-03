@@ -1,0 +1,41 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetCi.zenship]" directorySegmentName="seg_29" id="1B1D38DE-12D9-D4C8-2096-2B9B7A24F136">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:39 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @PersonID uniqueiden..er 
+) 
+AS 
+ 
+SELECT  
+ [PersonID] 
+   ,[IsUsCi.zen] 
+   ,[Ci.zenshipCode] 
+   ,[HasMul.ple] 
+   ,[IsNonUsCi.zenshipByBirth] 
+   ,[NonUsCi.zenshipByBirthExplana.on] 
+   ,[IsNonUsCi.zenshipRenounced] 
+   ,[NonUsCi.zenshipRenouncedExplana.on] 
+   ,[ImmigrantAlienCountry] 
+   ,[NonImmigrantAlienCountry] 
+   ,[DateEntered] 
+   ,[EnteredAtStreet1] 
+   ,[EnteredAtStreet2] 
+   ,[EnteredAtCity] 
+   ,[EnteredAtCounty] 
+   ,[EnteredAtState] 
+   ,[EnteredAtCountry] 
+   ,[EnteredAtZipCode] 
+   ,[ARN_CountryOfOrigin] 
+   ,[ARN_DocumentNumber] 
+   ,[ARN_DocumentType] 
+   ,[ARN_Registra.onNumber] 
+FROM  
+ [ACP].[ACP].[Ci.zenship] 
+WHERE 
+ [PersonID] = @PersonID]]></body>
+<schema>569A41D8-8F40-0619-141C-F4C9436AAF46</schema>
+<database>2D7ED536-DF8E-3523-7DC3-4228EBAF5F66</database>
+</StoredProcedureSqlServerv2k5>

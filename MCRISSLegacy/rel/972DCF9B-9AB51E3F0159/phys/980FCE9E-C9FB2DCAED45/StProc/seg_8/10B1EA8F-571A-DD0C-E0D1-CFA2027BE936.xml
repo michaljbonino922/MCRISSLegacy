@@ -1,0 +1,31 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetProgramInfo]" directorySegmentName="seg_8" id="10B1EA8F-571A-DD0C-E0D1-CFA2027BE936">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@NWARowId    uniqueiden..er 
+            
+     
+  
+AS 
+SET NOCOUNT ON 
+   
+     
+     
+    SELECT n.[rowguid] As NWARowID ,[FIPEnrolled] ,[FIPEnrollmentDate] ,[FAPEnrolled], 
+      [FAPEnrollmentDate],[MCTAPEnrolled] ,[MCTAPEnrollmentDate]  ,[Notes] 
+      ,[Con.den.alRemark] 
+         
+    FROM [MCRISS].[USMC].[CandidatePoolCardInfo] cpf  
+    inner join nwa n ON cpf.NWA_ID = n.NWA_ID 
+    where n.rowguid = @NWARowId 
+     
+       
+   
+ 
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,83 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_CheckAssignedRSSAssets]" directorySegmentName="seg_13" id="D1142A31-7E2D-E42F-523F-0FE5AD33D9F5">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@Organiza.onID  int, 
+ @AssignedZipCodes  int OUTPUT, 
+ @AssignedSchools  int OUTPUT, 
+ @AssignedPersonnel  int OUTPUT,  
+ @MissionValue  int OUTPUT 
+AS 
+ 
+DECLARE @FiscalYear   int  
+ 
+--- de.ne the .scal year 
+IF DATEPART(MONTH, GETDATE()) >= 10 
+ BEGIN 
+ SET @FiscalYear = DATEPART(YEAR, GETDATE()) + 1 
+ END 
+ELSE 
+ BEGIN 
+ SET @FiscalYear = DATEPART(YEAR, GETDATE()) 
+ END 
+ 
+ 
+SELECT @AssignedZipCodes = count(*) FROM ZIP_CODE_ASSIGNMENT  
+WHERE ORGANIZATION_ID = @Organiza.onID 
+ 
+SELECT @AssignedSchools = count(*) FROM HIGH_SCHOOL  
+WHERE ORGANIZATION_ID = @Organiza.onID AND HIGH_SCHOOL.DELETED = 'N' 
+ 
+--- only count personnel whose TOUR_END_DATE IS NULL  
+SELECT @AssignedPersonnel = count(*) FROM RECRUITING_PERSON 
+WHERE ORGANIZATION_ID = @Organiza.onID AND TOUR_END_DATE IS NULL 
+ 
+/*  
+ add up the future contrac.ng goals for this organiza.on 
+ use SUM(MISSION_VALUE) rather than COUNT(MISSION_VALUE) 
+ because it's OK to close the facility if the MISSION_VALUE = 0  
+ but using COUNT(MISSION_VALUE) will return a value > 0 even if 
+ MISSION_VALUE = 0 
+*/ 
+ 
+SELECT  
+ @MissionValue = SUM(MISSION_VALUE) 
+FROM   
+ CONTRACTING_MISSION_PLAN INNER JOIN MONTH_CODE ON CONTRACTING_MISSION_PLAN.MONTH_CODE = MONTH_CODE.MONTH_CODE 
+WHERE  
+ CONTRACTING_MISSION_PLAN.ORGANIZATION_ID = @Organiza.onID AND 
+ --- remove CONTRACTING_MISSION_TYPE so we can check for future contrac.ng goals 
+ --- at the District and RS levels 
+ --- CONTRACTING_MISSION_TYPE = 'RS' AND 
+ CONTRACTING_MISSION_PLAN.MONTH_CODE > 0 AND 
+ --- make sure we're looking in the correct .scal year 
+ CONTRACTING_MISSION_PLAN.FISCAL_YEAR = @FiscalYear  
+ --- make sure we look only at future months 
+ AND MONTH_CODE.DISPLAY_ORDER > (SELECT MONTH_CODE.DISPLAY_ORDER from MONTH_CODE where MONTH_CODE.MONTH_CODE = DATEPART(MONTH, GETDATE())) 
+ 
+/* 
+SELECT  
+ @MissionValue = SUM(MISSION_VALUE) 
+ --- @SumMissionValue = SUM(MISSION_VALUE) 
+FROM   
+ CONTRACTING_MISSION_PLAN INNER JOIN MONTH_CODE ON CONTRACTING_MISSION_PLAN.MONTH_CODE = MONTH_CODE.MONTH_CODE 
+WHERE  
+ CONTRACTING_MISSION_PLAN.ORGANIZATION_ID = @Organiza.onID AND 
+ CONTRACTING_MISSION_TYPE = 'RS' AND 
+ CONTRACTING_MISSION_PLAN.MONTH_CODE > 0 AND 
+ --- make sure we're looking in the correct .scal year 
+ CONTRACTING_MISSION_PLAN.FISCAL_YEAR = @FiscalYear  
+ --- make sure we look only at future months 
+ AND MONTH_CODE.DISPLAY_ORDER > (SELECT MONTH_CODE.DISPLAY_ORDER from MONTH_CODE where MONTH_CODE.MONTH_CODE = DATEPART(MONTH, GETDATE())) 
+*/ 
+ 
+IF @MissionValue IS NULL  
+ BEGIN 
+ --- SET @MissionValue = 0 so that we return a numeric value 
+ SET @MissionValue = 0 
+ END]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

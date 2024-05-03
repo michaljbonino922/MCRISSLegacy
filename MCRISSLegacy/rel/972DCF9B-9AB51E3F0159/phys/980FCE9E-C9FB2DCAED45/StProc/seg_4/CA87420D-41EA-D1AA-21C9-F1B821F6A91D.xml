@@ -1,0 +1,31 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetChangeRequestsForNwa]" directorySegmentName="seg_4" id="CA87420D-41EA-D1AA-21C9-F1B821F6A91D">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[(@NWAID int) 
+ 
+AS 
+ 
+SELECT 
+ cr.[ID], 
+ cr.[NWA_ID], 
+ cr.[SUBMITTED_ON], 
+ crs.[DESCRIPTION] STATUS_DESC, 
+ cr.[CHANGE_REQUEST_TYPE_ID], 
+ crt.[DESCRIPTION] TYPE_DESC, 
+ crl_c.[DESCRIPTION] CURRENT_LEVEL_DESC, 
+ crl_f.[DESCRIPTION] FINAL_LEVEL_DESC, 
+ cr.[MODIFIED_ON], 
+ cr.[MODIFIED_BY] 
+FROM [USMC].[CHANGE_REQUEST] cr 
+LEFT JOIN [USMC].[CHANGE_REQUEST_LEVEL] crl_f ON crl_f.[ID] = cr.[CHANGE_REQUEST_LEVEL_ID_FINAL] 
+LEFT JOIN [USMC].[CHANGE_REQUEST_LEVEL] crl_c ON crl_c.[ID] = cr.[CHANGE_REQUEST_LEVEL_ID_CURRENT] 
+LEFT JOIN [USMC].[CHANGE_REQUEST_STATUS] crs ON crs.[ID] = cr.[CHANGE_REQUEST_STATUS_ID] 
+LEFT JOIN [USMC].[CHANGE_REQUEST_TYPE] crt ON crt.[ID] = cr.[CHANGE_REQUEST_TYPE_ID] 
+WHERE [NWA_ID] = @NWAID 
+ORDER BY cr.[SUBMITTED_ON] DESC]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

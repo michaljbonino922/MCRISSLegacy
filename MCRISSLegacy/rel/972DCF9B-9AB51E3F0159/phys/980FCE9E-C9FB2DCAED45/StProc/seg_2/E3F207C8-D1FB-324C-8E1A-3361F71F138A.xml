@@ -1,0 +1,63 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetDataSheetEndMonthPoolByMonth]" directorySegmentName="seg_2" id="E3F207C8-D1FB-324C-8E1A-3361F71F138A">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[(     
+  @OrgID int , 
+  @FiscalYear int, 
+  @TargetMonth int 
+) 
+ 
+AS 
+ 
+BEGIN 
+  
+  DECLARE @BEGIN_DATE DATETIME 
+ DECLARE @END_DATE DATETIME  
+   
+ IF (@TargetMonth IN (10,11,12)) 
+ BEGIN 
+  SET @BEGIN_DATE = CAST(CAST(@FiscalYear - 1 AS VARCHAR(4)) + '-' + CAST(@TargetMonth AS VARCHAR(2)) + '-01' AS DATETIME) 
+ END 
+ ELSE 
+ BEGIN 
+  SET @BEGIN_DATE = CAST(CAST(@FiscalYear AS VARCHAR(4)) + '-' + CAST(@TargetMonth AS VARCHAR(2)) + '-01' AS DATETIME) 
+ END 
+  
+ IF (@TargetMonth = 12) 
+ BEGIN 
+  SET @END_DATE = CAST(CAST(@FiscalYear AS VARCHAR(4)) + '-01-01' AS DATETIME) 
+ END 
+ ELSE IF (@TargetMonth IN (10,11)) 
+ BEGIN 
+  SET @END_DATE = CAST(CAST(@FiscalYear -1 AS VARCHAR(4)) + '-' + CAST(@TargetMonth+1 AS VARCHAR(2)) + '-01' AS DATETIME) 
+ END 
+ ELSE 
+ BEGIN 
+  SET @END_DATE = CAST(CAST(@FiscalYear AS VARCHAR(4)) + '-' + CAST(@TargetMonth+1 AS VARCHAR(2)) + '-01' AS DATETIME) 
+ END  
+ 
+ SELECT  
+   SUM(CASE WHEN ((mc.GENDER_CODE = 'M' AND c.COMPONENT_CODE IN ('K5','PO')) OR (c.COMPONENT_CODE = '11')) AND (MONTH(c.CONTRACT_BEGIN_DATE) <> MONTH(c.PROJECTED_SHIP_DATE))THEN 1  
+    ELSE 0 END) AS [Rmnps_Count] 
+  ,SUM(CASE WHEN (mc.GENDER_CODE = 'F' AND c.COMPONENT_CODE IN ('K5','PO') AND (MONTH(c.CONTRACT_BEGIN_DATE) <> MONTH(c.PROJECTED_SHIP_DATE))) THEN 1  
+    ELSE 0 END) AS [Rfnps_Count] 
+  ,SUM(CASE WHEN c.COMPONENT_CODE IN ('K4','K8','K9','B5') AND (MONTH(c.CONTRACT_BEGIN_DATE) <> MONTH(c.PROJECTED_SHIP_DATE)) THEN 1  
+    ELSE 0 END) AS [Reserves_Count] 
+  ,MONTH(c.CONTRACT_BEGIN_DATE) AS [Month] 
+ FROM MCRISS.DBO.NWA n 
+ INNER JOIN MCRISS.dbo.CONTRACT c ON n.NWA_ID = c.NWA_ID 
+ INNER JOIN MCRISS.dbo.MARINE_CANDIDATE mc ON n.MARINE_CANDIDATE_ID = mc.MARINE_CANDIDATE_ID 
+ INNER JOIN MCRISS.dbo.RECRUITING_ORGANIZATION org ON n.ORGANIZATION_OF_RECORD_ID = org.ORGANIZATION_ID        
+ WHERE org.ORGANIZATION_ID = @OrgID 
+  AND (c.CONTRACT_BEGIN_DATE >= @BEGIN_DATE AND c.CONTRACT_BEGIN_DATE < @END_DATE) 
+  AND (c.DISCHARGE_DATE >= @BEGIN_DATE OR c.DISCHARGE_DATE IS NULL) 
+  AND c.COMPONENT_CODE IN ('K5','PO','K4','K8','K9','B5','11') 
+ GROUP BY MONTH(c.CONTRACT_BEGIN_DATE) 
+  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

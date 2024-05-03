@@ -1,0 +1,115 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_InsertRecruiterHistory]" directorySegmentName="seg_21" id="64653F95-FE66-2D04-DE92-0F743302B98C">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@PersonID as integer, 
+ @BeginDate as date.me, 
+ @BilletEndDate as date.me = NULL, 
+ @ShortDescrip.on as varchar(15)= NULL, 
+ @UserLogin as varchar(15) 
+AS 
+SET NOCOUNT ON 
+Create Table #temp( 
+ OLevel  varchar(30) NOT NULL, 
+ Name  varchar(90) NULL 
+ ) 
+Insert #Temp(OLevel) 
+Values ('H') 
+Insert #Temp(OLevel) 
+Values  ('R') 
+Insert #Temp(OLevel) 
+Values  ('D') 
+Insert #Temp(OLevel) 
+Values  ('RS') 
+Insert #Temp(OLevel) 
+Values  ('RSS') 
+Insert #Temp(OLevel) 
+Values  ('OSS') 
+ 
+Declare @Level varchar(20) 
+Declare @OrgIdCounter int 
+ 
+Select  @OrgIdCounter = rp.Organiza.on_Id, 
+ @Level = ro.Organiza.on_Type 
+From Recrui.ng_Person rp, 
+ Recrui.ng_Organiza.on ro 
+Where rp.Recrui.ng_Person_Id = @PersonID 
+ and ro.Organiza.on_Id = rp.Organiza.on_Id 
+ 
+While (@Level != 'H') 
+Begin 
+ Update #Temp 
+ Set Name = Short_Name 
+ From Recrui.ng_Organiza.on 
+ Where @OrgIdCounter = Organiza.on_Id 
+  and OLevel = @Level 
+ 
+ Select @OrgIdCounter = Parent_Organiza.on_Id 
+ From Organiza.on_Map 
+ Where Child_Organiza.on_Id = @OrgIdCounter 
+ 
+ Select  @Level = Organiza.on_Type 
+ From Recrui.ng_Organiza.on 
+ Where Organiza.on_Id = @OrgIdCounter 
+End 
+ 
+Update #Temp 
+Set Name = Short_Name 
+From Recrui.ng_Organiza.on 
+Where @OrgIdCounter = Organiza.on_Id 
+ and OLevel = @Level 
+ 
+ 
+Insert Into Recruiter_History( 
+ Recrui.ng_Person_Id, 
+ E.ec.ve_Date, 
+ Billet_Begin_Date, 
+ Billet_End_Date, 
+ Billet_Desc, 
+ HQ_Name, 
+ Region_Name, 
+ District_Name, 
+ RS_Name, 
+ RSS_Name, 
+ Organiza.on_Type, 
+ User_Login, 
+ Update_Date 
+ ) 
+ 
+Select @PersonId, 
+  dateadd(ms,datepart(ms,getdate()),@BeginDate), 
+ rp.Billet_Begin_Date, 
+ @BilletEndDate, 
+ @ShortDescrip.on, 
+ t1.Name, 
+ t2.Name, 
+ t3.Name, 
+ t4.Name, 
+ case when t6.Name IS NULL then t5.Name 
+ else t6.Name 
+ End, 
+ ro.Organiza.on_Type, 
+ @UserLogin, 
+ getdate() 
+from  
+ Recrui.ng_Person rp, 
+ Recrui.ng_Organiza.on ro, 
+ #Temp t1, 
+ #Temp t2, 
+ #Temp t3, 
+ #Temp t4, 
+ #Temp t5, 
+ #Temp t6 
+Where t1.OLevel = 'H' 
+ and t2.OLevel = 'R' 
+ and t3.OLevel = 'D' 
+ and t4.OLevel = 'RS' 
+ and t5.OLevel = 'RSS' 
+ and t6.OLevel = 'OSS' 
+ and ro.Organiza.on_Id = rp.Organiza.on_Id 
+ and rp.Recrui.ng_Person_Id = @PersonId]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

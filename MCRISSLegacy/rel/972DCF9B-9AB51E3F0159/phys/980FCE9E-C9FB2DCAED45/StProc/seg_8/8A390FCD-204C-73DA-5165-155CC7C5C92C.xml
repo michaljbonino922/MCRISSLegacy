@@ -1,0 +1,30 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetPhaselineObjec.ves]" directorySegmentName="seg_8" id="8A390FCD-204C-73DA-5165-155CC7C5C92C">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@Recrui.ngOrgID as integer,  
+ @FiscalYear as integer,  
+ @Month as integer 
+AS 
+ 
+SELECT  
+ PHASELINE_ID,  
+ ORGANIZATION_ID AS Recrui.ngOrgID, 
+ FISCAL_YEAR AS FiscalYear, 
+ MONTH As MonthCode, 
+ ISNULL(ATTAIN_PERCENT, 0) AS  ATTAIN_PERCENT, 
+ START_DATE,   
+ END_DATE 
+FROM  
+ [dbo].[PHASELINE_OBJECTIVE] WITH (NOLOCK) 
+WHERE  
+ ORGANIZATION_ID = @Recrui.ngOrgID AND 
+ FISCAL_YEAR = @FiscalYear AND 
+ [MONTH] = @Month 
+ORDER BY  
+ START_DATE]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

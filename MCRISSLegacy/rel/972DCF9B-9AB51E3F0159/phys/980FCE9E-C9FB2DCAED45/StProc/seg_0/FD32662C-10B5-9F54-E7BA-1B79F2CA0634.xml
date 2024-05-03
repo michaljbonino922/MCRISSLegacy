@@ -1,0 +1,114 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_MIGetTargetWorkID]" directorySegmentName="seg_0" id="FD32662C-10B5-9F54-E7BA-1B79F2CA0634">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:09 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@SSN   char(9), 
+ @RollbackID  int, 
+ @TargetImportID  int  OUTPUT, 
+ @TargetWorkID  varchar(5) OUTPUT, 
+ @ImportTransaction char(1)  OUTPUT, 
+ @TransactionType varchar(2)  OUTPUT, 
+ @TransactionDescription varchar(80)  OUTPUT, 
+ @SuccessfulImport char(1)  OUTPUT, 
+ @Reprocess  char(1)  OUTPUT 
+AS 
+ 
+SET NOCOUNT ON 
+ 
+------------------------------------------------------------ 
+--- CREATE TEMP TABLE TO HOLD WORK ID DATA 
+------------------------------------------------------------ 
+CREATE TABLE #ROLLBACK (MIRS_IMPORT_ID INT, WORK_ID VARCHAR(5))  
+ 
+------------------------------------------------------------ 
+--- GET PRIOR MIRS TRANSACTIONS FOR THIS SSN 
+------------------------------------------------------------ 
+INSERT INTO #ROLLBACK  
+SELECT  
+ MIL.MIRS_IMPORT_ID, MIL.MIRS_TRANSACTION 
+FROM 
+ MIRS_IMPORT_LOG MIL 
+WHERE 
+ MIL.SSN   = @SSN AND 
+ MIL.MIRS_IMPORT_ID  < @RollbackID  
+ 
+ 
+------------------------------------------------------------ 
+--- SELECT THE MAX MIRS_IMPORT_ID THAT IS NOT A ROLLBACK AND  
+--- HAS NOT BEEN ROLLED BACK 
+------------------------------------------------------------ 
+SELECT  
+ @TargetImportID = MAX(R.MIRS_IMPORT_ID) 
+FROM 
+ #ROLLBACK R 
+WHERE 
+ R.WORK_ID != 'R000R' AND 
+ ((SELECT COUNT(R1.MIRS_IMPORT_ID) FROM #ROLLBACK R1 
+ WHERE R1.WORK_ID != 'R000R' AND  
+ R1.MIRS_IMPORT_ID > R.MIRS_IMPORT_ID) = (SELECT COUNT(R1.MIRS_IMPORT_ID) FROM #ROLLBACK R1 
+      WHERE R1.WORK_ID = 'R000R' AND  
+      R1.MIRS_IMPORT_ID > R.MIRS_IMPORT_ID)) 
+ 
+------------------------------------------------------------ 
+--- GET TARGET WORK ID 
+------------------------------------------------------------ 
+SELECT @TargetWorkID = R.WORK_ID FROM #ROLLBACK R WHERE R.MIRS_IMPORT_ID = @TargetImportID 
+ 
+------------------------------------------------------------ 
+--- GET THE TRANSACTION TYPE DATA FOR THE TARGET WORK ID 
+------------------------------------------------------------ 
+SELECT 
+ @ImportTransaction = MTL.IMPORT_TRANSACTION, 
+ @TransactionType = TT.TRANSACTION_TYPE, 
+ @TransactionDescription = TT.DESCRIPTION  
+FROM 
+ MCRISS_ERROR.DBO.MIRS_TRANSACTION_LOOKUP MTL INNER JOIN MCRISS_ERROR.DBO.TRANSACTION_TYPE TT ON  
+  (MTL.TRANSACTION_TYPE = TT.TRANSACTION_TYPE AND 
+  MTL.MIRS_TRANSACTION = @TargetWorkID) 
+ 
+------------------------------------------------------------ 
+--- DETERMINE IF THE TARGET RECORD HAS BEEN SUCCESSFULLY  
+--- IMPORTED 
+------------------------------------------------------------ 
+SELECT @SuccessfulImport = CASE  
+    WHEN (NOT EXISTS (SELECT 1 FROM MCRISS_ERROR.DBO.MIRS_IMPORT_ERROR MIE 
+       WHERE MIE.MIRS_IMPORT_ID = @TargetImportID)) OR 
+     EXISTS (SELECT 1 FROM MCRISS_ERROR.DBO.ERROR_LOG EL  
+      INNER JOIN MCRISS_ERROR.DBO.MIRS_IMPORT_ERROR MIE ON  
+       (MIE.MIRS_IMPORT_ID = @TargetImportID AND 
+       EL.ERROR_LOG_ID = MIE.ERROR_LOG_ID AND 
+       EL.STATUS = 'RESOLVED')) 
+    THEN 'Y' 
+    ELSE 'N' 
+    END       
+ 
+ 
+------------------------------------------------------------ 
+--- IF AN UNRESOLVED ERROR EXISTS FOR THE TARGET TRANSACTION  
+--- WITH THE REPROCESS FLAG SET TO 'Y', SET THE @Reprocess  
+--- FLAG TO 'Y'. 
+--- OTHERWISE SET THE @Reprocess TO 'N'. 
+------------------------------------------------------------ 
+SELECT @Reprocess = CASE @SuccessfulImport 
+   WHEN 'N' THEN  
+    CASE  
+     WHEN EXISTS (SELECT 1 FROM MCRISS_ERROR.DBO.ERROR_LOG EL  
+       INNER JOIN MCRISS_ERROR.DBO.MIRS_IMPORT_ERROR MIE ON  
+        (MIE.MIRS_IMPORT_ID = @TargetImportID AND 
+        EL.ERROR_LOG_ID = MIE.ERROR_LOG_ID AND 
+        EL.REPROCESS = 'Y' AND  
+        EL.STATUS = 'UNRESOLVED'))  
+     THEN 'Y' 
+     ELSE 'N' 
+    END 
+   ELSE 'N' 
+   END 
+ 
+--- CLEAN UP 
+DROP TABLE #ROLLBACK  
+SET NOCOUNT OFF]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>24B9F7BA-5DD4-EAB5-4EB1-35B911743E85</database>
+</StoredProcedureSqlServerv2k5>

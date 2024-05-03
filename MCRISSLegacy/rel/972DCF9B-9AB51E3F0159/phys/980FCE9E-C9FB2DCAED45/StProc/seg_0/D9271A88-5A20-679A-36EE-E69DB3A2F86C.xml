@@ -1,0 +1,35 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[spChangeReprocess]" directorySegmentName="seg_0" id="D9271A88-5A20-679A-36EE-E69DB3A2F86C">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:09 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@error_id int, 
+@reprocess char(1) 
+ 
+as 
+ 
+if @reprocess = 'Y' 
+begin 
+ update error_log 
+ set REPROCESS = @reprocess, 
+  STATUS = 'UNRESOLVED' 
+ where ERROR_LOG_ID = @error_id 
+end 
+else  
+ 
+if @reprocess = 'N' 
+begin 
+ update error_log 
+ set REPROCESS = @reprocess 
+ where ERROR_LOG_ID = @error_id 
+end 
+else  
+begin 
+ print 'The reprocess value you entered is incorrect.' 
+ print 'You may only enter a Y for yes or an N for no.' 
+ print 'Please try again.' 
+end]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>24B9F7BA-5DD4-EAB5-4EB1-35B911743E85</database>
+</StoredProcedureSqlServerv2k5>

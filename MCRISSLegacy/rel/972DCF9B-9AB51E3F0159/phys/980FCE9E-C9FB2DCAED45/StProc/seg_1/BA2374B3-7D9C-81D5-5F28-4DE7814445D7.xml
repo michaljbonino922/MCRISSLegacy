@@ -1,0 +1,31 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetAllRank]" directorySegmentName="seg_1" id="BA2374B3-7D9C-81D5-5F28-4DE7814445D7">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[AS 
+ 
+BEGIN 
+    
+    SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+    
+ SELECT 'A'+ PAY_GRADE_CODE, RANK_CODE FROM USMC.vwMcrissPayGrade 
+ WHERE LEFT(PAY_GRADE_CODE,1)='E'  
+ UNION  
+ SELECT 'B'+ PAY_GRADE_CODE, RANK_CODE FROM USMC.vwMcrissPayGrade 
+ WHERE LEFT(PAY_GRADE_CODE,1)='W' 
+ UNION 
+ SELECT 'C'+ PAY_GRADE_CODE, RANK_CODE FROM USMC.vwMcrissPayGrade 
+ WHERE LEFT(PAY_GRADE_CODE,1)='O' AND RIGHT(PAY_GRADE_CODE,1)<>'0' 
+ UNION 
+ SELECT 'D'+ PAY_GRADE_CODE, RANK_CODE FROM USMC.vwMcrissPayGrade 
+ WHERE LEFT(PAY_GRADE_CODE,1)='O' AND RIGHT(PAY_GRADE_CODE,1)='0' 
+ ORDER BY 1 
+    
+ 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

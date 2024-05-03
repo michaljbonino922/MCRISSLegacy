@@ -1,0 +1,45 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_mg_InsertARMSAddress]" directorySegmentName="seg_22" id="B67776F0-0479-B6FD-0A01-F1FD06FC65D0">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[as 
+declare 
+  @ARMS_city_text as varchar(30), 
+  @city_text as varchar(30), 
+  @county_code as varchar(3), 
+  @state_code as varchar(2) 
+ 
+  declare cur_arms cursor for 
+    select  
+      arms_city_text, 
+      city_text, 
+      county_code, 
+      state_code 
+      from temp_arms_o.cer_new_geo_loca.on 
+ 
+  open cur_arms 
+  fetch cur_arms into 
+    @arms_city_text, 
+    @city_text, 
+    @county_code, 
+    @state_code 
+ 
+  while (@@FETCH_STATUS = 0) 
+  begin 
+     
+    exec sp_mg_InsertGeoLoca.on @city_text, @county_code, @state_code 
+ 
+    fetch cur_arms into 
+    @arms_city_text, 
+    @city_text, 
+    @county_code, 
+    @state_code 
+  end 
+ 
+  close cur_arms 
+  deallocate cur_arms]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

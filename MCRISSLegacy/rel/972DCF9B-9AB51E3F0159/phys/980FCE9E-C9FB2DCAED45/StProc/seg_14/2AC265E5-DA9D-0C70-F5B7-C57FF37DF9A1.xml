@@ -1,0 +1,47 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_DBA_Ac.vity]" directorySegmentName="seg_14" id="2AC265E5-DA9D-0C70-F5B7-C57FF37DF9A1">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@rs_mcc  varchar(3) 
+as 
+ 
+DECLARE  
+@table_name varchar(40), 
+@sql_string nvarchar(700) 
+ 
+create table temp_user_login 
+( 
+TABLE_NAME  varchar(40), 
+USER_COUNT  int 
+) 
+ 
+declare whoson cursor for  
+select name from sysobjects where xtype = 'U' and name not like '%n.ict%' 
+order by name 
+ 
+open whoson 
+ 
+fetch whoson into @table_name 
+ 
+while (@@fetch_status = 0) 
+begin 
+ 
+ 
+ 
+set @sql_string = 'insert into temp_user_login  select "'+ @table_name +'"  ,count(*)   from ['+ @table_name + '] where user_login  
+in (select user_id from user_list where user_id in (select user_id from user_list where  
+mcc_Code = "'+ @rs_mcc +'")) ' 
+ 
+execute sp_executesql @sql_string 
+ 
+fetch whoson into @table_name 
+end 
+close whoson 
+deallocate whoson 
+select * from temp_user_login 
+drop table temp_user_login]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

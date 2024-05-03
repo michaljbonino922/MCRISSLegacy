@@ -1,0 +1,26 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetMedicalStatusWaiversDates]" directorySegmentName="seg_6" id="69134675-7995-6722-7B93-23E2B54EEA79">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@NWAID int 
+AS 
+ 
+SELECT 
+ COALESCE(CONVERT(CHAR(11), [ANNUAL_CERT_1], 106), null) AS ANNUAL_CERT_1, 
+ COALESCE(CONVERT(CHAR(11), [ANNUAL_CERT_2], 106), null) AS ANNUAL_CERT_2, 
+ COALESCE(CONVERT(CHAR(11), [ANNUAL_CERT_3], 106), null) AS ANNUAL_CERT_3, 
+ COALESCE(CONVERT(CHAR(11), [ANNUAL_CERT_4], 106), null) AS ANNUAL_CERT_4, 
+ COALESCE(CONVERT(CHAR(11), [HIV_DATE], 106), null) AS HIV_DATE, 
+ COALESCE(CONVERT(CHAR(11), [PAP_DATE], 106), null) AS PAP_DATE, 
+ COALESCE(CONVERT(CHAR(11), [FLIGHT_PE_DATE], 106), null) AS FLIGHT_PE_DATE, 
+ COALESCE(CONVERT(CHAR(11), [DATE_PLACED_NOE], 106), null) AS DATE_PLACED_NOE, 
+ COALESCE(CONVERT(CHAR(11), [DATE_RELEASED_NOE], 106), null) AS DATE_RELEASED_NOE 
+FROM 
+ [MEDICAL_STATUS_WAIVERS_DATES] WITH (NOLOCK) 
+WHERE 
+ [NWA_ID] = @NWAID]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

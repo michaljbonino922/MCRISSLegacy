@@ -1,0 +1,117 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetThreeYearSchoolContractsBySchoolRowGuid]" directorySegmentName="seg_10" id="69DF6A1E-6E1B-DC42-7E13-63600345D038">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@SchoolGuid   uniqueiden..er, 
+      @MissionYear   int 
+  
+AS 
+SET NOCOUNT ON 
+   
+  -- Get the withdrawn NWAs so the withdrawn contracts can be excluded 
+  CREATE TABLE #Withdrawals(NWA_ID int) 
+  Insert into #Withdrawals 
+  Exec [MCRISS].[USMC].[GetWithdrawnNWAs]; 
+   
+   
+  SELECT dis.nct    
+   n.rowguid AS NwaRowGuid, 
+   mc.MARINE_CANDIDATE_ID AS MarineCandidateId,  
+   (P.LAST_NAME + ', ' + P.FIRST_NAME) AS CandidateName, 
+   contract_begin_Date AS ContractBeginDate,  
+   n.OFFICER_COMPONENT_CODE AS O.cerComponentCode,  
+   n.nwa_id AS NwaId,  
+   n.ORGANIZATION_OF_RECORD_ID AS OrgId, 
+   hs.rowguid AS SchoolGuid, 
+   hs.highschool_name AS CollegeName, 
+   n.Mission_Year_Work_For AS MissionYear 
+  INTO #ALLCandidateInfo     
+  FROM  MARINE_CANDIDATE mc   
+    inner join NWA n on n.MARINE_CANDIDATE_ID =mc.MARINE_CANDIDATE_ID 
+    inner join OCS O ON O.NWA_ID = N.NWA_ID AND O.DROP_REASON IS NULL 
+    inner join OCS_CLASS OC ON OC.CLASS_ID = O.OCS_CLASS_ID 
+    inner join CANDIDATE_EDUCATION ce ON  ce.MARINE_CANDIDATE_ID =mc.MARINE_CANDIDATE_ID 
+     
+    inner join CANDIDATE_ADDRESS ca ON ca.MARINE_CANDIDATE_ID = mc.MARINE_CANDIDATE_ID -- join for address 
+               and ca.ADDRESS_TYPE = 'H' 
+                
+    inner join GEO_LOCATION gl ON gl.CITY_CODE = ca.CITY_CODE AND gl.COUNTY_CODE = ca.COUNTY_CODE AND  
+               gl.STATE_CODE = ca.STATE_CODE 
+           
+   
+    inner join CANDIDATE_TELEPHONE ct ON ct.MARINE_CANDIDATE_ID = ca.MARINE_CANDIDATE_ID -- join for telephone 
+              and  ct.TELEPHONE_TYPE ='C'  -- current telephone 
+ 
+    inner join PERSON p ON P.PERSON_ID = mc.MARINE_CANDIDATE_ID -- join for last and .rst name  
+ 
+    INNER JOIN OFFICER_CONTRACT OFC ON OFC.NWA_ID = N.NWA_ID   
+ 
+    Le. Outer join USMC.CandidatePoolCardInfo cp ON cp.NWA_ID = n.NWA_ID 
+     
+    INNER JOIN dbo.HIGH_SCHOOL hs  
+           ON CE.SCHOOL_CODE = hs.SCHOOL_CODE  
+  
+  WHERE  (n.Mission_Year_Work_For in (@MissionYear, @MissionYear - 1, @MissionYear - 2, @MissionYear - 3)) -- get the mission year, and the three previous mission years 
+     AND 
+     hs.rowguid = @SchoolGuid  
+     AND 
+     -- retrieve only PLC and OCC candidates 
+     N.[OFFICER_COMPONENT_CODE] IN ('0A', '0B', '0C', '0E', '1A', '1B', '1C', '1H','1E') 
+     AND 
+     -- only get candidates that have the same Organiza.on as the school 
+     N.ORGANIZATION_OF_RECORD_ID = hs.ORGANIZATION_ID 
+     -- exclude withdrawn NWAs 
+     AND N.NWA_ID not in (SELECT NWA_ID FROM #Withdrawals) 
+ 
+ 
+--NON-RESERVIST MINUS DUPLICATE NWA'S FOR THE SAME CANIDATE 
+SELECT * 
+INTO #FilteredCandidateInfo 
+FROM #ALLCandidateInfo ac1 
+WHERE O.cerComponentCode IN ('0A', '0B', '0C', '0E', '1A', '1B', '1C', '1H') 
+AND ac1.ContractBeginDate =  
+   (SELECT MIN(ContractBeginDate) 
+    FROM #ALLCandidateInfo ac2 
+    WHERE ac2.O.cerComponentCode IN ('0A', '0B', '0C', '0E', '1A', '1B', '1C', '1H')  
+    AND ac2.MarineCandidateId = ac1.MarineCandidateId 
+    AND ac2.OrgId = ac1.OrgId)  
+ 
+--RESERVIST MINUS DUPLICATE NWA'S FOR THE SAME CANIDATE 
+INSERT INTO #FilteredCandidateInfo 
+SELECT *  
+FROM #ALLCandidateInfo ac1 
+WHERE O.cerComponentCode IN ('1E') 
+AND ac1.ContractBeginDate =  
+   (SELECT MIN(ContractBeginDate) 
+    FROM #ALLCandidateInfo ac2 
+    WHERE ac2.O.cerComponentCode IN ('1E')  
+    AND ac2.MarineCandidateId = ac1.MarineCandidateId 
+    AND ac2.OrgId = ac1.OrgId) 
+ 
+ 
+SELECT NwaRowGuid, 
+  MarineCandidateId, 
+  CandidateName, 
+  ContractBeginDate, 
+  O.cerComponentCode, 
+  NwaId, 
+  OrgId, 
+  SchoolGuid, 
+  CollegeName, 
+  MissionYear 
+FROM #FilteredCandidateInfo 
+ 
+ 
+  
+--- CLEAN UP 
+ 
+DROP TABLE #ALLCandidateInfo 
+DROP TABLE #FilteredCandidateInfo 
+DROP TABLE #Withdrawals 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

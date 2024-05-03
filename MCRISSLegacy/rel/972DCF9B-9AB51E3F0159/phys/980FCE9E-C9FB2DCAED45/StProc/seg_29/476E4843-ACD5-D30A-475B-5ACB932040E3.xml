@@ -1,0 +1,83 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SaveMedicalInforma.on]" directorySegmentName="seg_29" id="476E4843-ACD5-D30A-475B-5ACB932040E3">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:39 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @PersonID uniqueiden..er, 
+ @HealthRecLoca.on varchar(50), 
+ @DentalRecLoca.on varchar(50), 
+ @DentExamDate date.me, 
+ @HIVExamDate date.me, 
+ @MammogramExamDate date.me, 
+ @PAPExamDate date.me, 
+ @PhysicalExamDate date.me 
+) 
+AS 
+ 
+BEGIN TRANSACTION 
+ 
+IF EXISTS(SELECT 1 FROM [ACP].[MedicalInfo] WHERE [PersonId] = @PersonId) 
+BEGIN 
+ 
+UPDATE [ACP].[ACP].[MedicalInfo] 
+ SET 
+  [HealthRecLoca.on] = @HealthRecLoca.on, 
+  [DentalRecLoca.on] = @DentalRecLoca.on, 
+  [DentExamDate] = @DentExamDate, 
+  [HIVExamDate] = @HIVExamDate, 
+  [MammogramExamDate] = @MammogramExamDate, 
+  [PAPExamDate] = @PAPExamDate, 
+  [PhysicalExamDate] = @PhysicalExamDate 
+ WHERE [PersonId] = @PersonId 
+ 
+END 
+ELSE 
+BEGIN 
+ 
+INSERT INTO [ACP].[ACP].[MedicalInfo] 
+           ([PersonId], 
+   [HealthRecLoca.on], 
+   [DentalRecLoca.on], 
+   [DentExamDate], 
+   [HIVExamDate], 
+   [MammogramExamDate], 
+   [PAPExamDate], 
+   [PhysicalExamDate]) 
+     VALUES 
+           (@PersonID 
+   ,@HealthRecLoca.on 
+   ,@DentalRecLoca.on 
+   ,@DentExamDate 
+   ,@HIVExamDate 
+   ,@MammogramExamDate 
+   ,@PAPExamDate            
+   ,@PhysicalExamDate) 
+END 
+ 
+-- Rollback the transac.on if there were any errors 
+IF @@ERROR <> 0 
+BEGIN 
+ -- Rollback the transac.on 
+ ROLLBACK TRANSACTION 
+ -- Raise an error and return 
+ RAISERROR ('Error occurred while performing the change.', 16, 1) 
+ RETURN 
+END 
+ 
+-- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+IF @@ROWCOUNT > 1 
+BEGIN 
+ -- Rollback the transac.on 
+ ROLLBACK TRANSACTION 
+ -- Raise an error and return 
+ RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+ RETURN 
+END 
+ 
+-- If we reach this point, the commands completed successfully, commit the transac.on 
+COMMIT TRANSACTION]]></body>
+<schema>569A41D8-8F40-0619-141C-F4C9436AAF46</schema>
+<database>2D7ED536-DF8E-3523-7DC3-4228EBAF5F66</database>
+</StoredProcedureSqlServerv2k5>

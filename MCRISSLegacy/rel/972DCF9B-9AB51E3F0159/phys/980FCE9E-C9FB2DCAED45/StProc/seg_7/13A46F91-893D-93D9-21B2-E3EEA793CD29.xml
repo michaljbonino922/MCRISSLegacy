@@ -1,0 +1,23 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetO.cerProjectedCommissionDateHistory]" directorySegmentName="seg_7" id="13A46F91-893D-93D9-21B2-E3EEA793CD29">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@ContractID int 
+AS 
+ 
+SELECT 
+ H.OFFICER_PROJECTED_COMMISSION_DATE_HISTORY_ID,  
+ CONVERT(CHAR(11), H.PROJECTED_COMMISSION_DATE, 106) AS PROJECTED_COMMISSION_DATE,  
+ CONVERT(CHAR(11), H.PROJECTED_COMMISSION_DATE_CHANGED_DATE, 106) AS PROJECTED_COMMISSION_DATE_CHANGED_DATE 
+FROM 
+ OFFICER_PROJECTED_COMMISSION_DATE_HISTORY H WITH (NOLOCK) 
+WHERE 
+ H.CONTRACT_ID = @ContractID 
+ORDER BY 
+ H.PROJECTED_COMMISSION_DATE_CHANGED_DATE DESC,  
+ H.OFFICER_PROJECTED_COMMISSION_DATE_HISTORY_ID DESC]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

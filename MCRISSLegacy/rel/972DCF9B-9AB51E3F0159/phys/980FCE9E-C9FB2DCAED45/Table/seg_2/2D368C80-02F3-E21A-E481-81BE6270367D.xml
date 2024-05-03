@@ -1,0 +1,51 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="HighSchoolWorkingDay" directorySegmentName="seg_2" id="2D368C80-02F3-E21A-E481-81BE6270367D">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:54 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<schemaObject>454547C7-2829-9C8F-6E0C-35E4CFDC8E47</schemaObject>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="Date" id="48701ECB-B5FE-606A-08F6-4EADA3A0688C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="ID" id="881B4AB3-FC0D-94CA-EC1E-7D5E4AF2BE97">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<defaultValue>(newid())</defaultValue>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="RecruiterID" id="A1319DB2-BA78-549A-2549-C56B65560327">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="SchoolId" id="B48E970F-DF45-CC3F-E766-695852F592CB">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+</columnProxies>
+<indexProxies>
+<IndexProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.IndexProxySqlServerv2k12" name="IDX_HSWkDay_RCTAPI_RecruiterId_Date" id="B29D6358-930F-91B1-016A-ED05070DC941">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<fillFactor>100</fillFactor>
+<recomputeStatistics>ON</recomputeStatistics>
+</IndexProxy>
+</indexProxies>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="PK_HighSchoolWorkingDay" id="4E469DDA-C24C-A239-C483-56B4BA40C931">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:00 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<clustered>true</clustered>
+<fillFactor>100</fillFactor>
+<partitioningColumn>EFC1C3A0-E2D3-374A-ACA3-B322F3BEB012</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+</TableProxySqlServerv2k5>

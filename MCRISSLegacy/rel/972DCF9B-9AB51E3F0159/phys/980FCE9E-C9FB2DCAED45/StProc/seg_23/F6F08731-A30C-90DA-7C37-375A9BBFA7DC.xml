@@ -1,0 +1,147 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SP_NEW_EDU179]" directorySegmentName="seg_23" id="F6F08731-A30C-90DA-7C37-375A9BBFA7DC">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[as  
+SET ARITHABORT OFF 
+set arithignore on 
+set ansi_warnings o. 
+ 
+declare 
+  @ssn     varchar(9), 
+  @marine_candidate_id   int, 
+  @person_id    int, 
+  @school_code    int, 
+  @civ_educ_major_code  varchar(2), 
+  @ship_date   date.me, 
+  @educa.on_code   char(1), 
+  @educa.on_level  varchar(2), 
+  @educa.on_.er   varchar(2), 
+  @.rst_senior   char(1), 
+  @proj_comp_date   date.me, 
+  @hs_code   varchar(9), 
+  @school_end_date  date.me, 
+  @cont_educ_code   char(1), 
+  @sd_educ_code   char(1), 
+  @cont_educ_level  varchar(2), 
+  @sd_educ_level   varchar(2), 
+  @cont_educ_.er   varchar(2), 
+  @sd_educ_.er   varchar(2), 
+  @hs_grad_date   date.me, 
+  @veri.ca.on   varchar(2), 
+  @current_gpa   .oat, 
+  @cumula.ve_gpa   .oat, 
+  @high_math_level  varchar(2), 
+  @user_login   varchar(15), 
+  @update_date   date.me, 
+  @educ_code   char(1), 
+  @educ_level   varchar(2), 
+  @educ_.er   varchar(2), 
+  @contract_begin_date  date.me 
+     
+ 
+ 
+declare educa.on cursor for 
+ 
+select   SSN,  
+  substring(CONT_HIGRD,3,1),  
+  substring(SD_HIGRD,3,1),  
+  convert(int,substring(CONT_HIGRD,1,2)),  
+  convert(int,substring(SD_HIGRD,1,2)),  
+  CONT_EDUC_TIER, 
+  SD_EDUC_TIER, 
+  HS_CODE, 
+  convert(date.me,CADB,112), 
+   convert(date.me,DEP_DATEIN,112) 
+ 
+from arms..temp_cand_ed3, arms..arms179 
+where social_security_number = ssn 
+ 
+ 
+open educa.on 
+ 
+fetch educa.on  
+    into @ssn, @cont_educ_code, @sd_educ_code, @cont_educ_level, @sd_educ_level, 
+      @cont_educ_.er, @sd_educ_.er, @hs_code, @ship_date,@contract_begin_date 
+ 
+select @civ_educ_major_code  = NULL 
+select @proj_comp_date       = NULL 
+select @.rst_senior  = NULL 
+select @current_gpa  = NULL 
+select @cumula.ve_gpa  = NULL 
+select @high_math_level  = NULL 
+select @user_login  = 'migra.on' 
+select @update_date  = getdate() 
+ 
+ 
+while (@@FETCH_STATUS = 0) 
+begin 
+ select @person_id = MARINE_CANDIDATE_ID from MARINE_CANDIDATE  
+ where MARINE_CANDIDATE_ID = (select PERSON_ID from PERSON  
+ where PERSON.SOCIAL_SECURITY_NUMBER = @ssn) 
+ 
+ select @school_code = SCHOOL_CODE from HIGH_SCHOOL 
+ where DOD_CODE = @hs_code 
+ 
+  if @hs_grad_date = ' ' 
+ select @hs_grad_date = NULL 
+ 
+      if @person_id is not NULL and @school_code is not NULL 
+        begin  
+ 
+   print @ssn 
+ 
+  if (@ship_date not in ('',NULL)) and @sd_educ_level != ' ' and @sd_educ_code != '  ' 
+  begin 
+   set @educ_level = @sd_educ_level 
+   set @educ_.er = @sd_educ_.er 
+   set @educ_code = @sd_educ_code 
+  
+   if @educ_code = 'M' 
+   set @educ_code = '9' 
+  end 
+  else 
+  begin 
+   set @educ_level = @cont_educ_level 
+   set @educ_.er = @cont_educ_.er 
+   set @educ_code = @cont_educ_code 
+    
+   if @educ_code = 'M' 
+   set @educ_code = '9' 
+  end 
+ 
+  if not exists(select 1 from CANDIDATE_EDUCATION where MARINE_CANDIDATE_ID = @person_id and 
+   SCHOOL_CODE = @school_code and  
+   EDUCATION_LEVEL = @educ_level) 
+  begin 
+ 
+    insert CANDIDATE_EDUCATION 
+ 
+   (MARINE_CANDIDATE_ID,SCHOOL_CODE,EDUCATION_LEVEL,SCHOOL_END_DATE, 
+   EDUCATION_TIER,EDUCATION_CODE,CIVILIAN_EDUCATION_MAJOR_CODE, 
+   PROJECTED_COMPL_DATE,FIRST_SENIOR,VERIFICATION,CUMULATIVE_GPA, 
+   HIGH_MATH_LEVEL,CURRENT_GPA,USER_LOGIN,UPDATE_DATE) 
+  
+    values(@person_id, @school_code, @educ_level, @contract_begin_date, 
+    @educ_.er, @educ_code, @civ_educ_major_code, 
+   @proj_comp_date, @.rst_senior, 'VERIFIED', 
+   @cumula.ve_gpa, @high_math_level, @current_gpa, 
+   @user_login, @update_date) 
+  end 
+    
+ end 
+  
+   fetch educa.on  
+    into @ssn, @cont_educ_code, @sd_educ_code, @cont_educ_level, @sd_educ_level, 
+      @cont_educ_.er, @sd_educ_.er, @hs_code,  @ship_date,@contract_begin_date 
+ 
+end 
+ 
+close educa.on 
+ 
+deallocate educa.on]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

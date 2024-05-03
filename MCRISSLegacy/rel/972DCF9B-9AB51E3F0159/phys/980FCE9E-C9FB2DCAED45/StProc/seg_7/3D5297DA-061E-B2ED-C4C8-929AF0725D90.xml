@@ -1,0 +1,324 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetNWADetailView]" directorySegmentName="seg_7" id="3D5297DA-061E-B2ED-C4C8-929AF0725D90">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @Star.ngRow int, 
+ @PageSize int, 
+ @FromDate date.me, 
+ @ToDate date.me, 
+ @OrgID int, 
+ @SortBy int, 
+ @FinalAc.on Varchar(20) 
+) 
+AS 
+ 
+DECLARE @ac.on varchar(10) 
+DECLARE @LastRow int 
+SET @LastRow = @Star.ngRow + @PageSize - 1 
+ 
+IF (@FinalAc.on = 'X') 
+ SET @ac.on = 'ALL' 
+ELSE 
+ SET @ac.on = @FinalAc.on 
+ 
+  
+-- Get data .ltered by NWA_DECLARED_DATE , Org, and DISPOSITION 
+DECLARE @FilterTable TABLE ( 
+ PERSON_ID int NULL, 
+ NWA_ID int NULL,  
+ ORGANIZATION_OF_RECORD_ID int NULL, 
+ SSN varchar(9) NULL,  
+ FIRST_NAME varchar(20) NULL,  
+ MIDDLE_NAME varchar(20) NULL,  
+ LAST_NAME varchar(20) NULL,  
+ SUFFIX varchar(5) NULL,  
+ DECL DateTime NULL, 
+ DSW DateTime NULL, 
+ AGE int NULL, 
+ GENDER_CODE varchar(1), 
+ RECRUITER_OF_RECORD_ID int NULL, 
+ NOTES varchar(50) NULL, 
+ DISPOSITION_CODE varchar(20) NULL, 
+ STATUS_TYPE varchar(4) NULL, 
+ RSS varchar(45) NULL, 
+ PROJECTED_SHIP_MONTH int NULL, 
+ EDUCATION_SortOrder int NULL, 
+ EDUCATION_LEVEL varchar(2) NULL, 
+ EDUCATION_CODE varchar(2) NULL, 
+ CATEGORY_CODE varchar(6) NULL, 
+ ASVAB_DATE date.me NULL, 
+ AFQT_SCORE int NULL, 
+ GT_SCORE int NULL, 
+ MEPS_CONTRACT_DATE date.me NULL 
+ ) 
+  
+INSERT INTO @FilterTable  
+SELECT DISTINCT 
+ p.PERSON_ID, 
+ n.NWA_ID, 
+ n.ORGANIZATION_OF_RECORD_ID, 
+ p.SOCIAL_SECURITY_NUMBER, 
+ p.FIRST_NAME, 
+ p.LEGAL_MIDDLE_NAME, 
+ p.LAST_NAME, 
+ p.SUFFIX_CD, 
+ n.NWA_DECLARED_DATE, 
+ n.NWA_DATE_STARTED_WORKING, 
+ Datedi.(year, mc.DATE_OF_BIRTH,getdate()), 
+ mc.GENDER_CODE, 
+ n.RECRUITER_OF_RECORD_ID, 
+ n.NWA_LOG_NOTES, 
+ cs.DISPOSITION_CODE, 
+ cs.STATUS_TYPE, 
+ rss.[NAME], 
+ n.PROJECTED_SHIP_MONTH, 
+ CASE ce.EDUCATION_LEVEL 
+  WHEN 'K' THEN 16 
+  WHEN 'N' THEN 17 
+  WHEN 'W' THEN 20 
+  ELSE CAST(ce.EDUCATION_LEVEL as int) 
+ END, 
+ ce.EDUCATION_LEVEL, 
+ ce.EDUCATION_CODE, 
+ n.CATEGORY_CODE, 
+ null, 
+ null, 
+ null, 
+ null 
+FROM dbo.PERSON p WITH (NOLOCK) 
+ INNER JOIN NWA n on p.Person_ID = n.MARINE_CANDIDATE_ID  
+ INNER JOIN [USMC].[vwRecrui.ngOrgIDs] vw ON n.ORGANIZATION_OF_RECORD_ID = vw.root 
+ INNER JOIN RECRUITING_ORGANIZATION rss ON vw.RSS = rss.ORGANIZATION_ID 
+ INNER JOIN CANDIDATE_STATUS cs ON cs.CANDIDATE_STATUS_ID = dbo.GetMaxStatusID(n.NWA_ID) 
+ INNER JOIN MARINE_CANDIDATE mc on p.Person_ID = mc.MARINE_CANDIDATE_ID  
+ INNER JOIN CANDIDATE_EDUCATION CE ON ce.MARINE_CANDIDATE_ID = p.PERSON_ID AND (ce.SCHOOL_END_DATE = (SELECT MAX(a.SCHOOL_END_DATE) FROM CANDIDATE_EDUCATION a WHERE a.MARINE_CANDIDATE_ID = p.PERSON_ID)) 
+WHERE  
+ NWA_DECLARED_DATE >= @FromDate AND NWA_DECLARED_DATE <= @ToDate AND 
+ (vw.RS = @OrgID OR vw.RSS = @OrgID OR vw.District = @OrgID OR vw.Region = @OrgID OR vw.HQ = @OrgID) AND 
+ ((@Ac.on = 'ALL') OR (DISPOSITION_CODE = @Ac.on)) AND 
+ NOT (STATUS_CODE = 'A' AND DISPOSITION_CODE = 'PA') 
+ 
+UPDATE @FilterTable 
+SET 
+ ASVAB_DATE = ca.ASVAB_DATE, 
+ AFQT_SCORE = ca.AFQT_SCORE, 
+ GT_SCORE = ca.GT_SCORE 
+FROM @FilterTable .  
+ INNER JOIN CANDIDATE_ASVAB ca ON ..Person_ID = ca.MARINE_CANDIDATE_ID AND ca.ASVAB_DATE =  
+  (SELECT MAX(a.ASVAB_DATE) FROM CANDIDATE_ASVAB a WHERE a.MARINE_CANDIDATE_ID = ..PERSON_ID) 
+ 
+--First Set MEPS Contract Date base on Mir import 
+UPDATE @FilterTable  
+SET 
+ MEPS_CONTRACT_DATE = mi.[CONTRACT_BEGIN_DATE]   
+FROM @FilterTable f  
+ INNER JOIN [dbo].[MIContract] mi on f.NWA_ID = mi.NWA_ID 
+ 
+--Second If contracted, use that to set MEPS Contract Date 
+UPDATE @FilterTable  
+SET 
+ MEPS_CONTRACT_DATE = n.MEPS_CONTRACT_DATE   
+FROM @FilterTable f  
+ INNER JOIN [contract] n on f.NWA_ID = n.NWA_ID 
+  
+  
+-- Sort Data  
+DECLARE @Sor.ngTable TABLE ( 
+ RowNumber int not null, 
+ PERSON_ID int NULL, 
+ NWA_ID int NULL,  
+ ORGANIZATION_OF_RECORD_ID int NULL, 
+ SSN varchar(9) NULL,  
+ FIRST_NAME varchar(20) NULL,  
+ MIDDLE_NAME varchar(20) NULL,  
+ LAST_NAME varchar(20) NULL,  
+ SUFFIX varchar(5) NULL,  
+ DECL DateTime NULL, 
+ DSW DateTime NULL, 
+ AGE int NULL, 
+ GENDER_CODE varchar(1), 
+ RECRUITER_OF_RECORD_ID int NULL, 
+ NOTES varchar(50) NULL, 
+ DISPOSITION_CODE varchar(20) NULL, 
+ STATUS_TYPE varchar(4) NULL, 
+ RSS varchar(45) NULL, 
+ PROJECTED_SHIP_MONTH int NULL, 
+ EDUCATION_SortOrder int NULL, 
+ EDUCATION_LEVEL varchar(2) NULL, 
+ EDUCATION_CODE varchar(2) NULL, 
+ CATEGORY_CODE varchar(6) NULL, 
+ ASVAB_DATE date.me NULL, 
+ AFQT_SCORE int NULL, 
+ GT_SCORE int NULL, 
+ MEPS_CONTRACT_DATE date.me NULL 
+ ) 
+  
+IF @SortBy = 1 
+ INSERT INTO @Sor.ngTable 
+ SELECT ROW_NUMBER() OVER(Order By ..DECL), ..* 
+ FROM @FilterTable .  
+ ORDER BY ..DECL 
+IF @SortBy = 2 
+ INSERT INTO @Sor.ngTable 
+ SELECT ROW_NUMBER() OVER(Order By LAST_NAME, FIRST_NAME, MIDDLE_NAME), ..* 
+ FROM @FilterTable .  
+ ORDER BY LAST_NAME, FIRST_NAME, MIDDLE_NAME 
+IF @SortBy = 3 
+ INSERT INTO @Sor.ngTable 
+ SELECT ROW_NUMBER() OVER(Order By ..GENDER_CODE), ..* 
+ FROM @FilterTable .  
+ ORDER BY ..GENDER_CODE 
+IF @SortBy = 4 
+ INSERT INTO @Sor.ngTable 
+ SELECT ROW_NUMBER() OVER(Order By ..EDUCATION_SortOrder), ..* 
+ FROM @FilterTable .  
+ ORDER BY ..EDUCATION_SortOrder 
+IF @SortBy = 5 
+ INSERT INTO @Sor.ngTable 
+ SELECT ROW_NUMBER() OVER(Order By ..RSS), ..* 
+ FROM @FilterTable .  
+ ORDER BY ..RSS 
+IF @SortBy = 6 
+ INSERT INTO @Sor.ngTable 
+ SELECT ROW_NUMBER() OVER(Order By ..DISPOSITION_CODE), ..* 
+ FROM @FilterTable .  
+ ORDER BY ..DISPOSITION_CODE 
+IF @SortBy = 7 
+ INSERT INTO @Sor.ngTable 
+ SELECT ROW_NUMBER() OVER(Order By ..MEPS_CONTRACT_DATE), ..* 
+ FROM @FilterTable .  
+ ORDER BY ..MEPS_CONTRACT_DATE DESC 
+  
+ 
+-- Limit data to current page 
+DECLARE @Grid TABLE ( 
+ RowNumber int not null, 
+ PERSON_ID int NULL, 
+ NWA_ID int NULL,  
+ ORGANIZATION_OF_RECORD_ID int NULL, 
+ SSN varchar(9) NULL,  
+ FIRST_NAME varchar(20) NULL,  
+ MIDDLE_NAME varchar(20) NULL,  
+ LAST_NAME varchar(20) NULL,  
+ SUFFIX varchar(5) NULL,  
+ DECL DateTime NULL, 
+ DSW DateTime NULL, 
+ AGE int NULL, 
+ GENDER_CODE varchar(1), 
+ RECRUITER_OF_RECORD_ID int NULL, 
+ NOTES varchar(50) NULL, 
+ DISPOSITION_CODE varchar(20) NULL, 
+ STATUS_TYPE varchar(4) NULL, 
+ RSS varchar(45) NULL, 
+ PROJECTED_SHIP_MONTH int NULL, 
+ EDUCATION_SortOrder int NULL, 
+ EDUCATION_LEVEL varchar(2) NULL, 
+ EDUCATION_CODE varchar(2) NULL, 
+ CATEGORY_CODE varchar(6) NULL, 
+ ASVAB_DATE date.me NULL, 
+ AFQT_SCORE int NULL, 
+ GT_SCORE int NULL, 
+ -- New Fields: 
+ CATEGORY_DESCRIPTION varchar(50) NULL, 
+ DISPOSITION_DESCRIPTION varchar(20) NULL, 
+ RECRUITER_NAME varchar(20) NULL, 
+ MEDICAL_EXAM_DATE date.me NULL, 
+ MEDICAL_DISPOSITION varchar(1) NULL, 
+ SOURCE_DESCRIPTION varchar(30) NULL, 
+ ACTIVITY_DESCRIPTION varchar(25) NULL, 
+ PROFESSED_EXAM_TYPE varchar(1) NULL, 
+ PROFESSED_EXAM_SCORE int NULL, 
+ MEPS_CONTRACT_DATE date.me NULL 
+ ) 
+ 
+ 
+IF (@FinalAc.on = 'X') 
+ BEGIN 
+  INSERT INTO @Grid 
+  SELECT *, null, null, null, null, null, null, null, null,  MEPS_CONTRACT_DATE 
+  FROM @Sor.ngTable 
+  WHERE RowNumber >= @star.ngRow AND RowNumber <= @LastRow AND (DISPOSITION_CODE = 'F' OR DISPOSITION_CODE = 'DH') 
+ 
+ END 
+ELSE 
+ BEGIN 
+  INSERT INTO @Grid 
+  SELECT *, null, null, null, null, null, null, null, null, MEPS_CONTRACT_DATE 
+  FROM @Sor.ngTable 
+  WHERE RowNumber >= @star.ngRow AND RowNumber <= @LastRow 
+ END 
+ 
+ 
+-- Get the last of the data needed for display 
+UPDATE @Grid  
+SET  
+ g.DISPOSITION_DESCRIPTION = fad.DISPOSITION_DESCRIPTION, 
+ g.RECRUITER_NAME = p.LAST_NAME 
+FROM @Grid g 
+ INNER JOIN PERSON p on p.PERSON_ID = g.RECRUITER_OF_RECORD_ID 
+ INNER JOIN STATUS_DISPOSITION fad on g.DISPOSITION_CODE = fad.DISPOSITION_CODE 
+ 
+ 
+ 
+UPDATE @Grid 
+SET 
+ MEDICAL_EXAM_DATE = cme.MEDICAL_EXAM_DATE, 
+ MEDICAL_DISPOSITION = cme.MEDICAL_DISPOSITION 
+FROM @grid g, CANDIDATE_MEDICAL_EXAM cme 
+WHERE g.person_id = cme.MARINE_CANDIDATE_ID  
+AND  cme.MEDICAL_EXAM_DATE = (SELECT MAX(a.MEDICAL_EXAM_DATE) FROM CANDIDATE_MEDICAL_EXAM a WHERE a.MARINE_CANDIDATE_ID = g.PERSON_ID ) 
+ 
+ 
+UPDATE @Grid 
+SET 
+ CATEGORY_DESCRIPTION = 
+  CASE g.STATUS_TYPE 
+   WHEN 'E' THEN  
+    CASE n.CATEGORY_CODE   
+     WHEN 'R' THEN 'Regular' 
+     WHEN 'G' THEN 'Reserve-Ground' 
+     WHEN 'A' THEN 'Reseve-Air' 
+     WHEN 'P' THEN 'Prior-Service' 
+     WHEN 'O' THEN 'President''s Own' 
+     ELSE SPACE(0) 
+    END  
+   WHEN 'O' THEN COALESCE(cc.COMPONENT_DESCRIPTION, SPACE(0)) 
+   ELSE SPACE(0) 
+  END,  
+ SOURCE_DESCRIPTION = rs.SOURCE_DESCRIPTION, 
+ ACTIVITY_DESCRIPTION = ra.ACTIVITY_DESCRIPTION 
+FROM @Grid g  
+ INNER JOIN NWA n on g.NWA_ID = n.NWA_ID 
+ INNER JOIN RECRUITING_SOURCE rs on n.SOURCE_CODE = rs.SOURCE_CODE 
+ INNER JOIN RECRUITING_ACTIVITY ra on n.ACTIVITY_CODE = ra.ACTIVITY_CODE 
+ LEFT OUTER JOIN COMPONENT_CODE cc ON n.OFFICER_COMPONENT_CODE = cc.COMPONENT_CODE 
+ 
+UPDATE @Grid 
+SET 
+ PROFESSED_EXAM_TYPE = cpe.PROFESSED_EXAM_TYPE, 
+ PROFESSED_EXAM_SCORE = cpe.EXAM_SCORE   
+FROM @Grid g 
+ INNER JOIN CANDIDATE_PROFESSED_EXAM cpe ON cpe.MARINE_CANDIDATE_ID = g.PERSON_ID AND cpe.EXAM_DATE =  
+  (SELECT MAX(a.EXAM_DATE) FROM CANDIDATE_PROFESSED_EXAM a WHERE a.MARINE_CANDIDATE_ID = g.PERSON_ID) 
+ 
+ 
+ 
+  
+-- Return the data  
+SELECT * FROM @Grid 
+ 
+ 
+SELECT 
+ (SELECT COUNT(*) FROM @Sor.ngTable) AS En.reRowCount, 
+ (SELECT COUNT(*) FROM @Grid) AS Total, 
+ (SELECT COUNT(*) FROM @Grid WHERE CATEGORY_CODE = 'R' AND GENDER_CODE = 'M') AS RegularMales, 
+ (SELECT COUNT(*) FROM @Grid WHERE CATEGORY_CODE = 'R' AND GENDER_CODE = 'F') AS RegularFemales, 
+ (SELECT COUNT(*) FROM @Grid WHERE CATEGORY_CODE IN ('G', 'A') AND GENDER_CODE = 'M') AS ReserveMales, 
+ (SELECT COUNT(*) FROM @Grid WHERE CATEGORY_CODE IN ('G', 'A') AND GENDER_CODE = 'F') AS ReserveFemales, 
+ (SELECT COUNT(*) FROM @Grid WHERE AFQT_SCORE >=50 AND CATEGORY_CODE = 'R' AND GENDER_CODE = 'M') AS AlpahRegularMales]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

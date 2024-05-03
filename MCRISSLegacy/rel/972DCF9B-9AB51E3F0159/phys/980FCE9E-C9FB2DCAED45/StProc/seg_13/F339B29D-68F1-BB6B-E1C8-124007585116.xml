@@ -1,0 +1,182 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetOssCollegeVisitCardRows]" directorySegmentName="seg_13" id="F339B29D-68F1-BB6B-E1C8-124007585116">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[(  
+ @OrgId uniqueiden..er = null, 
+ @Ac.onDatedStart date.me = null, 
+ @Ac.onDatedEnd date.me =  null, 
+ @DateCreatedStart date.me = null, 
+ @DateCreatedEnd date.me = null, 
+ @RecruiterId uniqueiden..er = null, 
+ @SchoolYear int = null 
+) 
+AS 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ SET ArithAbort ON 
+  
+ DECLARE @Organiza.onID int 
+ DECLARE @CurrentFiscalYear int 
+  
+ SET @CurrentFiscalYear = DATEPART(year,GETDATE()) 
+  
+ if DATEPART(month,GETDATE()) > 9 
+ BEGIN 
+  SET @CurrentFiscalYear = DATEPART(year,GETDATE()) + 1 
+ END 
+  
+  
+ SELECT @Organiza.onID = ORGANIZATION_ID FROM MCRISS.DBO.RECRUITING_ORGANIZATION WHERE rowguid = @orgid   
+  
+ SELECT 
+  rp.RECRUITING_PERSON_ID,  
+  rp.rowguid, 
+  rp.RANK_CODE, 
+  rcrtr.LAST_NAME, 
+  rcrtr.FIRST_NAME, 
+  rcrtr.LEGAL_MIDDLE_NAME 
+ INTO #Recrui.ngPerson 
+ FROM [MCRISS].[dbo].[RECRUITING_PERSON] rp  
+ INNER JOIN [MCRISS].[dbo].[PERSON] rcrtr ON rp.RECRUITING_PERSON_ID = rcrtr.PERSON_ID  
+ WHERE  
+ --((rp.RowGuid = @RecruiterId AND @RecruiterId IS NOT NULL) OR (@RecruiterId IS NULL))  
+ rp.ORGANIZATION_ID = @Organiza.onId 
+  
+ SELECT es.SubjectID, MIN(e.StartDate) AS NextEvent 
+ INTO #NextEvent  
+ FROM  
+  [RSSOSS].[USMC].EventSubject es  
+  INNER JOIN RSSOSS.USMC.Event e ON e.Id = es.EventId  
+ WHERE 
+  e.StartDate >= GetDate() AND EventSourceId = 13 AND e.Organiza.onId = @Organiza.onID 
+ GROUP BY es.SubjectID 
+   
+  
+ SELECT  
+  es.SubjectID, 
+  e.ID AS EventID, 
+  et.[Type] as EventType, 
+  e.EventTypeOther, 
+  e.StartDate, 
+  e.EventTypeId 
+ INTO #CollegeVisitCardEvent 
+ FROM  
+  RSSOSS.USMC.EventSubject es  
+  INNER JOIN RSSOSS.USMC.Event e ON e.id = es.even.d 
+  inner join [RSSOSS].[USMC].[EventType] et on et.ID = e.EventTypeId 
+  INNER JOIN #NextEvent ne ON ne.SubjectID = es.SubjectID and e.StartDate = ne.NextEvent  
+       
+ WHERE 
+  e.EventSourceId  = 13 AND e.Organiza.onId = @Organiza.onID  
+    
+ 
+ IF @RecruiterId IS NOT NULL 
+ BEGIN 
+ 
+  DELETE FROM #CollegeVisitCardEvent WHERE EventID NOT IN 
+  ( 
+   SELECT e.EventId  
+   FROM  
+    [RSSOSS].[USMC].[EventOwners] p 
+    INNER JOIN #CollegeVisitCardEvent e  
+     ON p.[EventId] = e.EventID 
+   WHERE  
+    [OwnerID] = @RecruiterId  
+  ) 
+ END 
+ 
+ SELECT  
+  ce.EventID 
+  ,ce.EventType 
+  ,ce.EventTypeOther 
+  ,COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+   COALESCE(RTRIM(rp.LAST_NAME), SPACE(0))  + SPACE(1) +  
+   COALESCE(RTRIM(rp.FIRST_NAME), SPACE(0)) + SPACE(1) +  
+   COALESCE(RTRIM(rp.LEGAL_MIDDLE_NAME), SPACE(0)) AS Recruiter 
+  ,COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+   COALESCE(RTRIM(rp.LAST_NAME), SPACE(0)) AS RecruiterShortName 
+  ,rp.[rowguid] AS RecruiterID 
+ INTO #EventVisibilityList 
+ FROM 
+  #CollegeVisitCardEvent ce 
+  INNER JOIN [RSSOSS].[USMC].[EventOwners] p 
+   ON ce.EventID = p.EventID 
+  INNER JOIN #Recrui.ngPerson rp ON p.OwnerID = rp.rowguid 
+ WHERE 
+  (@RecruiterId IS NULL) OR (OwnerID =@RecruiterId)  
+    
+    
+  
+ CREATE TABLE #CollegeVisitCard 
+ (   
+   ApplicantAssetID uniqueiden..er 
+  ,ApplicantAssetName VARCHAR(300) 
+  ,CardID uniqueiden..er 
+  ,SchoolID uniqueiden..er 
+  ,CollegePro.leID uniqueiden..er 
+  ,CreateDate DATETIME 
+  ,RecruiterId uniqueiden..er 
+  ,Recruiter VARCHAR(300) 
+  ,RecruiterShortName VARCHAR(300) 
+  ,SchoolYear int 
+  ,EventID uniqueiden..er 
+  ,EventType VARCHAR(300) 
+  ,EventTypeOther varchar(300) 
+  ,NextScheduledEvent date.me 
+ ) 
+  
+  
+ INSERT INTO #CollegeVisitCard 
+ SELECT 
+   hs.rowguid AS ApplicantAssetID,  
+   hs.HIGHSCHOOL_NAME AS ApplicantAssetName, 
+   hs.rowguid AS SchoolId, 
+   hs.rowguid AS CardId, 
+   cp.CollegePro.leID, 
+   cp.VisitCardCreateDate AS CreateDate,     
+   er.RecruiterID, 
+   er.Recruiter, 
+   er.RecruiterShortName, 
+   @CurrentFiscalYear AS SchoolYear, 
+   ce.EventID, 
+   ce.EventType, 
+   ce.EventTypeOther, 
+   ce.StartDate AS EventDate 
+ FROM  
+   [MCRISS].[dbo].[HIGH_SCHOOL] hs 
+      INNER JOIN #CollegeVisitCardEvent ce ON ce.SubjectID = hs.rowguid 
+   INNER JOIN #EventVisibilityList er ON er.EventID = ce.EventID 
+   LEFT JOIN MCRISS.[USMC].[CollegePro.le] cp ON hs.SCHOOL_CODE = cp.School_Code AND cp.FiscalYear = @CurrentFiscalYear 
+ WHERE 
+  ( (@DateCreatedStart IS NULL) OR ( LEFT(cp.VisitCardCreateDate,11) >= Coalesce(@DateCreatedStart, LEFT(cp.VisitCardCreateDate,11)) ) ) 
+  AND ( (@DateCreatedEnd IS NULL) OR ( LEFT(cp.VisitCardCreateDate,11) <= Coalesce(@DateCreatedEnd, LEFT(cp.VisitCardCreateDate,11)) ) ) 
+        
+ 
+ 
+ IF (@Ac.onDatedStart is null and @Ac.onDatedEnd is null) 
+   SELECT  DISTINCT *  
+   FROM #CollegeVisitCard        
+  ORDER BY ApplicantAssetName ASC 
+ ELSE 
+  SELECT DISTINCT hv.*  
+  FROM #CollegeVisitCard hv 
+  INNER JOIN [RSSOSS].[USMC].EventSubject es ON es.SubjectID = hv.CardID  
+  INNER JOIN RSSOSS.USMC.Event e ON e.id = es.even.d AND e.EventSourceId = 13 
+  WHERE  
+   ((LEFT(e.StartDate,11) >= Coalesce(@Ac.onDatedStart, LEFT(e.StartDate,11))) 
+   AND (LEFT(e.StartDate,11) <= Coalesce(@Ac.onDatedEnd, LEFT(e.StartDate,11)))  ) 
+              
+  ORDER BY ApplicantAssetName ASC 
+ 
+ 
+ DROP TABLE #Recrui.ngPerson 
+ DROP TABLE #NextEvent 
+ DROP TABLE #CollegeVisitCardEvent 
+ DROP TABLE #EventVisibilityList 
+ DROP TABLE #CollegeVisitCard]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

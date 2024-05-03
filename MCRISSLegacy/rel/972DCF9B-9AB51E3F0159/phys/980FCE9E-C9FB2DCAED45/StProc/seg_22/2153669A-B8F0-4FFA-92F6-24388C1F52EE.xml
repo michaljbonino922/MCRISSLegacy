@@ -1,0 +1,35 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_MIGetContractShipDate]" directorySegmentName="seg_22" id="2153669A-B8F0-4FFA-92F6-24388C1F52EE">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@NWAID    int, 
+ @ContractID   int OUTPUT, 
+ @ContractDate   char(8) OUTPUT, 
+ @ShipperDate   char(8) OUTPUT 
+AS 
+ 
+ 
+SET NOCOUNT ON  
+ 
+SET @ContractID = 0 
+ 
+IF EXISTS (SELECT 1 FROM CONTRACT WHERE NWA_ID = @NWAID) 
+BEGIN 
+ SELECT  
+  @ContractID = CONTRACT_ID, 
+  @ContractDate = Convert(char(8), CONTRACT_BEGIN_DATE, 112)  
+ FROM  
+  CONTRACT WHERE NWA_ID = @NWAID 
+ 
+ SELECT @ShipperDate = Convert(char(8), SHIP_DATE, 112) 
+   FROM SHIPPER WHERE CONTRACT_ID = @ContractID 
+END 
+ 
+ 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

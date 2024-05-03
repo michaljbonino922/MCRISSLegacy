@@ -1,0 +1,30 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetCandidateAddressByPersonId]" directorySegmentName="seg_3" id="18911790-A3F6-C977-B876-CC701E99BDEC">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @PersonID int 
+) 
+AS 
+ 
+DECLARE @charType char(1) 
+ 
+SELECT -1 AS [ID] 
+   ,[MARINE_CANDIDATE_ID] 
+      ,CASE [ADDRESS_TYPE] 
+         WHEN 'C' THEN 1 
+         WHEN 'H' THEN 2 
+      END as [ADDRESS_TYPE] 
+      ,[STREET_ADDRESS] 
+      ,[STREET_ADDRESS_2] 
+      ,[CITY_CODE] 
+      ,[COUNTY_CODE] 
+      ,[STATE_CODE] 
+      ,[ZIPCODE] 
+FROM [dbo].[CANDIDATE_ADDRESS] WITH (NOLOCK)  
+WHERE [MARINE_CANDIDATE_ID] = @PersonId]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

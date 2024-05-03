@@ -1,0 +1,26 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetEventBene.ts]" directorySegmentName="seg_2" id="4B1AEFCA-992B-21F3-7898-8EC0457EA5D3">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@EventOutcomeId uniqueidentifier 
+  
+AS 
+BEGIN 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+SELECT eb.ID, 
+    ebt.ID TypeId,  
+       ebt.Name TypeName, 
+       eb.Comment, 
+       eb.Bene.tPriority 
+  FROM [RSSOSS].[USMC].[EventBene.t] eb 
+  JOIN [RSSOSS].[USMC].[EventBene.tType] as ebt ON ebt.ID = eb.Bene.tTypeId 
+ WHERE EventOutcomeId = @EventOutcomeId 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

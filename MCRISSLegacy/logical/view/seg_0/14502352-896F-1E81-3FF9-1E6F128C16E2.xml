@@ -1,0 +1,52 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<EntityView class="oracle.dbtools.crest.model.design.logical.EntityView" directorySegmentName="seg_0" id="14502352-896F-1E81-3FF9-1E6F128C16E2" name="vw UpdateCandidate Status PJ">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>AA0C8B1A-813B-54AB-CD5E-2913674B6E74</generatorID>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT     dbo.NWA.NWA_ID, GETDATE() AS Status_E.ec.ve_Date 
+FROM         dbo.NWA INNER JOIN 
+                      dbo.PERSON ON dbo.NWA.MARINE_CANDIDATE_ID = dbo.PERSON.PERSON_ID INNER JOIN 
+                      dbo.Working_USNA ON dbo.PERSON.SOCIAL_SECURITY_NUMBER = dbo.Working_USNA.CSSN 
+WHERE     (dbo.NWA.USER_LOGIN = 'Bulk_Insert')]]></userDefinedSQL>
+<validSQL>false</validSQL>
+<viewType>EntityView</viewType>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="NWA_ID" id="D6118E11-C014-67C0-3236-40B5EC521E6E">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>3D628AF1-DEF3-2D27-E25B-FC7410F06305</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>NWA_ID</alias>
+<dataType>UNKNOWN</dataType>
+<expression>NWA_ID</expression>
+<reference>false</reference>
+<viewID>14502352-896F-1E81-3FF9-1E6F128C16E2</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.logical.AttributeView" name="GETDATE()" id="703529EE-C898-72E0-58EC-35BFA16A1A28">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:40:56 UTC</createdTime>
+<generatorID>05DD201E-C157-8FEB-C8C2-51818848E778</generatorID>
+<ownerDesignName>MCRISS</ownerDesignName>
+<engineerTo>
+<item key="972DCF9B-F7A4-AF2D-4DBC-9AB51E3F0159" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>Status_E.ec.ve_Date</alias>
+<dataType>UNKNOWN</dataType>
+<expression>GETDATE()</expression>
+<reference>false</reference>
+<viewID>14502352-896F-1E81-3FF9-1E6F128C16E2</viewID>
+</viewElement>
+</viewElements>
+</EntityView>

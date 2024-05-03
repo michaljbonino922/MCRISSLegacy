@@ -1,0 +1,38 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateShippingPeriods]" directorySegmentName="seg_25" id="F01E534F-B298-9282-519E-B1C9341E6206">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@OrgID  int, 
+ @Month int, 
+ @FiscalYear  int, 
+ @BeginDate date.me, 
+ @EndDate date.me, 
+ @UserLogin varchar(15)  
+AS 
+ 
+IF EXISTS (SELECT * FROM SHIPPING_PERIOD WHERE ORGANIZATION_ID = @OrgID AND  
+  FISCAL_YEAR = @FiscalYear AND MONTH_CODE = @Month) 
+ BEGIN 
+ UPDATE SHIPPING_PERIOD  
+ SET ORGANIZATION_ID = @OrgID, 
+ MONTH_CODE = @Month, 
+ FISCAL_YEAR = @FiscalYear, 
+ BEGIN_DATE = @BeginDate, 
+ END_DATE = @EndDate, 
+ USER_LOGIN = @UserLogin, 
+ UPDATE_DATE = GETDATE() 
+ WHERE ORGANIZATION_ID = @OrgID AND  
+ FISCAL_YEAR = @FiscalYear AND  
+ MONTH_CODE = @Month 
+ END 
+ELSE 
+ BEGIN 
+ INSERT INTO SHIPPING_PERIOD (ORGANIZATION_ID, MONTH_CODE, FISCAL_YEAR,  
+   BEGIN_DATE, END_DATE, USER_LOGIN, UPDATE_DATE) 
+ VALUES (@OrgID, @Month, @FiscalYear, @BeginDate, @EndDate, @UserLogin, GETDATE()) 
+ END]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

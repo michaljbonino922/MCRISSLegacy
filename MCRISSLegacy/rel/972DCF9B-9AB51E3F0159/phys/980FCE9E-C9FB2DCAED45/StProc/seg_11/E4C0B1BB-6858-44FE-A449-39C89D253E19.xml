@@ -1,0 +1,85 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SaveMissionGoalData]" directorySegmentName="seg_11" id="E4C0B1BB-6858-44FE-A449-39C89D253E19">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:37 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @OrgUnitID int, 
+ @FiscalYear int, 
+ @ApplicantPackageTypeID int, 
+ @IsOpen bit, 
+ @PayGradeType int, 
+ @OctoberValue int, 
+ @NovemberValue int, 
+ @DecemberValue int, 
+ @JanuaryValue int, 
+ @FebruaryValue int, 
+ @MarchValue int, 
+ @AprilValue int, 
+ @MayValue int, 
+ @JuneValue int, 
+ @JulyValue int, 
+ @AugustValue int, 
+ @SeptemberValue int 
+) 
+AS 
+BEGIN 
+ 
+ BEGIN TRANSACTION 
+ 
+ DELETE FROM MissionData WHERE  
+  OrgUnitID = @OrgUnitID AND 
+  CalendarYear = @FiscalYear - 1 AND Month in (10,11,12) AND 
+  ApplicantPackageTypeID = @ApplicantPackageTypeID AND 
+  (IsOpen = @IsOpen or (IsOpen IS NULL AND @IsOpen IS NULL)) AND 
+  (PayGradeType = @PayGradeType or (PayGradeType IS NULL AND @PayGradeType IS NULL)) 
+ DELETE FROM MissionData WHERE  
+  OrgUnitID = @OrgUnitID AND 
+  CalendarYear = @FiscalYear AND Month in (1,2,3,4,5,6,7,8,9) AND 
+  ApplicantPackageTypeID = @ApplicantPackageTypeID AND 
+  (IsOpen = @IsOpen or (IsOpen IS NULL AND @IsOpen IS NULL)) AND 
+  (PayGradeType = @PayGradeType or (PayGradeType IS NULL AND @PayGradeType IS NULL)) 
+   
+ insert into MissionData (OrgUnitID, CalendarYear, ApplicantPackageTypeID, IsOpen, PayGradeType, Month, Mission) 
+  values (@OrgUnitID, @FiscalYear - 1, @ApplicantPackageTypeID, @IsOpen, @PayGradeType, 10, @OctoberValue) 
+ insert into MissionData (OrgUnitID, CalendarYear, ApplicantPackageTypeID, IsOpen, PayGradeType, Month, Mission) 
+  values (@OrgUnitID, @FiscalYear - 1, @ApplicantPackageTypeID, @IsOpen, @PayGradeType, 11, @NovemberValue) 
+ insert into MissionData (OrgUnitID, CalendarYear, ApplicantPackageTypeID, IsOpen, PayGradeType, Month, Mission) 
+  values (@OrgUnitID, @FiscalYear - 1, @ApplicantPackageTypeID, @IsOpen, @PayGradeType, 12, @DecemberValue) 
+ insert into MissionData (OrgUnitID, CalendarYear, ApplicantPackageTypeID, IsOpen, PayGradeType, Month, Mission) 
+  values (@OrgUnitID, @FiscalYear, @ApplicantPackageTypeID, @IsOpen, @PayGradeType, 1, @JanuaryValue) 
+ insert into MissionData (OrgUnitID, CalendarYear, ApplicantPackageTypeID, IsOpen, PayGradeType, Month, Mission) 
+  values (@OrgUnitID, @FiscalYear, @ApplicantPackageTypeID, @IsOpen, @PayGradeType, 2, @FebruaryValue) 
+ insert into MissionData (OrgUnitID, CalendarYear, ApplicantPackageTypeID, IsOpen, PayGradeType, Month, Mission) 
+  values (@OrgUnitID, @FiscalYear, @ApplicantPackageTypeID, @IsOpen, @PayGradeType, 3, @MarchValue) 
+ insert into MissionData (OrgUnitID, CalendarYear, ApplicantPackageTypeID, IsOpen, PayGradeType, Month, Mission) 
+  values (@OrgUnitID, @FiscalYear, @ApplicantPackageTypeID, @IsOpen, @PayGradeType, 4, @AprilValue) 
+ insert into MissionData (OrgUnitID, CalendarYear, ApplicantPackageTypeID, IsOpen, PayGradeType, Month, Mission) 
+  values (@OrgUnitID, @FiscalYear, @ApplicantPackageTypeID, @IsOpen, @PayGradeType, 5, @MayValue) 
+ insert into MissionData (OrgUnitID, CalendarYear, ApplicantPackageTypeID, IsOpen, PayGradeType, Month, Mission) 
+  values (@OrgUnitID, @FiscalYear, @ApplicantPackageTypeID, @IsOpen, @PayGradeType, 6, @JuneValue) 
+ insert into MissionData (OrgUnitID, CalendarYear, ApplicantPackageTypeID, IsOpen, PayGradeType, Month, Mission) 
+  values (@OrgUnitID, @FiscalYear, @ApplicantPackageTypeID, @IsOpen, @PayGradeType, 7, @JulyValue) 
+ insert into MissionData (OrgUnitID, CalendarYear, ApplicantPackageTypeID, IsOpen, PayGradeType, Month, Mission) 
+  values (@OrgUnitID, @FiscalYear, @ApplicantPackageTypeID, @IsOpen, @PayGradeType, 8, @AugustValue) 
+ insert into MissionData (OrgUnitID, CalendarYear, ApplicantPackageTypeID, IsOpen, PayGradeType, Month, Mission) 
+  values (@OrgUnitID, @FiscalYear, @ApplicantPackageTypeID, @IsOpen, @PayGradeType, 9, @SeptemberValue) 
+ 
+ -- Rollback the transac.on if there were any errors 
+ IF @@ERROR <> 0 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+  
+  -- Raise an error and return 
+  RAISERROR ('Error occurred while performing the change.', 16, 1) 
+  RETURN 
+ END 
+  
+ -- If we reach this point, the commands completed successfully. 
+ COMMIT TRANSACTION 
+END]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+</StoredProcedureSqlServerv2k5>

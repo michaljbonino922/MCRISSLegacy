@@ -1,0 +1,93 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_MIUpdateMarineCandidate]" directorySegmentName="seg_22" id="4FA3A6F3-C1CF-1E68-4A3D-012531B39892">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@PersonID    int, 
+ @BirthCity   varchar(17)= NULL, 
+ @BirthState   varchar(10) = NULL, 
+ @Ci.zenship   varchar(2)= null, 
+ @DateOfBirth   varchar(20)= null, 
+ @DriverLicExp   varchar(20)= null, 
+ @DriverLicNum   varchar(20) = null, 
+ @DriverLicState   varchar(2)= null, 
+ @GenderCode   char(1)= null, 
+ @MaritalStatusCode   char(1) = null, 
+ @MEPCOMEthnicCode  char(1)= null, 
+ @MEPCOMRaceCode   char(1)= null, 
+ @ReligionCode   varchar(2) = null, 
+ @UserLogin    varchar(15) 
+AS 
+ 
+ 
+IF EXISTS(SELECT 1 FROM MARINE_CANDIDATE WHERE MARINE_CANDIDATE_ID = @PersonID) 
+BEGIN  
+ UPDATE  
+  MARINE_CANDIDATE  
+ SET  
+  BIRTH_CITY   = @BirthCity, 
+  BIRTH_STATE  = @BirthState, 
+  CITIZENSHIP  = @Ci.zenship, 
+  DATE_OF_BIRTH   = @DateOfBirth, 
+  DRIVER_LICENSE_EXP  = @DriverLicExp,  
+  DRIVER_LICENSE_NUM = @DriverLicNum, 
+  DRIVER_LICENSE_STATE  = @DriverLicState, 
+  GENDER_CODE   = @GenderCode, 
+  MARITAL_STATUS_CODE = @MaritalStatusCode, 
+  MEPCOM_ETHNIC_CODE  = @MEPCOMEthnicCode, 
+  MEPCOM_RACE_CODE  = @MEPCOMRaceCode, 
+  RELIGION_CODE   = @ReligionCode, 
+  USER_LOGIN   = @UserLogin, 
+  UPDATE_DATE   = GETDATE()--,  --ETHNIC_CODE was discovered to be  set to Z for 4240/4252 candidates star.ng in Aug. 2003.  The same patern con.nues in Sep. 2003 
+--  ETHNIC_CODE  = 'Z'    --ETHNIC_CODE should not be updated at all, only mepcom race and ethnic codes should be updated. 
+ WHERE        --Modi.ed November 19, 2003 at 3:00 PM per approval from Captain Gravat. 
+  MARINE_CANDIDATE_ID  = @PersonID 
+ 
+END 
+ELSE 
+BEGIN 
+  
+ INSERT INTO MARINE_CANDIDATE  
+  ( 
+   MARINE_CANDIDATE_ID, 
+   BIRTH_CITY, 
+   BIRTH_STATE, 
+   CITIZENSHIP, 
+   DATE_OF_BIRTH, 
+   DRIVER_LICENSE_EXP, 
+   DRIVER_LICENSE_NUM, 
+   DRIVER_LICENSE_STATE, 
+   GENDER_CODE, 
+   MARITAL_STATUS_CODE, 
+   MEPCOM_ETHNIC_CODE, 
+   MEPCOM_RACE_CODE, 
+   RELIGION_CODE, 
+   USER_LOGIN, 
+   UPDATE_DATE--, 
+--   ETHNIC_CODE 
+  ) 
+ 
+ VALUES  
+  ( @PersonID, 
+   @BirthCity, 
+   @BirthState, 
+   @Ci.zenship, 
+   @DateOfBirth, 
+   @DriverLicExp, 
+   @DriverLicNum, 
+   @DriverLicState, 
+   @GenderCode, 
+   @MaritalStatusCode, 
+   @MEPCOMEthnicCode, 
+   @MEPCOMRaceCode, 
+   @ReligionCode, 
+   @UserLogin, 
+   GETDATE()--, 
+--   'Z'      ETHNIC_CODE should not used at all, only mepcom race and ethnic codes should be used.  ETHNIC CODE allows NULLS 
+  ) 
+ 
+END]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

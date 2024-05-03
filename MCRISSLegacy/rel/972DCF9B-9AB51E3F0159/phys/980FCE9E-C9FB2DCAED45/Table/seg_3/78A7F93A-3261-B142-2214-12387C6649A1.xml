@@ -1,0 +1,75 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="CalendarItem" directorySegmentName="seg_3" id="78A7F93A-3261-B142-2214-12387C6649A1">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<schemaObject>2A6D9360-3BB2-5CEA-6E99-790D76996FDF</schemaObject>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="Loca.on" id="0F66D13C-58E8-3746-386C-ED94B5284AFF">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:57 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="StartDateTime" id="3407434D-64C9-49E7-A826-A4AA1C3514A8">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:57 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="CalendarItemID" id="64F22A73-46B6-0B4F-4849-C2E1B67391D6">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:57 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="CalendarItemTypeID" id="8AE8D0A2-C003-A70F-1A55-F0CC7A733357">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:57 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="Notes" id="B0072392-8441-E64D-86DF-D0C158CF8312">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:57 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="RecruiterID" id="D1591B90-1ADD-05B3-184D-C5251B38B8E9">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:57 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="EndDateTime" id="FEF99106-44B7-5353-1B39-9212D03B1F66">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:57 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+</columnProxies>
+<indexProxies>
+<IndexProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.IndexProxySqlServerv2k12" name="missing_index_116" id="DB2856B0-3C49-65A3-D874-998B49EDA427">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:57 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<recomputeStatistics>ON</recomputeStatistics>
+</IndexProxy>
+</indexProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="._calendaritem_recruiterid" id="60352079-7524-8042-4323-5D94899B7065">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:25 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="._calendaritem_calendaritemtype" id="F4FB90FB-5E66-A851-5FB9-C54A4568C4FC">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:25 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="pk_CalendarItem" id="CB237425-3A0B-10DB-C47E-9DD654A43CBD">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:57 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<clustered>true</clustered>
+<partitioningColumn>64F22A73-46B6-0B4F-4849-C2E1B67391D6</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+</TableProxySqlServerv2k5>

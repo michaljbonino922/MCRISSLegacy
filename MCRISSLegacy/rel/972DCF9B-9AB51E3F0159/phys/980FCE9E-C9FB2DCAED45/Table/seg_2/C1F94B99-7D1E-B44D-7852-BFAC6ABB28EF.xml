@@ -1,0 +1,62 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="RecruitCurrentLead" directorySegmentName="seg_2" id="C1F94B99-7D1E-B44D-7852-BFAC6ABB28EF">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:52 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<schemaObject>2A6D9360-3BB2-5CEA-6E99-790D76996FDF</schemaObject>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="LeadID" id="6EA78310-15F2-1EE4-6040-B0E8E7656C6E">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:10 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="RecruitCurrentLeadID" id="754A1C22-157E-9D22-EFFF-25603B3CE362">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:10 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="RecruitID" id="8784A91E-665E-4657-D320-6D1823D90021">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:10 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+</columnProxies>
+<indexProxies>
+<IndexProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.IndexProxySqlServerv2k12" name="LeadID_Recruit_ID_PJ_9_23_15" id="51F09341-C8BC-B528-0DDF-C43F5AB1502B">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:10 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<recomputeStatistics>ON</recomputeStatistics>
+</IndexProxy>
+</indexProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="._RecruitCurrentLead_LeadID" id="35E3900F-9031-54EC-7137-FDE03554D151">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:25 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="._RecruitCurrentLead_RecruitID" id="77FE57BC-5884-EEF2-D9E1-043CEDF91A79">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:25 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="RecruitCurrentLead_PK" id="E46F7F2F-4A1B-7895-6C09-6CE1B95038F9">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:10 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<clustered>true</clustered>
+<partitioningColumn>754A1C22-157E-9D22-EFFF-25603B3CE362</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+<uniqueKeys>
+<UniqueKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.UniqueProxySqlServerv2k5" name="RecruitCurrentLead_UK0" id="2062CA2C-FA31-D082-1BEE-23E2D7723ACC">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:10 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</UniqueKey>
+</uniqueKeys>
+</TableProxySqlServerv2k5>

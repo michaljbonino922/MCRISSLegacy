@@ -1,0 +1,66 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertOrUpdateCollegePastProduc.on]" directorySegmentName="seg_11" id="C4897E89-C6CB-E098-B5AF-73884F41C146">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@SchoolCode int, 
+      @FiscalYear int, 
+      @NumMailOutConducted smallint, 
+      @PercentMailOutReturn smallint, 
+      @NumPosterityConducted smallint, 
+      @PercentPosterityReturn smallint, 
+      @UserLogin varchar(50) 
+       
+         
+AS 
+SET NOCOUNT ON 
+ 
+ 
+DECLARE @CollegePastProduc.onID uniqueiden..er 
+ 
+ Select @CollegePastProduc.onID = cp.CollegePro.leID from [USMC].CollegePro.le cp 
+          where cp.SCHOOL_CODE = @SchoolCode 
+             and cp.FiscalYear = @FiscalYear 
+              
+  
+ IF EXISTS (SELECT '1' from [USMC].CollegePastProduc.on cpe  
+        where cpe.CollegePastProduc.onID = @CollegePastProduc.onID 
+           and @CollegePastProduc.onID IS NOT NULL) 
+ -- then update the exisi.ng record 
+   
+   BEGIN  
+   UPDATE [MCRISS].[USMC].[CollegePastProduc.on] 
+     
+   SET  
+     [NumMailOutConducted] = @NumMailOutConducted, 
+     [PercentMailOutReturn] = @PercentMailOutReturn, 
+     [NumPosterityConducted] = @NumPosterityConducted, 
+     [PercentPosterityReturn] = @PercentPosterityReturn, 
+     [UserLogin] = @UserLogin, 
+     [UpdateDate] = GetDate() 
+ 
+   WHERE [CollegePastProduc.onID] =  @CollegePastProduc.onID  
+ 
+   END  
+ 
+   --ELSE  PROCEED WITH INSERT 
+   ELSE 
+ 
+   BEGIN 
+ 
+    INSERT INTO [MCRISS].[USMC].[CollegePastProduc.on] 
+     -- user can insert the CollegePastProduc.onID and .scal year 
+     ([CollegePastProduc.onID],[NumMailOutConducted],[PercentMailOutReturn], 
+     [NumPosterityConducted],[PercentPosterityReturn],[UserLogin],[UpdateDate]) 
+    VALUES 
+     (@CollegePastProduc.onID, @NumMailOutConducted,@PercentMailOutReturn, 
+     @NumPosterityConducted, @PercentPosterityReturn, 
+     @UserLogin,GetDate()) 
+ 
+   END 
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

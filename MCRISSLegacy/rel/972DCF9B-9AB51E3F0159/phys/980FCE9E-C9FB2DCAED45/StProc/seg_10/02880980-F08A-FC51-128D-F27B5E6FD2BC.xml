@@ -1,0 +1,38 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetWaiverByCategoryTypeAndLevel]" directorySegmentName="seg_10" id="02880980-F08A-FC51-128D-F27B5E6FD2BC">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[(@CategoryID int 
+ ,@TypeID int 
+ ,@LevelID int) 
+ 
+AS 
+ 
+SELECT 
+  w.[WAIVER_ID] 
+ ,w.[EFFECTIVE_DATE] 
+ ,wc.[WAIVER_CATEGORY_ID] 
+ ,wc.[WAIVER_CATEGORY_CODE] 
+ ,wc.[WAIVER_CATEGORY_DESC] 
+ ,wt.[WAIVER_TYPE_ID] 
+ ,wt.[WAIVER_TYPE_CODE] 
+ ,wt.[WAIVER_TYPE_DESC] 
+ ,wl.[WAIVER_LEVEL_ID] 
+ ,wl.[WAIVER_LEVEL_CODE] 
+ ,wl.[WAIVER_LEVEL_DESC] 
+FROM 
+ [dbo].[WAIVER] w WITH (NOLOCK) 
+INNER JOIN [dbo].[WAIVER_CATEGORY] wc 
+ ON wc.WAIVER_CATEGORY_ID = @CategoryID AND 
+  w.WAIVER_CATEGORY_ID = wc.WAIVER_CATEGORY_ID 
+INNER JOIN [dbo].[WAIVER_TYPE] wt 
+ ON wt.WAIVER_TYPE_ID = @TypeID AND 
+  w.WAIVER_TYPE_ID = wt.WAIVER_TYPE_ID 
+INNER JOIN [dbo].[WAIVER_LEVEL] wl 
+ ON wl.WAIVER_LEVEL_ID = @LevelID AND 
+  w.WAIVER_LEVEL_ID = wl.WAIVER_LEVEL_ID]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

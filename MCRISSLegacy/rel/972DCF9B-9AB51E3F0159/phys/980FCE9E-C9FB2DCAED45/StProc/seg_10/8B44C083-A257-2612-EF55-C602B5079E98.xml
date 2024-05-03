@@ -1,0 +1,35 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetScheduledEvent]" directorySegmentName="seg_10" id="8B44C083-A257-2612-EF55-C602B5079E98">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:37 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @ScheduledEventID uniqueiden..er 
+) 
+AS 
+ 
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+SELECT 
+ [ScheduledEventID], 
+ [ScheduledEventTypeID], 
+ [LeadId], 
+ [Ac.onID], 
+ [Ac.onOther], 
+ [CalendarItemEventID], 
+ [IsComplete], 
+ [ScheduledAppointmentOutcomeID], 
+ [ScheduledInterviewOutcomeID], 
+ [FollowUpAc.onID], 
+ [FollowUpAc.onOther], 
+ [FollowUpAc.onRemark], 
+ [IsDeleted], 
+ [CalendarItemAc.onID] 
+FROM  
+ [dbo].[ScheduledEvent] 
+WHERE  
+ [ScheduledEventID] = @ScheduledEventID]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+</StoredProcedureSqlServerv2k5>

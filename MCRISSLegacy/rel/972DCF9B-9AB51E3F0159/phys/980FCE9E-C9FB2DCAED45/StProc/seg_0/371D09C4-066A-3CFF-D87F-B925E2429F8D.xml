@@ -1,0 +1,54 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_MIUpdateMIRSReprocessFlag]" directorySegmentName="seg_0" id="371D09C4-066A-3CFF-D87F-B925E2429F8D">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:09 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@MIRSImportID  int, 
+ @Reprocess char(1)  = 'N', 
+ @Status  varchar(20)  = 'RESOLVED' 
+AS 
+ 
+SET NOCOUNT ON 
+ 
+DECLARE @DBID  int 
+DECLARE @DBNAME sysname 
+DECLARE @ErrMsg varchar(100) 
+ 
+SELECT  
+ @DBID  = DB_ID(),  
+ @DBNAME = DB_NAME() 
+ 
+ 
+IF EXISTS (SELECT 1 FROM MIRS_IMPORT_ERROR WHERE MIRS_IMPORT_ID = @MIRSImportID) 
+BEGIN 
+ --- BEGIN TRANSACTION 
+ 
+ UPDATE 
+  ERROR_LOG 
+ SET  
+  REPROCESS  = @Reprocess, 
+  STATUS  = @Status, 
+  UPDATE_DATE  = GETDATE() 
+ FROM 
+  ERROR_LOG EL INNER JOIN MIRS_IMPORT_ERROR MIE ON  
+   (MIE.MIRS_IMPORT_ID = @MIRSImportID AND 
+   EL.ERROR_LOG_ID = MIE.ERROR_LOG_ID) 
+ 
+ 
+ IF @@ERROR != 0 OR @@ROWCOUNT = 0 
+ BEGIN 
+  --- ROLLBACK TRANSACTION 
+  SET @ErrMsg = 'An error occurred setting the reprocess flag for MIRS Import ID ' + CONVERT(VARCHAR, @MIRSImportID) + '.' 
+  RAISERROR (@ErrMsg, 16, 1, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ 
+ --- COMMIT TRANSACTION 
+END 
+ 
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>24B9F7BA-5DD4-EAB5-4EB1-35B911743E85</database>
+</StoredProcedureSqlServerv2k5>

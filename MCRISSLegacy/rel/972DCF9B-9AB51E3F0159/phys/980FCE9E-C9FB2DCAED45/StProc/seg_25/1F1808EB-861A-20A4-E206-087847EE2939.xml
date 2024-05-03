@@ -1,0 +1,114 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateQSN]" directorySegmentName="seg_25" id="1F1808EB-861A-20A4-E206-087847EE2939">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@FY      varchar(4), 
+ @QSNID   char(9) = '0', 
+ @Status   char(1), 
+ @Recrui.ngOrgId int, 
+ @RUC   varchar(5), 
+ @MCCCode  varchar(5),  
+ @MOS   varchar(4), 
+ @Gender   char(1), 
+ @MSC   char(1), 
+ @SplitIncrement  char(1), 
+ @ComponentCode  varchar(2), 
+ @PivotDate  date.me, 
+ @UserLogin  varchar(15) 
+AS 
+ 
+DECLARE @MOSCriteriaE.ec.veDate date.me 
+ 
+--- GET THE MOS CRITERIA EFFECTIVE DATE 
+SELECT @MOSCriteriaE.ec.veDate = MAX(MC.MOS_CRITERIA_ED_DATE) FROM MOS_CRITERIA MC WHERE MC.MOS = @MOS AND MC.GENDER = @Gender 
+ 
+IF EXISTS (SELECT 1 FROM QSN WHERE QSN_ID = @QSNID) 
+BEGIN  
+ DECLARE @PreviousPivotDate date.me 
+ SELECT @PreviousPivotDate = QSN_PIVOT_DATE FROM QSN WHERE  QSN_ID = @QSNID 
+ 
+ IF DATEDIFF(DAY, @PreviousPivotDate, @PivotDate) != 0 
+ BEGIN 
+  --- IF THE PIVOT DATE CHANGES, ADD AN ENTRY TO THE QSN PIVOT DATE HISTORY TABLE  
+  --- BEFORE UPDATING THE QSN RECORD 
+  EXEC sp_UpdateQSNPivotDateHistory 
+   @QSNID   = @QSNID, 
+   @PreviousPivotDate = @PreviousPivotDate, 
+   @NewPivotDate  = @PivotDate, 
+   @UserLogin  = @UserLogin 
+ END 
+ 
+ --- UPDATE THE QSN 
+ UPDATE  
+  QSN  
+ SET   
+  STATUS     = @Status, 
+  RECRUITING_ORGANIZATION_ID  = @Recrui.ngOrgId, 
+  ASSIGNED_ORG_ID   = @Recrui.ngOrgId, 
+  RUC     = @RUC, 
+  MOS     = @MOS, 
+  GENDER     = @Gender, 
+  MSC     = @MSC, 
+  SPLIT_INCREMENT   = @SplitIncrement, 
+  COMPONENT_CODE    = @ComponentCode, 
+  QSN_PIVOT_DATE    = @PivotDate, 
+  PROGRAM_CRITERIA_ED_DATE  = @MOSCriteriaE.ec.veDate, 
+  USER_LOGIN    = @UserLogin, 
+  UPDATE_DATE    = GETDATE(), 
+  MCC_CODE    = @MCCCode 
+ WHERE  
+  QSN_ID = @QSNID 
+END 
+ELSE 
+BEGIN 
+ /*  
+ Generate the new QSN ID  
+ Prior to FY 2003, the new QSN_ID has the following structure: 1st digit is the last digit of the FY 
+ next 5 digits are the RUC and the last 3 digits are the counter . 
+  
+ Star.ng in FY 2003, the new QSN_ID will have the following structure: 1st 4 digits are the FY and the 
+ last 5 digits are the counter. 
+ */ 
+ DECLARE @NewQSNID  char(9) 
+ DECLARE @Counter varchar(5) 
+  
+ IF CONVERT(INT, @FY) >= 2003 
+ BEGIN 
+  SELECT @Counter = COALESCE(CONVERT(VARCHAR(5), CONVERT(INT, (MAX(RIGHT(QSN_ID, 5)))) + 1), '00000') FROM QSN WHERE FY = @FY   
+ 
+  --- MAKE SURE @COUNTER IS 5 DIGITS 
+  IF LEN(@Counter) < 5 
+  BEGIN 
+   --- SET @Counter = REPLACE(SPACE(5 - LEN(@Counter)) + @Counter, ' ', '0') 
+   SET @Counter = CONVERT(VARCHAR(5), REPLICATE('0', 5 - LEN(@Counter)) + @Counter) 
+  END   
+ 
+  SET @NewQSNID = @FY + @Counter 
+ END 
+ ELSE  
+ BEGIN  
+  SELECT @Counter = COALESCE(CONVERT(VARCHAR(3), CONVERT(INT, (MAX(RIGHT(QSN_ID, 3)))) + 1), '000') FROM QSN WHERE RUC = @RUC and FY = @FY 
+ 
+  --- MAKE SURE @COUNTER IS 3 DIGITS 
+  IF LEN(@Counter) < 3 
+  BEGIN 
+   --- SET @Counter = REPLACE(SPACE(3 - LEN(@Counter)) + @Counter, ' ', '0') 
+   SET @Counter = CONVERT(VARCHAR(3), REPLICATE('0', 3 - LEN(@Counter)) + @Counter) 
+  END   
+ 
+  SET @NewQSNID = (RIGHT(@FY, 1) + @RUC + @Counter)  
+ END 
+ 
+ --- INSERT THE NEW QSN 
+ INSERT INTO QSN  
+  (QSN_ID, FY, STATUS, RECRUITING_ORGANIZATION_ID, ASSIGNED_ORG_ID, RUC, MOS, GENDER, MSC,  
+  SPLIT_INCREMENT, COMPONENT_CODE, QSN_PIVOT_DATE, PROGRAM_CRITERIA_ED_DATE, USER_LOGIN, UPDATE_DATE, MCC_CODE) 
+ VALUES  
+  (@NewQSNID, @FY, @Status, @Recrui.ngOrgId, @Recrui.ngOrgId, @RUC, @MOS, @Gender, @MSC,  
+  @SplitIncrement, @ComponentCode, @PivotDate, @MOSCriteriaE.ec.veDate, @UserLogin, getdate(), @MCCCode) 
+END]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

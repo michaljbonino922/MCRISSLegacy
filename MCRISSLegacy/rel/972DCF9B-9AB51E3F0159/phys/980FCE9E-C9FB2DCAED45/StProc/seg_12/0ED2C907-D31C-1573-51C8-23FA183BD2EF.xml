@@ -1,0 +1,114 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUpdateO.cerWaiver]" directorySegmentName="seg_12" id="0ED2C907-D31C-1573-51C8-23FA183BD2EF">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[(@O.cerWaiverID int 
+ ,@NwaID int 
+ ,@TypeID int 
+ ,@OccasionID int 
+ ,@StatusCode char(1) 
+ ,@SubmitDate date.me 
+ ,@Details varchar(255) 
+ ,@CurrentLevel varchar(8) 
+ ,@ApprovalDate date.me 
+ ,@DisapprovalDate date.me 
+ ,@LastEditBy varchar(15) 
+ ,@SignedBy varchar(50) 
+ ,@SignedByDirec.onOf bit) 
+ 
+AS 
+ 
+DECLARE @ApprovalNumber int 
+ 
+SET @ApprovalNumber =  
+  CASE @StatusCode 
+   WHEN 'A' THEN @O.cerWaiverID 
+   ELSE NULL 
+  END 
+    
+UPDATE  
+ [dbo].[OFFICER_WAIVER] 
+SET  
+  [NWA_ID] = @NwaID 
+ ,[WAIVER_TYPE_ID] = @TypeID 
+ ,[WAIVER_OCCASION_ID] = @OccasionID 
+ ,[WAIVER_STATUS_CODE] = @StatusCode 
+ ,[WAIVER_SUBMIT_DATE] = @SubmitDate 
+ ,[WAIVER_DETAILS] = @Details 
+ ,[CURRENT_WAIVER_LEVEL] = @CurrentLevel 
+ ,[APPROVAL_NUMBER] = @ApprovalNumber 
+ ,[APPROVAL_DATE] = @ApprovalDate 
+ ,[DISAPPROVAL_DATE] = @DisapprovalDate 
+ ,[USER_LOGIN] = @LastEditBy 
+ ,[UPDATE_DATE] = GetDate() 
+ ,[SIGNED_BY] = @SignedBy 
+ ,[SIGNED_BY_DIRECTION_OF] = @SignedByDirec.onOf 
+ WHERE 
+ [OFFICER_WAIVER_ID] = @O.cerWaiverID 
+  
+IF @@ROWCOUNT = 0 
+ 
+BEGIN 
+ 
+ INSERT INTO [dbo].[OFFICER_WAIVER] 
+  ([NWA_ID] 
+  ,[WAIVER_TYPE_ID] 
+  ,[WAIVER_OCCASION_ID] 
+  ,[WAIVER_STATUS_CODE] 
+  ,[WAIVER_SUBMIT_DATE] 
+  ,[WAIVER_DETAILS] 
+  ,[CURRENT_WAIVER_LEVEL] 
+  ,[APPROVAL_NUMBER] 
+  ,[APPROVAL_DATE] 
+  ,[DISAPPROVAL_DATE] 
+  ,[USER_LOGIN] 
+  ,[UPDATE_DATE] 
+  ,[SIGNED_BY] 
+  ,[SIGNED_BY_DIRECTION_OF]) 
+ VALUES 
+  (@NwaID 
+  ,@TypeID 
+  ,@OccasionID 
+  ,@StatusCode 
+  ,@SubmitDate 
+  ,@Details 
+  ,@CurrentLevel 
+  ,NULL 
+  ,@ApprovalDate 
+  ,@DisapprovalDate 
+  ,@LastEditBy 
+  ,GetDate() 
+  ,@SignedBy 
+  ,@SignedByDirec.onOf) 
+ 
+ IF (@@ERROR <> 0) GOTO on_error; 
+  
+ IF @StatusCode = 'A' 
+ 
+ BEGIN 
+ 
+  SELECT @ApprovalNumber = SCOPE_IDENTITY(); 
+ 
+  UPDATE  
+   [dbo].[OFFICER_WAIVER] 
+  SET  
+    [APPROVAL_NUMBER] = @ApprovalNumber 
+   ,[UPDATE_DATE] = GetDate() 
+   WHERE 
+   [OFFICER_WAIVER_ID] = @ApprovalNumber 
+   
+ END 
+ 
+END 
+ 
+RETURN (0); 
+ 
+on_error: 
+ ROLLBACK TRANSACTION 
+  
+ RETURN (1);]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

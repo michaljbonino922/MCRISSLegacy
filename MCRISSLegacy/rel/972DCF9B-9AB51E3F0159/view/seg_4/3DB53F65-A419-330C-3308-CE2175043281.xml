@@ -1,0 +1,65 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_4" id="3DB53F65-A419-330C-3308-CE2175043281" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="_dta_mv_349">
+<sourceDDLFile>create Prospecting script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>BC228563-8A22-8D25-389B-6063B1EEAF70</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT  [USMC].[Person].[LastName] as _col_1,  [USMC].[Person].[FirstName] as _col_2,  [USMC].[PersonPhone].[PhoneNumber] as _col_3,  count_big(*) as _col_4 FROM  [USMC].[ImportPerson],  [USMC].[Person],  [USMC].[PersonPhone],  [USMC].[Prospect]   WHERE  [USMC].[Person].[PersonId] = [USMC].[PersonPhone].[PersonId]  AND  [USMC].[ImportPerson].[PersonId] = [USMC].[PersonPhone].[PersonId]  AND  [USMC].[PersonPhone].[PersonId] = [USMC].[Prospect].[PersonId]  GROUP BY  [USMC].[Person].[LastName],  [USMC].[Person].[FirstName],  [USMC].[PersonPhone].[PhoneNumber]]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[LastName]" id="A2511EA0-408E-9469-ACF7-3B7C5757EC76">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_1</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_1</headerAlias>
+<expression>[LastName]</expression>
+<reference>false</reference>
+<viewID>3DB53F65-A419-330C-3308-CE2175043281</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[FirstName]" id="417EC39C-0BC5-29BE-6C35-FFD0065A7EA6">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_2</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_2</headerAlias>
+<expression>[FirstName]</expression>
+<reference>false</reference>
+<viewID>3DB53F65-A419-330C-3308-CE2175043281</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[PhoneNumber]" id="9FAA4631-BC7D-6987-17D1-B87DD362AEB5">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_3</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_3</headerAlias>
+<expression>[PhoneNumber]</expression>
+<reference>false</reference>
+<viewID>3DB53F65-A419-330C-3308-CE2175043281</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="count_big(*)" id="9477E753-255F-983F-446A-2E4338A5966F">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:26 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>_col_4</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>_col_4</headerAlias>
+<expression>count_big(*)</expression>
+<reference>false</reference>
+<viewID>3DB53F65-A419-330C-3308-CE2175043281</viewID>
+</viewElement>
+</viewElements>
+</TableView>

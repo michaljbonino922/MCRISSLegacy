@@ -1,0 +1,26 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[ArchiveMudData]" directorySegmentName="seg_0" id="A93FA001-E2CA-C8C4-A683-D8653C767D4B">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@ZipCode varchar(9), 
+ @UserOrgId int, 
+ @UserLogin varchar(15) 
+ 
+AS 
+ 
+SET NOCOUNT ON 
+ 
+UPDATE [dbo].[MUD_FILE] 
+SET STATUS_ID = 'R', 
+ USER_LOGIN = @UserLogin, 
+ UPDATE_DATE = getdate() 
+WHERE ZIP = @ZipCode 
+ 
+ 
+--- UPDATE THE HISTORY TABLE WITH LATEST DATE 
+EXEC [USMC].[UpdateMudHistoryLog] @UserOrgId, @UserLogin]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

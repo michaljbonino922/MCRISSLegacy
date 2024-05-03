@@ -1,0 +1,25 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SelectAllApplicants]" directorySegmentName="seg_30" id="91EFA185-D088-E929-2BF7-DB15EEB7397C">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:39 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[AS 
+ 
+SELECT 
+ app.[PersonId], 
+ app.[NwaId], 
+ app.[BirthDate], 
+ app.[Gender], 
+ p.[SSN], 
+ p.[FirstName], 
+ p.[LastName], 
+ p.[MaidenName], 
+ p.[MiddleName], 
+ p.[Su.x] 
+FROM  
+ [ACP].[Applicant] app 
+ INNER JOIN [ACP].[Person] p ON app.[PersonId] = p.[PersonId]]]></body>
+<schema>569A41D8-8F40-0619-141C-F4C9436AAF46</schema>
+<database>2D7ED536-DF8E-3523-7DC3-4228EBAF5F66</database>
+</StoredProcedureSqlServerv2k5>

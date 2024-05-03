@@ -1,0 +1,97 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_newgenqsn179]" directorySegmentName="seg_23" id="70FEBCE9-F4FD-6FB0-BF72-3C6D80772530">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[as 
+declare  
+@ssn  varchar(9), 
+@person_id int, 
+@nwa_id  int, 
+@contract_id int, 
+@contract_date  date.me, 
+@gender  char(1), 
+@qsn_id  char(9), 
+@update_date  date.me, 
+@contract_qsn  int, 
+@last_date  date.me 
+ 
+set @update_date = getdate() 
+ 
+declare QSN cursor for 
+ 
+select a.SSN, DEP_DATEIN, RD_QSN, SEX,LAST_UPDT_DTE 
+from arms..temp_res_ssn res le. outer join arms..ARMS179 a 
+on res.ssn = a.ssn where a.ssn is not null 
+and res.component_code not in ('K5', '11') 
+and RD_QSN not like '' 
+ 
+open QSN  
+ 
+fetch QSN into  
+@ssn, @contract_date, @qsn_id, @gender, @last_date 
+ 
+ 
+while (@@fetch_status = 0) 
+begin 
+PRINT 'THIS IS IT' 
+ 
+set @person_id = (select person_id from person where social_security_number = @ssn) 
+set @nwa_id = (select nwa_id from nwa where marine_candidate_id = @person_id) 
+set @contract_id = (select contract_id from contract where nwa_id = @nwa_id) 
+ 
+ 
+-- checks to make sure the QSN_ID is in the QSN table 
+if  exists (select 1 from QSN where QSN_ID = @qsn_id) 
+begin 
+PRINT 'CONTRACT_DATE = ' 
+print @contract_date 
+  if @contract_id is not null 
+ begin 
+ set @contract_qsn = (select CONTRACT_ID from QSN where QSN_ID = @qsn_id) 
+   
+  --logic to handle an exis.ng QSN assignment 
+  if @contract_qsn != @contract_id and @contract_qsn is not null 
+  begin 
+   insert into arms..ERRORS_179 
+   values 
+   (@ssn, @last_date, 'Duplicate QSN', @qsn_id) 
+    
+  end 
+  
+  if (select GENDER from QSN where QSN_ID = @qsn_id) = @gender 
+   BEGIN 
+    update QSN 
+     set PROGRAM_ASSIGNMENT_DATE = @contract_date, 
+     PROGRAM_CRITERIA_ED_DATE = @contract_date, 
+     CONTRACT_ID = @contract_id, 
+     UPDATE_DATE = @update_date 
+     WHERE QSN_ID = @qsn_id 
+   END 
+   else 
+   BEGIN 
+    insert into arms..ERRORS_179 
+    values 
+    (@ssn, @last_date, 'Gender For QSN', @gender) 
+   
+   END 
+   
+ 
+ end 
+ 
+end 
+ 
+ 
+ 
+fetch QSN into  
+@ssn, @contract_date, @qsn_id, @gender, @last_date 
+ 
+ 
+end 
+ 
+close QSN 
+deallocate QSN]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

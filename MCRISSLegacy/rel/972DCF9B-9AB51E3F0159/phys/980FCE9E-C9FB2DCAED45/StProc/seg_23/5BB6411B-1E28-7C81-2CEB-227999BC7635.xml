@@ -1,0 +1,46 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_SearchStoredProcs]" directorySegmentName="seg_23" id="5BB6411B-1E28-7C81-2CEB-227999BC7635">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@SearchString varchar(100) 
+AS 
+ 
+SET @SearchString = '%' + @SearchString + '%' 
+ 
+SET NOCOUNT ON  
+ 
+--- CREATE TEMP TABLE TO HOLD DATA FROM SYSTEM TABLES 
+CREATE TABLE #TEMP (PROC_TYPE varchar(25), PROC_NAME sysname) 
+ 
+--- RETRIEVE DATA FROM SYSTEM TABLES INTO TEMP TABLE 
+INSERT INTO #TEMP (PROC_TYPE, PROC_NAME) 
+SELECT  
+ CASE O.XTYPE 
+  WHEN 'P' THEN 'STORED PROCEDURE' 
+  WHEN 'TR' THEN 'TRIGGER' 
+  WHEN 'FN' THEN 'USER DEFINED FUNCTION' 
+ END AS PROC_TYPE, 
+ O.NAME AS PROC_NAME 
+FROM  
+ SYSOBJECTS O INNER JOIN SYSCOMMENTS C ON  
+  (O.ID = C.ID AND 
+  O.XTYPE IN ('P' , 'TR', 'FN') AND 
+  C.TEXT LIKE @SearchString)  
+ 
+SET NOCOUNT OFF 
+ 
+--- FILTER OUT DUPLICATE NAMES AND RETURN THE DATA 
+SELECT DISTINCT  
+ CONVERT(VARCHAR(50), T.PROC_NAME) AS [PROCEDURE], T.PROC_TYPE  
+FROM 
+ #TEMP T 
+ORDER BY 
+ [PROCEDURE] 
+ 
+--- CLEAN UP 
+DROP TABLE #TEMP]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,75 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_6" id="C3820310-3340-4088-93E0-C3504AC6D4EA" schemaObject="454547C7-2829-9C8F-6E0C-35E4CFDC8E47" name="vwAuthorizedPermissions">
+<sourceDDLFile>create UserMgmt script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:51 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>3FA73A62-CEE1-5A85-9CDC-392EDC199109</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[-- Permissions assigned to the Role w/o context 
+SELECT p.Id as PostID, null as ContextOrgID, rp.PermissionId 
+FROM Post p 
+INNER JOIN Role r on p.RoleID = r.Id 
+INNER JOIN RolePermission rp on r.Id = rp.RoleId 
+Where rp.RequiresContext = 0 
+UNION 
+-- Permissions assigned to the Role with context 
+SELECT p.Id as PostID, p.OrgUnitID as ContextOrgID, rp.PermissionId 
+FROM Post p 
+INNER JOIN Role r on p.RoleID = r.Id 
+INNER JOIN RolePermission rp on r.Id = rp.RoleId 
+Where rp.RequiresContext = 1 
+UNION 
+-- Permissions assigned to the Role with context of decendent organiza.ons 
+SELECT p.Id as PostID, dorgs.Decendent as ContextOrgID, rp.PermissionId 
+FROM Post p 
+INNER JOIN Role r on p.RoleID = r.Id 
+INNER JOIN RolePermission rp on r.Id = rp.RoleId 
+INNER JOIN [USMC].[Ext_MCRISS_vwDecendentOrgs] dorgs on p.OrgUnitID = dorgs.Parent 
+Where rp.RequiresContext = 1 
+UNION 
+-- Permissions assigned to the POST 
+SELECT PostID, OrgUnitID as ContextOrgID, PermissionId 
+FROM PostPermission]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="Id" id="767D8473-5E70-E5FD-7B47-B65072E41985">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:51 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>PostID</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>PostID</headerAlias>
+<expression>Id</expression>
+<reference>false</reference>
+<viewID>C3820310-3340-4088-93E0-C3504AC6D4EA</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="null" id="E0D484FF-2F41-F3C2-0FB6-655CDD590148">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:51 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>ContextOrgID</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>ContextOrgID</headerAlias>
+<expression>null</expression>
+<reference>false</reference>
+<viewID>C3820310-3340-4088-93E0-C3504AC6D4EA</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="PermissionId" id="6AE6F861-4B71-4C79-8BC2-A56917B56E1A">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:51 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>PermissionId</alias>
+<dataType>UNKNOWN</dataType>
+<expression>PermissionId</expression>
+<reference>false</reference>
+<viewID>C3820310-3340-4088-93E0-C3504AC6D4EA</viewID>
+</viewElement>
+</viewElements>
+</TableView>

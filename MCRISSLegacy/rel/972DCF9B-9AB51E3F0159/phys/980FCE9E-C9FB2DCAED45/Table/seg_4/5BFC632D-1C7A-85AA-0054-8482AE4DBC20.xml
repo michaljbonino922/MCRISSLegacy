@@ -1,0 +1,53 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="ProspectPACData" directorySegmentName="seg_4" id="5BFC632D-1C7A-85AA-0054-8482AE4DBC20">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:09 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<schemaObject>454547C7-2829-9C8F-6E0C-35E4CFDC8E47</schemaObject>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="ProspectId" id="1852D0B8-22F7-87C1-FE4F-8CD660340219">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:20 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="PACXml" id="86EC5641-554E-0EF8-9E86-64EF0E07E48C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:20 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="ProspectPacDataId" id="BF24995E-1FF3-20F2-848C-B774E468DB2B">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:20 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<defaultValue>(newid())</defaultValue>
+</ColumnProxy>
+</columnProxies>
+<indexProxies>
+<IndexProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.IndexProxySqlServerv2k12" name="ProspectId" id="D03800E5-CE93-F62D-0558-F687282FA930">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:20 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<fillFactor>100</fillFactor>
+<recomputeStatistics>ON</recomputeStatistics>
+</IndexProxy>
+</indexProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="FK_ProspectPACData_Prospect" id="0D5C620C-448F-C546-2736-12A230B1B50D">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:28 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="PROSPECTPACDATA_PK" id="DE7BEA4D-0B7E-D117-CE3E-208F2388ADE2">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:20 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<clustered>true</clustered>
+<fillFactor>100</fillFactor>
+<partitioningColumn>BF24995E-1FF3-20F2-848C-B774E468DB2B</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+</TableProxySqlServerv2k5>

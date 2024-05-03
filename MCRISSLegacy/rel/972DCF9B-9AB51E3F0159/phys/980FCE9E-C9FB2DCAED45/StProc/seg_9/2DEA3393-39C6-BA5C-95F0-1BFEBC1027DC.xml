@@ -1,0 +1,28 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetProgramDataByContractID]" directorySegmentName="seg_9" id="2DEA3393-39C6-BA5C-95F0-1BFEBC1027DC">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @ContractID int 
+) 
+AS 
+ 
+SELECT      
+ pa.PROGRAM_AVAILABILITY_ID, 
+ c.CONTRACT_ID,  
+ p.PROGRAM_ID,  
+ p.PROGRAM_DESCRIPTION,  
+ p.PROGRAM_TYPE,  
+ c.DUTY_PREFERENCE1,  
+ c.DUTY_PREFERENCE2,  
+ c.DUTY_PREFERENCE3,  
+ pa.PROGRAM_ASSIGNMENT_DATE 
+FROM dbo.CONTRACT c  WITH (NOLOCK) 
+ INNER JOIN dbo.PROGRAM_AVAILABILITY pa ON c.CONTRACT_ID = pa.CONTRACT_ID  
+ INNER JOIN dbo.PROGRAM p ON pa.PROGRAM_ID = p.PROGRAM_ID 
+WHERE c.CONTRACT_ID = @ContractID]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,49 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetMediaInfoBySchoolRowGuid]" directorySegmentName="seg_5" id="B17A59E4-5970-B1C4-97D2-7DFD822134BB">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@SchoolCode uniqueiden..er, 
+      @FiscalYear int 
+     
+   
+AS 
+SET NOCOUNT ON 
+  
+ 
+  SELECT 
+   
+   [MediaInfoID], mi.[TypeID] As MediaTypeID, mt.Descrip.on AS MediaTypeName,  
+     
+    mi.Organiza.onID,  
+    mi.[Descripton] As MediaName, 
+    cp.[CollegePro.leID], poc.[PointOfContactID],     
+    cp.School_code AS SchoolCode, cp.FiscalYear, 
+    poc.[PointOfContactID], 
+    [POCLastName], [POCLegalMiddleName],[POCFirstName], 
+    [Street1],poc.[Street2],poc.[City],[State],[ZipCode], 
+       [TelephoneNumber],[CellPhoneNumber], 
+       [FaxNumber],[EmailAddress],[ValueToOSS],[Remarks] 
+ 
+       
+  FROM [MCRISS].[USMC]. MediaType mt 
+    
+    INNER JOIN [MediaInfo] mi ON mt.MediaTypeID = mi.TypeID 
+        
+    INNER JOIN  [MCRISS].[USMC].PointOfContact poc 
+    ON mi.PointOfContactID = poc.PointOfContactID 
+    INNER JOIN [CollegePro.le] cp ON mi.[CollegePro.leID]= cp.[CollegePro.leID] 
+    INNER JOIN dbo.HIGH_SCHOOL hs  
+           ON cp.SCHOOL_CODE = hs.SCHOOL_CODE  
+     
+ 
+        WHERE  hs.rowguid = @SchoolCode  
+               AND cp.FiscalYear = @FiscalYear 
+       
+ 
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

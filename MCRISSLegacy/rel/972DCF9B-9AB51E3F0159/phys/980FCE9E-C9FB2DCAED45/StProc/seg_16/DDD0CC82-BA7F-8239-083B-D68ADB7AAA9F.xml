@@ -1,0 +1,27 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetCandidateOCCR]" directorySegmentName="seg_16" id="DDD0CC82-BA7F-8239-083B-D68ADB7AAA9F">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@PersonId int 
+AS 
+ 
+SELECT 
+ CO.MOS_CODE, 
+ MOS.SHORT_DESCRIPTION, 
+ CO.STATE_CODE, 
+ GEO.STATE_TEXT, 
+ CO.COUNTY_CODE, 
+ GEO.COUNTY_TEXT, 
+ CO.CITY_CODE, 
+ GEO.CITY_TEXT, 
+ CO.PRIORITY_PREF  
+FROM  
+ CANDIDATE_OCCR CO INNER JOIN MOS_OFFICERS MOS 
+  ON (CO.MARINE_CANDIDATE_ID = @PersonId AND CO.MOS_CODE = MOS.MOS_CODE) 
+ INNER JOIN GEO_LOCATION GEO 
+  ON (CO.STATE_CODE = GEO.STATE_CODE AND CO.COUNTY_CODE = GEO.COUNTY_CODE AND CO.CITY_CODE = GEO.CITY_CODE)]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

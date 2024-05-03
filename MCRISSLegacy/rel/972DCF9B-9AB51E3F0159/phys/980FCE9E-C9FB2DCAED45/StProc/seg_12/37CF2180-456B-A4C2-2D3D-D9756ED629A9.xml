@@ -1,0 +1,88 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[M8412_Get_PesonList_By_LoginUser]" directorySegmentName="seg_12" id="37CF2180-456B-A4C2-2D3D-D9756ED629A9">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@UserID varchar(15), 
+ @person_id int, 
+ @.ag varchar(10) 
+AS 
+ 
+ DECLARE @orgid int 
+ DECLARE @orgCnt int 
+ DECLARE @person_id1 int 
+ DECLARE @person_id2 int 
+ DECLARE @person_id3 int 
+ DECLARE @person_cnt int 
+  
+ CREATE table #org1(organiza.on_id int) 
+ CREATE table #org2(organiza.on_id int) 
+ CREATE table #org3(organiza.on_id int) 
+ 
+ 
+ DECLARE Cur_Per CURSOR FOR 
+  select person_id from M8412_Person_View 
+  where organiza.on_id in (select organiza.on_id from #org3) 
+  order by LAST_NAME, FIRST_NAME 
+ 
+  
+ SET @orgid=0 
+ 
+ SELECT @orgid = o.ORGANIZATION_ID 
+  FROM RECRUITING_ORGANIZATION o, USER_LIST u 
+  WHERE o.MCC_CODE = u.MCC_CODE 
+   AND u.USER_ID = @UserID 
+ 
+ 
+ IF @orgid > 0 
+ BEGIN 
+ 
+ insert into #org1(organiza.on_id) values(@orgid) 
+ select @orgCnt = organiza.on_id from #org1 
+ while(@orgCnt > 0) 
+ begin 
+  insert into #org2(organiza.on_id) 
+  select organiza.on_id from #org1 
+ 
+  insert into #org3(organiza.on_id) 
+  select organiza.on_id from #org1 
+ 
+  delete from #org1 
+  insert into #org1(organiza.on_id) 
+  select child_organiza.on_id from ORGANIZATION_MAP where parent_organiza.on_id in (select organiza.on_id from #org2) 
+  delete from #org2 
+  select @orgCnt = count(*) from #org1 
+ 
+ end     
+ END 
+ 
+ OPEN Cur_Per 
+ FETCH NEXT FROM Cur_Per INTO @person_id2 
+ WHILE (@@FETCH_STATUS = 0) 
+ BEGIN 
+  if(@person_id2 = @person_id) 
+  BEGIN 
+   FETCH NEXT FROM Cur_Per INTO @person_id3 
+   break 
+  END 
+  set @person_id1 = @person_id2 
+  FETCH NEXT FROM Cur_Per INTO @person_id2 
+ END 
+  
+ Close Cur_Per 
+  
+ select @person_cnt = count(*) from M8412_Person_View 
+  where organiza.on_id in (select organiza.on_id from #org3) 
+ 
+ if(@.ag = 'next') 
+  select @person_id3  
+ else 
+  select @person_id1 
+  
+ drop table #org1 
+ drop table #org2 
+ drop table #org3]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

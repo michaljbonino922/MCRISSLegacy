@@ -1,0 +1,92 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="PersonEmail" directorySegmentName="seg_4" id="C810DF70-1D17-FB0B-3761-47B03E900136">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:09 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<schemaObject>454547C7-2829-9C8F-6E0C-35E4CFDC8E47</schemaObject>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="PersonEmailId" id="1A923316-C40E-B075-8C76-AA573C90F332">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<defaultValue>(newid())</defaultValue>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="LastUpdateUserId" id="24479060-5B86-771F-B9D2-0AB1098A750F">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="PersonEmailTypeId" id="57C9530E-D3EB-FF36-4FF9-A65CBCAB4638">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="PersonId" id="8E193E11-A84B-351B-7399-ABF50F56A1A3">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="LastUpdateDate" id="B9913B33-DE89-A901-C891-CF614E1214B2">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="EmailAddress" id="F56581E5-813D-7F02-25D9-BF66C2009973">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+</columnProxies>
+<indexProxies>
+<IndexProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.IndexProxySqlServerv2k12" name="PersonalEmail_TypeId" id="14546163-10AF-A485-92E4-1916D1E476A5">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<recomputeStatistics>ON</recomputeStatistics>
+</IndexProxy>
+<IndexProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.IndexProxySqlServerv2k12" name="IDX_PersonEmail_RCTAPI_PersonId" id="55EDBB77-F163-BD34-6C24-BDC0269DCCD4">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<fillFactor>100</fillFactor>
+<recomputeStatistics>ON</recomputeStatistics>
+</IndexProxy>
+<IndexProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.IndexProxySqlServerv2k12" name="Person_EmailIDX_PJ" id="E4F2B742-C80D-58A4-A315-BA8F284755D1">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<recomputeStatistics>ON</recomputeStatistics>
+</IndexProxy>
+</indexProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="PersonEmailTyp_PersonEmail_FK1" id="07BA8875-9031-4819-7C4C-15D874A91A8F">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:28 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="Person_PersonEmail_FK1" id="C360F356-800A-4B18-A90D-6E1C67325991">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:28 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="PersonEmail_PK" id="11F98337-07EB-9951-C717-2DFC00BE522C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<clustered>true</clustered>
+<fillFactor>100</fillFactor>
+<partitioningColumn>1A923316-C40E-B075-8C76-AA573C90F332</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+<uniqueKeys>
+<UniqueKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.UniqueProxySqlServerv2k5" name="IX_PersonEmail_PersonId_PersonEmailTypeId" id="9B0A8DF2-0B34-7829-C0E4-E1FB84A81FA4">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:44:16 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</UniqueKey>
+</uniqueKeys>
+</TableProxySqlServerv2k5>

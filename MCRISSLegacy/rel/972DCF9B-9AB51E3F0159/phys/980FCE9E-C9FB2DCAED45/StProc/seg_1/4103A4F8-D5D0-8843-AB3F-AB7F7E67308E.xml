@@ -1,0 +1,57 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetAc.vityObjec.ve]" directorySegmentName="seg_1" id="4103A4F8-D5D0-8843-AB3F-AB7F7E67308E">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@Recrui.ngOrgID int,  
+ @FiscalYear  int,  
+ @Month   int, 
+ @OrgType varchar(7) 
+AS 
+ 
+DECLARE @MissionValue int 
+ 
+IF @OrgType = 'RS' 
+ BEGIN 
+ SET @MissionValue = (SELECT SUM(MISSION_VALUE) FROM [dbo].[CONTRACTING_MISSION_PLAN] CMP WITH (NOLOCK) INNER JOIN 
+    [dbo].[RECRUITING_ORGANIZATION] RO ON CMP.ORGANIZATION_ID = RO.ORGANIZATION_ID 
+    INNER JOIN ORGANIZATION_MAP OM ON CMP.ORGANIZATION_ID = OM.CHILD_ORGANIZATION_ID 
+    WHERE OM.PARENT_ORGANIZATION_ID = @Recrui.ngOrgID AND 
+    CMP.CONTRACTING_MISSION_TYPE = 'RS' AND 
+    CMP.FISCAL_YEAR = @FiscalYear AND 
+    CMP.MONTH_CODE = @Month AND 
+    RO.ORGANIZATION_TYPE = 'RSS') 
+ END 
+ 
+IF @OrgType = 'RSS' Or @OrgType = 'NEW RSS' 
+ BEGIN 
+ SET @MissionValue = (SELECT MISSION_VALUE FROM [dbo].[CONTRACTING_MISSION_PLAN] CMP WITH (NOLOCK)  
+    INNER JOIN [dbo].[RECRUITING_ORGANIZATION] RO ON CMP.ORGANIZATION_ID = RO.ORGANIZATION_ID  
+    WHERE CMP.ORGANIZATION_ID = @Recrui.ngOrgID AND 
+    CMP.FISCAL_YEAR = @FiscalYear AND 
+    CMP.MONTH_CODE = @Month AND 
+    CMP.CONTRACTING_MISSION_TYPE = 'RS' AND 
+    RO.ORGANIZATION_TYPE = 'RSS') 
+ END  
+ 
+ 
+IF @MissionValue IS NULL SET @MissionValue = 0 
+ 
+SELECT  
+ AO.ORGANIZATION_ID AS Recrui.ngOrgID, 
+ AO.FISCAL_YEAR AS FiscalYear, 
+ AO.MONTH AS MonthCode, 
+ @MissionValue AS CONTRACT_OBJECTIVE, 
+ AO.NWAS_OBJECTIVE, AO.INTERVIEWS_OBJECTIVE,  
+ AO.TCS_OBJECTIVE, AO.OTS_OBJECTIVE, AO.ACS_OBJECTIVE, AO.HVS_OBJECTIVE, AO.DCS_OBJECTIVE,  
+ AO.WORK_DAYS, AO.CONTRACT_OBJECTIVE AS AO_CONTRACT_OBJECTIVE 
+FROM  
+ [dbo].[ACTIVITY_OBJECTIVE] AO WITH (NOLOCK) 
+WHERE  
+ AO.ORGANIZATION_ID = @Recrui.ngOrgID AND 
+ AO.FISCAL_YEAR = @FiscalYear AND 
+ AO.MONTH = @Month]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

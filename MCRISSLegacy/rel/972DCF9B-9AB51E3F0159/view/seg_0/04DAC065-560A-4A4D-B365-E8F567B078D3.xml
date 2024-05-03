@@ -1,0 +1,30 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_0" id="04DAC065-560A-4A4D-B365-E8F567B078D3" schemaObject="2A6D9360-3BB2-5CEA-6E99-790D76996FDF" name="vwCurrentNWA">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>921B5D30-7CBA-FF11-81EF-59AE74724260</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT N.* 
+FROM NWA N 
+INNER JOIN PERSON P ON P.PERSON_ID = N.MARINE_CANDIDATE_ID WHERE N.NWA_ID IN 
+(SELECT MAX(N2.NWA_ID) 
+ FROM NWA N2 
+ WHERE N.MARINE_CANDIDATE_ID = N2.MARINE_CANDIDATE_ID)]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="N.*" id="AA0DCC45-C148-8310-743C-29EC7F05DF3C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>N.*</alias>
+<dataType>UNKNOWN</dataType>
+<expression>N.*</expression>
+<reference>false</reference>
+<viewID>04DAC065-560A-4A4D-B365-E8F567B078D3</viewID>
+</viewElement>
+</viewElements>
+</TableView>

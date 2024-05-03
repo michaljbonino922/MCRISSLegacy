@@ -1,0 +1,76 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SP_CHECK_ADDRESS]" directorySegmentName="seg_13" id="9DF2AEB4-9798-8CC5-09DF-8D9C1FBEAB2D">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[as 
+ 
+declare @ssn  varchar(10), 
+ @curr_city varchar(20), 
+ @curr_cnty varchar(10), 
+ @curr_st varchar(10), 
+ @hor_city varchar(20), 
+ @hor_cnty varchar(10), 
+ @hor_st  varchar(10), 
+ @city_code_c varchar(10), 
+ @city_code_h varchar(10),  
+ @c_address varchar(10), 
+ @h_address varchar(10), 
+ @last_updt varchar(10) 
+ 
+declare  check_address cursor 
+for 
+select SSN,CURR_CITY, CURR_CNTY, CURR_ST, HOR_CITY, HOR_CNTY, HOR_ST, LAST_UPDT_DTE 
+ from arms..ARMS179 
+ 
+open check_address 
+ 
+fetch check_address into 
+ @ssn,@curr_city, @curr_cnty, @curr_st, @hor_city, @hor_cnty, @hor_st, @last_updt 
+ 
+ 
+while (@@fetch_status = 0) 
+ 
+ begin 
+  set @city_code_c = (select top 1 CITY_CODE from GEO_LOCATION where COUNTY_CODE = @curr_cnty 
+    and STATE_CODE = @curr_st and CITY_TEXT = @curr_city) 
+ 
+  set @city_code_h = (select top 1 CITY_CODE from GEO_LOCATION where COUNTY_CODE = @hor_cnty 
+    and STATE_CODE = @hor_st and CITY_TEXT = @hor_city) 
+ 
+ print @city_code_c 
+ print @city_code_h 
+   
+   if @city_code_c is NULL 
+  begin 
+  if not exists(select 1 from GEO_LOCATION where COUNTY_CODE = @curr_cnty and  
+    STATE_CODE = @curr_st) 
+  begin 
+  insert into arms..ERRORS_179 
+  values (@ssn, @last_updt, 'BAD CURR_ADDRESS',@curr_cnty+'_'+@curr_st) 
+  print 'date was no good' 
+  end  
+  end 
+ if @city_code_h is NULL 
+  begin 
+  if not exists (select 1 from GEO_LOCATION where COUNTY_CODE = @hor_cnty 
+    and STATE_CODE = @hor_st) 
+  begin 
+  insert into arms..ERRORS_179 
+  values (@ssn, @last_updt, 'BAD HOR_ADDRESS', @hor_cnty+'_'+@hor_st)  
+  print 'date was no good' 
+  end 
+ 
+  end 
+fetch check_address into 
+ @ssn,@curr_city, @curr_cnty, @curr_st, @hor_city, @hor_cnty, @hor_st, @last_updt 
+ 
+ end --all done here 
+ 
+ 
+close check_address 
+deallocate check_address]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,39 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetProspectEduca.on]" directorySegmentName="seg_14" id="F0FEB20E-8F64-DD5D-5CAA-103B1160AE46">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@ProspectId uniqueiden..er = NULL,  
+ @ProspectEduca.onId  uniqueiden..er = NULL    
+AS 
+BEGIN 
+ 
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+SET NOCOUNT ON 
+ 
+SELECT 
+ pe.ProspectEduca.onId, 
+ pe.ProspectId, 
+ pe.CompletedDate, 
+ pe.Educa.onLevel, 
+ pe.Educa.onCode, 
+ pe.Educa.onCompleted, 
+ pe.LastYearAtended, 
+ pe.YearGraduated, 
+ pe.SchoolCode, 
+ pe.EduStatusCode, 
+ pe.EduCreden.alCode, 
+ pe.EduProjectedTierCode 
+FROM 
+ USMC.ProspectEduca.on pe 
+WHERE 
+ (@ProspectId IS NULL OR ProspectId = @ProspectId) AND 
+ (@ProspectEduca.onId IS NULL OR ProspectEduca.onId = @ProspectEduca.onId) 
+ORDER BY  
+ LastYearAtended DESC 
+  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

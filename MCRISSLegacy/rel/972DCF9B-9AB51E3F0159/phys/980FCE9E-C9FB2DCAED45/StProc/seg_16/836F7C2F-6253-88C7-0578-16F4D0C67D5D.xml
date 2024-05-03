@@ -1,0 +1,22 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetCandidateStatusByNWAID]" directorySegmentName="seg_16" id="836F7C2F-6253-88C7-0578-16F4D0C67D5D">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@NWAID int 
+AS 
+ 
+SELECT  
+ P.PERSON_ID, CS.STATUS_CODE, CS.DISPOSITION_CODE,  
+ CONVERT(VARCHAR(11), CS.STATUS_EFFECTIVE_DATE, 106) AS STATUS_EFFECTIVE_DATE 
+FROM   
+ PERSON P INNER JOIN NWA N ON  
+  (P.PERSON_ID = N.MARINE_CANDIDATE_ID AND 
+  N.NWA_ID = @NWAID) 
+ INNER JOIN CANDIDATE_STATUS CS ON 
+  (CS.NWA_ID = N.NWA_ID AND 
+  CS.CANDIDATE_STATUS_ID = dbo.GetMaxStatusID(CS.NWA_ID))]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

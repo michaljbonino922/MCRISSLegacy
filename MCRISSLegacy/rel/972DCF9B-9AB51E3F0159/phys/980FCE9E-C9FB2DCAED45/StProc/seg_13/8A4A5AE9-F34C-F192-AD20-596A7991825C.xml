@@ -1,0 +1,47 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_DBA_Ac.vity]" directorySegmentName="seg_13" id="8A4A5AE9-F34C-F192-AD20-596A7991825C">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@rs_mcc  varchar(3) 
+as 
+ 
+DECLARE  
+@table_name varchar(40), 
+@sql_string nvarchar(700) 
+ 
+create table temp_user_login 
+( 
+TABLE_NAME  varchar(40), 
+USER_COUNT  int 
+) 
+ 
+declare whoson cursor for  
+select name from sysobjects where xtype = 'U' and name not like '%n.ict%' 
+order by name 
+ 
+open whoson 
+ 
+fetch whoson into @table_name 
+ 
+while (@@fetch_status = 0) 
+begin 
+ 
+ 
+ 
+set @sql_string = 'insert into temp_user_login  select "'+ @table_name +'"  ,count(*)   from ['+ @table_name + '] where user_login  
+in (select user_id from user_list where user_id in (select user_id from user_list where  
+mcc_Code = "'+ @rs_mcc +'")) ' 
+ 
+execute sp_executesql @sql_string 
+ 
+fetch whoson into @table_name 
+end 
+close whoson 
+deallocate whoson 
+select * from temp_user_login 
+drop table temp_user_login]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

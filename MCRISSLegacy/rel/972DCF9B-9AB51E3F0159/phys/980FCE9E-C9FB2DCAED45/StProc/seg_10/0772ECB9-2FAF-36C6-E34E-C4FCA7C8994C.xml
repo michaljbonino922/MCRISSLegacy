@@ -1,0 +1,93 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertCandidateMedicalExam]" directorySegmentName="seg_10" id="0772ECB9-2FAF-36C6-E34E-C4FCA7C8994C">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+      @MarineCandidateID INT, 
+      @MedicalExamDate DATETIME, 
+      @MedicalExamType VARCHAR(4), 
+      @MepsOrganiza.onID INT, 
+      @P_GeneralBodyBuild CHAR(2), 
+      @U_UpperBody CHAR(2), 
+      @L_LowerBody CHAR(2), 
+      @H_Hearing CHAR(2), 
+      @E_Eyes CHAR(2), 
+      @S_MentalPsychological CHAR(2), 
+      @VisualColor CHAR(1), 
+      @VisualColorDisposi.on CHAR(1) 
+ --,@X char(1) 
+      , 
+      @Le.CorrectedVisualAcuity VARCHAR(10), 
+      @RightCorrectedVisualAcuity VARCHAR(10), 
+      @Le.UncorrectedVisualAcuity VARCHAR(10), 
+      @RightUncorrectedVisualAcuity VARCHAR(10), 
+      @Height DECIMAL(4, 2), 
+      @Weight INT, 
+      @MedicalDisposi.on CHAR(1), 
+      @Consulta.onType VARCHAR(2), 
+      @UserLogin VARCHAR(15), 
+      @RetestEligibilityDate DATETIME = null, 
+   @D_Drugs CHAR(2) 
+    ) 
+AS 
+    INSERT  INTO [dbo].[CANDIDATE_MEDICAL_EXAM] 
+            ( [MARINE_CANDIDATE_ID], 
+              [MEDICAL_EXAM_DATE], 
+              [MEDICAL_EXAM_TYPE], 
+              [MEPS_ORGANIZATION_ID], 
+              [P_GENERAL_BODY_BUILD], 
+              [U_UPPER_BODY], 
+              [L_LOWER_BODY], 
+              [H_HEARING], 
+              [E_EYES], 
+              [S_MENTAL_PSYCHOLOGICAL], 
+              [VISUAL_COLOR], 
+              [VISUAL_COLOR_DISPOSITION] 
+ --,[X] 
+              , 
+              [LEFT_CORR_VISUAL_ACUITY], 
+              [RIGHT_CORR_VISUAL_ACUITY], 
+              [LEFT_UNCORR_VISUAL_ACUITY], 
+              [RIGHT_UNCORR_VISUAL_ACUITY], 
+              [HEIGHT], 
+              [WEIGHT], 
+              [MEDICAL_DISPOSITION], 
+              [CONSULTATION_TYPE], 
+              [USER_LOGIN], 
+              [UPDATE_DATE], 
+              [RETEST_ELIGIBILITY_DATE], 
+     [D_DRUGS] 
+            ) 
+    VALUES 
+            ( @MarineCandidateID, 
+              @MedicalExamDate, 
+              @MedicalExamType, 
+              @MepsOrganiza.onID, 
+              @P_GeneralBodyBuild, 
+              @U_UpperBody, 
+              @L_LowerBody, 
+              @H_Hearing, 
+              @E_Eyes, 
+              @S_MentalPsychological, 
+              @VisualColor, 
+              @VisualColorDisposi.on 
+ --,@X 
+              , 
+              @Le.CorrectedVisualAcuity, 
+              @RightCorrectedVisualAcuity, 
+              @Le.UncorrectedVisualAcuity, 
+              @RightUncorrectedVisualAcuity, 
+              @Height, 
+              @Weight, 
+              @MedicalDisposi.on, 
+              @Consulta.onType, 
+              @UserLogin, 
+              GETDATE(), 
+              @RetestEligibilityDate, 
+     @D_Drugs 
+            );]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

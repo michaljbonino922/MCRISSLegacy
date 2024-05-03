@@ -1,0 +1,50 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetMasterPlanData]" directorySegmentName="seg_6" id="1D88FDB1-EA3C-CFF0-9310-DEFEBB20DF78">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@Organiza.onID integer, 
+ @SchoolYear integer, 
+ @UnitID integer = 0, 
+ @SchoolType varchar(2) = NULL, 
+ @Priority char(1) = NULL,  
+ @Status varchar(4) = NULL, 
+ @Access char(1) = NULL, 
+ @OrderBy varchar(50) = NULL 
+AS 
+ 
+BEGIN 
+ DECLARE @SQLString NVARCHAR(1500) 
+ DECLARE @WhereClause NVARCHAR(1000) 
+ 
+ SET @SQLString = 'SELECT SV.SCHOOL_CODE, SV.UNIT, SV.DODID, SV.SCHOOL_NAME +' + '''' +  ' |  ' + '''' + '+ SV.RECRUITER_LAST_NAME AS [SCHOOL_NAME], SV.CITY, SV.STATE, CASE WHEN SV.STATUS_CODE = ''NW/N'' THEN ''NC'' ELSE SV.STATUS_CODE END AS STATUS_CODE, SV.PRIORITY_CODE, SV.ACCESS_CODE, SV.MALE_SENIORS, SV.FEMALE_SENIORS, SV.PERCENT_TO_COLLEGE, SV.UNIT_ID, SV.DELETED, SV.PARENT_ORGANIZATION_ID ORGANIZATION_ID, SV.SCHOOL_TYPE, SV.SCHOOL_YEAR FROM SCHOOLVIEW SV '  
+ SET @WhereClause = 'WHERE SV.DELETED = ''N'' AND SV.PARENT_ORGANIZATION_ID = ' + CONVERT(varchar, @Organiza.onID) + ' AND SV.SCHOOL_YEAR = (SELECT MAX(SV2.SCHOOL_YEAR) FROM SCHOOLVIEW SV2 WHERE SV2.PARENT_ORGANIZATION_ID = ' + CONVERT(VARCHAR, @Organiza.onID) + ' AND SV2.SCHOOL_CODE = SV.SCHOOL_CODE AND SV2.SCHOOL_YEAR <= ' + CONVERT(varchar, @SchoolYear) + ')'  
+ 
+ 
+ if @UnitID IS NOT NULL AND @UnitID != 0 
+  SET @WhereClause = @WhereClause + ' AND UNIT_ID = ' + CONVERT(varchar, @UnitID) 
+ 
+ if @SchoolType IS NOT NULL AND @SchoolType != '' 
+  SET @WhereClause = @WhereClause + ' AND SCHOOL_TYPE = ''' + @SchoolType + '''' 
+ 
+ if @Priority IS NOT NULL AND @Priority != '' 
+  SET @WhereClause = @WhereClause + ' AND PRIORITY_CODE = ''' + @Priority + '''' 
+ 
+ if @Status IS NOT NULL AND @Status != '' 
+  SET @WhereClause = @WhereClause + ' AND STATUS_CODE = ''' + @Status + '''' 
+  
+ if @Access IS NOT NULL AND @Access != '' 
+  SET @WhereClause = @WhereClause + ' AND ACCESS_CODE = ''' + @Access + '''' 
+ 
+ if @OrderBy IS NOT NULL AND @OrderBy != '' 
+  SET @WhereClause = @WhereClause + ' ORDER BY '+@OrderBy 
+ 
+ SET @SQLString = @SQLString + @WhereClause 
+ 
+ EXEC sp_executesql @SQLString 
+ 
+END]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

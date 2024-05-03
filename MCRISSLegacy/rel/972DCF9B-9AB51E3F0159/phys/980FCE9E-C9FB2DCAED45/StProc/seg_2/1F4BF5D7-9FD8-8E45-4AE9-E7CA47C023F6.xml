@@ -1,0 +1,19 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetAllEduca.onTier]" directorySegmentName="seg_2" id="1F4BF5D7-9FD8-8E45-4AE9-E7CA47C023F6">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[AS 
+ 
+SELECT  
+ EDUCATION_TIER AS ID, 
+ EDUCATION_CODE, 
+ TIER_BEGIN_DATE, 
+ TIER_END_DATE 
+FROM dbo.EDUCATION_TIER WITH (NOLOCK)  
+WHERE TIER_END_DATE IS NULL OR TIER_END_DATE > GetDate() 
+ORDER BY EDUCATION_CODE, EDUCATION_TIER]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

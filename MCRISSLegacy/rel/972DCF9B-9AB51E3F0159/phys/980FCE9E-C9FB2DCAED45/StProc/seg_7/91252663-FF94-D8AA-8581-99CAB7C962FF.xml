@@ -1,0 +1,33 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetNROTCContractByNwaID]" directorySegmentName="seg_7" id="91252663-FF94-D8AA-8581-99CAB7C962FF">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@NwaID int 
+AS 
+ 
+ SELECT  
+  CONTRACT_ID AS ContractID 
+  ,NC.NWA_ID as NwaID 
+  ,PROGRAM_TYPE AS ProgramType 
+  ,NROTC_UNIT_ROWGUID AS NROTCUnitID 
+  ,I_AND_I_STATE AS IIState 
+  ,I_AND_I_CITY AS IICity 
+  ,LEAVE_OF_ABSENCE_REASON AS LeaveOfAbsenceReasonID 
+  ,LEAVE_OF_ABSENCE_DATE AS LeaveOfAbsenceDate 
+  ,NC.USER_LOGIN AS UserLogin 
+  ,NC.UPDATE_DATE AS UpdateDate 
+  ,PG.RANK_CODE AS RANK 
+  ,M.PRIMARY_MOS AS PRIMARY_MOS 
+   ,M.BILLET_MOS AS BILLET_MOS 
+ FROM 
+  dbo.NROTC_CONTRACT NC WITH (NOLOCK) 
+  INNER JOIN NWA N ON NC.NWA_ID = N.NWA_ID 
+  INNER JOIN MARINE M ON N.MARINE_CANDIDATE_ID = M.MARINE_ID 
+  INNER JOIN PAY_GRADE PG ON M.PRESENT_GRADE_CODE = PG.PAY_GRADE_CODE 
+ WHERE 
+  NC.NWA_ID = @NwaID]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

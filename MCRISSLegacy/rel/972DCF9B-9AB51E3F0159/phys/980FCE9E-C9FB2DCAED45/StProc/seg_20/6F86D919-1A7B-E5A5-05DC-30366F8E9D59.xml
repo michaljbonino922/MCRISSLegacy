@@ -1,0 +1,30 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetPFTHistory]" directorySegmentName="seg_20" id="6F86D919-1A7B-E5A5-05DC-30366F8E9D59">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@NWAID int 
+AS 
+ 
+SELECT 
+ P.PFT_ID, P.NWA_ID, 
+ CONVERT(CHAR(11), P.PFT_DATE, 106) AS PFT_DATE, 
+ COALESCE(PFT_HEIGHT, 0) AS PFT_HEIGHT,  
+ COALESCE(PFT_WEIGHT, 0) AS PFT_WEIGHT,  
+ COALESCE(PFT_BODY_FAT_PCT, 0) AS PFT_BODY_FAT_PCT,  
+ COALESCE(PFT_RUN_MINUTES, 0) AS PFT_RUN_MINUTES,  
+ COALESCE(PFT_RUN_SECONDS, 0) AS PFT_RUN_SECONDS,  
+ COALESCE(PFT_PULLUPS, 0) AS PFT_PULLUPS,  
+ COALESCE(PFT_HANG, 0) AS PFT_HANG,  
+ COALESCE(PFT_CRUNCHES, 0) AS PFT_CRUNCHES, 
+ COALESCE(PFT_SCORE, 0) AS PFT_SCORE 
+FROM 
+ PFT P INNER JOIN NWA N ON  
+  (P.NWA_ID = N.NWA_ID AND 
+  N.NWA_ID = @NWAID)  
+ORDER BY 
+ P.PFT_DATE DESC, P.PFT_ID DESC]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

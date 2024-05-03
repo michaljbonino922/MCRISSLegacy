@@ -1,0 +1,40 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetBilletTrainingPersonRecruitHistory]" directorySegmentName="seg_3" id="2A1CBB06-7FE8-0336-530D-B70556929F34">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@PersonID INT =0  
+AS 
+ SELECT 
+ r.Person_ID 
+ , r.Sequence_No 
+ , r.Billet_ID 
+ , r.Billet 
+ , r.Loca.on_ID 
+ , r.Loca.on 
+ , r.Billet_Begin_Date 
+ , r.Billet_End_Date 
+ , le.(convert(varchar, r.Billet_Begin_Date,102),4)  
+  + substring(convert(varchar,  r.Billet_Begin_Date,102),6,2)  
+  + right(convert(varchar,  r.Billet_Begin_Date,102),2)  Billet_Begin_Date_Fmt 
+ , le.(convert(varchar,  r.Billet_End_Date,102),4)  
+  + substring(convert(varchar,  r.Billet_End_Date,102),6,2)  
+  + right(convert(varchar,  r.Billet_End_Date,102),2)  Billet_End_Date_Fmt 
+ , (CASE WHEN r.Billet_End_Date is null THEN  
+   DATEDIFF(month, r.billet_Begin_Date, getdate())  
+  ELSE  DATEDIFF(month, r.billet_Begin_Date, r.Billet_End_Date)  
+  END) MonthHeld 
+ , h.Billet_Held_Block 
+ , h.Billet_block_ID 
+from M8412_Recruit_History r WITH (NOLOCK) 
+ , M8412_LK_Billet b 
+ , M8412_Billet_Held_block h 
+where r.Billet_ID=b.Billet_ID 
+ and b.Billet_Held_Block = h.Billet_block_ID 
+ and r.person_id=@PersonID 
+ ORDER BY r.Billet_Begin_Date DESC 
+ --ORDER BY r.Sequence_No DESC]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

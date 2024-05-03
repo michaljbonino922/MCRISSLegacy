@@ -1,0 +1,53 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateNWADetail]" directorySegmentName="seg_27" id="CBCBA448-EE68-121C-7943-78FF45B2CF9D">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @ID int, 
+ @PPC_ControlNumber varchar(8), 
+ @DeclaredDate date.me, 
+ @DualRecrui.ngSourceID varchar(10), 
+ @MonthWorkingFor int, 
+ @NwaCategoryID varchar(6), 
+ @NwaViewNotes varchar(50), 
+ @ProgramChoice1 varchar(4), 
+ @ProgramChoice2 varchar(4), 
+ @ProgramChoice3 varchar(4), 
+ @Recrui.ngAc.vityID varchar(2), 
+ @Recrui.ngSourceID varchar(10), 
+ @StartedWorkingDate date.me, 
+ @LastEditBy varchar(15)  
+) 
+AS 
+  
+UPDATE [mcriss].[dbo].[NWA] SET 
+  [NWA_DECLARED_DATE] = @DeclaredDate 
+ ,[NWA_DATE_STARTED_WORKING] = @StartedWorkingDate 
+ ,[PROJECTED_SHIP_MONTH] = @MonthWorkingFor 
+ ,[NWA_LOG_NOTES] = @NwaViewNotes 
+ ,[PROJECTED_PROG_CHOICE1] = @ProgramChoice1 
+ ,[PROJECTED_PROG_CHOICE2] = @ProgramChoice2 
+ ,[PROJECTED_PROG_CHOICE3] = @ProgramChoice3 
+ ,[ACTIVITY_CODE] = @Recrui.ngAc.vityID 
+ ,[SOURCE_CODE] = @Recrui.ngSourceID 
+ ,[SOURCE_CODE_DUAL] = @DualRecrui.ngSourceID 
+ ,[CATEGORY_CODE] = @NwaCategoryID 
+ ,[PPC] = @PPC_ControlNumber 
+ --,[BACH_GRAD_YEAR] =  
+ ,[USER_LOGIN] = @LastEditBy 
+ ,[UPDATE_DATE] = GetDate() 
+ --,[rowguid] =  
+ --,[OFFICER_COMPONENT_CODE] =  
+ --,[SHIP_MISSION] =  
+ --,[EMAIL_ADDRESS] = @EmailAddress 
+ --,[RAPP_ISSUE_DATE] =  
+ --,[RAPP_SUBMIT_DATE] =  
+ --,[BACH_GRAD_MONTH] =  
+ --,[NATIONAL_CALL_TO_SERVICE] =  
+ --,[OCCR] =  
+WHERE [NWA_ID] = @ID]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

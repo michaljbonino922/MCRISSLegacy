@@ -1,0 +1,70 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_AddProgramAvailability]" directorySegmentName="seg_13" id="4CED72F7-0634-F218-FEEB-AE5B396ABB9A">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@ProgramID   int,  
+ @FiscalYear   int, 
+ @PeriodCode   int, 
+ @Organiza.onID  int, 
+ @Quan.ty  int, 
+ @QtyRemovedShipProg int, 
+ @UserLogin varchar(15) 
+AS 
+ 
+SET NOCOUNT ON 
+ 
+DECLARE @ProgramPeriodID int 
+ 
+SELECT  
+ @ProgramPeriodID = PROGRAM_PERIOD_ID  
+FROM  
+ PROGRAM_PERIOD  
+WHERE  
+ FY = @FiscalYear AND  
+ PERIOD_CODE = @PeriodCode 
+ 
+ 
+--- CREATE THE TEMP TABLE 
+CREATE TABLE #TEMP_TABLE (TEMP_ID INT) 
+ 
+--- POPULATE THE TEMP TABLE 
+INSERT INTO #TEMP_TABLE (TEMP_ID) 
+EXEC sp_CreateTempTable @NumberOfRows = @Quan.ty 
+ 
+--- INSERT THE PROGRAM AVAILABILITY RECORDS 
+INSERT INTO PROGRAM_AVAILABILITY (PROGRAM_ID, ASSIGNED_ORGANIZATION_ID, PROGRAM_PERIOD_ID, USER_LOGIN, UPDATE_DATE) 
+SELECT 
+ @ProgramID, @Organiza.onID, @ProgramPeriodID, @UserLogin, GETDATE() 
+FROM  
+ #TEMP_TABLE 
+ 
+ 
+--- UPDATE REMOVED SHIPPER PROGRAM AMOUNT 
+--- User RowCount since a value cannot be sent to TOP 
+IF @QtyRemovedShipProg > 0 
+BEGIN 
+ SET ROWCOUNT @QtyRemovedShipProg 
+  
+ DELETE REMOVED_PROGRAMS FROM REMOVED_PROGRAMS  
+  INNER JOIN PROGRAM_AVAILABILITY PA ON 
+  (REMOVED_PROGRAMS.PROGRAM_AVAILABILITY_ID = PA.PROGRAM_AVAILABILITY_ID) 
+  INNER JOIN PROGRAM ON 
+  (PROGRAM.PROGRAM_ID = PA.PROGRAM_ID) 
+  INNER JOIN PROGRAM_PERIOD PP ON 
+  (PA.PROGRAM_PERIOD_ID = PP.PROGRAM_PERIOD_ID AND 
+   PP.FY = @FiscalYear) 
+ WHERE PROGRAM.PROGRAM_ID = @ProgramID 
+  
+ SET ROWCOUNT 0 
+END 
+ 
+ 
+ 
+--- CLEAN UP 
+DROP TABLE #TEMP_TABLE 
+SET NOCOUNT OFF]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

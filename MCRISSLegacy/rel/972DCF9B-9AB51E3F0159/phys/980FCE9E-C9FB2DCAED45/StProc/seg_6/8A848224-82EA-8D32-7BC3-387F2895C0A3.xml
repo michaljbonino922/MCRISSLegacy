@@ -1,0 +1,169 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetXmlOso369MonthSummary]" directorySegmentName="seg_6" id="8A848224-82EA-8D32-7BC3-387F2895C0A3">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@SelectedIDs xml  
+ 
+AS 
+BEGIN 
+  
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+     
+    declare @isToUseTrainingFileID bit; 
+  
+ IF @SelectedIDs IS NOT null 
+ BEGIN 
+       
+     SET @isToUseTrainingFileID = @SelectedIDs.exist('/IDs/TrainingFileID') 
+ 
+  if @isToUseTrainingFileID = 0 -- sign a few eval tasks only  
+  BEGIN 
+   DECLARE @IDTable TABLE (ID uniqueidentifier) 
+    
+   INSERT INTO @IDTable (ID) 
+   SELECT ParamValues.ID.value('.','VARCHAR(36)') 
+   FROM @SelectedIDs.nodes('IDs/ID') as ParamValues(ID) 
+    
+   SELECT ms.ID 
+      ,Mul.MonthSummaryID 
+      ,MonthIncrement 
+      ,SignatureID AS 'Signature/SignatureID'  
+      ,U1.FirstName AS 'Signature/SignatureFirstName'  
+      ,U1.MiddleName AS 'Signature/SignatureMiddleName'  
+      ,U1.LastName AS 'Signature/SignatureLastName'  
+      ,Comments 
+      ,Es.matedDate 
+      ,CommandGroupMemberSignatureDate 
+      ,CommandGroupMemberSignatureID AS 'CommandGroupMemberSignature/SignatureID'  
+      ,U2.FirstName AS 'CommandGroupMemberSignature/SignatureFirstName'  
+      ,U2.MiddleName AS 'CommandGroupMemberSignature/SignatureMiddleName'  
+      ,U2.LastName AS 'CommandGroupMemberSignature/SignatureLastName'  
+      ,COSignatureID AS 'COSignature/SignatureID'  
+      ,U3.FirstName AS 'COSignature/SignatureFirstName'  
+      ,U3.MiddleName AS 'COSignature/SignatureMiddleName'  
+      ,U3.LastName AS 'COSignature/SignatureLastName'  
+      ,SentToDistrictDate 
+      ,LastUpdatedDate 
+      ,LastUpdatedBy 
+      ,Name 
+      ,Rank 
+      ,( 
+        SELECT da.ID 
+       ,MonthSummaryID 
+       ,Name 
+       ,Mastery 
+       ,TrainingRequired 
+       ,LastUpdatedDate 
+       ,LastUpdatedBy 
+       FROM USMC.MonthDutyAreaList da 
+       WHERE 
+       da.MonthSummaryID = ms.ID 
+       ORDER BY RIGHT(da.Name, 4) 
+       FOR XML PATH('DutyAreaTask'), TYPE, ELEMENTS XSINIL 
+       ) AS DutyAreaTasks 
+      FROM USMC.MonthSummary ms 
+      LEFT OUTER JOIN USMC.vwMcrissUserMgmtUser AS U1 ON U1.UserID = ms.SignatureID 
+      LEFT OUTER JOIN USMC.vwMcrissUserMgmtUser AS U2 ON U2.UserID = ms.CommandGroupMemberSignatureID 
+      LEFT OUTER JOIN USMC.vwMcrissUserMgmtUser AS U3 ON U3.UserID = ms.COSignatureID 
+      WHERE  
+      ms.ID IN (SELECT * FROM @IDTable) 
+      ORDER BY MonthIncrement 
+       
+      FOR XML PATH('MonthlySummary'), root('MonthlySummary-OSO-369-MonthlySummaries'), ELEMENTS XSINIL 
+    
+  END 
+  ELSE  -- trainingFileID is provided. whole eval is being signed 
+  BEGIN  
+   DECLARE @TrainingFileIDTable TABLE (ID uniqueidentifier) 
+    
+   INSERT INTO @TrainingFileIDTable (ID) 
+   SELECT ParamValues.ID.value('.','VARCHAR(36)') 
+   FROM @SelectedIDs.nodes('IDs/TrainingFileID') as ParamValues(ID) 
+    
+   SELECT mms.ID 
+      ,Evalua.onTypeID 
+      ,et.Name AS EvalTypeName 
+      ,TrainingFileID 
+      ,ParDate 
+      ,CompleteDate 
+      ,LastUpdatedDate 
+      ,LastUpdatedBy 
+          
+      ,(SELECT ms.ID 
+      ,Mul.MonthSummaryID 
+      ,MonthIncrement 
+      ,SignatureID AS 'Signature/SignatureID'  
+      ,U1.FirstName AS 'Signature/SignatureFirstName'  
+      ,U1.MiddleName AS 'Signature/SignatureMiddleName'  
+      ,U1.LastName AS 'Signature/SignatureLastName'  
+      ,Comments 
+      ,Es.matedDate 
+      ,CommandGroupMemberSignatureDate 
+      ,CommandGroupMemberSignatureID AS 'CommandGroupMemberSignature/SignatureID'  
+      ,U2.FirstName AS 'CommandGroupMemberSignature/SignatureFirstName'  
+      ,U2.MiddleName AS 'CommandGroupMemberSignature/SignatureMiddleName'  
+      ,U2.LastName AS 'CommandGroupMemberSignature/SignatureLastName'  
+      ,COSignatureID AS 'COSignature/SignatureID'  
+      ,U3.FirstName AS 'COSignature/SignatureFirstName'  
+      ,U3.MiddleName AS 'COSignature/SignatureMiddleName'  
+      ,U3.LastName AS 'COSignature/SignatureLastName'  
+      ,SentToDistrictDate 
+      ,LastUpdatedDate 
+      ,LastUpdatedBy 
+      ,Name 
+      ,Rank 
+      ,( 
+        SELECT da.ID 
+       ,MonthSummaryID 
+       ,Name 
+       ,Mastery 
+       ,TrainingRequired 
+       ,LastUpdatedDate 
+       ,LastUpdatedBy 
+       FROM USMC.MonthDutyAreaList da 
+       WHERE 
+       da.MonthSummaryID = ms.ID 
+       ORDER BY RIGHT(da.Name, 4) 
+       FOR XML PATH('DutyAreaTask'), TYPE, ELEMENTS XSINIL 
+       ) AS DutyAreaTasks 
+      FROM USMC.MonthSummary ms 
+      LEFT OUTER JOIN USMC.vwMcrissUserMgmtUser AS U1 ON U1.UserID = ms.SignatureID 
+      LEFT OUTER JOIN USMC.vwMcrissUserMgmtUser AS U2 ON U2.UserID = ms.CommandGroupMemberSignatureID 
+      LEFT OUTER JOIN USMC.vwMcrissUserMgmtUser AS U3 ON U3.UserID = ms.COSignatureID 
+      WHERE  
+      ms.Mul.MonthSummaryID = mms.ID 
+      ORDER BY MonthIncrement 
+      FOR XML PATH('MonthlySummary'), TYPE, ELEMENTS XSINIL 
+      ) AS MonthlySummaries 
+          
+      ,( 
+      SELECT s.Date, s.Mission  
+      FROM USMC.MonthMissionSummary s 
+      WHERE mms.ID=s.Mul.MonthSummaryID 
+      AND s.Date BETWEEN  
+      DATEADD(month, 2, mms.ParDate) 
+      AND 
+      DATEADD(month, 11, mms.ParDate) 
+      ORDER BY s.Date 
+      FOR XML PATH('Mission'), TYPE, ELEMENTS XSINIL 
+      ) As MissionSummaries  
+   FROM  
+   USMC.Mul.MonthSummary mms 
+   INNER JOIN USMC.Evalua.onType et ON mms.Evalua.onTypeID=et.ID 
+   WHERE  
+       
+   TrainingFileID IN (SELECT * FROM @TrainingFileIDTable) 
+ 
+   FOR XML PATH ('MonthSummary-OSO-369'), root('MonthSummary-OSO-369s'), ELEMENTS XSINIL 
+ 
+    
+  END  
+ END 
+  
+  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

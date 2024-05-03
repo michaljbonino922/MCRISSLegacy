@@ -1,0 +1,53 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetPoolModi.ca.onData]" directorySegmentName="seg_8" id="446A8201-6F12-3CD7-53B8-8353864CBF70">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[(@NwaId int) 
+ 
+AS 
+ 
+SELECT 
+ COALESCE(RTRIM(p.LAST_NAME), SPACE(0))  + SPACE(1) +  
+  COALESCE(RTRIM(p.FIRST_NAME), SPACE(0)) + SPACE(1) +  
+  COALESCE(RTRIM(p.LEGAL_MIDDLE_NAME), SPACE(0)) AS Name 
+ ,p.SOCIAL_SECURITY_NUMBER AS Ssn 
+ ,s.CurrentRankCode 
+ ,COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+  COALESCE(RTRIM(rcrtr.LAST_NAME), SPACE(0))  + SPACE(1) +  
+  COALESCE(RTRIM(rcrtr.FIRST_NAME), SPACE(0)) + SPACE(1) +  
+  COALESCE(RTRIM(rcrtr.LEGAL_MIDDLE_NAME), SPACE(0)) AS RecruiterName 
+ ,n.RECRUITER_OF_RECORD_ID 
+ ,c.CONTRACT_BEGIN_DATE AS DepDate 
+ ,c.PROJECTED_SHIP_DATE AS PaddDate 
+ ,s.SHIP_ID AS CommandRecruiterId 
+    ,s.DateDueHome 
+ ,s.DepartureDate 
+ ,n.EDUCATION_LEVEL + n.EDUCATION_CODE AS Educa.on 
+ ,ca.AFQT_SCORE AS AfqtScore 
+ ,ca.GT_SCORE AS GtScore 
+ ,ca.EL_SCORE AS ElScore 
+ ,ca.CL_SCORE AS ClScore 
+ ,ca.MM_SCORE AS MmScore 
+ ,c.CONTRACT_ID AS ContractId 
+ ,n.ORGANIZATION_OF_RECORD_ID AS Recrui.ngOrgId 
+FROM  
+ [dbo].[NWA] n WITH (NOLOCK) 
+INNER JOIN [dbo].[CONTRACT] c 
+ ON c.NWA_ID = n.NWA_ID 
+LEFT OUTER JOIN [dbo].[SHIPPER] S 
+ ON c.CONTRACT_ID = s.CONTRACT_ID 
+INNER JOIN [dbo].[PERSON] p 
+ ON p.PERSON_ID = n.MARINE_CANDIDATE_ID 
+LEFT OUTER JOIN [dbo].[CANDIDATE_ASVAB] ca 
+ ON ca.MARINE_CANDIDATE_ID = n.MARINE_CANDIDATE_ID 
+LEFT OUTER JOIN [dbo].[RECRUITING_PERSON] rp 
+ ON rp.RECRUITING_PERSON_ID = n.RECRUITER_OF_RECORD_ID 
+LEFT OUTER JOIN [dbo].[PERSON] rcrtr 
+ ON rcrtr.PERSON_ID = rp.RECRUITING_PERSON_ID 
+WHERE 
+ n.NWA_ID = @NwaId]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

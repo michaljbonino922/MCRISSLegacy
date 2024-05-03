@@ -1,0 +1,40 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateNROTCLeaveOfAbsence]" directorySegmentName="seg_25" id="B7CA83B0-2BAF-CC72-7887-55D4F0807511">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@NROTCLeaveOfAbsenceID int = 0, 
+ @NWAID   int, 
+ @ContractID  int = NULL, 
+ @LeaveOfAbsenceReason int, 
+ @LeaveOfAbsenceDate date.me, 
+ @UserLogin  varchar(15) 
+AS 
+ 
+ 
+IF EXISTS (SELECT 1 FROM NROTC_LEAVE_OF_ABSENCE WHERE NROTC_LEAVE_OF_ABSENCE_ID = @NROTCLeaveOfAbsenceID) 
+BEGIN 
+ UPDATE 
+  NROTC_LEAVE_OF_ABSENCE 
+ SET 
+  NWA_ID     = @NWAID, 
+  CONTRACT_ID    = @ContractID, 
+  LEAVE_OF_ABSENCE_REASON  = @LeaveOfAbsenceReason, 
+  LEAVE_OF_ABSENCE_DATE   = @LeaveOfAbsenceDate,   
+  USER_LOGIN    = @UserLogin, 
+  UPDATE_DATE    = GETDATE() 
+ WHERE 
+  NROTC_LEAVE_OF_ABSENCE_ID = @NROTCLeaveOfAbsenceID 
+ 
+END 
+ELSE 
+BEGIN 
+ INSERT INTO NROTC_LEAVE_OF_ABSENCE 
+  (NWA_ID, CONTRACT_ID, LEAVE_OF_ABSENCE_REASON, LEAVE_OF_ABSENCE_DATE, USER_LOGIN, UPDATE_DATE) 
+ VALUES 
+  (@NWAID, @ContractID, @LeaveOfAbsenceReason, @LeaveOfAbsenceDate, @UserLogin, GETDATE()) 
+END]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

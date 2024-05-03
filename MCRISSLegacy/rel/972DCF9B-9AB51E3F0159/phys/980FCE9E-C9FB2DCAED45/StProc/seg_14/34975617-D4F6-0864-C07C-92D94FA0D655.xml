@@ -1,0 +1,180 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetProspectFindPersonResults_RR01092013]" directorySegmentName="seg_14" id="34975617-D4F6-0864-C07C-92D94FA0D655">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[(  
+ @FirstName varchar(20) = null, 
+ @LastName varchar(20) = null, 
+ @SSN varchar(9) = null, 
+ @Recrui.ngPersonId uniqueiden..er = null,  
+ @SubSta.onType varchar(1)=null 
+) 
+AS 
+BEGIN 
+ 
+SET NOCOUNT ON 
+ 
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+If @Recrui.ngPersonId is not null 
+ 
+ /* BEGIN NWA ID IS NULL */   
+ IF @SubSta.onType = 'E'  
+ BEGIN 
+  SELECT DISTINCT 
+    IE.ImportEventId, 
+    P.PersonID,  
+    Pr.ProspectId, 
+    pr.NwaId, 
+    'Prospect' as Status, 
+    pdt.ProspectDisposi.onType as Disposi.on, 
+    pdt.ProspectDisposi.onId, 
+    RO.NAME as RSS, 
+    P.FirstName,  
+    P.MiddleName,  
+    P.LastName, 
+    PA_PRIMARY.Street1 as PrimaryStreet1, 
+    PA_PRIMARY.Street2 as PrimaryStreet2, 
+    PA_PRIMARY.City as PrimaryCity, 
+    PA_PRIMARY.State as PrimaryState, 
+    PA_PRIMARY.ZipCode as PrimaryZipCode, 
+    PA_ALTERNATE.Street1 as AlternateStreet1, 
+    PA_ALTERNATE.Street2 as AlternateStreet2, 
+    PA_ALTERNATE.City as AlternateCity, 
+    PA_ALTERNATE.State as AlternateState, 
+    PA_ALTERNATE.ZipCode as AlternateZipCode, 
+    PP_PRIMARY.PhoneNumber as PrimaryPhoneNumber, 
+    PP_ALTERNATE.PhoneNumber as AlternatePhoneNumber, 
+    PE_PRIMARY.EmailAddress as PrimaryEmailAddress, 
+    PE_ALTERNATE.EmailAddress as AlternateEmailAddress, 
+    RP.RANK_CODE, 
+    PERSON.LAST_NAME as RecruiterLastName, 
+    PERSON.FIRST_NAME as RecruiterFirstName, 
+    PERSON.LEGAL_MIDDLE_NAME as RecruiterMiddleName 
+    INTO #ENLISTED_RESULTS     
+    FROM [usmc].[ImportEvent] IE  
+    INNER JOIN [usmc].[ImportPerson] IP on (IE.importeven.d = IP.importeven.d) 
+    INNER JOIN [usmc].[Person] P on (IP.personid = P.personid) 
+    INNER JOIN [usmc].[Prospect] pr on (p.PersonID = pr.PersonID) 
+    LEFT OUTER JOIN [usmc].[ProspectSchool] ps on (pr.ProspectId = ps.ProspectId)  
+    LEFT OUTER JOIN [usmc].[ProspectDisposi.on] pdt on (pr.ProspectDisposi.onId = pdt.ProspectDisposi.onId) 
+    LEFT OUTER JOIN MCRISS.dbo.RECRUITING_PERSON RP on (Pr.Recrui.ngPersonId = RP.rowguid) 
+    LEFT OUTER JOIN MCRISS.dbo.PERSON PERSON on (RP.RECRUITING_PERSON_ID=PERSON.PERSON_ID) 
+    LEFT OUTER JOIN MCRISS.dbo.RECRUITING_ORGANIZATION RO on (Pr.Recrui.ngOrganiza.onId = RO.rowguid) 
+    LEFT OUTER JOIN [USMC].[PersonAddress] PA_PRIMARY ON ((PA_PRIMARY.PersonId = P.PersonId) AND (PA_PRIMARY.PersonAddressTypeId = 1)) 
+    LEFT OUTER JOIN [USMC].[PersonAddress] PA_ALTERNATE ON ((PA_ALTERNATE.PersonId = P.PersonId) AND (PA_ALTERNATE.PersonAddressTypeId = 2)) 
+    LEFT OUTER JOIN [USMC].[PersonPhone] PP_PRIMARY ON ((PP_PRIMARY.PersonId = P.PersonId) AND (PP_PRIMARY.PersonPhoneTypeId = 1)) 
+    LEFT OUTER JOIN [USMC].[PersonPhone] PP_ALTERNATE ON ((PP_ALTERNATE.PersonId = P.PersonId) AND (PP_ALTERNATE.PersonPhoneTypeId = 2)) 
+    LEFT OUTER JOIN [USMC].[PersonEmail] PE_PRIMARY ON ((PE_PRIMARY.PersonId = P.PersonId) AND (PE_PRIMARY.PersonEmailTypeId = 1)) 
+    LEFT OUTER JOIN [USMC].[PersonEmail] PE_ALTERNATE ON ((PE_ALTERNATE.PersonId = P.PersonId) AND (PE_ALTERNATE.PersonEmailTypeId = 2)) 
+    WHERE IE.ImportEventStatusTypeId = 3  
+     AND IP.ImportPersonStatusTypeId in (1,2,7,10)  
+     AND (@FirstName is null OR (P.FirstName like @FirstName AND @FirstName IS NOT NULL))  
+     AND (@LastName is null OR (P.LastName like @LastName AND @LastName IS NOT NULL))  
+     AND (@SSN is null OR (P.SocialSecurityNumber like @SSN AND @SSN IS NOT NULL))  
+     AND (@SubSta.onType is null OR (pr.SubSta.onType = @SubSta.onType AND @SubSta.onType IS NOT NULL)) 
+     AND (@Recrui.ngPersonId is NULL or (pr.Recrui.ngPersonId = @Recrui.ngPersonId AND @Recrui.ngPersonId IS NOT NULL)) 
+      
+    SELECT  
+     ROW_NUMBER() OVER(Order By R.LASTNAME, R.FIRSTNAME), 
+     r.* 
+    FROM #ENLISTED_RESULTS r 
+  
+    DROP TABLE #ENLISTED_RESULTS 
+ END /* END NWA ID IS NULL */    
+ ELSE IF @SubSta.onType = 'O'  
+ BEGIN /* BEGIN NWA ID IS NOT NULL */   
+  SELECT DISTINCT 
+    IE.ImportEventId, 
+    P.PersonID,  
+    Pr.ProspectId, 
+    pr.NwaId, 
+    pdt.ProspectDisposi.onId, 
+    RO.NAME as RSS, 
+    P.FirstName,  
+    P.MiddleName,  
+    P.LastName, 
+    PA_PRIMARY.Street1 as PrimaryStreet1, 
+    PA_PRIMARY.Street2 as PrimaryStreet2, 
+    PA_PRIMARY.City as PrimaryCity, 
+    PA_PRIMARY.State as PrimaryState, 
+    PA_PRIMARY.ZipCode as PrimaryZipCode, 
+    PA_ALTERNATE.Street1 as AlternateStreet1, 
+    PA_ALTERNATE.Street2 as AlternateStreet2, 
+    PA_ALTERNATE.City as AlternateCity, 
+    PA_ALTERNATE.State as AlternateState, 
+    PA_ALTERNATE.ZipCode as AlternateZipCode, 
+    PP_PRIMARY.PhoneNumber as PrimaryPhoneNumber, 
+    PP_ALTERNATE.PhoneNumber as AlternatePhoneNumber, 
+    PE_PRIMARY.EmailAddress as PrimaryEmailAddress, 
+    PE_ALTERNATE.EmailAddress as AlternateEmailAddress, 
+    RP.RANK_CODE, 
+    PERSON.LAST_NAME as RecruiterLastName, 
+    PERSON.FIRST_NAME as RecruiterFirstName, 
+    PERSON.LEGAL_MIDDLE_NAME as RecruiterMiddleName 
+    INTO #OFFICER_RESULTS 
+    FROM [usmc].[ImportEvent] IE  
+    INNER JOIN [usmc].[ImportPerson] IP on (IE.importeven.d = IP.importeven.d) 
+    INNER JOIN [usmc].[Person] P on (IP.personid = P.personid) 
+    INNER JOIN [usmc].[Prospect] pr on (p.PersonID = pr.PersonID) 
+    LEFT OUTER JOIN [usmc].[ProspectSchool] ps on (pr.ProspectId = ps.ProspectId)  
+    LEFT OUTER JOIN [usmc].[ProspectDisposi.on] pdt on (pr.ProspectDisposi.onId = pdt.ProspectDisposi.onId) 
+    LEFT OUTER JOIN MCRISS.dbo.RECRUITING_PERSON RP on (Pr.Recrui.ngPersonId = RP.rowguid) 
+    LEFT OUTER JOIN MCRISS.dbo.PERSON PERSON on (RP.RECRUITING_PERSON_ID=PERSON.PERSON_ID) 
+    LEFT OUTER JOIN MCRISS.dbo.RECRUITING_ORGANIZATION RO on (Pr.Recrui.ngOrganiza.onId = RO.rowguid)  
+    LEFT OUTER JOIN [USMC].[PersonAddress] PA_PRIMARY ON ((PA_PRIMARY.PersonId = P.PersonId) AND (PA_PRIMARY.PersonAddressTypeId = 1)) 
+    LEFT OUTER JOIN [USMC].[PersonAddress] PA_ALTERNATE ON ((PA_ALTERNATE.PersonId = P.PersonId) AND (PA_ALTERNATE.PersonAddressTypeId = 2)) 
+    LEFT OUTER JOIN [USMC].[PersonPhone] PP_PRIMARY ON ((PP_PRIMARY.PersonId = P.PersonId) AND (PP_PRIMARY.PersonPhoneTypeId = 1)) 
+    LEFT OUTER JOIN [USMC].[PersonPhone] PP_ALTERNATE ON ((PP_ALTERNATE.PersonId = P.PersonId) AND (PP_ALTERNATE.PersonPhoneTypeId = 2)) 
+    LEFT OUTER JOIN [USMC].[PersonEmail] PE_PRIMARY ON ((PE_PRIMARY.PersonId = P.PersonId) AND (PE_PRIMARY.PersonEmailTypeId = 1)) 
+    LEFT OUTER JOIN [USMC].[PersonEmail] PE_ALTERNATE ON ((PE_ALTERNATE.PersonId = P.PersonId) AND (PE_ALTERNATE.PersonEmailTypeId = 2)) 
+     
+    WHERE IE.ImportEventStatusTypeId = 3  
+     AND IP.ImportPersonStatusTypeId in (1,2,7,10) 
+     -- Prospect Search 
+     AND (@FirstName is null OR (P.FirstName like @FirstName AND @FirstName IS NOT NULL))  
+     AND (@LastName is null OR (P.LastName like @LastName AND @LastName IS NOT NULL))  
+     AND (@SSN is null OR (P.SocialSecurityNumber like @SSN AND @SSN IS NOT NULL))  
+     AND (@SubSta.onType is null OR (pr.SubSta.onType = @SubSta.onType AND @SubSta.onType IS NOT NULL)) 
+     AND (@Recrui.ngPersonId is NULL or (pr.Recrui.ngPersonId = @Recrui.ngPersonId AND @Recrui.ngPersonId IS NOT NULL)) 
+     
+    SELECT      
+     MAX(cs.CANDIDATE_STATUS_ID) as CANDIDATE_STATUS_ID, 
+     cs.rowguid AS NWAId, 
+     cs.STATUS_TYPE,  
+     cs.STATUS_CODE, 
+     cs.DISPOSITION_CODE 
+    INTO #CandidateMaxStatus 
+    FROM MCRISS.dbo.CANDIDATE_STATUS cs 
+    INNER JOIN #OFFICER_RESULTS r ON r.NwaId = cs.rowguid 
+    GROUP BY cs.rowguid, cs.STATUS_TYPE, cs.STATUS_CODE, cs.DISPOSITION_CODE 
+     
+    SELECT  
+     sd.Status_Descrip.on AS Status, 
+     sd.Disposi.on_Descrip.on AS Disposi.on, 
+     cs.NwaId     
+    INTO #StatusDisposi.on 
+    FROM #CandidateMaxStatus cs 
+    INNER JOIN MCRISS.dbo.Status_Disposi.on sd on sd.Status_Type = cs.Status_Type and sd.Status_Code = cs.Status_Code and sd.Disposi.on_Code = cs.Disposi.on_Code  
+     
+    SELECT  
+     ROW_NUMBER() OVER(Order By R.LASTNAME, R.FIRSTNAME), 
+     r.*, 
+     sd.Status, 
+     sd.Disposi.on 
+    FROM #OFFICER_RESULTS r 
+    LEFT OUTER JOIN #StatusDisposi.on sd on r.NwaId = sd.NwaId 
+     
+    DROP TABLE #CandidateMaxStatus 
+    DROP TABLE #StatusDisposi.on 
+    DROP TABLE #OFFICER_RESULTS 
+     
+  END /* END NWA ID IS NOT NULL */    
+   
+   
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,700 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetObjec.veSheetByWeek]" directorySegmentName="seg_4" id="2ED19059-4FAC-F326-25CA-01BDDA7906DE">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@OrgID    int, 
+    @Year     int, 
+    @Month     int,  
+    @Week  int 
+ 
+AS 
+ 
+BEGIN 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ SET NOCOUNT ON 
+   
+ CREATE TABLE #TEMP_WEEKLY_START_DATES ( 
+ [StartDate] [date.me] NOT NULL, 
+ [EndDate] [date.me] NOT NULL, 
+ [ID] [int] IDENTITY(1,1) PRIMARY KEY 
+ )  
+ 
+ INSERT INTO #TEMP_WEEKLY_START_DATES 
+ SELECT DISTINCT 
+ wo.StartDate AS StartDate 
+ ,wo.EndDate AS EndDate 
+ FROM USMC.Objec.veWeek wo  
+ INNER JOIN MCRISS.dbo.RECRUITING_ORGANIZATION ro ON ro.ORGANIZATION_ID = @OrgID 
+ WHERE wo.OrgID=ro.ORGANIZATION_ID 
+ AND wo.Year=@Year 
+ AND wo.Month=@Month 
+ ORDER BY wo.StartDate 
+  
+ -- Here we calculate start and end dates for the selected week, that will be used later   
+ DECLARE @StartDate date.me 
+ DECLARE @EndDate date.me 
+ 
+ IF ((@Week IS NULL) OR @Week < 1) 
+ BEGIN 
+  SET @StartDate = (SELECT TOP 1 StartDate FROM #TEMP_WEEKLY_START_DATES ORDER BY ID); 
+  SET @EndDate =   (SELECT TOP 1 EndDate   FROM #TEMP_WEEKLY_START_DATES ORDER BY ID DESC); 
+ END 
+ ELSE 
+ BEGIN 
+  SELECT  
+   @StartDate = StartDate,  
+   @EndDate = EndDate  
+  FROM  
+   #TEMP_WEEKLY_START_DATES 
+  WHERE  
+   ID = @Week 
+ END 
+  
+ -- Make sure @EndDate is at 11:59:59 PM of that day 
+ SET  @EndDate = CAST( (STR(Year(@EndDate)) + '-' + STR(MONTH(@EndDate)) + '-' + STR(DAY(@EndDate)) ) AS date.me) 
+ SET  @EndDate = DATEADD(day, 1, @EndDate) 
+ SET  @EndDate = DATEADD(second, -1, @EndDate)  
+  
+ -- These are all the personnel belonging to this Rss regardless of whether they have performed any ac.vi.es 
+ SELECT  
+  (SELECT RANK_CODE + ' ' + LAST_NAME 
+    FROM MCRISS.dbo.PERSON per 
+    WHERE per.PERSON_ID = rp.RECRUITING_PERSON_ID ) AS RecruiterName, 
+  rp.rowguid AS RecruiterID, 
+  rp.RECRUITING_PERSON_ID AS RECRUITING_PERSON_ID 
+ INTO #TEMP_RECRUITING_PERSONNEL 
+ FROM MCRISS.dbo.RECRUITING_PERSON rp  
+ WHERE rp.ORGANIZATION_ID = @OrgID 
+ AND rp.TOUR_END_DATE IS NULL 
+  
+  
+ SELECT DISTINCT 
+  mo.RecruiterID, 
+  (CASE WHEN @Week IS NULL THEN @StartDate ELSE wo.StartDate END) AS StartDate, 
+  (CASE WHEN @Week IS NULL THEN @EndDate ELSE wo.EndDate END) AS EndDate, 
+  wo.MonthlyObjec.veID, 
+  (CASE WHEN @Week IS NULL THEN '00000000-0000-0000-0000-000000000000' ELSE wo.ID END) AS WeeklyObjec.veID, 
+  (CASE WHEN @Week IS NULL THEN 100.0 ELSE wo.[GoalPercentage] END) AS GoalPercentage, 
+  (CASE WHEN @Week IS NULL THEN mo.Nwa ELSE wo.[NwaObjec.ve] END) AS NwaObjec.ve, 
+  (CASE WHEN @Week IS NULL THEN mo.Interview ELSE wo.[InterviewObjec.ve] END) AS InterviewObjec.ve,  
+  (CASE WHEN @Week IS NULL THEN mo.TelephoneCall ELSE wo.TelephoneCallObjec.ve END) AS TelephoneCallObjec.ve, 
+  (CASE WHEN @Week IS NULL THEN mo.O.ceTra.c ELSE wo.[O.ceTra.cObjec.ve] END) AS O.ceTra.cObjec.ve, 
+  (CASE WHEN @Week IS NULL THEN mo.AreaCanvassing ELSE wo.[AreaCanvassingObjec.ve] END) AS AreaCanvassingObjec.ve, 
+  (CASE WHEN @Week IS NULL THEN mo.HomeVisit ELSE wo.[HomeVisitObjec.ve] END) AS HomeVisitObjec.ve, 
+  (CASE WHEN @Week IS NULL THEN mo.ElectronicProspec.ng ELSE wo.[ElectronicProspec.ngObjec.ve] END) AS ElectronicProspec.ngObjec.ve,   
+  (CASE WHEN @Week IS NULL THEN mo.Comments ELSE wo.Comments END) AS Comments, 
+  ro.ORGANIZATION_ID AS OrgId, 
+  ro.[NAME] AS RssName, 
+  (CASE WHEN @Week IS NULL THEN mo.ContractCount ELSE CEILING( mo.ContractCount * [GoalPercentage] / 100) END) AS ContractObjec.ve 
+ INTO #TEMP_WEEKLY_DATA 
+ FROM  
+  #TEMP_WEEKLY_START_DATES wsd 
+  INNER JOIN USMC.WeeklyObjec.ve wo ON wo.StartDate = wsd.StartDate and wo.EndDate = wsd.EndDate 
+  INNER JOIN USMC.MonthlyObjec.ve mo ON mo.ID = wo.MonthlyObjec.veID 
+  INNER JOIN MCRISS.dbo.RECRUITING_ORGANIZATION ro ON ro.ORGANIZATION_ID = @OrgID 
+ WHERE  
+  mo.Organiza.onId=ro.rowguid 
+  AND mo.Year=@Year 
+  AND mo.Month=@Month 
+  AND (@Week IS NULL OR ( @Week IS NOT NULL AND wsd.ID = @Week)) 
+ 
+ 
+ --- RSS Monthly objec.ve should be based on monthly objec.ve table, not weekly accumula.on 
+ IF @Week IS NULL 
+ BEGIN 
+  UPDATE  #TEMP_WEEKLY_DATA  
+  SET 
+   NwaObjec.ve = mo.Nwa, 
+   InterviewObjec.ve = mo.Interview,  
+   TelephoneCallObjec.ve = mo.TelephoneCall, 
+   O.ceTra.cObjec.ve = mo.O.ceTra.c, 
+   AreaCanvassingObjec.ve = mo.AreaCanvassing, 
+   HomeVisitObjec.ve = mo.HomeVisit, 
+   ElectronicProspec.ngObjec.ve = mo.ElectronicProspec.ng  
+  FROM  
+   USMC.MonthlyObjec.ve mo 
+   INNER JOIN MCRISS.dbo.RECRUITING_ORGANIZATION ro  
+    ON ro.ORGANIZATION_ID = @OrgID 
+      AND mo.Organiza.onId=ro.rowguid 
+               AND mo.Year=@Year 
+               AND mo.Month=@Month 
+      AND mo.RecruiterID = '00000000-0000-0000-0000-000000000000' 
+  WHERE  
+   #TEMP_WEEKLY_DATA.RecruiterID = '00000000-0000-0000-0000-000000000000' 
+ END 
+  
+ -- This table is used to hold the various types of comments atached to a prospect 
+ SELECT 
+  pc.Recrui.ngPersonID AS RecruiterID, 
+  pac.Ac.vity AS Ac.vity, 
+  pac.ProspectAc.vityCommentId, 
+  pc.IsApproved, 
+  pc.ProspectDate AS ProspectDate 
+  ,pct.ProspectCommentType 
+  ,p.ProspectId 
+ INTO #TEMP_PROSPECT_COMMENTS  
+ FROM #TEMP_WEEKLY_DATA wd  
+ INNER JOIN Prospec.ng.USMC.ProspectComment pc ON pc.Recrui.ngPersonID = wd.RecruiterID  
+ INNER JOIN Prospec.ng.USMC.Prospect p ON pc.ProspectId = p.ProspectId 
+    INNER JOIN Prospec.ng.USMC.ProspectAc.vityComment pac ON pac.ProspectAc.vityCommentId = pc.ProspectAc.vityCommentId 
+    INNER JOIN Prospec.ng.USMC.ProspectCommentType pct ON pct.ProspectCommentTypeId = pac.ProspectCommentTypeId 
+ WHERE  
+  (pc.ProspectDate >= @StartDate AND pc.ProspectDate < @EndDate)  
+  AND pc.IsApproved = 1  
+  AND pct.ProspectCommentType IN ('CM', 'OT-S', 'Col', 'Col-S', 'Col-R', 'NI') 
+  
+ -- This table is used to hold interviews scheduled for a prospect 
+ SELECT *  
+ INTO #TEMP_PROSPECT_INTERVIEWS 
+ FROM  
+ ( 
+  SELECT  
+   eo.CreatorId AS RecruiterID, 
+   p.Ac.vity AS Ac.vity, 
+   e.ID, 
+   e.StartDate AS ProspectInterviewDate 
+   ,s.SubjectId 
+   , ISNULL(n.NWA_DECLARED_DATE, '3000-1-1') AS NWA_DECLARED_DATE  
+  FROM #TEMP_WEEKLY_DATA wd 
+  --INNER JOIN Prospec.ng.USMC.Prospect p ON p.Recrui.ngPersonID = wd.RecruiterID  
+  INNER JOIN RSSOSS.USMC.EventOwners eo ON eo.CreatorId = wd.RecruiterID 
+  INNER JOIN RSSOSS.USMC.Event e ON  e.ID = eo.EventId 
+  INNER JOIN RSSOSS.USMC.EventSubject s on s.EventId = e.ID 
+  INNER JOIN Prospec.ng.USMC.Prospect p ON s.SubjectId = p.ProspectId  
+  INNER JOIN Prospec.ng.USMC.Person per ON per.PersonId = p.PersonId 
+  INNER JOIN RSSOSS.USMC.EventOutcome oc ON e.ID = oc.EventId 
+  INNER JOIN RSSOSS.USMC.EventType et ON e.EventTypeId = et.ID 
+  INNER JOIN MCRISS.DBO.RECRUITING_PERSON rp on rp.rowguid = eo.CreatorId 
+  LEFT OUTER JOIN MCRISS.dbo.NWA n ON n.rowguid = p.NwaId 
+  WHERE (InterviewOutcomeId=1 or InterviewOutcomeId=2) -- New Working Applicant or Follow-up 
+     AND et.Type != 'Follow Up' 
+     AND e.IsApproved = 1 
+     AND (e.StartDate >= @StartDate AND e.StartDate < @EndDate) 
+     AND rp.TOUR_END_DATE IS NULL 
+ ) AS TT1 
+ WHERE 
+  (ProspectInterviewDate < NWA_DECLARED_DATE OR ProspectInterviewDate < DATEADD(day, 90, NWA_DECLARED_DATE) ) -- events within 90 days of a.er NWA DECLARE date are not eligible  
+  
+ 
+ --- Get Interviews that are counted  
+ SELECT *  
+ INTO #CountedInterview 
+ FROM 
+ ( 
+  SELECT *, RANK() over( par..on by SubjectId, Quo.ent order by Modulo, SecondsPassed) as MyRank  FROM 
+  ( 
+   SELECT  
+    e.id, s.SubjectId, e.StartDate, 
+    DATEDIFF(SECOND, Min(e.StartDate) OVER (PARTITION BY s.SubjectId), e.StartDate) as SecondsPassed, 
+    DATEDIFF(day, Min(e.StartDate) OVER (PARTITION BY s.SubjectId), e.StartDate) / 91 as Quo.ent, 
+    DATEDIFF(day, Min(e.StartDate) OVER (PARTITION BY s.SubjectId), e.StartDate) % 91 as Modulo  
+   FROM  
+    RSSOSS.USMC.Event e 
+    INNER JOIN #TEMP_PROSPECT_INTERVIEWS ie ON e.ID = ie.ID 
+    INNER JOIN RSSOSS.USMC.EventSubject s ON e.ID = s.EventId  
+    INNER JOIN RSSOSS.USMC.EventOutcome oc ON e.ID = oc.EventId 
+    INNER JOIN RSSOSS.USMC.EventType et ON e.EventTypeId = et.ID 
+    INNER JOIN RSSOSS.USMC.EventOwners eo ON eo.EventID = e.ID 
+    INNER JOIN #TEMP_WEEKLY_DATA wd ON eo.CreatorId = wd.RecruiterID 
+   WHERE  
+    e.IsApproved = 1 
+    AND et.Type != 'Follow Up' 
+    AND (oc.InterviewOutcomeId=1 or oc.InterviewOutcomeId=2) 
+  ) AS T1 
+ ) AS T2 
+ WHERE 
+  MyRank = 1 
+ 
+ DELETE FROM #TEMP_PROSPECT_INTERVIEWS WHERE ID NOT IN (SELECT ID FROM #CountedInterview) 
+  
+ -- This table is used to hold appointments scheduled for a prospect 
+ SELECT *  
+ INTO #TEMP_PROSPECT_APPOINTMENTS 
+ FROM 
+ ( 
+  SELECT  
+   eo.CreatorId AS RecruiterID, 
+   p.Ac.vity AS Ac.vity, 
+   e.ID, 
+   e.StartDate AS ProspectAppointmentDate 
+   ,s.SubjectId 
+   , ISNULL(n.NWA_DECLARED_DATE, '3000-1-1') AS NWA_DECLARED_DATE  
+  
+  FROM #TEMP_WEEKLY_DATA wd 
+  INNER JOIN RSSOSS.USMC.EventOwners eo ON eo.CreatorId = wd.RecruiterID 
+  INNER JOIN RSSOSS.USMC.EventSubject s ON s.EventId = eo.EventId 
+  INNER JOIN Prospec.ng.USMC.Prospect p ON s.SubjectId = p.ProspectId 
+  INNER JOIN Prospec.ng.USMC.Person per ON per.PersonId = p.PersonId 
+  INNER JOIN RSSOSS.USMC.Event e ON  e.ID = s.EventId 
+  INNER JOIN MCRISS.DBO.RECRUITING_PERSON rp on rp.rowguid = eo.CreatorId 
+  LEFT OUTER JOIN MCRISS.dbo.NWA n ON n.rowguid = p.NwaId 
+  WHERE e.IsApproved = 1 
+  AND e.EventSourceId = 16 
+  AND e.EventTypeId = 85 
+  AND rp.TOUR_END_DATE IS NULL 
+  AND (e.StartDate >= @StartDate AND e.StartDate < @EndDate) 
+ ) AS TT2 
+ WHERE  
+  (ProspectAppointmentDate < NWA_DECLARED_DATE OR ProspectAppointmentDate > DATEADD(day, 90, NWA_DECLARED_DATE) ) -- events within 90 days of a.er NWA DECLARE date are not eligible  
+ 
+ --- Get Appts that are counted  
+ SELECT *  
+ INTO #CountedAppt 
+ FROM 
+ ( 
+  SELECT *, RANK() over( par..on by SubjectId, Quo.ent ORDER BY Modulo, SecondsPassed) as MyRank  FROM 
+  ( 
+   SELECT  
+    e.id, s.SubjectId, e.StartDate, 
+    DATEDIFF(SECOND, Min(e.StartDate) OVER (PARTITION BY s.SubjectId), e.StartDate) as SecondsPassed, 
+    DATEDIFF(day, Min(e.StartDate) OVER (PARTITION BY s.SubjectId), e.StartDate) / 91 as Quo.ent, 
+    DATEDIFF(day, Min(e.StartDate) OVER (PARTITION BY s.SubjectId), e.StartDate) % 91 as Modulo  
+   FROM  
+    RSSOSS.USMC.Event e 
+    INNER JOIN #TEMP_PROSPECT_APPOINTMENTS ae  
+     ON e.ID = ae.ID 
+    INNER JOIN RSSOSS.USMC.EventSubject s 
+     ON e.ID = s.EventId 
+    INNER JOIN RSSOSS.USMC.EventOwners eo 
+     ON e.ID = eo.EventID 
+    INNER JOIN #TEMP_WEEKLY_DATA wd  
+     ON eo.CreatorId = wd.RecruiterID 
+   WHERE  
+    e.EventSourceId = 16  
+    AND e.EventTypeId = 85 
+    AND e.IsApproved = 1 
+ 
+ 
+  ) AS T1 
+ ) AS T2 
+ WHERE 
+  MyRank = 1 
+   
+ DELETE FROM #TEMP_PROSPECT_APPOINTMENTS WHERE ID NOT IN (SELECT ID FROM #CountedAppt) 
+  
+ SELECT DISTINCT 
+  ProspectDate, 
+  RecruiterID, 
+  Ac.vity, 
+  ProspectID   
+ INTO #TEMP_PROSPECT_COMMENTS_DATES  
+ FROM #TEMP_PROSPECT_COMMENTS pc 
+  
+  
+ --- Get TC Made 
+ SELECT pc.ProspectDate, pc.Recrui.ngPersonID AS RecruiterID, pc.ProspectId 
+ INTO #TcMade 
+ FROM  
+  #TEMP_WEEKLY_DATA wd  
+  INNER JOIN Prospec.ng.USMC.ProspectComment pc ON pc.Recrui.ngPersonID = wd.RecruiterID  
+  INNER JOIN Prospec.ng.USMC.ProspectAc.vityComment pac ON pac.ProspectAc.vityCommentId = pc.ProspectAc.vityCommentId 
+  --INNER JOIN Prospec.ng.USMC.ProspectCommentType pct ON pct.ProspectCommentTypeId = pac.ProspectCommentTypeId 
+    WHERE  
+  pac.Ac.vity = 'TC'  
+  --AND pct.ProspectCommentType IN ('CM', 'Col', 'Col-S', 'Col-R', 'NI', 'NA', 'NH', 'NHCB', 'NHLM') 
+  AND pac.ProspectCommentTypeId IN (39, 1, 2, 3, 9, 10, 11, 13, 14) 
+  AND (pc.ProspectDate >= @StartDate AND pc.ProspectDate < @EndDate) 
+     AND pc.IsApproved = 1  
+     AND NOT EXISTS (SELECT p2.ProspectId 
+                   FROM RSSOSS.USMC.Event e 
+       INNER JOIN RSSOSS.USMC.EventSubject s ON e.ID = s.EventId 
+       INNER JOIN RSSOSS.USMC.EventOutcome oc ON e.ID = oc.EventId 
+       INNER JOIN RSSOSS.USMC.EventType et ON e.EventTypeId = et.ID 
+       INNER JOIN Prospec.ng.USMC.Prospect p2 ON s.subjectId = pc.ProspectId  
+              WHERE (InterviewOutcomeId=1 or InterviewOutcomeId=2) -- New Working Applicant or Follow-up 
+                       AND et.Type != 'Follow Up' 
+           AND p2.ProspectId= pc.ProspectId 
+                    AND ( 
+        CAST( (STR(Year(StartDate)) + '-' + STR(MONTH(StartDate)) + '-' + STR(DAY(StartDate)) ) AS date.me) < 
+              CAST( (STR(Year(pc.ProspectDate)) + '-' + STR(MONTH(pc.ProspectDate)) + '-' + STR(DAY(pc.ProspectDate)) ) AS date.me) 
+                        AND StartDate >= DateAdd(day, -90, pc.ProspectDate) ) ) 
+     
+  
+ --- GET HV MADE 
+ SELECT pc.ProspectDate, pc.Recrui.ngPersonID AS RecruiterID 
+ INTO #HvMade 
+ FROM  
+  #TEMP_WEEKLY_DATA wd  
+  INNER JOIN Prospec.ng.USMC.ProspectComment pc ON pc.Recrui.ngPersonID = wd.RecruiterID  
+  INNER JOIN Prospec.ng.USMC.ProspectAc.vityComment pac ON pac.ProspectAc.vityCommentId = pc.ProspectAc.vityCommentId 
+  INNER JOIN Prospec.ng.USMC.ProspectCommentType pct ON pct.ProspectCommentTypeId = pac.ProspectCommentTypeId 
+ WHERE  
+  pac.Ac.vity = 'HV'  
+  AND pct.ProspectCommentType IN ('CM', 'Col', 'Col-S', 'Col-R', 'NI', 'HV-NA', 'HV-NH') 
+     AND pc.IsApproved = 1 
+  AND (pc.ProspectDate >= @StartDate AND pc.ProspectDate < @EndDate) 
+   
+  
+ --- GET EP Sent 
+ SELECT pc.ProspectDate, pc.Recrui.ngPersonID AS RecruiterID 
+ INTO #EpSent 
+ FROM  
+  #TEMP_WEEKLY_DATA wd  
+  INNER JOIN Prospec.ng.USMC.ProspectComment pc ON pc.Recrui.ngPersonID = wd.RecruiterID  
+  INNER JOIN Prospec.ng.USMC.ProspectAc.vityComment pac ON pac.ProspectAc.vityCommentId = pc.ProspectAc.vityCommentId 
+  INNER JOIN Prospec.ng.USMC.ProspectCommentType pct ON pct.ProspectCommentTypeId = pac.ProspectCommentTypeId 
+ WHERE  
+  pac.Ac.vity = 'DC'  
+  AND pct.ProspectCommentType IN ('CM', 'Col', 'Col-S', 'Col-R', 'NI', 'DC-U', 'DC-M', 'DC-R') 
+     AND pc.IsApproved = 1 
+  AND (pc.ProspectDate >= @StartDate AND pc.ProspectDate < @EndDate) 
+ 
+ -- GET DC Contact 
+ SELECT pc.ResultDate, pc.Recrui.ngPersonID AS RecruiterID 
+ INTO #DcContact 
+ FROM  
+  #TEMP_WEEKLY_DATA wd  
+  INNER JOIN Prospec.ng.USMC.ProspectComment pc ON pc.Recrui.ngPersonID = wd.RecruiterID  
+  INNER JOIN Prospec.ng.USMC.ProspectAc.vityComment pac ON pac.ProspectAc.vityCommentId = pc.ProspectAc.vityCommentId 
+  INNER JOIN Prospec.ng.USMC.ProspectCommentType pct ON pct.ProspectCommentTypeId = pac.ProspectCommentTypeId 
+ WHERE  
+  pac.Ac.vity = 'DC'  
+  AND pct.ProspectCommentType IN ('CM', 'Col', 'Col-S', 'Col-R', 'NI') 
+     AND pc.IsApproved = 1 
+  AND (pc.ResultDate >= @StartDate AND pc.ResultDate < @EndDate) 
+   
+  
+ --select * from #TEMP_PROSPECT_COMMENTS_DATES 
+    
+ SELECT 
+  wd.RecruiterID , 
+  wd.RssName AS RssName, 
+  wd.[StartDate], 
+  wd.[EndDate], 
+  wd.[MonthlyObjec.veID], 
+  wd.[GoalPercentage], 
+  wd.[InterviewObjec.ve], 
+  wd.ContractObjec.ve, 
+  (SELECT COUNT(ProspectDate) 
+   FROM #TcMade 
+   WHERE  
+    RecruiterID = wd.RecruiterID) AS TelephoneCalls, 
+  (SELECT COUNT(ProspectDate) 
+   FROM #TEMP_PROSPECT_COMMENTS_DATES 
+   WHERE Ac.vity = 'TC' 
+   AND RecruiterID = wd.RecruiterID) AS TelephoneCallContacts, 
+  (SELECT COUNT(ProspectAppointmentDate)  
+   FROM #TEMP_PROSPECT_APPOINTMENTS 
+   WHERE Ac.vity = 'TC' 
+   AND RecruiterID = wd.RecruiterID)AS TelephoneCallAppointments, 
+  (SELECT COUNT(ProspectInterviewDate)  
+   FROM #TEMP_PROSPECT_INTERVIEWS 
+   WHERE Ac.vity = 'TC' 
+   AND RecruiterID = wd.RecruiterID) AS TelephoneCallInterviews,   
+  wd.TelephoneCallObjec.ve, 
+   
+  (SELECT COUNT(ProspectDate) 
+   FROM #TEMP_PROSPECT_COMMENTS_DATES 
+   WHERE Ac.vity = 'OT' 
+   AND RecruiterID = wd.RecruiterID)  AS O.ceTra.cContacts, 
+  (SELECT COUNT(ProspectInterviewDate)  
+   FROM #TEMP_PROSPECT_INTERVIEWS 
+   WHERE Ac.vity = 'OT' 
+   AND RecruiterID = wd.RecruiterID) AS O.ceTra.cInterviews, 
+  wd.[O.ceTra.cObjec.ve], 
+  
+  (SELECT COUNT(ProspectDate) 
+   FROM #TEMP_PROSPECT_COMMENTS_DATES 
+   WHERE Ac.vity = 'AC' 
+   AND RecruiterID = wd.RecruiterID) AS AreaCanvassingContacts, 
+  (SELECT COUNT(ProspectAppointmentDate)  
+   FROM #TEMP_PROSPECT_APPOINTMENTS 
+   WHERE Ac.vity = 'AC' 
+   AND RecruiterID = wd.RecruiterID) AS AreaCanvassingAppointments, 
+  (SELECT COUNT(ProspectInterviewDate)  
+   FROM #TEMP_PROSPECT_INTERVIEWS 
+   WHERE Ac.vity = 'AC' 
+   AND RecruiterID = wd.RecruiterID) AS AreaCanvassingInterviews,   
+  wd.[AreaCanvassingObjec.ve], 
+  
+  (SELECT COUNT(ProspectDate) 
+   FROM #HvMade 
+   WHERE  
+    RecruiterID = wd.RecruiterID)  AS HomeVisitsMade, 
+  (SELECT COUNT(ProspectDate) 
+   FROM #TEMP_PROSPECT_COMMENTS_DATES 
+   WHERE Ac.vity = 'HV' 
+   AND RecruiterID = wd.RecruiterID) AS HomeVisitContacts, 
+  (SELECT COUNT(ProspectAppointmentDate)  
+   FROM #TEMP_PROSPECT_APPOINTMENTS 
+   WHERE Ac.vity = 'HV' 
+   AND RecruiterID = wd.RecruiterID) AS HomeVisitAppointments, 
+  (SELECT COUNT(ProspectInterviewDate)  
+   FROM #TEMP_PROSPECT_INTERVIEWS 
+   WHERE Ac.vity = 'HV' 
+   AND RecruiterID = wd.RecruiterID) AS HomeVisitInterviews,  
+  wd.[HomeVisitObjec.ve], 
+  
+  (SELECT COUNT(ProspectDate) 
+   FROM #EpSent 
+   WHERE 
+    RecruiterID = wd.RecruiterID) AS ElectronicProcessingSent, 
+  (SELECT COUNT(ResultDate) 
+   FROM #DcContact 
+   WHERE  
+      RecruiterID = wd.RecruiterID)  AS ElectronicProcessingContacts, 
+  (SELECT COUNT(ProspectAppointmentDate)  
+   FROM #TEMP_PROSPECT_APPOINTMENTS 
+   WHERE Ac.vity = 'DC' 
+   AND RecruiterID = wd.RecruiterID) AS ElectronicProcessingAppointments, 
+  (SELECT COUNT(ProspectInterviewDate)  
+   FROM #TEMP_PROSPECT_INTERVIEWS 
+   WHERE Ac.vity = 'DC' 
+   AND RecruiterID = wd.RecruiterID) AS ElectronicProcessingInterviews,   
+  wd.[ElectronicProspec.ngObjec.ve], 
+  wd.NwaObjec.ve, 
+  wd.OrgId, 
+  wd.Comments, 
+  wd.WeeklyObjec.veID 
+  
+ INTO #TEMP_OBJECTIVE_SHEET_BY_WEEK_DATA 
+ FROM  
+  #TEMP_WEEKLY_DATA wd 
+  LEFT OUTER JOIN #TEMP_RECRUITING_PERSONNEL rp ON rp.RecruiterID = wd.RecruiterID 
+ GROUP BY wd.RecruiterID,  
+  wd.RssName, 
+  wd.[StartDate],  
+  wd.[EndDate],  
+  wd.[MonthlyObjec.veID],  
+  wd.[GoalPercentage],  
+  wd.[TelephoneCallObjec.ve],  
+  wd.[O.ceTra.cObjec.ve], 
+  wd.[AreaCanvassingObjec.ve], 
+  wd.[HomeVisitObjec.ve], 
+  wd.[ElectronicProspec.ngObjec.ve],   
+  wd.[NwaObjec.ve],  
+  wd.[InterviewObjec.ve], 
+  wd.OrgId, 
+  wd.Comments, 
+  wd.WeeklyObjec.veID, 
+  wd.ContractObjec.ve 
+  
+ -- This table below is used later by func.ons that get processing data for an NWA 
+ SELECT 
+  rp.RecruiterID AS RecruiterID, 
+  n.NWA_DECLARED_DATE, 
+  n.NWA_ID, 
+  n.MARINE_CANDIDATE_ID  
+ INTO #TEMP_NWA_PROCESSING_DATA 
+ FROM #TEMP_RECRUITING_PERSONNEL rp 
+ INNER JOIN RSSOSS.USMC.vwMcrissNwa n ON rp.RECRUITING_PERSON_ID = n.RECRUITER_OF_RECORD_ID 
+ WHERE n.NWA_DECLARED_DATE >= @StartDate AND n.NWA_DECLARED_DATE < @EndDate 
+  
+  
+ SELECT 
+  rp.RecruiterID AS RecruiterID, 
+  ( SELECT Count(dis.nct n.NWA_ID)  
+   FROM   
+    #TEMP_NWA_PROCESSING_DATA AS n  
+    INNER JOIN  MCRISS.dbo.CANDIDATE_STATUS cs  
+     ON CS.NWA_ID = N.NWA_ID 
+   WHERE 
+    n.RecruiterID = rp.RecruiterID 
+    AND CS.STATUS_CODE = 'A'  
+    AND CS.DISPOSITION_CODE IN ('F','DH') 
+  ) AS NwaAchieved, 
+   
+  ( SELECT Count(dis.nct n.NWA_ID)  
+   FROM   
+    #TEMP_NWA_PROCESSING_DATA AS n  
+   WHERE 
+    n.RecruiterID = rp.RecruiterID 
+    AND EXISTS 
+     (SELECT MARINE_CANDIDATE_ID FROM MCRISS.dbo.CANDIDATE_ASVAB asvab 
+      WHERE  
+       asvab.MARINE_CANDIDATE_ID = n.MARINE_CANDIDATE_ID 
+     )   
+   
+  ) AS MentalTested, 
+   
+  ( SELECT Count(dis.nct n.NWA_ID)  
+   FROM   
+    #TEMP_NWA_PROCESSING_DATA AS n  
+    INNER JOIN MCRISS.dbo.CANDIDATE_ASVAB asvab 
+     ON n.MARINE_CANDIDATE_ID = asvab.MARINE_CANDIDATE_ID 
+   WHERE 
+    n.RecruiterID = rp.RecruiterID 
+    AND asvab.AFQT_SCORE >=31 
+    AND asvab.GT_SCORE >= 80 
+  ) AS MentalQuali.ed, 
+   
+  ( SELECT Count(dis.nct n.NWA_ID)  
+   FROM   
+    #TEMP_NWA_PROCESSING_DATA AS n  
+    INNER JOIN MCRISS.dbo.CANDIDATE_ASVAB asvab 
+     ON n.MARINE_CANDIDATE_ID = asvab.MARINE_CANDIDATE_ID 
+   WHERE 
+    n.RecruiterID = rp.RecruiterID 
+    AND ( asvab.AFQT_SCORE < 31 OR asvab.GT_SCORE < 80) 
+  ) AS MentalUnquali.ed, 
+   
+  ( SELECT Count(dis.nct n.NWA_ID)  
+   FROM   
+    #TEMP_NWA_PROCESSING_DATA AS n  
+   WHERE 
+    n.RecruiterID = rp.RecruiterID 
+    AND EXISTS 
+     (SELECT MARINE_CANDIDATE_ID FROM MCRISS.dbo.CANDIDATE_MEDICAL_EXAM  cme 
+      WHERE  
+       cme.MARINE_CANDIDATE_ID = n.MARINE_CANDIDATE_ID 
+     ) 
+  ) AS PhysicalTested, 
+   
+  ( SELECT Count(dis.nct n.NWA_ID)  
+   FROM   
+    #TEMP_NWA_PROCESSING_DATA AS n  
+    INNER JOIN MCRISS.dbo.CANDIDATE_MEDICAL_EXAM cme  
+     ON n.MARINE_CANDIDATE_ID = cme.MARINE_CANDIDATE_ID 
+   WHERE 
+    n.RecruiterID = rp.RecruiterID 
+    AND cme.MEDICAL_EXAM_TYPE='FULL'  
+    AND cme.MEDICAL_DISPOSITION='Q' 
+  ) AS PhysicalQuali.ed, 
+   
+  ( SELECT Count(dis.nct n.NWA_ID)  
+   FROM   
+    #TEMP_NWA_PROCESSING_DATA AS n  
+    INNER JOIN MCRISS.dbo.CANDIDATE_MEDICAL_EXAM cme  
+     ON n.MARINE_CANDIDATE_ID = cme.MARINE_CANDIDATE_ID 
+   WHERE 
+    n.RecruiterID = rp.RecruiterID 
+    AND cme.MEDICAL_EXAM_TYPE='FULL' 
+    AND cme.MEDICAL_DISPOSITION='D' 
+  ) AS PhysicalUnquali.ed, 
+   
+  ( SELECT Count(dis.nct n.NWA_ID)  
+   FROM   
+    #TEMP_NWA_PROCESSING_DATA AS n  
+    INNER JOIN MCRISS.dbo.CANDIDATE_MEDICAL_EXAM cme  
+     ON n.MARINE_CANDIDATE_ID = cme.MARINE_CANDIDATE_ID 
+   WHERE 
+    n.RecruiterID = rp.RecruiterID 
+    AND cme.MEDICAL_EXAM_TYPE='CONS'  
+    AND cme.CONSULTATION_TYPE='C' 
+  ) AS Awai.ngConsult, 
+   
+  ( SELECT Count(dis.nct n.NWA_ID)  
+   FROM   
+    #TEMP_NWA_PROCESSING_DATA AS n  
+    INNER JOIN MCRISS.dbo.CANDIDATE_ASVAB asvab 
+     ON n.MARINE_CANDIDATE_ID = asvab.MARINE_CANDIDATE_ID 
+    INNER JOIN MCRISS.dbo.CANDIDATE_MEDICAL_EXAM cme  
+     ON n.MARINE_CANDIDATE_ID = cme.MARINE_CANDIDATE_ID 
+   WHERE 
+    n.RecruiterID = rp.RecruiterID 
+    AND asvab.AFQT_SCORE >=31 
+    AND asvab.GT_SCORE >= 80 
+    AND cme.MEDICAL_EXAM_TYPE='FULL'  
+    AND cme.MEDICAL_DISPOSITION='Q' 
+  ) AS MpQuali.ed 
+ INTO #TEMP_NWA_PROCESSING_DATA_TOTALS 
+ FROM  
+  #TEMP_RECRUITING_PERSONNEL rp 
+  LEFT OUTER JOIN #TEMP_NWA_PROCESSING_DATA pd ON rp.RecruiterID = pd.RecruiterID 
+  
+  
+   
+ -- This table gets the number of contracts for a speci.c date 
+ SELECT DISTINCT 
+  rp.RecruiterID AS RecruiterID, 
+  Count(dis.nct mi.nwa_id) AS ContractsAchieved 
+ INTO #TEMP_NUMBER_OF_CONTRACTS 
+ FROM   
+ MCRISS.dbo.MIContract mi 
+ INNER JOIN RSSOSS.USMC.vwMcrissNwa n ON mi.NWA_ID = n.NWA_ID  
+ INNER JOIN #TEMP_RECRUITING_PERSONNEL rp ON rp.RECRUITING_PERSON_ID = n.RECRUITER_OF_RECORD_ID 
+ LEFT JOIN RSSOSS.USMC.vwMcrissContract c on c.nwa_id = n.nwa_id 
+ WHERE (mi.CONTRACT_BEGIN_DATE >= @StartDate AND mi.CONTRACT_BEGIN_DATE < @EndDate) 
+ GROUP BY rp.RecruiterID 
+  
+ SELECT DISTINCT 
+  (CASE WHEN rp.RecruiterID IS NOT NULL THEN rp.RecruiterID ELSE oswd.RecruiterID END) AS RecruiterID, 
+  rp.RecruiterName AS RecruiterName, 
+  (SELECT TOP 1 RssName FROM #TEMP_WEEKLY_DATA wd 
+  WHERE wd.RssName IS NOT NULL) AS RssName, 
+  (SELECT TOP 1 StartDate FROM #TEMP_WEEKLY_DATA wd2 
+  WHERE wd2.StartDate IS NOT NULL) AS [StartDate], 
+  (SELECT TOP 1 EndDate FROM #TEMP_WEEKLY_DATA wd3 
+  WHERE wd3.EndDate IS NOT NULL) AS [EndDate],  
+  oswd.[MonthlyObjec.veID],  
+  oswd.[GoalPercentage],  
+  oswd.ContractObjec.ve, 
+  (CASE WHEN oswd.TelephoneCalls IS NOT NULL THEN oswd.TelephoneCalls ELSE 0 END) AS TelephoneCalls, 
+  (CASE WHEN oswd.TelephoneCallContacts IS NOT NULL THEN oswd.TelephoneCallContacts ELSE 0 END) AS TelephoneCallContacts, 
+  (CASE WHEN oswd.TelephoneCallAppointments IS NOT NULL THEN oswd.TelephoneCallAppointments ELSE 0 END) AS TelephoneCallAppointments, 
+  (CASE WHEN oswd.TelephoneCallInterviews IS NOT NULL THEN oswd.TelephoneCallInterviews ELSE 0 END) AS TelephoneCallInterviews, 
+  (CASE WHEN oswd.TelephoneCallObjec.ve IS NOT NULL THEN oswd.[TelephoneCallObjec.ve] ELSE 0 END) AS TelephoneCallObjec.ve, 
+   
+  (CASE WHEN oswd.O.ceTra.cContacts IS NOT NULL THEN oswd.O.ceTra.cContacts ELSE 0 END) AS O.ceTra.cContacts, 
+  (CASE WHEN oswd.O.ceTra.cInterviews IS NOT NULL THEN oswd.O.ceTra.cInterviews ELSE 0 END) AS O.ceTra.cInterviews, 
+  (CASE WHEN oswd.O.ceTra.cObjec.ve IS NOT NULL THEN oswd.O.ceTra.cObjec.ve ELSE 0 END) AS O.ceTra.cObjec.ve, 
+   
+  (CASE WHEN oswd.AreaCanvassingContacts IS NOT NULL THEN oswd.AreaCanvassingContacts ELSE 0 END) AS AreaCanvassingContacts, 
+  (CASE WHEN oswd.AreaCanvassingAppointments IS NOT NULL THEN oswd.AreaCanvassingAppointments ELSE 0 END) AS AreaCanvassingAppointments, 
+  (CASE WHEN oswd.AreaCanvassingInterviews IS NOT NULL THEN oswd.AreaCanvassingInterviews ELSE 0 END) AS AreaCanvassingInterviews, 
+  (CASE WHEN oswd.[AreaCanvassingObjec.ve] IS NOT NULL THEN oswd.[AreaCanvassingObjec.ve] ELSE 0 END) AS AreaCanvassingObjec.ve, 
+   
+  (CASE WHEN oswd.HomeVisitsMade IS NOT NULL THEN oswd.HomeVisitsMade ELSE 0 END) AS HomeVisitsMade, 
+  (CASE WHEN oswd.HomeVisitContacts IS NOT NULL THEN oswd.HomeVisitContacts ELSE 0 END) AS HomeVisitContacts, 
+  (CASE WHEN oswd.HomeVisitAppointments IS NOT NULL THEN oswd.HomeVisitAppointments ELSE 0 END) AS HomeVisitAppointments, 
+  (CASE WHEN oswd.HomeVisitInterviews IS NOT NULL THEN oswd.HomeVisitInterviews ELSE 0 END) AS HomeVisitInterviews, 
+  (CASE WHEN oswd.[HomeVisitObjec.ve] IS NOT NULL THEN oswd.HomeVisitObjec.ve ELSE 0 END) AS HomeVisitObjec.ve, 
+     
+  (CASE WHEN oswd.ElectronicProcessingSent IS NOT NULL THEN oswd.ElectronicProcessingSent ELSE 0 END) AS ElectronicProcessingSent, 
+  (CASE WHEN oswd.ElectronicProcessingContacts IS NOT NULL THEN oswd.ElectronicProcessingContacts ELSE 0 END) AS ElectronicProcessingContacts, 
+  (CASE WHEN oswd.ElectronicProcessingAppointments IS NOT NULL THEN oswd.ElectronicProcessingAppointments ELSE 0 END) AS ElectronicProcessingAppointments, 
+  (CASE WHEN oswd.ElectronicProcessingInterviews IS NOT NULL THEN oswd.ElectronicProcessingInterviews ELSE 0 END) AS ElectronicProcessingInterviews, 
+  (CASE WHEN oswd.[ElectronicProspec.ngObjec.ve] IS NOT NULL THEN oswd.[ElectronicProspec.ngObjec.ve] ELSE 0 END) AS [ElectronicProspec.ngObjec.ve],   
+   
+  (CASE WHEN pdt.NwaAchieved IS NOT NULL THEN pdt.NwaAchieved ELSE 0 END) AS NwaAchieved, 
+  (CASE WHEN oswd.[NwaObjec.ve] IS NOT NULL THEN oswd.[NwaObjec.ve] ELSE 0 END) AS [NwaObjec.ve],  
+   
+  (CASE WHEN pdt.MentalTested IS NOT NULL THEN pdt.MentalTested ELSE 0 END) AS MentalTested,  
+  (CASE WHEN pdt.MentalQuali.ed IS NOT NULL THEN pdt.MentalQuali.ed ELSE 0 END) AS MentalQuali.ed, 
+  (CASE WHEN pdt.MentalUnquali.ed IS NOT NULL THEN pdt.MentalUnquali.ed ELSE 0 END) AS MentalUnquali.ed, 
+   
+  (CASE WHEN pdt.PhysicalTested IS NOT NULL THEN pdt.PhysicalTested ELSE 0 END)  AS PhysicalTested, 
+  (CASE WHEN pdt.PhysicalQuali.ed IS NOT NULL THEN pdt.PhysicalQuali.ed ELSE 0 END)  AS PhysicalQuali.ed, 
+  (CASE WHEN pdt.PhysicalUnquali.ed IS NOT NULL THEN pdt.PhysicalUnquali.ed ELSE 0 END) AS PhysicalUnquali.ed, 
+  (CASE WHEN pdt.Awai.ngConsult IS NOT NULL THEN pdt.Awai.ngConsult ELSE 0 END) AS Awai.ngConsult, 
+  (CASE WHEN pdt.MpQuali.ed IS NOT NULL THEN pdt.MpQuali.ed ELSE 0 END) AS MpQuali.ed, 
+   
+  (CASE WHEN c.ContractsAchieved IS NOT NULL THEN c.ContractsAchieved ELSE 0 END) AS ContractAchieved, 
+   
+  (CASE WHEN oswd.[InterviewObjec.ve] IS NOT NULL THEN oswd.InterviewObjec.ve ELSE 0 END) AS InterviewObjec.ve, 
+   
+  (SELECT TOP 1 OrgId FROM #TEMP_WEEKLY_DATA wd4 
+  WHERE wd4.OrgId IS NOT NULL) AS [OrgId], 
+  (SELECT TOP 1 Comments FROM #TEMP_WEEKLY_DATA wd5 
+  WHERE wd5.Comments IS NOT NULL) AS [Comments], 
+  oswd.WeeklyObjec.veID 
+ FROM #TEMP_OBJECTIVE_SHEET_BY_WEEK_DATA oswd 
+ FULL OUTER JOIN #TEMP_RECRUITING_PERSONNEL rp ON rp.RecruiterID = oswd.RecruiterID 
+ LEFT JOIN #TEMP_NUMBER_OF_CONTRACTS c ON c.RecruiterID = rp.RecruiterID  
+ LEFT JOIN #TEMP_NWA_PROCESSING_DATA_TOTALS pdt ON pdt.RecruiterID = rp.RecruiterID 
+ 
+ DROP TABLE #TEMP_WEEKLY_DATA 
+ DROP TABLE #TEMP_PROSPECT_COMMENTS 
+ DROP TABLE #TEMP_PROSPECT_INTERVIEWS 
+ DROP TABLE #TEMP_PROSPECT_APPOINTMENTS 
+ DROP TABLE #TEMP_NWA_PROCESSING_DATA 
+ DROP TABLE #TEMP_NWA_PROCESSING_DATA_TOTALS 
+ DROP TABLE #TEMP_NUMBER_OF_CONTRACTS 
+ DROP TABLE #TEMP_RECRUITING_PERSONNEL 
+ DROP TABLE #TEMP_WEEKLY_START_DATES  
+ DROP TABLE #TEMP_OBJECTIVE_SHEET_BY_WEEK_DATA 
+ DROP TABLE #TEMP_PROSPECT_COMMENTS_DATES 
+ DROP TABLE #TcMade 
+ DROP TABLE #HvMade 
+ DROP TABLE #EpSent 
+ DROP TABLE #DcContact 
+ DROP TABLE #CountedInterview 
+ DROP TABLE #CountedAppt 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,37 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Process class="oracle.dbtools.crest.model.design.process.Process" name="Process_1" directorySegmentName="seg_0" id="5DB5B789-C9F2-E5AE-A67D-AD23511B1FC5">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-30 00:30:23 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<primary>false</primary>
+<batchMinimumTransactions>1000</batchMinimumTransactions>
+<batchTimeUnit>Second</batchTimeUnit>
+<frequencyTimeUnit>Day</frequencyTimeUnit>
+<frequencyTimes>0</frequencyTimes>
+<interactiveLongestResponseTime>5</interactiveLongestResponseTime>
+<interactiveResponseTimeUnit>Second</interactiveResponseTimeUnit>
+<mode>Unknown</mode>
+<priority>Low</priority>
+<peakPeriodsString>000000000000000000000000</peakPeriodsString>
+<targetMappings itemClass="oracle.dbtools.crest.model.design.process.TargetElement">
+<targetMapping id="8F76F06C-DE84-AE3C-B517-8AA8AC434E19" name="TypeDesc">
+<target>8F76F06C-DE84-AE3C-B517-8AA8AC434E19</target>
+<transformationType>As It Is</transformationType>
+</targetMapping>
+<targetMapping id="51F51A83-383F-8472-3C43-C1C0907C3DC0" name="UPDATE DATE">
+<target>51F51A83-383F-8472-3C43-C1C0907C3DC0</target>
+<transformationType>Derivation</transformationType>
+<sources>
+<sourceRef>BC952FEF-F893-5B4E-1EDF-9B42BF3DA5D4</sourceRef>
+</sources>
+</targetMapping>
+<targetMapping id="A69B7E71-166A-BE0D-B9B3-7F8A73CDA3F0" name="USER LOGIN">
+<target>A69B7E71-166A-BE0D-B9B3-7F8A73CDA3F0</target>
+<transformationType>As It Is</transformationType>
+</targetMapping>
+<targetMapping id="1701C9BB-79B0-BBF3-C36E-602B0D7E9705" name="rowguid">
+<target>1701C9BB-79B0-BBF3-C36E-602B0D7E9705</target>
+<transformationType>As It Is</transformationType>
+</targetMapping>
+</targetMappings>
+</Process>

@@ -1,0 +1,16 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_5" id="1969EA43-A95B-59CE-13B1-0486F10672C7" schemaObject="2A6D9360-3BB2-5CEA-6E99-790D76996FDF" name="User_View">
+<sourceDDLFile>create PSR script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:24 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>F0568ED4-7C57-7E6E-EB5C-FEF57620BC64</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT DISTINCT * 
+FROM            [UserMgmt].dbo.[user] 
+UNION 
+SELECT DISTINCT * 
+FROM            [PSR].[dbo].[User] 
+Where UserId not in(select userId from [UserMgmt].dbo.[user])]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+</TableView>

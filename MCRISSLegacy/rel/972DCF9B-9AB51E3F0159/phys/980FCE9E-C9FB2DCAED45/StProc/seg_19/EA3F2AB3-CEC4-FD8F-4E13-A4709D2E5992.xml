@@ -1,0 +1,36 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetNumberofInterviews]" directorySegmentName="seg_19" id="EA3F2AB3-CEC4-FD8F-4E13-A4709D2E5992">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@Organiza.onID integer,  
+ @BeginDate  date.me,  
+ @EndDate date.me = NULL,  
+ @Interviews  integer OUTPUT 
+AS 
+ 
+SET NOCOUNT ON  
+ 
+DECLARE @MonthsInDateRange int 
+ 
+SELECT @EndDate = COALESCE(@EndDate, @BeginDate) 
+ 
+SELECT @MonthsInDateRange = DATEDIFF(MONTH, @BeginDate, @EndDate)  
+ 
+SELECT * INTO #ORGS FROM dbo.GetOrgHierarchy (@Organiza.onID)  
+ 
+SELECT  
+ @Interviews = SUM(RA.TC_INTERVIEWS + RA.OT_INTERVIEWS + RA.AC_INTERVIEWS + RA.HV_INTERVIEWS) 
+FROM   
+ #ORGS O  INNER JOIN RSS_ACTIVITY RA ON  
+  (O.ORG_ID = RA.ORGANIZATION_ID AND  
+  O.ORG_TYPE = 'RSS' AND 
+  DATEDIFF(MONTH, RA.ACTIVITY_DATE, @BeginDate) BETWEEN 1 - @MonthsInDateRange AND 3) 
+ 
+--- CLEAN UP 
+DROP TABLE #ORGS  
+SET NOCOUNT OFF]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

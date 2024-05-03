@@ -1,0 +1,17 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateMUDFileLog]" directorySegmentName="seg_25" id="458E665A-9E62-2D4D-7496-13A0A0F7E25E">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@OrgID  int, 
+ @UserLogin varchar(15) 
+AS 
+ 
+INSERT INTO MUD_FILE_UPLOAD_LOG 
+ (ORG_ID, USER_LOGIN, UPDATE_DATE) 
+VALUES 
+ (@OrgID, @UserLogin, GETDATE())]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

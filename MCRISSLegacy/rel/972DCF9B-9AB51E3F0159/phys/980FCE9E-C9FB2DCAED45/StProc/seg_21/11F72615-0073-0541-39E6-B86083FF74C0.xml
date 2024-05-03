@@ -1,0 +1,22 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_InsertJPASExportLogEntry]" directorySegmentName="seg_21" id="11F72615-0073-0541-39E6-B86083FF74C0">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@AEPLogID   AS int, 
+ @DataFile   AS varchar(64), 
+ @ResponseFile   AS varchar(64), 
+ @PDFFile   AS varchar(64), 
+ @SuccessfulTransmission  AS bit, 
+ @UserLogin   AS VARCHAR(15), 
+ @JPASLogID   AS int OUTPUT 
+AS 
+ 
+INSERT INTO JPAS_EXPORT_LOG (AEP_FILE_UPLOAD_LOG_ID, DATA_FILE, RESPONSE_FILE, PDF_FILE, SUCCESSFUL_TRANSMISSION, USER_LOGIN, UPDATE_DATE) 
+VALUES (@AEPLogID, @DataFile, @ResponseFile, @PDFFile, @SuccessfulTransmission, @UserLogin, getdate()) 
+ 
+SET @JPASLogID = @@IDENTITY]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

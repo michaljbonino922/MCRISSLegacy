@@ -1,0 +1,72 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[TransferScheduledEvents]" directorySegmentName="seg_8" id="E3C83492-0455-5440-6167-65087BA65E95">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@TransferFromId   uniqueidentifier, 
+ @TransferToId   uniqueidentifier, 
+ @LastUpdatedBy   uniqueidentifier 
+  
+AS 
+BEGIN 
+ 
+-- STEP 1: Start the transac.on 
+BEGIN TRANSACTION 
+ 
+-- STEP 2 & 3: Issue the data change statement(s), checking @@ERROR a.er each statement 
+     
+    -- for events not shared between these two persons 
+    UPDATE USMC.EventPersonVisibility  
+ SET 
+ Recrui.ngPersonId=@TransferToId 
+ ,[LastUpdateDate] = GETDATE() 
+    ,[LastUpdateUserId] = @LastUpdatedBy  
+    WHERE ID IN 
+    ( 
+    SELECT e1.ID 
+    FROM USMC.Event et, USMC.EventPersonVisibility e1 
+    WHERE  
+    et.ID = e1.EventID AND 
+    (et.startDate >= GETDATE() OR et.endDate >= GETDATE()) AND 
+    Recrui.ngPersonId=@TransferFromId AND 
+    NOT EXISTS(SELECT * FROM USMC.EventPersonVisibility e2 
+    WHERE e2.Recrui.ngPersonId=@TransferToId 
+    AND e2.EventId=e1.EventId) 
+    ) 
+  
+ -- for events that are shared between these two persons  
+ DELETE FROM USMC.EventPersonVisibility 
+ WHERE ID IN 
+ (   SELECT e1.ID 
+  FROM USMC.Event et, USMC.EventPersonVisibility e1 
+  WHERE  
+  et.ID = e1.EventID AND 
+  (et.startDate >= getdate() or et.endDate >= getdate()) AND 
+  Recrui.ngPersonId=@TransferFromId AND 
+  EXISTS(SELECT * FROM USMC.EventPersonVisibility e2 
+  WHERE e2.Recrui.ngPersonId=@TransferToId 
+  AND e2.EventId=e1.EventId) 
+   )  
+ 
+ 
+-- Rollback the transac.on if there were any errors 
+IF @@ERROR <> 0 
+ BEGIN 
+    -- Rollback the transac.on 
+    ROLLBACK TRANSACTION 
+ 
+    -- Raise an error and return 
+    RAISERROR ('Error occurred while performing the change.', 16, 1) 
+    RETURN 
+ END 
+ 
+-- STEP 4: If we reach this point, the commands completed successfully 
+--         Commit the transac.on.... 
+COMMIT TRANSACTION 
+ 
+  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,124 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[RCTAPI_GetEventData]" directorySegmentName="seg_8" id="1E50D14D-14F1-7CAD-BEC0-AC9C1A7CAD57">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@edipi varchar(10) 
+AS 
+ 
+--EXEC RSSOSS.dbo.RCTAPI_GetEventData 1266694055 
+--DECLARE @edipi varchar(10) 
+--SET @edipi = 1266694055 
+ 
+SET NOCOUNT ON 
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+ 
+DECLARE @result   varchar(max) 
+DECLARE @tempJson varchar(max) 
+ 
+DECLARE @cutO.Date date 
+IF (EXISTS (SELECT *  
+                 FROM INFORMATION_SCHEMA.TABLES  
+                 WHERE TABLE_SCHEMA = 'dbo'  
+                 AND  TABLE_NAME = 'RCTAPI_DateRange')) 
+BEGIN 
+     
+ SELECT @cutO.Date = ( 
+  CASE 
+   WHEN BeginDate_Datepart = 'year'  THEN DATEADD( year, BeginDate_DateAddNumber, GETDATE()) 
+   WHEN BeginDate_Datepart = 'month' THEN DATEADD(month, BeginDate_DateAddNumber, GETDATE()) 
+   WHEN BeginDate_Datepart = 'week'  THEN DATEADD( week, BeginDate_DateAddNumber, GETDATE()) 
+   WHEN BeginDate_Datepart = 'day'   THEN DATEADD(  day, BeginDate_DateAddNumber, GETDATE()) 
+  END )  
+ FROM  
+  RSSOSS.[dbo].[RCTAPI_DateRange] 
+ WHERE 
+  RangeType = 'EVENT' 
+END 
+ 
+IF @cutO.Date IS NULL 
+BEGIN 
+ SET @cutO.Date = DATEADD(YEAR, -2, GETDATE()) 
+END 
+ 
+SELECT TOP 1 
+  u.FirstName 
+ ,u.LastName 
+ ,rp.rowguid AS Recrui.ngPersonGuid  
+ ,ro.ORGANIZATION_ID 
+ ,ro.rowguid AS OrgGuid 
+INTO #Recruiter  
+FROM  
+ UserMgmt.dbo.[User] u 
+ INNER JOIN MCRISS.dbo.PERSON p ON u.FirstName = p.FIRST_NAME AND u.LastName=p.LAST_NAME 
+ INNER JOIN MCRISS.dbo.RECRUITING_ORGANIZATION ro ON u.Sta.on_OrgUnitID = ro.OrgUnitId 
+ INNER JOIN MCRISS.dbo.RECRUITING_PERSON rp ON rp.RECRUITING_PERSON_ID = p.PERSON_ID AND rp.ORGANIZATION_ID = ro.ORGANIZATION_ID 
+WHERE  
+ Dis.nguishedName like '%' + @edipi AND u.IsAc.ve = 1 AND rp.ORGANIZATION_ID = ro.ORGANIZATION_ID 
+ORDER BY 
+ LastAc.vityDate DESC 
+ 
+SET @tempJson = ( 
+      SELECT 
+       ev.[ID]      AS eventId 
+      ,ev.[EventSourceId]    AS eventSourceId 
+      ,ev.[EventTypeId]    AS eventTypeId 
+      ,ev.[EventPrecision]   AS eventPrecisionId 
+      ,ev.[IsComplete]    AS isEventComplete 
+      ,ev.[IsApproved]    AS isEventApproved 
+      ,ev.[Organiza.onId]   AS organiza.onId 
+      ,ev.[Loca.on]     AS eventLoca.on 
+      ,ev.[Comments]     AS eventComments 
+      ,ev.[StartDate]     AS eventStartDateTime 
+      ,ev.[EndDate]     AS eventEndDateTime 
+      ,ev.[EventTypeOther]   AS eventTypeOther 
+      ,ev.[OwnerId]     AS eventOwnerId 
+      ,ev.[Remarks]     AS eventRemarks 
+      ,ap.[MISApprovedEventStartDate] AS misApprovedEventStartDate 
+      ,ap.[MISApprovedEventEndDate] AS misApprovedEventEndDate 
+      ,ap.[WISApprovedEventStartDate] AS wisApprovedEventStartDate 
+      ,ap.[WISApprovedEventEndDate] AS wisApprovedEventEndDate 
+ 
+     FROM  
+      RSSOSS.USMC.[Event] ev 
+      INNER JOIN #Recruiter r ON ev.Organiza.onId = r.ORGANIZATION_ID 
+      LEFT OUTER JOIN RSSOSS.USMC.[EventApproval] ap ON ev.ID = ap.ID 
+     WHERE 
+      ev.StartDate >= @cutO.Date 
+      
+     FOR JSON PATH, ROOT('events'), INCLUDE_NULL_VALUES  
+) 
+ 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+ 
+SET @result = ISNULL(@tempJson, '"events":[]')  
+ 
+SET @tempJson = ( 
+     SELECT  
+       v.[ID]     AS eventPersonVisibilityId 
+      ,v.[EventId]   AS eventId 
+      ,v.[Recrui.ngPersonId] AS recrui.ngPersonId 
+ 
+     FROM  
+      RSSOSS.USMC.[Event] ev 
+      INNER JOIN #Recruiter r ON ev.Organiza.onId = r.ORGANIZATION_ID 
+      INNER JOIN RSSOSS.[USMC].[EventPersonVisibility] v ON ev.Id = v.EventId 
+     WHERE 
+      ev.StartDate >= @cutO.Date 
+      
+     FOR JSON PATH, ROOT('eventPersonVisibili.es'), INCLUDE_NULL_VALUES  
+) 
+ 
+SET @tempJson = SUBSTRING(@tempJson, 2, LEN(@tempJson)-2) 
+SET @result = @result + ',' + ISNULL(@tempJson, '"eventPersonVisibili.es":[]') 
+ 
+SET @result = '{' + @result + '}' 
+SELECT @result 
+ 
+ 
+DROP TABLE #Recruiter]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

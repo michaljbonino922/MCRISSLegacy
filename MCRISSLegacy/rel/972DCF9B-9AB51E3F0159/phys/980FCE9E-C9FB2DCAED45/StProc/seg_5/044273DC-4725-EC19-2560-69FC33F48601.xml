@@ -1,0 +1,54 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetMCFOPMassEventByGuid]" directorySegmentName="seg_5" id="044273DC-4725-EC19-2560-69FC33F48601">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@MFOPMassEventID uniqueiden..er 
+ 
+AS 
+SET NOCOUNT ON 
+    
+  SELECT  --[MCFOPMassEventID] 
+    --me table 
+    --me.[FiscalYear], might need .scal year in this table 
+    me.[MCFOPMassEventID] AS MCFOPEventID 
+     
+    ,me.[Organiza.onEventID],me.[AirportName],me.[MediaTypeID], me.[Adver.singInfo], 
+  
+    --oe table 
+    hs.SCHOOL_CODE As SchoolCode,  hs.ROWGUID as SchoolRowGuid, hs.HighSchool_Name As CollegeName, FiscalYear, 
+    oe.[EventDate], --[Organiza.onID] ,[Organiza.onType]  
+    oe.[Remarks], 
+     
+    --pc table 
+     
+    pc.[PointOfContactID], 
+    [POCLastName], [POCLegalMiddleName],[POCFirstName], 
+     
+    RTRIM (pc.POCLastName) + ',' + RTRIM(pc.POCFirstName) + '.' + 
+    IsNull(substring(pc.POCLegalMiddleName,1,1),'') + '.' AS POCName, 
+     
+     
+    pc.[Street1], pc.[Street2],pc.[City],pc.[State],pc.[ZipCode], 
+          pc.[TelephoneNumber],pc.[CellPhoneNumber],pc.[FaxNumber],pc.[EmailAddress], 
+    pc.CITY_CODE, pc.COUNTY_CODE, pc.STATE_CODE 
+        
+    FROM [MCRISS].[USMC].[MCFOPMassEvent] me 
+     inner join [MCRISS].[USMC].[Organiza.onEvent] oe  
+       ON me.[Organiza.onEventID] = oe.[Organiza.onEventID]  
+        
+     le. outer join [MCRISS].[USMC].[PointOfContact] pc 
+       ON pc.[PointOfContactID] = oe.[PointOfContactID] 
+        
+     inner join High_School hs ON hs.SCHOOL_CODE = oe.CollegeID 
+           
+            
+         --not sure about this 
+    WHERE  me.MCFOPMassEventID = @MFOPMassEventID 
+    
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

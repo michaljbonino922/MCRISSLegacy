@@ -1,0 +1,20 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetMissionFiscalYears]" directorySegmentName="seg_6" id="8D3901E9-57F6-BB7F-5DFE-A6AB176412A5">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[AS 
+SET NOCOUNT ON 
+ 
+--The join with ocs_class table is needed and the .scal_years are retrieved from the ocs_classtable instead 
+-- of ship_mission_plan table because .scal_year is 0 for all OCC recors in the ship_mission_plan table 
+ 
+select dis.nct OC..scal_year from OFFICER_SHIP_MISSION_PLAN OMP 
+ inner join OCS_CLASS OC ON OC.CLASS_NUMBER = OMP.OCC_CLASS_NUMBER  
+order by OC..scal_year 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

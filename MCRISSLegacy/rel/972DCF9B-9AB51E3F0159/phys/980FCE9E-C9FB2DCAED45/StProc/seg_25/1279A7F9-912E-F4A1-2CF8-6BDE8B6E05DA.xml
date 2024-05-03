@@ -1,0 +1,65 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdatePFT]" directorySegmentName="seg_25" id="1279A7F9-912E-F4A1-2CF8-6BDE8B6E05DA">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@PFTID  int = 0, 
+ @NWAID  int, 
+ @PFTDate date.me, 
+ @PFTHeight int  = NULL, 
+ @PFTWeight int  = NULL, 
+ @PFTBodyFatPct int  = NULL, 
+ @PFTRunMinutes int  = NULL, 
+ @PFTRunSeconds int  = NULL, 
+ @PFTPullups int  = NULL, 
+ @PFTHang int  = NULL, 
+ @PFTCrunches int  = NULL, 
+ @PFTScore int, 
+ @UserLogin varchar(15), 
+ @ID  int   = 0 OUTPUT 
+AS 
+ 
+IF EXISTS (SELECT 1 FROM PFT WHERE PFT_ID = @PFTID) 
+BEGIN 
+ --- UPDATE PFT 
+ UPDATE 
+  PFT 
+ SET 
+  PFT_DATE   = @PFTDate, 
+  PFT_SCORE  = @PFTScore,  
+  PFT_HEIGHT  = @PFTHeight, 
+  PFT_WEIGHT  = @PFTWeight, 
+  PFT_BODY_FAT_PCT = @PFTBodyFatPct,   
+  PFT_RUN_MINUTES  = @PFTRunMinutes,  
+  PFT_RUN_SECONDS  = @PFTRunSeconds, 
+  PFT_PULLUPS  = @PFTPullups, 
+  PFT_HANG  = @PFTHang, 
+  PFT_CRUNCHES  = @PFTCrunches, 
+  USER_LOGIN  = @UserLogin, 
+  UPDATE_DATE  = GETDATE() 
+ WHERE 
+  PFT_ID    = @PFTID 
+ 
+ --- RETURN THE PFT ID 
+ SET @ID = @PFTID 
+END 
+ELSE 
+BEGIN 
+ --- INSERT PFT 
+ INSERT INTO PFT  
+  (NWA_ID, PFT_DATE, PFT_SCORE, PFT_HEIGHT, PFT_WEIGHT, PFT_BODY_FAT_PCT, 
+  PFT_RUN_MINUTES, PFT_RUN_SECONDS, PFT_PULLUPS, PFT_HANG, PFT_CRUNCHES,  
+  USER_LOGIN, UPDATE_DATE) 
+ VALUES  
+  (@NWAID, @PFTDate, @PFTScore, @PFTHeight, @PFTWeight, @PFTBodyFatPct,  
+  @PFTRunMinutes, @PFTRunSeconds, @PFTPullups, @PFTHang, @PFTCrunches,  
+  @UserLogin, GETDATE()) 
+ 
+ 
+ --- RETURN THE PFT ID 
+ SET @ID = @@IDENTITY 
+END]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

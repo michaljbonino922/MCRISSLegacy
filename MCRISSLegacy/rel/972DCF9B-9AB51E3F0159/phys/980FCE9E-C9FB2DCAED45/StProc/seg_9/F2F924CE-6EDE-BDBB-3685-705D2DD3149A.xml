@@ -1,0 +1,27 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetShipperAdminDiscrepancy]" directorySegmentName="seg_9" id="F2F924CE-6EDE-BDBB-3685-705D2DD3149A">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @ShipperID int 
+) 
+AS 
+ 
+SELECT  
+ [ID], 
+ [ShipperID], 
+ [Form1966], 
+ [SOU], 
+ [SF86_ENTNAC], 
+ [Other], 
+ [DiscrepancySourceID], 
+ [InterviewerID] 
+FROM  
+ [MCRISS].[USMC].[Shipper_AdminDiscrepancy] 
+WHERE 
+ [ShipperID] = @ShipperID]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

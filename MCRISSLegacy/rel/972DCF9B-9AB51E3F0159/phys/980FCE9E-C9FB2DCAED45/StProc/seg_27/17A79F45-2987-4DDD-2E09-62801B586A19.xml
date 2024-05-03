@@ -1,0 +1,51 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateMUDFile_ImportAdd]" directorySegmentName="seg_27" id="17A79F45-2987-4DDD-2E09-62801B586A19">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @ZipCode varchar(9) 
+) 
+AS 
+SET NOCOUNT ON 
+ 
+INSERT INTO [dbo].[MUD_FILE] 
+ ( 
+ ZIP, 
+ FIPS, 
+ STATE, 
+ COUNTY, 
+ LAT, 
+ LONG, 
+ STATUS_ID, 
+ ASSIGNED_ORG_ID, 
+ STATE_CODE, 
+ CITY_CODE, 
+ COUNTY_CODE, 
+ USER_LOGIN, 
+ UPDATE_DATE 
+ ) 
+SELECT  
+ MS.ZIP, 
+ MS.FIPS, 
+ MS.STATE, 
+ MS.COUNTY, 
+ MS.LATITUDE, 
+ MS.LONGITUDE, 
+ 'I' AS STATUS_ID, 
+ MR.REGION_ID, 
+ MG.STATE_CODE, 
+ MG.CITY_CODE, 
+ MG.COUNTY_CODE, 
+ 'USPS' AS USER_LOGIN, 
+ GetDate() AS UPDATE_DATE 
+FROM  
+ [dbo].[MUD_STAGING] MS  
+ LEFT OUTER JOIN [dbo].[MUD_REGIONS] MR ON MS.FIPS = MR.FIPS  
+ LEFT OUTER JOIN [dbo].[MUD_GEO_LOCATION] MG ON MS.STATE = MG.STATE_TEXT AND MS.COUNTY = MG.COUNTY_TEXT AND MS.CITY = MG.CITY_TEXT 
+WHERE  
+ MS.ZIP = @ZipCode]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

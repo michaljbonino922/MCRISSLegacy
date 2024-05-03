@@ -1,0 +1,273 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUpdateIRTCopyAllCardsToNextFY]" directorySegmentName="seg_7" id="9E07D218-2250-2BD0-E051-1F4E0DD86EB7">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[AS 
+ 
+DECLARE @cardID uniqueidentifier 
+DECLARE @currentFY int 
+SET @currentFY = YEAR(getdate()) 
+DECLARE @IRTCardID uniqueidentifier 
+DECLARE @IRTStopID uniqueidentifier 
+DECLARE @IRTAc.vityID uniqueidentifier 
+ 
+BEGIN 
+ 
+--set up loop counters for each card layer: 
+--IRTCard->IRTSTops->IRTStopAc.vi.es 
+DECLARE @cardLoop int 
+DECLARE @stopLoop int 
+DECLARE @ac.vi.esLoop int 
+ 
+DECLARE IRTCardCursor CURSOR FOR 
+ SELECT IRTCardID 
+ FROM [RSSOSS].[USMC].[IRTCard] 
+ WHERE ForFY = @currentFY 
+ 
+OPEN IRTCardCursor 
+ 
+FETCH NEXT FROM IRTCardCursor INTO @IRTCardID 
+SET @cardLoop = @@FETCH_STATUS 
+WHILE @cardLoop = 0 
+ BEGIN 
+   
+  DECLARE @newIRTCardID uniqueidentifier 
+  DECLARE @newIRTCardName varchar(80) 
+  SET @newIRTCardID = newid() 
+  SELECT @newIRTCardName = CardNameDesc 
+   FROM [RSSOSS].[USMC].[IRTCard] 
+   WHERE IRTCardID = @IRTCardID 
+ 
+  SET @newIRTCardName = SUBSTRING(@newIRTCardName, 1, 13) + CONVERT(VARCHAR(4), @currentFY + 1) 
+ 
+  --insert the copy of the IRT card into the table, set to the next .scal year 
+  INSERT INTO [RSSOSS].[USMC].[IRTCard]( 
+  IRTCardID, 
+  DatePrepared, 
+  Sector, 
+  Frequency, 
+  ForFY, 
+  RecruiterID, 
+  RecruiterRankName, 
+  Hours, 
+  LastUpdateDate, 
+  LastUpdateUser, 
+  SectorID, 
+  RssOrgID, 
+  CardNameDesc 
+  ) 
+  SELECT 
+   @newIRTCardID, 
+   getdate(), 
+   Sector, 
+   Frequency, 
+   ForFY + 1, 
+   RecruiterID, 
+   RecruiterRankName, 
+   Hours, 
+   LastUpdateDate, 
+   LastUpdateUser, 
+   SectorID, 
+   RSSOrgID, 
+   @newIRTCardName 
+   FROM [RSSOSS].[USMC].[IRTCard] 
+   WHERE IRTCardID = @IRTCardID 
+    
+  --Start the cursor for each stop assigned to this IRT card. 
+  DECLARE IRTStopCursor CURSOR FOR 
+   SELECT StopID 
+   FROM [RSSOSS].[USMC].[IRTStops] 
+   WHERE IRTCardID = @IRTCardID 
+ 
+  OPEN IRTStopCursor 
+ 
+  FETCH NEXT FROM IRTStopCursor INTO @IRTStopID 
+  SET @stopLoop = @@FETCH_STATUS 
+  WHILE @stopLoop = 0 
+   BEGIN 
+    DECLARE @newIRTStopID uniqueidentifier 
+    SET @newIRTStopID = newid() 
+    --Insert the copy of the IRTStop into the table 
+    INSERT INTO [RSSOSS].[USMC].[IRTStops]( 
+     StopID, 
+     IRTCardID, 
+     StopNumber, 
+     Organiza.onName, 
+     Street, 
+     City, 
+     State, 
+     ZipCode, 
+     PhoneNumber, 
+     Time, 
+     Comments, 
+     LastUpdateDate, 
+     LastUpdateUser, 
+     Title, 
+     FirstName, 
+     MI, 
+     LastName, 
+     CountyCode, 
+     StateCode, 
+     CityCode, 
+     CountryCode, 
+     Country, 
+     Street2 
+     ) 
+     SELECT 
+      @newIRTStopID, 
+      @newIRTCardID, 
+      StopNumber, 
+      Organiza.onName, 
+      Street, 
+      City, 
+      State, 
+      ZipCode, 
+      PhoneNumber, 
+      Time, 
+      Comments, 
+      LastUpdateDate, 
+      LastUpdateUser, 
+      Title, 
+      FirstName, 
+      MI, 
+      LastName, 
+      CountyCode, 
+      StateCode, 
+      CityCode, 
+      CountryCode, 
+      Country, 
+      Street2 
+      FROM [RSSOSS].[USMC].[IRTStops] 
+      WHERE StopID = @IRTStopID 
+ 
+    --Start the cursor for each ac.vity assigned to this IRT Stop. 
+    DECLARE IRTAc.vi.esCursor CURSOR FOR 
+     SELECT StopAc.vi.esID 
+     FROM [RSSOSS].[USMC].[IRTStopAc.vi.es] 
+     WHERE StopID = @IRTStopID 
+ 
+    OPEN IRTAc.vi.esCursor 
+ 
+    FETCH NEXT FROM IRTAc.vi.esCursor INTO @IRTAc.vityID 
+    SET @ac.vi.esLoop = @@FETCH_STATUS 
+    WHILE @ac.vi.esLoop = 0 
+     BEGIN 
+      DECLARE @newIRTAc.vityID uniqueidentifier 
+      SET @newIRTAc.vityID = newid() 
+      --Insert the copy of the IRTStop Ac.vity into the table 
+      INSERT INTO [RSSOSS].[USMC].[IRTStopAc.vi.es]( 
+       StopAc.vi.esID, 
+       StopID, 
+       Ac.vity, 
+       Ac.vityCount 
+       ) 
+       SELECT 
+        @newIRTAc.vityID, 
+        @newIRTStopID, 
+        Ac.vity, 
+        Ac.vityCount 
+        FROM [RSSOSS].[USMC].[IRTStopAc.vi.es] 
+        WHERE StopAc.vi.esID = @IRTAc.vityID 
+       
+      --next ac.vity 
+      FETCH NEXT FROM IRTAc.vi.esCursor INTO @IRTAc.vityID 
+      SET @ac.vi.esLoop = @@FETCH_STATUS 
+     END -- END IRTAc.vi.esCursor loop 
+ 
+    CLOSE IRTAc.vi.esCursor 
+    DEALLOCATE IRTAc.vi.esCursor 
+ 
+    --next stop 
+    FETCH NEXT FROM IRTStopCursor INTO @IRTStopID 
+    SET @stopLoop = @@FETCH_STATUS 
+   END -- End IRTStopCursor loop 
+ 
+  CLOSE IRTStopCursor 
+  DEALLOCATE IRTStopCursor 
+ 
+  --A.er all the stops and stopAc.vi.es are copied for this card, create an unscheduled event for it 
+  --Assign variables for the new event 
+  DECLARE @eventID uniqueidentifier 
+  SET @eventID = newid() 
+ 
+  DECLARE @cardDesc varchar(80) 
+  DECLARE @recruiterID uniqueidentifier 
+  DECLARE @orgID int 
+  DECLARE @eventDate date.me 
+  DECLARE @emptyGUID uniqueidentifier 
+ 
+  --grab recruiterID 
+  SELECT 
+  @recruiterID = RecruiterID, 
+  @cardDesc = CardNameDesc 
+  FROM [RSSOSS].[USMC].[IRTCard] 
+  WHERE IRTCardID = @newIRTCardID 
+ 
+  --get unscheduled date for October 
+  SET @eventDate = ((SELECT CONVERT(varchar(4), @currentFY)) + '-10-01 00:00:00.000') 
+  --set the placeholder empty GUID 
+  SET @emptyGUID = (select cast(cast(0 as binary) as uniqueidentifier)) 
+   
+  IF EXISTS (SELECT ORGANIZATION_ID FROM [MCRISS].[dbo].[Recrui.ng_Person] WHERE rowguid = @recruiterID) 
+  BEGIN 
+   --use the card's recruiterID to get the recruiter's org number 
+   SET @orgID = (SELECT ORGANIZATION_ID FROM [MCRISS].[dbo].[Recrui.ng_Person] WHERE rowguid = @recruiterID) 
+ 
+   --Insert new base event 
+   EXEC [RSSOSS].[USMC].[InsertUpdateEvent]  
+   @EventId = @eventID,  
+   @Organiza.onId = @orgID, 
+   @EventSourceId = 21, 
+   @EventTypeId = 158, 
+   @Loca.on = 'RSS', 
+   @Comments = NULL, 
+   @IsComplete = 0, 
+   @StartDate = @eventDate, 
+   @EndDate = @eventDate, 
+   @PrecisionType = 3, 
+   @EventTypeOther = NULL, 
+   @LastUpdatedBy = @emptyGUID, 
+   @Remarks = NULL, 
+   @PgSentRefId = NULL 
+ 
+   --insert new event subjects 
+   DECLARE @subjectId uniqueidentifier = newid() 
+   EXEC [RSSOSS].[USMC].[InsertUpdateEventSubject] 
+   @Id = @subjectId, 
+   @EventId = @eventID, 
+   @SubjectId = @newIRTCardID, 
+   @SubjectName = @cardDesc 
+ 
+   --insert new event owners 
+   INSERT INTO [RSSOSS].[USMC].[EventOwners] 
+      ([ID] 
+      ,[EventID] 
+      ,[OwnerID] 
+      ,[CreatorID] 
+      ,[LastUpdateDate] 
+      ,[LastUpadteUserID])   
+    VALUES 
+    ( 
+      newid() 
+      ,@EventId 
+      ,@recruiterID 
+      ,@recruiterID 
+      , getdate() 
+      ,@emptyGUID 
+      ) 
+  END --END ORG Exists if 
+ 
+  --Next IRT Card 
+  FETCH NEXT FROM IRTCardCursor INTO @IRTCardID 
+  SET @cardLoop = @@FETCH_STATUS 
+ END -- End IRTCardCursor loop 
+ 
+CLOSE IRTCardCursor 
+DEALLOCATE IRTCardCursor 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,62 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetDataSheetContractDetailsBySector]" directorySegmentName="seg_2" id="4301C550-BE24-D15B-0D3B-2AB93EDD8682">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@OrgID int , 
+ @FiscalYear int,  
+ @Sector varchar(10) 
+ 
+ 
+AS 
+BEGIN 
+  
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+ DECLARE @StartDate DateTime 
+ DECLARE @EndDate DateTime 
+ 
+ 
+ SET @StartDate =  CAST( CONVERT(varchar(4), @FiscalYear-1) + '-10-1' as Date.me); 
+ SET @EndDate =    CAST( CONVERT(varchar(4), @FiscalYear)   + '-10-1' as Date.me); 
+  
+  
+ SELECT  
+ c.LAST_NAME, 
+ c.FIRST_NAME, 
+ c.MIDDLE_NAME AS LEGAL_MIDDLE_NAME, 
+ ct.CONTRACT_ID, 
+ c.DEP_DATE AS CONTRACT_BEGIN_DATE, 
+ c.COMPONENT_CODE, 
+ c.GENDER_CODE, 
+ c.AFQT AS AFQT_SCORE, 
+ c.EDUCATION_CODE, 
+ ( 
+  SELECT DISPOSITION_DESCRIPTION  
+  FROM MCRISS.dbo.STATUS_DISPOSITION 
+  WHERE  
+   STATUS_TYPE = cs.STATUS_TYPE 
+   AND STATUS_CODE = cs.STATUS_CODE 
+   AND DISPOSITION_CODE = cs.DISPOSITION_CODE 
+ )  
+ AS Disposi.on, 
+ c.PADD_DATE AS PADD, 
+ n.rowguid AS NwaId, 
+ (SELECT ProspectId FROM PROSPECTING.USMC.Prospect WHERE 
+  NwaId = n.rowguid) AS ProspectId 
+FROM MCRISS.dbo.Contract ct 
+INNER JOIN MCRISS_OLAP.dbo.CONTRACTS c ON ct.CONTRACT_ID = c.CONTRACT_ID 
+INNER JOIN MCRISS.dbo.NWA n ON n.NWA_ID = ct.NWA_ID 
+INNER JOIN MCRISS.dbo.CANDIDATE_STATUS cs ON cs.NWA_ID = n.NWA_ID AND 
+           cs.CANDIDATE_STATUS_ID IN ( SELECT MAX(cs2.CANDIDATE_STATUS_ID) 
+                  FROM MCRISS.dbo.CANDIDATE_STATUS cs2 
+                  WHERE cs2.NWA_ID = cs.NWA_ID) 
+WHERE ( (c.RPT_YEAR = @FiscalYear-1 AND c.RPT_MONTH IN (10,11,12)) OR (c.RPT_YEAR = @FiscalYear AND c.RPT_MONTH < 10) ) 
+AND c.RSS_ORG_ID = @OrgID 
+AND ((c.Sector = @Sector AND @Sector <> 'OA') OR (c.Sector IS NULL AND @Sector = 'OA')) 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

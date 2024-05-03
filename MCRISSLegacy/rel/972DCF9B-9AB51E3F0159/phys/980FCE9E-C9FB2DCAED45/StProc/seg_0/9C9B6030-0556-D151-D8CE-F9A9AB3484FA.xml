@@ -1,0 +1,2392 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[&apos;GetRecrui.ngOrgByOrgUnitId]" directorySegmentName="seg_0" id="9C9B6030-0556-D151-D8CE-F9A9AB3484FA">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+  @OrgUnitId int 
+ ) 
+AS 
+ 
+SELECT [ORGANIZATION_ID] 
+      ,[STATE_CODE] 
+      ,[ORGANIZATION_TYPE] 
+      ,[MEPS_ORGANIZATION_ID] 
+      ,[NAME] 
+      ,[SHORT_NAME] 
+      ,[MCC_CODE] 
+      ,[TO_PROD_RECRUITERS] 
+      ,[STREET] 
+      ,[STREET2] 
+      ,[CITY] 
+      ,[ZIP_CODE] 
+      ,[ISOPEN] 
+      ,[DELETED] 
+      ,[IS_ASSIGNED] 
+      ,[EFFECTIVE_DATE] 
+      ,[poc_email] 
+      ,[OrgUnitId] 
+      ,[rowguid] 
+FROM [mcriss].[dbo].[RECRUITING_ORGANIZATION] WITH (NOLOCK) 
+WHERE [OrgUnitId] = @OrgUnitId 
+ 
+GO
+/****** Object:  StoredProcedure [USMC].[GetRecrui.ngOrgIdByRecruiterHistoryId]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER ON 
+GO 
+ 
+CREATE Procedure [USMC].[GetRecrui.ngOrgIdByRecruiterHistoryId] 
+ (@RecruiterHistoryId int) 
+AS 
+ 
+DECLARE  
+@hq_name varchar(20), 
+@region_name varchar(20), 
+@district_name varchar(20), 
+@rs_name varchar(20), 
+@rss_name varchar(20), 
+@organiza.on_type varchar(3), 
+@oganiza.on_id int 
+ 
+CREATE TABLE #TEMP (ORGANIZATION_ID int) 
+  
+DECLARE recruiter_history_cursor CURSOR FOR   
+SELECT  HQ_NAME, REGION_NAME, DISTRICT_NAME, RS_NAME, RSS_NAME, ORGANIZATION_TYPE 
+FROM dbo.RECRUITER_HISTORY 
+WHERE RecruiterHistoryID = @RecruiterHistoryId 
+ 
+OPEN recruiter_history_cursor 
+ 
+FETCH next from recruiter_history_cursor INTO @hq_name, @region_name, @district_name, @rs_name,@rss_name, @organiza.on_type 
+WHILE (@@fetch_status = 0) 
+BEGIN 
+ IF @region_name IS NULL AND @organiza.on_type='H' 
+  BEGIN  
+   INSERT INTO #TEMP VALUES (900) 
+  END 
+ ELSE IF @district_name IS NULL AND @organiza.on_type='R' 
+  BEGIN  
+      SELECT @oganiza.on_id = ORGANIZATION_ID FROM dbo.RECRUITING_ORGANIZATION WHERE(SHORT_NAME =@region_name AND ORGANIZATION_TYPE=@organiza.on_type) 
+   INSERT INTO #TEMP VALUES (@oganiza.on_id) 
+  END 
+ ELSE IF @rs_name IS NULL AND @organiza.on_type='D' 
+  BEGIN  
+   SELECT @oganiza.on_id =ORGANIZATION_ID FROM dbo.RECRUITING_ORGANIZATION WHERE SHORT_NAME =@district_name AND ORGANIZATION_TYPE=@organiza.on_type 
+   INSERT INTO #TEMP VALUES (@oganiza.on_id)        
+  END 
+ ELSE IF @rss_name IS NULL AND @organiza.on_type='RS' 
+  BEGIN  
+   SELECT @oganiza.on_id = RO.ORGANIZATION_ID  
+   FROM dbo.RECRUITING_ORGANIZATION RO INNER JOIN   
+     dbo.ORGANIZATION_MAP OM ON RO.ORGANIZATION_ID = OM.CHILD_ORGANIZATION_ID 
+   WHERE (SHORT_NAME =@rs_name AND ORGANIZATION_TYPE=@organiza.on_type)  
+      AND  OM.PARENT_ORGANIZATION_ID =  
+     (SELECT ORGANIZATION_ID FROM dbo.RECRUITING_ORGANIZATION WHERE SHORT_NAME =@district_name)         
+   INSERT INTO #TEMP VALUES (@oganiza.on_id)        
+  END 
+ ELSE 
+  BEGIN  
+   DECLARE @rs_id int 
+   SELECT @rs_id = RO.ORGANIZATION_ID  
+   FROM dbo.RECRUITING_ORGANIZATION RO INNER JOIN   
+     dbo.ORGANIZATION_MAP OM ON RO.ORGANIZATION_ID = OM.CHILD_ORGANIZATION_ID 
+   WHERE (SHORT_NAME =@rs_name AND ORGANIZATION_TYPE='RS')  
+      AND  OM.PARENT_ORGANIZATION_ID =  
+     (SELECT ORGANIZATION_ID FROM dbo.RECRUITING_ORGANIZATION WHERE SHORT_NAME =@district_name) 
+     
+   SELECT @oganiza.on_id = RO.ORGANIZATION_ID  
+   FROM dbo.RECRUITING_ORGANIZATION RO INNER JOIN   
+     dbo.ORGANIZATION_MAP OM ON RO.ORGANIZATION_ID = OM.CHILD_ORGANIZATION_ID 
+   WHERE (SHORT_NAME =@rss_name AND ORGANIZATION_TYPE=@organiza.on_type)  
+      AND  OM.PARENT_ORGANIZATION_ID =@rs_id  
+   INSERT INTO #TEMP VALUES (@oganiza.on_id)     
+  END 
+ FETCH next from recruiter_history_cursor INTO @hq_name, @region_name, @district_name, @rs_name,@rss_name, @organiza.on_type 
+END 
+ 
+CLOSE recruiter_history_cursor 
+DEALLOCATE recruiter_history_cursor 
+ 
+SELECT ORGANIZATION_ID 
+FROM #TEMP 
+GO 
+/****** Object:  StoredProcedure [USMC].[GetRecrui.ngPersons_MOI]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER ON 
+GO 
+ 
+CREATE PROCEDURE [USMC].[GetRecrui.ngPersons_MOI] 
+( 
+ @Organiza.onID int 
+) 
+AS 
+ 
+SET NOCOUNT ON 
+ 
+DECLARE @MonthBeginDate date.me 
+SET @MonthBeginDate = CONVERT(date.me, CONVERT(varchar, month(getdate())) + '/1/' + CONVERT(varchar, year(getdate()))) 
+ 
+SELECT 
+ RP.RECRUITING_PERSON_ID, 
+ RP.ORGANIZATION_ID, 
+ RR.RECRUITING_ROLE_ID, 
+ RR.SHORT_DESCRIPTION, 
+ RO.SHORT_NAME, 
+ P.LAST_NAME + ', ' + P.FIRST_NAME + COALESCE(SPACE(1) + P.LEGAL_MIDDLE_NAME, SPACE(0)) AS [NAME], 
+ LTRIM(RTRIM(RP.RANK_CODE)) AS RANK, 
+ RO.ORGANIZATION_TYPE, 
+ COALESCE(CONVERT(VARCHAR(11), RP.BILLET_BEGIN_DATE, 101), SPACE(0)) AS BILLET_BEGIN_DATE,  
+ COALESCE(CONVERT(VARCHAR(11), RP.BILLET_END_DATE, 101), SPACE(0)) AS BILLET_END_DATE, 
+ PSH.* 
+FROM RECRUITING_PERSON RP WITH (NOLOCK) 
+ INNER JOIN RECRUITING_ORGANIZATION RO ON RP.ORGANIZATION_ID = RO.ORGANIZATION_ID 
+ INNER JOIN PERSON P ON RP.RECRUITING_PERSON_ID = P.PERSON_ID 
+ INNER JOIN RECRUITING_ROLE RR ON RP.RECRUITING_ROLE_ID = RR.RECRUITING_ROLE_ID 
+ LEFT OUTER JOIN 
+ ( 
+  -- to avoid joins to mul.ple items, we will only get the latest produc.on status 
+  SELECT ipsh.* 
+  FROM 
+  ( 
+   -- get the produc.on status par..oned by person_id 
+   SELECT  
+    ON_PRODUCTION,  
+    MONTH_CODE,  
+    CALENDAR_YEAR,  
+    NON_PROD_REASON_CODE,  
+    PERSON_ID,  
+    RANK() OVER (PARTITION BY PERSON_ID ORDER BY UPDATE_DATE DESC) AS RANK 
+   FROM PRODUCTION_STATUS_HISTORY WITH (NOLOCK) 
+  ) ipsh 
+  WHERE ipsh.RANK = 1 
+ ) PSH ON p.PERSON_ID = PSH.PERSON_ID 
+WHERE 
+ ((ro.Organiza.on_Type = 'MOI' OR ro.Organiza.on_Type = 'N') OR (RP.RECRUITING_ROLE_ID in ('0','1','2','3','4'))) 
+ AND RP.TOUR_END_DATE IS NULL --- TOUR END DATE IS NULL FOR ALL PEOPLE CURRENTLY ASSIGNED TO THE UNIT 
+ORDER BY [NAME] 
+ 
+SET NOCOUNT OFF 
+ 
+  
+GO 
+/****** Object:  StoredProcedure [USMC].[GetRecrui.ngRoleByID]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER ON 
+GO 
+ 
+CREATE Procedure [USMC].[GetRecrui.ngRoleByID] 
+ (@ID varchar(2)) 
+AS 
+ 
+SELECT 
+ RECRUITING_ROLE_ID, 
+ SHORT_DESCRIPTION, 
+ LONG_DESCRIPTION, 
+ PRODUCTION_BILLET, 
+ rowguid 
+FROM 
+ [dbo].[RECRUITING_ROLE] WITH (NOLOCK)  
+WHERE 
+ [RECRUITING_ROLE_ID] = @ID  
+ 
+GO 
+/****** Object:  StoredProcedure [USMC].[GetRecruitTrainingByShippingRecordID]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER ON 
+GO 
+ 
+CREATE Procedure [USMC].[GetRecruitTrainingByShippingRecordID] 
+( 
+ @ShipID int 
+) 
+AS 
+ 
+SELECT  
+ SHIP_ID AS ID, 
+ DETECTABILITY_CODE, 
+ GRADUATION_DATE, 
+ DROP_REASON, 
+ DROP_DATE 
+FROM [dbo].[RECRUIT_TRAINING] WITH (NOLOCK) 
+WHERE SHIP_ID = @ShipID 
+ 
+GO 
+/****** Object:  StoredProcedure [USMC].[GetReferralForContract]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER ON 
+GO 
+ 
+CREATE Procedure [USMC].[GetReferralForContract] 
+ @ContractID INT 
+AS 
+ 
+SET NOCOUNT ON 
+ 
+DECLARE @SourceCode As VARCHAR(10) 
+ 
+--- GET THE RIGHT CONTRACT ID TO RETRIEVE REFERRAL DATA FOR IN CASE THE CONTRACT 
+--- IS THE RESULT OF A COMPONENT CODE CHANGE 
+SET @ContractID = [USMC].[GetReferralContractID](@ContractID) 
+ 
+SET @SourceCode = (SELECT N.SOURCE_CODE FROM [dbo].[NWA] N WITH (NOLOCK)INNER JOIN [dbo].[CONTRACT] C ON N.NWA_ID = C.NWA_ID WHERE C.CONTRACT_ID = @ContractID) 
+ 
+IF (SELECT REFERRAL_TYPE FROM [dbo].[REFERRAL]WITH (NOLOCK) WHERE CONTRACT_ID = @ContractID) = 'CDR' 
+BEGIN 
+ --- CDR REFERRAL - THE REFERRER IS IN THE MARINE TABLE 
+ SELECT 
+  r.REFERRAL_ID, 
+  R.CONTRACT_ID, 
+  r.REFERRAL_TYPE, 
+  @SourceCode AS SourceCode, 
+  P.SOCIAL_SECURITY_NUMBER, 
+  SPACE(0) AS UNIT_NAME, 
+  CASE WHEN (@SourceCode = 'MCR') THEN 
+   RR.REFERRAL_RUC 
+  ELSE 
+   NULL 
+  END AS REFERRAL_RUC, 
+  CASE WHEN (@SourceCode = 'MCR') THEN 
+   RR.REFERRAL_RS 
+  ELSE 
+   NULL 
+  END AS REFERRAL_RS 
+ FROM 
+  [dbo].[REFERRAL] R WITH (NOLOCK) 
+  INNER JOIN [dbo].[PERSON] P ON (R.CONTRACT_ID = @ContractID AND R.MARINE_ID = P.PERSON_ID) 
+  LEFT OUTER JOIN [dbo].[RESERVE_REFERRAL] RR ON RR.REFERRAL_ID = R.REFERRAL_ID 
+END 
+ELSE 
+BEGIN  
+ --- DEP REFERRAL - THE REFERRER IS IN THE CONTRACT TABLE 
+ SELECT  
+  r.REFERRAL_ID, 
+  R.CONTRACT_ID, 
+  r.REFERRAL_TYPE, 
+  @SourceCode AS SourceCode, 
+  P.SOCIAL_SECURITY_NUMBER, 
+  RO.NAME AS UNIT_NAME, 
+  CASE WHEN (@SourceCode = 'MCR') THEN 
+   RR.REFERRAL_RUC 
+  ELSE 
+   NULL 
+  END AS REFERRAL_RUC, 
+  CASE WHEN (@SourceCode = 'MCR') THEN 
+   RR.REFERRAL_RS 
+  ELSE 
+   NULL 
+  END AS REFERRAL_RS 
+ FROM  
+  [dbo].[REFERRAL] R WITH (NOLOCK) 
+  INNER JOIN [dbo].[CONTRACT] C ON (R.CONTRACT_ID = @ContractID AND R.DEP_CONTRACT_ID = C.CONTRACT_ID) 
+  INNER JOIN [dbo].[NWA] N ON C.NWA_ID = N.NWA_ID 
+  INNER JOIN [dbo].[RECRUITING_ORGANIZATION] RO ON N.ORGANIZATION_OF_RECORD_ID = RO.ORGANIZATION_ID 
+  INNER JOIN [dbo].[PERSON] P ON N.MARINE_CANDIDATE_ID = P.PERSON_ID 
+  LEFT OUTER JOIN [dbo].[RESERVE_REFERRAL] RR ON RR.REFERRAL_ID = R.REFERRAL_ID 
+ 
+END 
+ 
+GO 
+/****** Object:  StoredProcedure [USMC].[GetReferralHistory]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER ON 
+GO 
+ 
+CREATE Procedure [USMC].[GetReferralHistory] 
+ (@ContractID int) 
+AS 
+ 
+DECLARE @MarineID int 
+ 
+SELECT  
+ @MarineID = M.MARINE_ID  
+FROM  
+ CONTRACT C WITH (NOLOCK) INNER JOIN NWA N ON  
+  (N.NWA_ID = C.NWA_ID AND  
+  C.CONTRACT_ID = @ContractID) 
+ INNER JOIN MARINE M ON N.MARINE_CANDIDATE_ID = M.MARINE_ID  
+ 
+SELECT 
+ R.REFERRAL_ID, 
+ CONVERT(CHAR(11), C.CONTRACT_BEGIN_DATE, 106) AS CONTRACT_BEGIN_DATE, 
+ RTRIM(P.LAST_NAME) + ', ' + RTRIM(P.FIRST_NAME) + SPACE(1) +  
+  COALESCE(P.LEGAL_MIDDLE_NAME, SPACE(0)) AS REFERRAL_NAME, 
+ P.SOCIAL_SECURITY_NUMBER, RS.SOURCE_DESCRIPTION 
+FROM 
+ REFERRAL R  WITH (NOLOCK) INNER JOIN CONTRACT C ON  
+  (R.CONTRACT_ID = C.CONTRACT_ID AND 
+  R.DEP_CONTRACT_ID = @ContractID) 
+ INNER JOIN NWA N ON C.NWA_ID = N.NWA_ID 
+ INNER JOIN RECRUITING_SOURCE RS ON N.SOURCE_CODE = RS.SOURCE_CODE 
+ INNER JOIN PERSON P ON N.MARINE_CANDIDATE_ID = P.PERSON_ID 
+ 
+UNION  
+ 
+SELECT 
+ R.REFERRAL_ID, 
+ CONVERT(CHAR(11), C.CONTRACT_BEGIN_DATE, 106) AS CONTRACT_BEGIN_DATE, 
+ RTRIM(P.LAST_NAME) + ', ' + RTRIM(P.FIRST_NAME) + SPACE(1) +  
+  COALESCE(P.LEGAL_MIDDLE_NAME, SPACE(0)) AS REFERRAL_NAME, 
+ P.SOCIAL_SECURITY_NUMBER, RS.SOURCE_DESCRIPTION 
+FROM 
+ REFERRAL R WITH (NOLOCK) INNER JOIN CONTRACT C ON  
+  (R.CONTRACT_ID = C.CONTRACT_ID AND 
+  R.MARINE_ID = @MarineID) 
+ INNER JOIN NWA N ON C.NWA_ID = N.NWA_ID 
+ INNER JOIN RECRUITING_SOURCE RS ON N.SOURCE_CODE = RS.SOURCE_CODE 
+ INNER JOIN PERSON P ON N.MARINE_CANDIDATE_ID = P.PERSON_ID 
+ 
+GO 
+/****** Object:  StoredProcedure [USMC].[GetReferralRSs]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER ON 
+GO 
+ 
+/*=================================================================== 
+Module:  RS Processing 
+Descrip.on:  GET RSs FOR MCR Referrals 
+===================================================================== 
+**  Change History 
+**  Date           Author                   Reason For Change 
+**  -------------  -----------------------  -------------------------------- 
+**  2011-03-23     JOHN DEPRATO             CHANGED TO GET ALL OPEN RSs REGARDLESS OF QSN ASSIGNED 
+****************************************************************************/ 
+CREATE Procedure [USMC].[GetReferralRSs] 
+ (@Ruc varchar(5)) 
+ 
+AS 
+BEGIN 
+ 
+DECLARE @FY int 
+SET @FY = dbo.GetFY(GETDATE()) 
+ 
+SELECT DISTINCT  RO.ORGANIZATION_ID 
+    ,RO.NAME 
+FROM MCRISS..RECRUITING_ORGANIZATION RO WITH (NOLOCK) 
+INNER JOIN MCRISS..QSN Q WITH (NOLOCK) ON RO.ORGANIZATION_ID = Q.RECRUITING_ORGANIZATION_ID 
+WHERE (Q.RUC = @RUC  
+  AND RO.ORGANIZATION_TYPE = 'RS'  
+  AND Q.FY = @FY  
+  AND NOT Q.RUC = 'XXXXX' 
+  AND RO.ISOPEN IN ('Y','N')) 
+ OR (RO.ORGANIZATION_TYPE = 'RS' 
+  AND RO.ISOPEN = 'Y') 
+ 
+END 
+GO 
+/****** Object:  StoredProcedure [USMC].[GetReferrerSSN]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER ON 
+GO 
+ CREATE PROCEDURE [USMC].[GetReferrerSSN] 
+( 
+ @NWAID int, 
+ @Recrui.ngSourceID varchar(10), 
+ @NwaType varchar(1) 
+ --NwaType is 'E' or 'O' 
+) 
+AS 
+DECLARE @SSN varchar(9) 
+SELECT @SSN = dbo.GetReferrerSSN(@NWAID, @Recrui.ngSourceID, @NwaType) 
+SELECT @SSN 
+GO 
+/****** Object:  StoredProcedure [USMC].[GetREGAssignedValues]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER ON 
+GO 
+ 
+CREATE Procedure [USMC].[GetREGAssignedValues] 
+ @FiscalYear int, 
+ @CategoryCode char(2), 
+ @Recrui.ngOrgID  int  
+AS 
+ 
+SELECT ORGANIZATION_ID = 'REG',  SHIPPING_QUOTA_PLAN.MONTH_CODE, QUOTA_VALUE, REQMT_VALUE 
+FROM RECRUITING_ORGANIZATION  WITH (NOLOCK) 
+ INNER JOIN SHIPPING_QUOTA_PLAN ON  
+     RECRUITING_ORGANIZATION.ORGANIZATION_ID = SHIPPING_QUOTA_PLAN.ORGANIZATION_ID 
+ INNER JOIN MONTH_CODE ON 
+ SHIPPING_QUOTA_PLAN.MONTH_CODE = MONTH_CODE.MONTH_CODE 
+WHERE SHIPPING_QUOTA_PLAN.FISCAL_YEAR =  @FiscalYear AND 
+RECRUITING_ORGANIZATION.ORGANIZATION_TYPE = 'D' AND 
+SHIPPING_QUOTA_PLAN.CATEGORY_CODE = @CategoryCode AND 
+SHIPPING_QUOTA_PLAN.ORGANIZATION_ID = @Recrui.ngOrgID AND 
+SHIPPING_QUOTA_PLAN.MONTH_CODE > 0 
+ORDER BY SHIPPING_QUOTA_PLAN.ORGANIZATION_ID,  MONTH_CODE.DISPLAY_ORDER 
+ 
+GO 
+/****** Object:  StoredProcedure [USMC].[GetRegionCMCValue]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER ON 
+GO 
+ 
+CREATE Procedure [USMC].[GetRegionCMCValue] 
+ (@FiscalYear int,  
+  @Region int, 
+  @RegCMCValue int OUTPUT) 
+AS 
+ 
+SELECT  
+ @RegCMCValue = MISSION_VALUE 
+FROM 
+ CONTRACTING_MISSION_PLAN WITH (NOLOCK) 
+WHERE 
+ CONTRACTING_MISSION_PLAN.FISCAL_YEAR = @FiscalYear AND 
+ CONTRACTING_MISSION_PLAN.ORGANIZATION_ID = @Region AND 
+ MONTH_CODE = 0 AND 
+ CONTRACTING_MISSION_TYPE = 'CMC' 
+ 
+GO 
+/****** Object:  StoredProcedure [USMC].[GetRemark]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER OFF 
+GO 
+/**************************************************************************** 
+** Name:  [usmc].[GetRemark] 
+** Author:  Roopali Chandra 
+** Purpose:  
+** Usage:   
+**************************************************************************** 
+**  Change History 
+**  Date           Author                   Reason For Change 
+**  -------------  -----------------------  ------------------------------- 
+** 
+****************************************************************************/ 
+CREATE PROCEDURE [USMC].[GetRemark] 
+      @SchoolCode int, 
+      @FiscalYear int 
+      --@Remark varchar(100), 
+      --@UserLogin varchar(50)            
+   
+AS 
+SET NOCOUNT ON 
+ 
+DECLARE @CollegePro.leID uniqueiden..er 
+ 
+ Select @CollegePro.leID = cp.CollegePro.leID from [USMC].CollegePro.le cp 
+          where cp.SCHOOL_CODE = @SchoolCode 
+             and cp.FiscalYear = @FiscalYear 
+              
+  
+  SELECT [RemarkID], [Remark], [UserLogin]   ,[UpdateDate] 
+  FROM [MCRISS].[USMC].[Remark] 
+         
+  WHERE  CollegePro.leID = @CollegePro.leID 
+           
+ 
+ 
+--- CLEAN UP 
+SET NOCOUNT OFF 
+GO 
+/****** Object:  StoredProcedure [USMC].[GetRemarkBySchoolRowGuid]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER OFF 
+GO 
+/**************************************************************************** 
+** Name:  [usmc].[GetRemarkBySchoolRowGuid] 
+** Author:  Vijaya Parre 
+** Purpose:  
+** Usage:   
+**************************************************************************** 
+**  Change History 
+**  Date           Author                   Reason For Change 
+**  -------------  -----------------------  ------------------------------- 
+** 
+****************************************************************************/ 
+CREATE PROCEDURE [USMC].[GetRemarkBySchoolRowGuid] 
+      @SchoolCode uniqueiden..er, 
+      @FiscalYear int 
+      --@Remark varchar(100), 
+      --@UserLogin varchar(50)            
+   
+AS 
+SET NOCOUNT ON 
+ 
+DECLARE @CollegePro.leID uniqueiden..er 
+ 
+ Select @CollegePro.leID = cp.CollegePro.leID from [USMC].CollegePro.le cp 
+                                     inner join [dbo].High_School hs on cp.SCHOOL_CODE = hs.SCHOOL_CODE 
+                                     where hs.RowGuid = @SchoolCode           
+             and cp.FiscalYear = @FiscalYear 
+              
+  
+  SELECT [RemarkID], [Remark], [UserLogin]   ,[UpdateDate] 
+  FROM [MCRISS].[USMC].[Remark] 
+         
+  WHERE  CollegePro.leID = @CollegePro.leID 
+           
+ 
+ 
+--- CLEAN UP 
+SET NOCOUNT OFF 
+ 
+GO 
+/****** Object:  StoredProcedure [USMC].[GetRFATrackingDates]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER ON 
+GO 
+ 
+CREATE Procedure [USMC].[GetRFATrackingDates] 
+ @ContractID int 
+AS 
+ 
+SELECT  
+ COALESCE(CONVERT(CHAR(11), SENT_TO_DIST_DATE, 106), null) AS SENT_TO_DIST_DATE, 
+ COALESCE(CONVERT(CHAR(11), DIST_RECEIVED_DATE, 106), null) AS DIST_RECEIVED_DATE, 
+ COALESCE(CONVERT(CHAR(11), MAILED_TO_MCRC_DATE, 106), null) AS MAILED_TO_MCRC_DATE, 
+ COALESCE(CONVERT(CHAR(11), MCRC_RECEIVED_DATE, 106), null) AS MCRC_RECEIVED_DATE, 
+ COALESCE(CONVERT(CHAR(11), MCRC_OA_MAILED_DATE, 106), null) AS MCRC_OA_MAILED_DATE, 
+ COALESCE(CONVERT(CHAR(11), MCRC_MAILS_TO_OSS, 106), null) AS MCRC_MAILS_TO_OSS, 
+ COALESCE(CONVERT(CHAR(11), SCROLLED_TO_ACTIVE_DUTY_DATE, 106), null) AS SCROLLED_TO_ACTIVE_DUTY_DATE, 
+ COALESCE(CONVERT(CHAR(11), SCROLLED_TO_RESERVES_DATE, 106), null) AS SCROLLED_TO_RESERVES_DATE 
+FROM  
+ RFA_TRACKING_DATES WITH (NOLOCK) 
+WHERE 
+ CONTRACT_ID = @ContractID 
+ 
+GO 
+/****** Object:  StoredProcedure [USMC].[GetROTC]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER OFF 
+GO 
+/**************************************************************************** 
+** Name:  [usmc].[GetCollegePro.leROTC] 
+** Author:  Roopali Chandra 
+** Purpose:  
+** Usage:   
+**************************************************************************** 
+**  Change History 
+**  Date           Author                   Reason For Change 
+**  -------------  -----------------------  ------------------------------- 
+**  01-07-2017     John Travis Dodson       Added school GUID 
+****************************************************************************/ 
+CREATE PROCEDURE [USMC].[GetROTC] 
+      @SchoolCode Integer,  
+      @FiscalYear Integer 
+   
+AS 
+SET NOCOUNT ON 
+  
+  SELECT cpr.[CollegePro.leROTCID] AS ROTCID,  
+    cp.[SCHOOL_CODE] AS SchoolCode, 
+    hs.[RowGuid] as SchoolRowGuid,  
+    [HIGHSCHOOL_NAME] AS CollegeName, 
+    --will be needed to insert/update records 
+    FiscalYear AS FiscalYear, 
+    sr.SERVICE_CODE AS ServiceCode, 
+    cpr.[Service], 
+    sr.[SERVICE] AS ServiceDescrip.on, 
+    [Popula.on] AS NumPopula.on,  
+    [RankCode] AS Rank,  
+    [SHORT_DESC] AS RankDescrip.on, 
+  
+    pc.[PointOfContactID], 
+    RTRIM (pc.POCLastName) + ',' + RTRIM(pc.POCFirstName) + '.' + IsNull(substring(pc.POCLegalMiddleName,1,1),'') +  
+    '.' AS POCName, 
+    [POCLastName], [POCLegalMiddleName], [POCFirstName], 
+     
+    [TelephoneNumber], 
+    [EmailAddress], cpr.[UserLogin] 
+     
+  FROM [MCRISS].[USMC].[CollegePro.leROTC] cpr     
+    INNER JOIN [USMC].[CollegePro.le] cp ON cpr.CollegePro.leID = cp.CollegePro.leID 
+    INNER JOIN [dbo].[HIGH_SCHOOL] hs ON hs.SCHOOL_CODE = cp.SCHOOL_CODE 
+    LEFT OUTER JOIN [dbo].[PAY_GRADE] pg ON cpr.RankCode = pg.RANK_CODE 
+            AND RANK_CODE = RankCode 
+            AND TYPE = 'O' 
+    INNER JOIN [dbo].[SERVICE] sr ON cpr.Service = sr.SERVICE_CODE  
+         
+     
+    LEFT OUTER JOIN [MCRISS].[USMC].[PointOfContact] pc ON  pc.PointOfContactID = cpr.PointOfContactID 
+ 
+  WHERE  cp.SCHOOL_CODE = @SchoolCode 
+    and cp.FiscalYear = @FiscalYear  
+  --ORDER BY cpr.[SCHOOL_CODE] 
+ 
+--- CLEAN UP 
+SET NOCOUNT OFF 
+GO 
+/****** Object:  StoredProcedure [USMC].[GetROTCByID]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER OFF 
+GO 
+/**************************************************************************** 
+** Name:  [usmc].[GetCollegePro.leROTCByID] 
+** Author:  Erwin Rozada 
+** Purpose:  
+** Usage:   
+**************************************************************************** 
+**  Change History 
+**  Date           Author                   Reason For Change 
+**  -------------  -----------------------  ------------------------------- 
+**  01-07-2017     John Travis Dodson       Added school guid 
+****************************************************************************/ 
+CREATE PROCEDURE [USMC].[GetROTCByID] 
+      @CollegePro.leROTCID uniqueiden..er 
+   
+AS 
+SET NOCOUNT ON 
+  
+  SELECT cpr.[CollegePro.leROTCID] AS ROTCID,  
+    cp.[SCHOOL_CODE] AS SchoolCode, 
+    hs.[RowGuid] as SchoolRowGuid,  
+    [HIGHSCHOOL_NAME] AS CollegeName, 
+    --will be needed to insert/update records 
+    FiscalYear AS FiscalYear, 
+    cpr.[Service], 
+    sr.SERVICE_CODE AS ServiceCode, 
+    sr.[SERVICE] AS ServiceDescrip.on, 
+    [Popula.on] AS NumPopula.on,  
+    [RankCode] AS Rank, [SHORT_DESC] AS RankDescrip.on, 
+  
+    pc.[PointOfContactID], 
+    RTRIM (pc.POCLastName) + ',' + RTRIM(pc.POCFirstName) + '.' + IsNull(substring(pc.POCLegalMiddleName,1,1),'') +  
+    '.' AS POCName, 
+    [POCLastName],  
+    [POCLegalMiddleName],  
+    [POCFirstName], 
+     
+    [TelephoneNumber], 
+    [EmailAddress], cpr.[UserLogin] 
+     
+  FROM [MCRISS].[USMC].[CollegePro.leROTC] cpr 
+     
+    INNER JOIN [USMC].[CollegePro.le] cp ON cpr.CollegePro.leID = cp.CollegePro.leID 
+    INNER JOIN [dbo].[HIGH_SCHOOL] hs ON hs.SCHOOL_CODE = cp.SCHOOL_CODE 
+    LEFT OUTER JOIN [dbo].[PAY_GRADE] pg ON cpr.RankCode = pg.RANK_CODE 
+            AND RANK_CODE = RankCode 
+            AND TYPE = 'O' 
+    INNER JOIN [dbo].[SERVICE] sr ON cpr.Service = sr.SERVICE_CODE  
+         
+     
+    LEFT OUTER JOIN [MCRISS].[USMC].[PointOfContact] pc ON  pc.PointOfContactID = cpr.PointOfContactID 
+ 
+  WHERE  cpr.CollegePro.leROTCID = @CollegePro.leROTCID 
+ 
+--- CLEAN UP 
+SET NOCOUNT OFF 
+GO 
+/****** Object:  StoredProcedure [USMC].[GetROTCByOrg]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER OFF 
+GO 
+/**************************************************************************** 
+** Name:  [usmc].[GetROTCByOrg] 
+** Author:  Roopali Chandra 
+** Purpose:  
+** Usage:   
+**************************************************************************** 
+**  Change History 
+**  Date           Author                   Reason For Change 
+**  -------------  -----------------------  ------------------------------- 
+**  01-07-2017     John Travis Dodson       Added school GUID 
+****************************************************************************/ 
+CREATE PROCEDURE [USMC].[GetROTCByOrg] 
+      @Organiza.onID Integer,  
+      @FiscalYear Integer 
+   
+AS 
+SET NOCOUNT ON 
+  
+  SELECT cpr.[CollegePro.leROTCID] AS ROTCID, cp.[SCHOOL_CODE] AS SchoolCode, [HIGHSCHOOL_NAME] AS CollegeName, 
+          hs.[RowGuid] as SchoolRowGuid, 
+    --will be needed to insert/update records 
+    FiscalYear AS FiscalYear, 
+    cpr.[Service], 
+    sr.SERVICE_CODE AS ServiceCode, 
+    sr.[SERVICE] AS ServiceDescrip.on, 
+    [Popula.on] AS NumPopula.on,  
+    --not needed for market analysis 
+    [RankCode] AS Rank, [SHORT_DESC] AS RankDescrip.on, 
+  
+    pc.[PointOfContactID], 
+    RTRIM (pc.POCLastName) + ',' + RTRIM(pc.POCFirstName) + '.' + IsNull(substring(pc.POCLegalMiddleName,1,1),'') +  
+    '.' AS POCName, 
+    [POCLastName], [POCLegalMiddleName], [POCFirstName], 
+     
+    [TelephoneNumber], 
+    [EmailAddress], cpr.[UserLogin] 
+     
+  FROM [MCRISS].[USMC].[CollegePro.leROTC] cpr 
+     
+    INNER JOIN [USMC].[CollegePro.le] cp ON cpr.CollegePro.leID = cp.CollegePro.leID 
+    INNER JOIN [dbo].[HIGH_SCHOOL] hs ON hs.SCHOOL_CODE = cp.SCHOOL_CODE 
+    INNER JOIN [dbo].[PAY_GRADE] pg ON cpr.RankCode = pg.RANK_CODE 
+            AND RANK_CODE = RankCode 
+            AND TYPE = 'O' 
+    INNER JOIN [dbo].[SERVICE] sr ON cpr.Service = sr.SERVICE_CODE  
+         
+     
+    LEFT OUTER JOIN [MCRISS].[USMC].[PointOfContact] pc ON  pc.PointOfContactID = cpr.PointOfContactID 
+ 
+  --put the where clause back 
+  WHERE  hs.Organiza.on_ID = @Organiza.onID  
+    and cp.FiscalYear = @FiscalYear  
+  ORDER BY cp.[SCHOOL_CODE] 
+ 
+--- CLEAN UP 
+SET NOCOUNT OFF 
+ 
+ 
+ 
+GO 
+/****** Object:  StoredProcedure [USMC].[GetROTCBySchoolRowGuid]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER OFF 
+GO 
+/**************************************************************************** 
+** Name:  [usmc].[GetROTCBySchoolRowGuid] 
+** Author:  Vijaya Parre 
+** Purpose:  
+** Usage:   
+**************************************************************************** 
+**  Change History 
+**  Date           Author                   Reason For Change 
+**  -------------  -----------------------  ------------------------------- 
+**  01-07-2017     John Travis Dodson       Added school GUID 
+****************************************************************************/ 
+CREATE PROCEDURE [USMC].[GetROTCBySchoolRowGuid] 
+      @SchoolCode uniqueiden..er,  
+      @FiscalYear Integer 
+   
+AS 
+SET NOCOUNT ON 
+  
+  SELECT cpr.[CollegePro.leROTCID] AS ROTCID, cp.[SCHOOL_CODE] AS SchoolCode, [HIGHSCHOOL_NAME] AS CollegeName, 
+          hs.[RowGuid] as SchoolRowGuid, 
+    --will be needed to insert/update records 
+    FiscalYear AS FiscalYear, 
+    cpr.[Service],     
+    sr.SERVICE_CODE AS ServiceCode, 
+    sr.[SERVICE] AS ServiceDescrip.on, 
+    [Popula.on] AS NumPopula.on,  
+    [RankCode] AS Rank, [SHORT_DESC] AS RankDescrip.on, 
+  
+    pc.[PointOfContactID], 
+    RTRIM (pc.POCLastName) + ',' + RTRIM(pc.POCFirstName) + '.' + IsNull(substring(pc.POCLegalMiddleName,1,1),'') +  
+    '.' AS POCName, 
+    [POCLastName], [POCLegalMiddleName], [POCFirstName], 
+     
+    [TelephoneNumber], 
+    [EmailAddress], cpr.[UserLogin] 
+     
+  FROM [MCRISS].[USMC].[CollegePro.leROTC] cpr 
+     
+    INNER JOIN [USMC].[CollegePro.le] cp ON cpr.CollegePro.leID = cp.CollegePro.leID 
+    INNER JOIN [dbo].[HIGH_SCHOOL] hs ON hs.SCHOOL_CODE = cp.SCHOOL_CODE 
+    LEFT OUTER JOIN [dbo].[PAY_GRADE] pg ON cpr.RankCode = pg.RANK_CODE 
+            AND RANK_CODE = RankCode 
+            AND TYPE = 'O' 
+    LEFT OUTER JOIN [dbo].[SERVICE] sr ON cpr.Service = sr.SERVICE_CODE  
+         
+     
+    LEFT OUTER JOIN [MCRISS].[USMC].[PointOfContact] pc ON  pc.PointOfContactID = cpr.PointOfContactID 
+ 
+  WHERE  hs.rowguid = @SchoolCode 
+    and cp.FiscalYear = @FiscalYear  
+  --ORDER BY cpr.[SCHOOL_CODE] 
+ 
+--- CLEAN UP 
+SET NOCOUNT OFF 
+ 
+ 
+GO 
+/****** Object:  StoredProcedure [USMC].[GetROTCContactRanks]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER OFF 
+GO 
+/**************************************************************************** 
+** Name:  [usmc].[GetROTCContactRanks] 
+** Author:  John Travis Dodson 
+** Purpose: Get the ranks to populate the ROTC contacts (o.cer ranks plus Major) 
+** Usage:   
+**************************************************************************** 
+**  Change History 
+**  Date           Author                   Reason For Change 
+**  -------------  -----------------------  ------------------------------- 
+**  02/24/2017     John Travis Dodson       Ini.al Version 
+****************************************************************************/ 
+CREATE PROCEDURE [USMC].[GetROTCContactRanks] 
+AS 
+SET NOCOUNT ON 
+ 
+SELECT 
+ PG.RANK_CODE,  
+ PG.RANK_CODE + ' - ' + PG.SHORT_DESC AS RANK 
+FROM 
+ PAY_GRADE PG 
+WHERE 
+ TYPE = 'O' OR PAY_GRADE_CODE = 'O4' 
+ORDER BY 
+ PG.RANK_CODE 
+           
+ 
+SET NOCOUNT OFF  
+GO 
+/****** Object:  StoredProcedure [USMC].[GetROTCsByZipCodes]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER OFF 
+GO 
+/**************************************************************************** 
+** Name:  [usmc].[GetROTCsByZipCodes] 
+** Author:  Erwin Rozada 
+** Purpose:  
+** Usage:   
+**************************************************************************** 
+**  Change History 
+**  Date           Author                   Reason For Change 
+**  -------------  -----------------------  ------------------------------- 
+**  01-07-2017     John Travis Dodson       Added school GUID 
+****************************************************************************/ 
+CREATE PROCEDURE [USMC].[GetROTCsByZipCodes] 
+      @XmlZipCodes as XML, 
+      @FiscalYear Integer 
+   
+AS 
+ 
+SET NOCOUNT ON 
+ 
+DECLARE @DocZipDocs int 
+EXEC sp_xml_preparedocument @DocZipDocs OUTPUT, @XmlZipCodes 
+  
+SELECT cpr.[CollegePro.leROTCID] AS ROTCID,  
+ cp.[SCHOOL_CODE] AS SchoolCode, [HIGHSCHOOL_NAME] AS CollegeName, 
+ hs.[RowGuid] as SchoolRowGuid, 
+ --will be needed to insert/update records 
+ FiscalYear AS FiscalYear, 
+ cpr.[Service], 
+ sr.SERVICE_CODE AS ServiceCode, 
+ sr.[SERVICE] AS ServiceDescrip.on, 
+ [Popula.on] AS NumPopula.on,  
+ [RankCode] AS Rank,  
+ [SHORT_DESC] AS RankDescrip.on, 
+  
+ pc.[PointOfContactID], 
+ RTRIM (pc.POCLastName) + ',' + RTRIM(pc.POCFirstName) + '.' + IsNull(substring(pc.POCLegalMiddleName,1,1),'') +  
+    '.' AS POCName, 
+ [POCLastName],  
+ [POCLegalMiddleName],  
+ [POCFirstName], 
+     
+ [TelephoneNumber], 
+ [EmailAddress],  
+ cpr.[UserLogin] 
+     
+ FROM [MCRISS].[USMC].[CollegePro.leROTC] cpr 
+ INNER JOIN [USMC].[CollegePro.le] cp ON cpr.CollegePro.leID = cp.CollegePro.leID 
+ INNER JOIN [dbo].[HIGH_SCHOOL] hs ON hs.SCHOOL_CODE = cp.SCHOOL_CODE 
+ LEFT OUTER JOIN [dbo].[PAY_GRADE] pg ON cpr.RankCode = pg.RANK_CODE 
+            AND RANK_CODE = RankCode 
+            AND TYPE = 'O' 
+ INNER JOIN [dbo].[SERVICE] sr ON cpr.Service = sr.SERVICE_CODE  
+ LEFT OUTER JOIN [MCRISS].[USMC].[PointOfContact] pc ON  pc.PointOfContactID = cpr.PointOfContactID 
+ WHERE cp.FiscalYear = @FiscalYear  
+ AND ( 
+   LEFT(HS.ZIP_CODE, 5) IN(Select ZipCode from  OPENXML(@DocZipDocs, '/ZipCodeList/ZipCodeData') WITH (ZipCode varchar(5)) ) 
+  ) 
+     
+ 
+EXEC sp_xml_removedocument @DocZipDocs                
+ 
+--- CLEAN UP 
+SET NOCOUNT OFF 
+GO 
+/****** Object:  StoredProcedure [USMC].[GetRSforRSS]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER ON 
+GO 
+ 
+CREATE Procedure [USMC].[GetRSforRSS] 
+ @Recrui.ngOrgID int 
+AS 
+ 
+SET NOCOUNT ON  
+ 
+SELECT * INTO #ORGS FROM USMC.GetOrgHierarchy (@Recrui.ngOrgID)  
+ 
+SELECT RS_ID FROM #ORGS WHERE ORG_ID = @Recrui.ngOrgID 
+ 
+--- CLEAN UP 
+DROP TABLE #ORGS  
+ 
+SET NOCOUNT OFF  
+GO 
+/****** Object:  StoredProcedure [USMC].[GetRSSAc.vityGradSenior]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER ON 
+GO 
+ 
+/**************************************************************************** 
+**  Change History 
+**  Date           Author                   Reason For Change 
+**  -------------  -----------------------  ------------------------------- 
+**  2017-13-17    Jason Nemeth       Change reference contract date to MEPS_CONTRACT_DATE 
+****************************************************************************/  
+ 
+CREATE Procedure [USMC].[GetRSSAc.vityGradSenior] 
+ @OrgID int, 
+ @Ac.vityDate date.me 
+AS 
+ 
+SET ArithAbort ON 
+SET NOCOUNT ON 
+ 
+-------------------------------------------- 
+--- Get the Grad and Senior Contracts 
+-------------------------------------------- 
+SELECT  
+ n.NWA_ID, n.MARINE_CANDIDATE_ID, n.ORGANIZATION_OF_RECORD_ID, N.EDUCATION_LEVEL,  N.EDUCATION_CODE 
+INTO #Nwa  
+FROM 
+ [dbo].[NWA] N WITH (NOLOCK)  
+ INNER JOIN [dbo].[MIContract] mi ON mi.NWA_ID = n.NWA_ID AND 
+     DATEDIFF(DAY, @Ac.vityDate, mi.contract_begin_date) = 0  
+ LEFT JOIN [dbo].[CONTRACT] C 
+  ON (C.NWA_ID = N.NWA_ID 
+     AND 
+     CONTRACT_ID IS NOT NULL AND 
+     N.EDUCATION_LEVEL IS NOT NULL AND 
+     N.EDUCATION_CODE IS NOT NULL) 
+ INNER JOIN [dbo].[RECRUITING_ORGANIZATION] RO 
+  ON (RO.ORGANIZATION_ID = N.ORGANIZATION_OF_RECORD_ID AND RO.ISOPEN = 'Y' AND RO.ORGANIZATION_TYPE = 'RSS') 
+ INNER JOIN [dbo].[ORGANIZATION_MAP] OM 
+  ON (OM.PARENT_ORGANIZATION_ID = @OrgID AND 
+     OM.CHILD_ORGANIZATION_ID = RO.ORGANIZATION_ID) 
+ 
+-- records created as a result of a Component Code change. 
+SELECT DISTINCT n.NWA_ID 
+INTO #NwaZkc 
+FROM  
+ #Nwa N  
+ INNER JOIN MCRISS.dbo.NWA N_OLD  
+  ON N_OLD.MARINE_CANDIDATE_ID = N.MARINE_CANDIDATE_ID  
+   AND N_OLD.NWA_ID = (SELECT MAX(N2.NWA_ID)  
+         FROM NWA N2  
+         WHERE N2.NWA_ID < N.Nwa_ID  
+         AND N.MARINE_CANDIDATE_ID = N2.MARINE_CANDIDATE_ID) 
+ INNER JOIN MCRISS.dbo.CONTRACT C_OLD  
+  ON C_OLD.NWA_ID = N_OLD.NWA_ID 
+WHERE  
+ C_OLD.DISCHARGE_CODE = 'ZKC' 
+ AND N_OLD.NWA_ID < N.Nwa_ID 
+  
+-- Component Code is no longer excluded 
+--DELETE FROM #Nwa WHERE NWA_ID IN (SELECT NWA_ID FROM #NwaZkc) 
+ 
+ 
+CREATE TABLE #TEMP_CONTRACTS  
+( ORG_ID int NOT NULL,  
+ GRAD_COUNT int NOT NULL, 
+ GRAD_MALE_COUNT int NOT NULL, 
+ GRAD_FEMALE_COUNT int NOT NULL,  
+ SENIOR_COUNT int NOT NULL, 
+ SENIOR_MALE_COUNT int NOT NULL, 
+ SENIOR_FEMALE_COUNT int NOT NULL 
+) 
+ 
+INSERT INTO 
+ #TEMP_CONTRACTS 
+SELECT 
+ N.ORGANIZATION_OF_RECORD_ID, 
+ COALESCE(SUM(CASE (N.EDUCATION_LEVEL + N.EDUCATION_CODE) 
+  WHEN '11S' THEN 0 
+  WHEN '11M' THEN 0 
+  WHEN '11H' THEN 0 
+  ELSE 1 
+  END), 0) as GradContracts, 
+ COALESCE(SUM(CASE  
+  WHEN (N.EDUCATION_LEVEL + N.EDUCATION_CODE) = '11S' THEN 0 
+  WHEN (N.EDUCATION_LEVEL + N.EDUCATION_CODE) = '11M' THEN 0 
+  WHEN (N.EDUCATION_LEVEL + N.EDUCATION_CODE) = '11H' THEN 0 
+  WHEN Gender_Code = 'M' THEN 1 
+  END), 0) as GradMaleContracts, 
+ COALESCE(SUM(CASE  
+  WHEN (N.EDUCATION_LEVEL + N.EDUCATION_CODE) = '11S' THEN 0 
+  WHEN (N.EDUCATION_LEVEL + N.EDUCATION_CODE) = '11M' THEN 0 
+  WHEN (N.EDUCATION_LEVEL + N.EDUCATION_CODE) = '11H' THEN 0 
+  WHEN Gender_Code = 'F' THEN 1 
+  END), 0) as GradFemaleContracts, 
+ COALESCE(SUM(CASE (N.EDUCATION_LEVEL + N.EDUCATION_CODE) 
+  WHEN '11S' THEN 1 
+  WHEN '11M' THEN 1 
+  WHEN '11H' THEN 1 
+  ELSE 0 
+  END), 0) as SeniorContracts, 
+ COALESCE(SUM(CASE  
+  WHEN (N.EDUCATION_LEVEL + N.EDUCATION_CODE) = '11S' AND Gender_Code = 'M'  THEN 1 
+  WHEN (N.EDUCATION_LEVEL + N.EDUCATION_CODE) = '11M' AND Gender_Code = 'M'  THEN 1 
+  WHEN (N.EDUCATION_LEVEL + N.EDUCATION_CODE) = '11H' AND Gender_Code = 'M'  THEN 1 
+  ELSE 0 
+  END), 0) as SeniorMaleContracts, 
+ COALESCE(SUM(CASE  
+     WHEN (N.EDUCATION_LEVEL + N.EDUCATION_CODE) = '11S' AND Gender_Code = 'F'  THEN 1 
+  WHEN (N.EDUCATION_LEVEL + N.EDUCATION_CODE) = '11M' AND Gender_Code = 'F'  THEN 1 
+  WHEN (N.EDUCATION_LEVEL + N.EDUCATION_CODE) = '11H' AND Gender_Code = 'F'  THEN 1 
+  ELSE 0 
+  END), 0) as SeniorFemaleContracts 
+FROM 
+ #NWA N WITH (NOLOCK) INNER JOIN [dbo].[MIContract] mi 
+  ON (mi.NWA_ID = N.NWA_ID AND 
+     DATEDIFF(DAY, @Ac.vityDate, mi.contract_begin_date) = 0) 
+     LEFT JOIN [dbo].[CONTRACT] C ON (C.NWA_ID = N.NWA_ID  
+     AND 
+     CONTRACT_ID IS NOT NULL AND 
+     N.EDUCATION_LEVEL IS NOT NULL AND 
+     N.EDUCATION_CODE IS NOT NULL) 
+ INNER JOIN [dbo].[MARINE_CANDIDATE] mc ON mc.MARINE_CANDIDATE_ID = n.MARINE_CANDIDATE_ID 
+ INNER JOIN [dbo].[RECRUITING_ORGANIZATION] RO 
+  ON (RO.ORGANIZATION_ID = N.ORGANIZATION_OF_RECORD_ID AND RO.ISOPEN = 'Y' AND RO.ORGANIZATION_TYPE = 'RSS') 
+ INNER JOIN [dbo].[ORGANIZATION_MAP] OM 
+  ON (OM.PARENT_ORGANIZATION_ID = @OrgID AND 
+     OM.CHILD_ORGANIZATION_ID = RO.ORGANIZATION_ID) 
+GROUP BY 
+ N.ORGANIZATION_OF_RECORD_ID 
+ 
+-------------------------------------------- 
+--- Get the Grad and Senior Applica.ons (NWAs) 
+-------------------------------------------- 
+SELECT  
+ n.NWA_ID, n.MARINE_CANDIDATE_ID, n.ORGANIZATION_OF_RECORD_ID, N.NWA_DECLARED_DATE  
+INTO #Nwa2 
+FROM 
+ [dbo].[NWA] N WITH (NOLOCK) INNER JOIN [dbo].[RECRUITING_ORGANIZATION] RO 
+  ON ( 
+   RO.ORGANIZATION_ID = N.ORGANIZATION_OF_RECORD_ID  
+   AND 
+     RO.ISOPEN = 'Y'  
+     AND 
+     RO.ORGANIZATION_TYPE = 'RSS'  
+     AND 
+     DATEDIFF(DAY, @Ac.vityDate, N.NWA_DECLARED_DATE) = 0  
+     ) 
+ INNER JOIN [dbo].[ORGANIZATION_MAP] OM 
+  ON (OM.PARENT_ORGANIZATION_ID = @OrgID AND 
+     OM.CHILD_ORGANIZATION_ID = RO.ORGANIZATION_ID) 
+ 
+-- records created as a result of a Component Code change. 
+SELECT DISTINCT n.NWA_ID 
+INTO #NwaZkc2 
+FROM  
+ #Nwa2 N  
+ INNER JOIN MCRISS.dbo.NWA N_OLD  
+  ON N_OLD.MARINE_CANDIDATE_ID = N.MARINE_CANDIDATE_ID  
+   AND N_OLD.NWA_ID = (SELECT MAX(N2.NWA_ID)  
+         FROM NWA N2  
+         WHERE N2.NWA_ID < N.Nwa_ID  
+         AND N.MARINE_CANDIDATE_ID = N2.MARINE_CANDIDATE_ID) 
+ INNER JOIN MCRISS.dbo.CONTRACT C_OLD  
+  ON C_OLD.NWA_ID = N_OLD.NWA_ID 
+WHERE  
+ C_OLD.DISCHARGE_CODE = 'ZKC' 
+ AND N_OLD.NWA_ID < N.Nwa_ID 
+  
+-- Component Code is no longer excluded 
+--DELETE FROM #Nwa2 WHERE NWA_ID IN (SELECT NWA_ID FROM #NwaZkc2) 
+ 
+ 
+CREATE TABLE #TEMP_APPLICATIONS  
+( ORG_ID int NOT NULL,  
+ GRAD_COUNT int NOT NULL, 
+ GRAD_MALE_COUNT int NOT NULL, 
+ GRAD_FEMALE_COUNT int NOT NULL,  
+ SENIOR_COUNT int NOT NULL, 
+ SENIOR_MALE_COUNT int NOT NULL, 
+ SENIOR_FEMALE_COUNT int NOT NULL 
+) 
+ 
+INSERT INTO 
+ #TEMP_APPLICATIONS 
+SELECT 
+ N.ORGANIZATION_OF_RECORD_ID, 
+ COALESCE(SUM(CASE (CE.EDUCATION_LEVEL + CE.EDUCATION_CODE) 
+  WHEN '11S' THEN 0 
+  WHEN '11M' THEN 0 
+  WHEN '11H' THEN 0 
+  ELSE 1 
+  END), 0) AS GRAD_NWA_COUNT, 
+ COALESCE(SUM(CASE  
+  WHEN (CE.EDUCATION_LEVEL + CE.EDUCATION_CODE) = '11S' THEN 0 
+  WHEN (CE.EDUCATION_LEVEL + CE.EDUCATION_CODE) = '11M' THEN 0 
+  WHEN (CE.EDUCATION_LEVEL + CE.EDUCATION_CODE) = '11H' THEN 0 
+  WHEN Gender_Code = 'M' THEN 1 
+  END), 0) as GRAD_MALE_NWA_COUNT, 
+ COALESCE(SUM(CASE  
+  WHEN (CE.EDUCATION_LEVEL + CE.EDUCATION_CODE) = '11S' THEN 0 
+  WHEN (CE.EDUCATION_LEVEL + CE.EDUCATION_CODE) = '11M' THEN 0 
+  WHEN (CE.EDUCATION_LEVEL + CE.EDUCATION_CODE) = '11H' THEN 0 
+  WHEN Gender_Code = 'F' THEN 1 
+  END), 0) as GRAD_FEMALE_NWA_COUNT, 
+ COALESCE(SUM(CASE (CE.EDUCATION_LEVEL + CE.EDUCATION_CODE) 
+  WHEN '11S' THEN 1 
+  WHEN '11M' THEN 1 
+  WHEN '11H' THEN 1 
+  ELSE 0 
+  END), 0) AS SENIOR_NWA_COUNT, 
+ COALESCE(SUM(CASE  
+  WHEN (CE.EDUCATION_LEVEL + CE.EDUCATION_CODE) = '11S' AND Gender_Code = 'M'  THEN 1 
+  WHEN (CE.EDUCATION_LEVEL + CE.EDUCATION_CODE) = '11M' AND Gender_Code = 'M'  THEN 1 
+  WHEN (CE.EDUCATION_LEVEL + CE.EDUCATION_CODE) = '11H' AND Gender_Code = 'M'  THEN 1 
+  ELSE 0 
+  END), 0) as SENIOR_NWA_MALE_COUNT, 
+ COALESCE(SUM(CASE  
+     WHEN (CE.EDUCATION_LEVEL + CE.EDUCATION_CODE) = '11S' AND Gender_Code = 'F'  THEN 1 
+  WHEN (CE.EDUCATION_LEVEL + CE.EDUCATION_CODE) = '11M' AND Gender_Code = 'F'  THEN 1 
+  WHEN (CE.EDUCATION_LEVEL + CE.EDUCATION_CODE) = '11H' AND Gender_Code = 'F'  THEN 1 
+  ELSE 0 
+  END), 0) as SENIOR_NWA_FEMALE_COUNT 
+FROM 
+ #NWA2 N WITH (NOLOCK) INNER JOIN [dbo].[RECRUITING_ORGANIZATION] RO 
+  ON ( 
+   RO.ORGANIZATION_ID = N.ORGANIZATION_OF_RECORD_ID  
+   AND 
+     RO.ISOPEN = 'Y'  
+     AND 
+     RO.ORGANIZATION_TYPE = 'RSS'  
+     AND 
+     DATEDIFF(DAY, @Ac.vityDate, N.NWA_DECLARED_DATE) = 0  
+   ) 
+ INNER JOIN [dbo].[MARINE_CANDIDATE] mc ON mc.MARINE_CANDIDATE_ID = n.MARINE_CANDIDATE_ID 
+ INNER JOIN [dbo].[ORGANIZATION_MAP] OM 
+  ON (OM.PARENT_ORGANIZATION_ID = @OrgID AND 
+     OM.CHILD_ORGANIZATION_ID = RO.ORGANIZATION_ID) 
+ INNER JOIN [dbo].[CANDIDATE_EDUCATION] CE ON 
+  (N.MARINE_CANDIDATE_ID = CE.MARINE_CANDIDATE_ID AND 
+  CE.EDUCATION_LEVEL IS NOT NULL AND 
+  CE.EDUCATION_CODE IS NOT NULL) 
+GROUP BY 
+ N.ORGANIZATION_OF_RECORD_ID 
+ 
+------------------------------------------------------------------- 
+--- Get all Contract, Applica.on, Interview, and Appointment data 
+------------------------------------------------------------------- 
+SELECT 
+ RO.SHORT_NAME AS OrgName, 
+ RO.ORGANIZATION_ID AS Recrui.ngOrgID, 
+ COALESCE(ACT.ACTIVITY_DATE, @Ac.vityDate) AS Ac.vityDate, 
+ COALESCE(TC.GRAD_COUNT, 0) AS GradContracts, 
+ COALESCE(TC.GRAD_MALE_COUNT, 0) AS GradMaleContracts, 
+ COALESCE(TC.GRAD_FEMALE_COUNT, 0) AS GradFemaleContracts, 
+ COALESCE(TC.SENIOR_COUNT, 0) AS SeniorContracts, 
+ COALESCE(TC.SENIOR_MALE_COUNT, 0) AS SeniorMaleContracts, 
+ COALESCE(TC.SENIOR_FEMALE_COUNT, 0) AS SeniorFemaleContracts, 
+ 
+ COALESCE(TA.GRAD_COUNT, 0) AS GradNwas, 
+ COALESCE(TA.GRAD_MALE_COUNT, 0) AS GradMaleNwas, 
+ COALESCE(TA.GRAD_FEMALE_COUNT, 0) AS GradFemaleNwas, 
+ 
+ COALESCE(TA.SENIOR_COUNT, 0) AS SeniorNwas, 
+ COALESCE(TA.SENIOR_MALE_COUNT, 0) AS SeniorMaleNwas, 
+ COALESCE(TA.SENIOR_FEMALE_COUNT, 0) AS SeniorFemaleNwas, 
+ 
+ COALESCE(ACT.GRAD_INTERVIEWS, 0) AS GradInterviews, 
+ COALESCE(ACT.GRAD_MALE_INTERVIEWS, 0) AS GradMaleInterviews, 
+ COALESCE(ACT.GRAD_FEMALE_INTERVIEWS, 0) AS GradFemaleInterviews, 
+ 
+ COALESCE(ACT.SENIOR_INTERVIEWS, 0) AS SeniorInterviews, 
+ COALESCE(ACT.SENIOR_MALE_INTERVIEWS, 0) AS SeniorMaleInterviews, 
+ COALESCE(ACT.SENIOR_FEMALE_INTERVIEWS, 0) AS SeniorFemaleInterviews, 
+ 
+ COALESCE(ACT.GRAD_APPOINTMENTS, 0) AS GradAppt, 
+ COALESCE(ACT.GRAD_MALE_APPOINTMENTS, 0) AS GradMaleAppt, 
+ COALESCE(ACT.GRAD_FEMALE_APPOINTMENTS, 0) AS GradFemaleAppt, 
+ 
+ COALESCE(ACT.SENIOR_APPOINTMENTS, 0) AS SeniorAppt, 
+ COALESCE(ACT.SENIOR_MALE_APPOINTMENTS, 0) AS SeniorMaleAppt, 
+ COALESCE(ACT.SENIOR_FEMALE_APPOINTMENTS, 0) AS SeniorFemaleAppt 
+FROM 
+ [dbo].[ORGANIZATION_MAP] OM WITH (NOLOCK) INNER JOIN [dbo].[RECRUITING_ORGANIZATION] RO 
+  ON (OM.PARENT_ORGANIZATION_ID = @OrgID AND OM.CHILD_ORGANIZATION_ID = RO.ORGANIZATION_ID AND RO.ISOPEN = 'Y' AND RO.ORGANIZATION_TYPE = 'RSS') 
+ LEFT OUTER JOIN (SELECT * FROM [dbo].[RSS_ACTIVITY_GRAD_SENIOR] WHERE DATEDIFF(DAY, @Ac.vityDate, ACTIVITY_DATE) = 0) ACT  
+  ON RO.ORGANIZATION_ID = ACT.ORGANIZATION_ID 
+ LEFT OUTER JOIN #TEMP_CONTRACTS TC 
+  ON RO.ORGANIZATION_ID = TC.ORG_ID 
+ LEFT OUTER JOIN #TEMP_APPLICATIONS TA 
+  ON RO.ORGANIZATION_ID = TA.ORG_ID 
+ORDER BY 
+ RO.SHORT_NAME ASC 
+ 
+ 
+DROP TABLE #TEMP_APPLICATIONS 
+DROP TABLE #TEMP_CONTRACTS 
+DROP TABLE #Nwa 
+DROP TABLE #NwaZkc 
+DROP TABLE #Nwa2 
+DROP TABLE #NwaZkc2 
+ 
+SET NOCOUNT OFF 
+ 
+GO 
+/****** Object:  StoredProcedure [USMC].[GetSchoolAccess]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER ON 
+GO 
+ 
+CREATE PROCEDURE [USMC].[GetSchoolAccess] AS 
+ 
+SELECT ACCESS_CODE, SHORT_DESCRIPTION FROM HIGH_SCHOOL_ACCESS WITH (NOLOCK) 
+GO 
+/****** Object:  StoredProcedure [USMC].[GetSchoolAssetByDodCode]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER OFF 
+GO 
+ 
+/**************************************************************************** 
+** Name:  [usmc].[GetSchoolAssetByDodCode] 
+** Author:  Bob Foster 
+** Purpose: This sp returns the School Asset for a speci.c DOD Code. The code 
+** is unique and this procedure is used to validate that a duplicate DOD CODE is about to  
+** be saved.  
+** Parameters: DOD Code 
+** Usage:  At present this is used when edi.ng or adding a school in Assets 
+** Notes:  
+**************************************************************************** 
+**  Change History 
+**  Date           Author                   Reason For Change 
+**  -------------  -----------------------  ------------------------------- 
+**  2017-03-10  Michael Fan  -   ECP 274: Added loca.on drop down .elds. 
+** 2019-01-09  John Travis Dodson  ECP 899: Adding public school .ag 
+****************************************************************************/ 
+CREATE Procedure [USMC].[GetSchoolAssetByDodCode] 
+( 
+ @DOD_CODE varchar(20) 
+) 
+AS 
+ 
+SELECT  
+ HS.SCHOOL_CODE AS  SCHOOL_CODE,   
+ HS.ORGANIZATION_ID AS ORGANIZATION_ID, 
+ HS.STATE_CODE AS STATE_CODE, 
+ HS.HIGHSCHOOL_NAME AS  HIGHSCHOOL_NAME, 
+ HS.TELEPHONE_NUMBER AS  TELEPHONE_NUMBER, 
+ HS.STREET AS STREET, 
+ HS.STREET2 AS STREET2, 
+ HS.CITY AS CITY, 
+ HS.ZIP_CODE AS ZIP_CODE, 
+ HS.COUNTRY_CODE as COUNTRY_CODE, 
+ HS.DELETED AS DELETED, 
+ HS.DOD_CODE AS  DOD_CODE,  
+ HS.SCHOOL_TYPE AS SCHOOL_TYPE, 
+ HS.EFFECTIVE_DATE AS EFFECTIVE_DATE, 
+ HS.DELETED AS DELETED, 
+ HS.rowguid AS ROW_GUID, 
+ "" AS SHORT_NAME, 
+ hs.CITY_CODE, 
+ hs.COUNTY_CODE, 
+ hs.STATE_GEO_CODE, 
+ hs.ISPUBLIC 
+FROM [dbo].[HIGH_SCHOOL] HS WITH (NOLOCK) 
+WHERE @DOD_CODE = HS.DOD_CODE 
+  
+GO 
+/****** Object:  StoredProcedure [USMC].[GetSchoolAssets]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER ON 
+GO 
+ 
+ 
+/**************************************************************************** 
+** Name:  [usmc].[GetSchoolAssets] 
+** Author:  Bob Foster 
+** Purpose: 
+** Usage:  
+** Notes:  
+**************************************************************************** 
+**  Change History 
+**  Date           Author                   Reason For Change 
+**  -------------  -----------------------  ------------------------------- 
+**  2017-03-10  Michael Fan  -   ECP 274: Added loca.on drop down .elds. 
+** 2019-01-09  John Travis Dodson  ECP 899: Adding public school .ag 
+****************************************************************************/ 
+ 
+CREATE Procedure [USMC].[GetSchoolAssets] 
+( 
+ @Organiza.onID int, 
+ @Status char(1) = null, 
+ @Type char(2) = null, 
+ @SortBy int = 1 
+) 
+AS 
+ 
+SELECT DISTINCT 
+ HS.SCHOOL_CODE AS  SCHOOL_CODE,   
+ HS.ORGANIZATION_ID AS ORGANIZATION_ID, 
+ HS.STATE_CODE AS STATE_CODE, 
+ HS.HIGHSCHOOL_NAME AS  HIGHSCHOOL_NAME, 
+ HS.TELEPHONE_NUMBER AS  TELEPHONE_NUMBER, 
+ HS.STREET AS STREET, 
+ HS.STREET2 AS STREET2, 
+ HS.CITY AS CITY, 
+ HS.ZIP_CODE AS ZIP_CODE, 
+ HS.COUNTRY_CODE as COUNTRY_CODE, 
+ HS.DELETED AS DELETED, 
+ HS.DOD_CODE AS  DOD_CODE,  
+ HS.SCHOOL_TYPE AS SCHOOL_TYPE, 
+ HS.EFFECTIVE_DATE AS EFFECTIVE_DATE, 
+ HS.DELETED AS DELETED, 
+ HS.rowguid AS ROW_GUID, 
+ RO.SHORT_NAME AS SHORT_NAME, 
+ hs.CITY_CODE, 
+ hs.COUNTY_CODE, 
+ hs.STATE_GEO_CODE, 
+ hs.ISPUBLIC 
+FROM [dbo].[HIGH_SCHOOL] HS WITH (NOLOCK) 
+ LEFT JOIN [dbo].[RECRUITING_ORGANIZATION] RO ON HS.ORGANIZATION_ID = RO.ORGANIZATION_ID 
+ LEFT JOIN USMC.vwDecendentRecrui.ngOrgs childHS on HS.ORGANIZATION_ID = childHS.Decendent 
+WHERE  
+ (@Status is NULL or HS.DELETED = @Status) AND 
+ (@Type is NULL or HS.SCHOOL_TYPE = @Type) AND 
+ (HS.ORGANIZATION_ID = @Organiza.onID OR childHS.Parent = @Organiza.onID) 
+ORDER BY  
+ HS.HIGHSCHOOL_NAME 
+  
+GO 
+/****** Object:  StoredProcedure [USMC].[GetSchoolAssetsByName]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER ON 
+GO 
+ 
+/**************************************************************************** 
+** Name:  [usmc].[GetSchoolAssetByName] 
+** Author:  Bob Foster 
+** Purpose: 
+** Usage:  
+** Notes:  
+**************************************************************************** 
+**  Change History 
+**  Date           Author                   Reason For Change 
+**  -------------  -----------------------  ------------------------------- 
+**  2017-03-10  Michael Fan  -   ECP 274: Added loca.on drop down .elds. 
+** 2019-01-09  John Travis Dodson  ECP 899: Adding public school .ag 
+****************************************************************************/ 
+ 
+CREATE Procedure [USMC].[GetSchoolAssetsByName] 
+( 
+ @Name varchar(60), 
+ @Status char(1) = null, 
+ @Type char(2) = null 
+) 
+AS 
+ 
+SELECT  
+ HS.SCHOOL_CODE AS  SCHOOL_CODE,   
+ HS.ORGANIZATION_ID AS ORGANIZATION_ID, 
+ HS.STATE_CODE AS STATE_CODE, 
+ HS.HIGHSCHOOL_NAME AS  HIGHSCHOOL_NAME, 
+ HS.TELEPHONE_NUMBER AS  TELEPHONE_NUMBER, 
+ HS.STREET AS STREET, 
+ HS.STREET2 AS STREET2, 
+ HS.CITY AS CITY, 
+ HS.ZIP_CODE AS ZIP_CODE, 
+ HS.COUNTRY_CODE as COUNTRY_CODE, 
+ HS.DELETED AS DELETED, 
+ HS.DOD_CODE AS  DOD_CODE,  
+ HS.SCHOOL_TYPE AS SCHOOL_TYPE, 
+ HS.EFFECTIVE_DATE AS EFFECTIVE_DATE, 
+ HS.DELETED AS DELETED, 
+ HS.rowguid AS ROW_GUID, 
+ RO.SHORT_NAME AS SHORT_NAME, 
+ hs.CITY_CODE, 
+ hs.COUNTY_CODE, 
+ hs.STATE_GEO_CODE, 
+ hs.ISPUBLIC 
+FROM [dbo].[HIGH_SCHOOL] HS WITH (NOLOCK) 
+ LEFT JOIN [dbo].[RECRUITING_ORGANIZATION] RO ON HS.ORGANIZATION_ID = RO.ORGANIZATION_ID 
+WHERE  
+ (@Status is NULL or HS.DELETED = @Status) AND 
+ (@Type is NULL or HS.SCHOOL_TYPE = @Type) AND 
+ (HS.HIGHSCHOOL_NAME LIKE @Name) 
+ORDER BY  
+ HS.HIGHSCHOOL_NAME 
+  
+GO 
+/****** Object:  StoredProcedure [USMC].[GetSchoolAssetsByStateAndType]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER ON 
+GO 
+ 
+ 
+/**************************************************************************** 
+** Name:  [usmc].[GetSchoolAssetsByStateAndType] 
+** Author:  Ann Rauscher 
+** Purpose: Get the school based on the State and School Type 
+** Parameters: @StateCode, @SchoolType 
+** Usage:   
+** Notes:   
+**************************************************************************** 
+**  Change History 
+**  Date           Author                   Reason For Change 
+**  -------------  -----------------------  ------------------------------- 
+**  2017-03-10  Michael Fan  -   ECP 274: Added loca.on drop down .elds. 
+** 2019-01-09  John Travis Dodson  ECP 899: Adding public school .ag 
+****************************************************************************/ 
+ 
+CREATE Procedure [USMC].[GetSchoolAssetsByStateAndType] 
+( 
+ @StateCode varchar(2), 
+ @SchoolType char(2) 
+) 
+AS 
+ 
+SELECT  
+ HS.ORGANIZATION_ID,  
+ HS.SCHOOL_CODE AS SCHOOL_CODE, 
+ RTRIM(HIGHSCHOOL_NAME) AS HIGHSCHOOL_NAME,  
+ ISNULL(HS.STREET, '') AS STREET,  
+ ISNULL(HS.STREET2, '') AS STREET2,  
+ ISNULL(HS.CITY,'') AS CITY,  
+ ISNULL(HS.STATE_CODE,'') AS STATE_CODE,  
+ ISNULL(HS.ZIP_CODE,'') AS ZIP_CODE, 
+ ISNULL(HS.COUNTRY_CODE, '') as COUNTRY_CODE,  
+ ISNULL(HS.TELEPHONE_NUMBER,'') AS TELEPHONE_NUMBER,  
+ ISNULL(HS.DOD_CODE,'') AS DOD_CODE,  
+ CONVERT(VARCHAR(11), HS.EFFECTIVE_DATE, 106) as EFFECTIVE_DATE,  
+ ISNULL(HS.SCHOOL_TYPE,'') AS SCHOOL_TYPE, 
+ HS.DELETED, 
+ HS.rowguid AS ROW_GUID, 
+ RO.SHORT_NAME AS SHORT_NAME, 
+ hs.CITY_CODE, 
+ hs.COUNTY_CODE, 
+ hs.STATE_GEO_CODE, 
+ hs.ISPUBLIC 
+FROM [dbo].[HIGH_SCHOOL] HS WITH (NOLOCK) 
+ LEFT JOIN [dbo].[RECRUITING_ORGANIZATION] RO ON HS.ORGANIZATION_ID = RO.ORGANIZATION_ID 
+WHERE  
+ HS.DELETED = 'N' AND (HS.STATE_CODE=@StateCode) AND (HS.SCHOOL_TYPE = @SchoolType) 
+ORDER BY  
+ HS.HIGHSCHOOL_NAME 
+  
+GO 
+/****** Object:  StoredProcedure [USMC].[GetSchoolAssetsByStateCode]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER ON 
+GO 
+/**************************************************************************** 
+** Name:  [usmc].[GetSchoolAssetsByStateCode] 
+** Author:  Colin Liu 
+** Purpose: Get the high school based on state code 
+** Parameters: @stateCode 
+** Usage:   
+** Notes:   
+**************************************************************************** 
+**  Change History 
+**  Date           Author                   Reason For Change 
+**  -------------  -----------------------  ------------------------------- 
+**  2017-03-10  Michael Fan  -   ECP 274: Added loca.on drop down .elds. 
+** 2019-01-09  John Travis Dodson  ECP 899: Adding public school .ag 
+****************************************************************************/ 
+ 
+CREATE Procedure [USMC].[GetSchoolAssetsByStateCode] 
+( 
+ @StateCode varchar(2) 
+) 
+AS 
+ 
+SELECT  
+ HS.ORGANIZATION_ID AS ORGANIZATION_ID, 
+ HS.SCHOOL_CODE AS  SCHOOL_CODE,   
+ HS.HIGHSCHOOL_NAME AS  HIGHSCHOOL_NAME, 
+ HS.DOD_CODE AS  DOD_CODE,  
+ RO.SHORT_NAME AS SHORT_NAME, 
+ HS.rowguid AS ROW_GUID, 
+ HS.SCHOOL_TYPE AS SCHOOL_TYPE, 
+ hs.CITY_CODE, 
+ hs.COUNTY_CODE, 
+ hs.STATE_GEO_CODE, 
+ hs.ISPUBLIC 
+FROM [dbo].[HIGH_SCHOOL] HS WITH (NOLOCK) 
+ LEFT JOIN [dbo].[RECRUITING_ORGANIZATION] RO ON HS.ORGANIZATION_ID = RO.ORGANIZATION_ID 
+WHERE  
+ HS.DELETED = 'N' AND (HS.STATE_CODE=@StateCode) 
+ORDER BY  
+ HS.HIGHSCHOOL_NAME 
+  
+GO 
+/****** Object:  StoredProcedure [USMC].[GetSchoolAssignmentData]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER ON 
+GO 
+ 
+/* 
+====================================================================================================== 
+Module:  High School 
+Descrip.on: Returns a Record Set of High Address Info 
+====================================================================================================== 
+Mod Date History Descrip.on 
+------------------------------------------------------------------------------------------------------ 
+2005-10-10 Sekong Paul  -  Modi.ed Procedure to return more detailed info of High School  
+    per SCR 753 build 3.1.26. 
+2005-10-11 Arthur Wood  - Modi.ed to exclude DELETED schools 
+2017-03-10 Michael Fan  - ECP 274: Added loca.on drop down .elds. 
+2019-01-09 John Travis Dodson ECP 899: Adding public school .ag 
+====================================================================================================== 
+*/ 
+ 
+CREATE   PROCEDURE [USMC].[GetSchoolAssignmentData] 
+ @SchoolCode int 
+AS 
+ 
+SELECT  
+ HS.ORGANIZATION_ID,  
+ HS.SCHOOL_CODE AS SCHOOL_CODE, 
+ RTRIM(HIGHSCHOOL_NAME) AS HIGHSCHOOL_NAME,  
+ ISNULL(HS.STREET, '') AS STREET,  
+ ISNULL(HS.STREET2, '') AS STREET2,  
+ ISNULL(HS.CITY,'') AS CITY,  
+ ISNULL(HS.STATE_CODE,'') AS STATE_CODE,  
+ ISNULL(HS.ZIP_CODE,'') AS ZIP_CODE, 
+ ISNULL(HS.COUNTRY_CODE, '') as COUNTRY_CODE,  
+ ISNULL(HS.TELEPHONE_NUMBER,'') AS TELEPHONE_NUMBER,  
+ ISNULL(HS.DOD_CODE,'') AS DOD_CODE,  
+ CONVERT(VARCHAR(11), HS.EFFECTIVE_DATE, 106) as EFFECTIVE_DATE,  
+ ISNULL(HS.SCHOOL_TYPE,'') AS SCHOOL_TYPE, 
+ HS.DELETED, 
+ HS.rowguid AS ROW_GUID, 
+ RO.SHORT_NAME AS SHORT_NAME, 
+ hs.CITY_CODE, 
+ hs.COUNTY_CODE, 
+ hs.STATE_GEO_CODE, 
+ hs.ISPUBLIC 
+FROM HIGH_SCHOOL HS WITH (NOLOCK) 
+ LEFT JOIN [dbo].[RECRUITING_ORGANIZATION] RO ON HS.ORGANIZATION_ID = RO.ORGANIZATION_ID 
+WHERE HS.SCHOOL_CODE = @SchoolCode 
+ 
+ 
+ 
+GO 
+/****** Object:  StoredProcedure [USMC].[GetSchoolByID]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER ON 
+GO 
+ 
+CREATE Procedure [USMC].[GetSchoolByID] 
+( 
+ @ID int 
+) 
+AS 
+SELECT [SCHOOL_CODE] 
+      ,[ORGANIZATION_ID] 
+      ,[STATE_CODE] 
+      ,[HIGHSCHOOL_NAME] 
+      ,[TELEPHONE_NUMBER] 
+      ,[STREET] 
+      ,[STREET2] 
+      ,[CITY] 
+      ,[ZIP_CODE] 
+      ,[DOD_CODE] 
+      ,[SCHOOL_TYPE] 
+      ,rowguid 
+FROM [mcriss].[dbo].[HIGH_SCHOOL] WITH (NOLOCK) 
+WHERE  
+ [SCHOOL_CODE] = @ID 
+ 
+GO 
+/****** Object:  StoredProcedure [USMC].[GetSchoolByRowGuid]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER ON 
+GO 
+ 
+CREATE Procedure [USMC].[GetSchoolByRowGuid] 
+( 
+ @ID uniqueiden..er 
+) 
+AS 
+SELECT [SCHOOL_CODE] 
+      ,[ORGANIZATION_ID] 
+      ,[STATE_CODE] 
+      ,[HIGHSCHOOL_NAME] 
+      ,[TELEPHONE_NUMBER] 
+      ,[STREET] 
+      ,[STREET2] 
+      ,[CITY] 
+      ,[ZIP_CODE] 
+      ,[DOD_CODE] 
+      ,[SCHOOL_TYPE] 
+      ,rowguid 
+FROM [mcriss].[dbo].[HIGH_SCHOOL] WITH (NOLOCK) 
+WHERE  
+ rowguid = @ID 
+ 
+GO 
+/****** Object:  StoredProcedure [USMC].[GetSchoolInforma.onData]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER ON 
+GO 
+ 
+ 
+CREATE PROCEDURE [USMC].[GetSchoolInforma.onData] 
+ @SchoolCode int,  
+ @SchoolYear int 
+AS 
+ 
+SET NOCOUNT ON 
+ 
+CREATE TABLE #SCHOOL_INFORMATION_DATA  
+ (SCHOOL_NAME VARCHAR(60) NULL, DOD_CODE VARCHAR(20) NULL, STREET VARCHAR(40) NULL, CITY VARCHAR(20) NULL, ZIP_CODE VARCHAR(9) NULL,  
+ RSS VARCHAR(15) NULL, STATUS_CODE VARCHAR(4) NULL, PRIORITY_CODE CHAR(1) NULL, ACCESS_CODE CHAR(1) NULL,  
+ MALE_SENIORS INT NULL, FEMALE_SENIORS INT NULL, PERCENT_TO_COLLEGE NUMERIC NULL, SCHEDULED_GRAD_DATE DATETIME NULL,  
+ RECRUITER_ID INT NULL, ASVAB_RESP CHAR(1) NULL, ASVAB_DATE DATETIME NULL, ASVAB_MONTH INT NULL, ASVAB_NUM INT NULL) 
+ 
+INSERT INTO #SCHOOL_INFORMATION_DATA  
+ (SCHOOL_NAME, DOD_CODE, STREET, CITY, ZIP_CODE,  
+ RSS, STATUS_CODE, PRIORITY_CODE, ACCESS_CODE,  
+ MALE_SENIORS, FEMALE_SENIORS, PERCENT_TO_COLLEGE, SCHEDULED_GRAD_DATE,  
+ RECRUITER_ID, ASVAB_RESP, ASVAB_DATE, ASVAB_MONTH, ASVAB_NUM) 
+SELECT  
+ HS.HIGHSCHOOL_NAME, HS.DOD_CODE, HS.STREET, HS.CITY, HS.ZIP_CODE,  
+ RO.SHORT_NAME, HSP.STATUS_CODE, HSP.PRIORITY_CODE, HSP.ACCESS_CODE,  
+ HSP.MALE_SENIORS, HSP.FEMALE_SENIORS, HSP.PERCENT_TO_COLLEGE,  
+ CONVERT(VARCHAR(11), HSP.SCHEDULED_GRAD_DATE, 106) AS SCHEDULED_GRAD_DATE, 
+ HSP.RECRUITER_ID, HSP.ASVAB_RESP,   
+ CONVERT(VARCHAR(11), HSP.ASVAB_MONTH, 106) AS ASVAB_DATE,  
+ COALESCE(MONTH(HSP.ASVAB_MONTH), 0) AS ASVAB_MONTH,  
+ COALESCE(HSP.ASVAB_NUM, 0) AS ASVAB_NUM 
+FROM HIGH_SCHOOL_PROFILE HSP WITH (NOLOCK)  
+INNER JOIN HIGH_SCHOOL HS ON  
+  (HSP.SCHOOL_CODE = HS.SCHOOL_CODE AND  
+  HSP.SCHOOL_CODE = @SchoolCode AND 
+  HSP.SCHOOL_YEAR = @SchoolYear) 
+INNER JOIN RECRUITING_ORGANIZATION RO ON HS.ORGANIZATION_ID = RO.ORGANIZATION_ID 
+ 
+--- If ASVAB_MONTH or ASVAB_NUM is null, get the data from the SASVAB database  
+IF EXISTS (SELECT 1 FROM #SCHOOL_INFORMATION_DATA WHERE COALESCE(ASVAB_MONTH, 0) = 0 OR COALESCE(ASVAB_NUM, 0) = 0) 
+BEGIN 
+ DECLARE @ASVABMonth int 
+ DECLARE @ASVABCount int 
+ 
+    SET @ASVABMonth = 0 
+    SET @ASVABCount = 0 
+    
+ 
+ -- TODO: NEED TO CREATE A VIEW FOR THIS 
+ SELECT 
+  @ASVABMonth  = T.ASVAB_MONTH, 
+  @ASVABCount = T.ASVAB_COUNT 
+ FROM  
+  (SELECT 
+   MONTH(S.TEST_DATE) AS ASVAB_MONTH, 
+   COUNT(S.SCORE_ID) AS ASVAB_COUNT 
+  FROM #SCHOOL_INFORMATION_DATA D  
+  INNER JOIN SASVAB.DBO.SCORES S ON D.DOD_CODE = S.SCHOOL_CODE 
+  GROUP BY MONTH(S.TEST_DATE)) T 
+ ORDER BY T.ASVAB_MONTH DESC 
+ 
+  
+--- UPDATE DATA FROM SASVAB 
+ UPDATE 
+  #SCHOOL_INFORMATION_DATA  
+ SET 
+  ASVAB_MONTH  = @ASVABMonth, 
+  ASVAB_NUM  = @ASVABCount 
+END  
+  
+SELECT 
+ SCHOOL_NAME, DOD_CODE, STREET, CITY, ZIP_CODE,  
+ RSS, STATUS_CODE, PRIORITY_CODE, ACCESS_CODE,  
+ MALE_SENIORS, FEMALE_SENIORS, PERCENT_TO_COLLEGE,  
+ CONVERT(VARCHAR(11), SCHEDULED_GRAD_DATE, 106) AS SCHEDULED_GRAD_DATE,  
+ RECRUITER_ID, ASVAB_RESP,  
+ ASVAB_MONTH, 
+ ASVAB_NUM 
+FROM  
+ #SCHOOL_INFORMATION_DATA  
+ 
+--- CLEAN UP 
+DROP TABLE #SCHOOL_INFORMATION_DATA  
+SET NOCOUNT OFF 
+ 
+ 
+GO 
+/****** Object:  StoredProcedure [USMC].[GetSchoolPriori.es]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER ON 
+GO 
+ 
+CREATE PROCEDURE [USMC].[GetSchoolPriori.es] AS 
+ 
+SELECT PRIORITY_CODE, SHORT_DESCRIPTION FROM HIGH_SCHOOL_PRIORITY WITH (NOLOCK) 
+ 
+GO 
+/****** Object:  StoredProcedure [USMC].[GetSchoolsByCountry]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER ON 
+GO 
+ 
+CREATE Procedure [USMC].[GetSchoolsByCountry] 
+( 
+ @CountryCode varchar(2) 
+) 
+AS 
+SELECT [SCHOOL_CODE] 
+      ,[ORGANIZATION_ID] 
+      ,[STATE_CODE] 
+      ,[HIGHSCHOOL_NAME] 
+      ,[TELEPHONE_NUMBER] 
+      ,[STREET] 
+      ,[STREET2] 
+      ,[CITY] 
+      ,[ZIP_CODE] 
+      ,[DOD_CODE] 
+      ,[SCHOOL_TYPE] 
+      ,rowguid 
+FROM [mcriss].[dbo].[HIGH_SCHOOL] WITH (NOLOCK) 
+WHERE  
+ ([DELETED] is null OR [DELETED] = 'N') AND 
+ [COUNTRY_CODE] = @CountryCode 
+ORDER BY [HIGHSCHOOL_NAME] 
+ 
+GO 
+/****** Object:  StoredProcedure [USMC].[GetSchoolsByRecrui.ngOrg]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER ON 
+GO 
+ 
+CREATE Procedure [USMC].[GetSchoolsByRecrui.ngOrg] 
+( 
+      @Recrui.ngOrgID int 
+) 
+AS 
+ 
+DECLARE @Orgs TABLE(Org int) 
+INSERT INTO @Orgs  
+SELECT Decendent FROM USMC.[vwDecendentRecrui.ngOrgs] WITH (NOLOCK) WHERE Parent = @Recrui.ngOrgID 
+ 
+IF (select Count(org) from @Orgs)>=1 
+ 
+BEGIN 
+ 
+ SELECT [SCHOOL_CODE] 
+    ,[ORGANIZATION_ID] 
+    ,[STATE_CODE] 
+    ,[HIGHSCHOOL_NAME] 
+    ,[TELEPHONE_NUMBER] 
+    ,[STREET] 
+    ,[STREET2] 
+    ,[CITY] 
+    ,[ZIP_CODE] 
+    ,[DOD_CODE] 
+    ,[SCHOOL_TYPE] 
+    ,rowguid 
+ FROM [mcriss].[dbo].[HIGH_SCHOOL] WITH (NOLOCK) 
+ WHERE  
+    ([DELETED] is null OR [DELETED] = 'N') AND  
+    ([ORGANIZATION_ID] = @Recrui.ngOrgID OR [ORGANIZATION_ID] in (SELECT Org from @Orgs)) 
+ ORDER BY [HIGHSCHOOL_NAME] 
+ 
+END 
+Else  
+BEGIN 
+ SELECT [SCHOOL_CODE] 
+    ,[ORGANIZATION_ID] 
+    ,[STATE_CODE] 
+    ,[HIGHSCHOOL_NAME] 
+    ,[TELEPHONE_NUMBER] 
+    ,[STREET] 
+    ,[STREET2] 
+    ,[CITY] 
+    ,[ZIP_CODE] 
+    ,[DOD_CODE] 
+    ,[SCHOOL_TYPE] 
+    ,rowguid 
+ FROM [mcriss].[dbo].[HIGH_SCHOOL] WITH (NOLOCK) 
+ WHERE  
+    ([DELETED] is null OR [DELETED] = 'N') AND  
+    ([ORGANIZATION_ID] = @Recrui.ngOrgID) 
+ ORDER BY [HIGHSCHOOL_NAME] 
+END 
+GO 
+/****** Object:  StoredProcedure [USMC].[GetSchoolsByRecrui.ngOrg_PJ]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER ON 
+GO 
+ 
+ 
+CREATE Procedure [USMC].[GetSchoolsByRecrui.ngOrg_PJ] 
+( 
+ @Recrui.ngOrgID int 
+) 
+With recompile 
+AS 
+ 
+DECLARE @Orgs TABLE(Org int) 
+INSERT INTO @Orgs  
+SELECT Decendent FROM USMC.[vwDecendentRecrui.ngOrgs] WITH (NOLOCK) WHERE Parent = @Recrui.ngOrgID 
+ 
+SELECT [SCHOOL_CODE] 
+      ,[ORGANIZATION_ID] 
+      ,[STATE_CODE] 
+      ,[HIGHSCHOOL_NAME] 
+      ,[TELEPHONE_NUMBER] 
+      ,[STREET] 
+      ,[STREET2] 
+      ,[CITY] 
+      ,[ZIP_CODE] 
+      ,[DOD_CODE] 
+      ,[SCHOOL_TYPE] 
+      ,rowguid 
+FROM [mcriss].[dbo].[HIGH_SCHOOL] WITH (NOLOCK) 
+WHERE  
+ ([DELETED] is null OR [DELETED] = 'N') AND  
+ ([ORGANIZATION_ID] = @Recrui.ngOrgID OR [ORGANIZATION_ID] in (SELECT Org from @Orgs)) 
+ORDER BY [HIGHSCHOOL_NAME] 
+ 
+ 
+GO 
+/****** Object:  StoredProcedure [USMC].[GetSchoolsByState]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER ON 
+GO 
+ 
+CREATE Procedure [USMC].[GetSchoolsByState] 
+( 
+ @StateCode varchar(2) 
+) 
+AS 
+SELECT [SCHOOL_CODE] 
+      ,[ORGANIZATION_ID] 
+      ,[STATE_CODE] 
+      ,[HIGHSCHOOL_NAME] 
+      ,[TELEPHONE_NUMBER] 
+      ,[STREET] 
+      ,[STREET2] 
+      ,[CITY] 
+      ,[ZIP_CODE] 
+      ,[DOD_CODE] 
+      ,[SCHOOL_TYPE] 
+      ,rowguid 
+FROM [mcriss].[dbo].[HIGH_SCHOOL] WITH (NOLOCK) 
+WHERE  
+ ([DELETED] is null OR [DELETED] = 'N') AND 
+ [STATE_CODE] = @StateCode 
+ORDER BY [HIGHSCHOOL_NAME] 
+ 
+GO 
+/****** Object:  StoredProcedure [USMC].[GetSchoolsInterna.onal]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER ON 
+GO 
+ 
+CREATE Procedure [USMC].[GetSchoolsInterna.onal] 
+AS 
+SELECT [SCHOOL_CODE] 
+      ,[ORGANIZATION_ID] 
+      ,[STATE_CODE] 
+      ,[HIGHSCHOOL_NAME] 
+      ,[TELEPHONE_NUMBER] 
+      ,[STREET] 
+      ,[STREET2] 
+      ,[CITY] 
+      ,[ZIP_CODE] 
+      ,[DOD_CODE] 
+      ,[SCHOOL_TYPE] 
+      ,rowguid 
+FROM [mcriss].[dbo].[HIGH_SCHOOL] WITH (NOLOCK) 
+WHERE  
+ ([DELETED] is null OR [DELETED] = 'N') AND 
+ ([STATE_CODE] = '00') 
+ORDER BY [HIGHSCHOOL_NAME] 
+ 
+GO 
+/****** Object:  StoredProcedure [USMC].[GetSchoolsOther]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER ON 
+GO 
+ 
+CREATE Procedure [USMC].[GetSchoolsOther] 
+AS 
+SELECT [SCHOOL_CODE] 
+      ,[ORGANIZATION_ID] 
+      ,[STATE_CODE] 
+      ,[HIGHSCHOOL_NAME] 
+      ,[TELEPHONE_NUMBER] 
+      ,[STREET] 
+      ,[STREET2] 
+      ,[CITY] 
+      ,[ZIP_CODE] 
+      ,[DOD_CODE] 
+      ,[SCHOOL_TYPE] 
+      ,rowguid 
+FROM [mcriss].[dbo].[HIGH_SCHOOL] WITH (NOLOCK) 
+WHERE  
+ ([DELETED] is null OR [DELETED] = 'N') AND 
+ [STATE_CODE] = 'VA' AND 
+ [ORGANIZATION_ID] = 900 AND 
+ [SCHOOL_TYPE] = 'HS' 
+ORDER BY [HIGHSCHOOL_NAME] 
+ 
+GO 
+/****** Object:  StoredProcedure [USMC].[GetSchoolStatus]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER ON 
+GO 
+ 
+ 
+CREATE PROCEDURE [USMC].[GetSchoolStatus] AS 
+ 
+SELECT  
+ STATUS_CODE, 
+ -- return new short descrip.on per SCR # 102  
+ CASE  
+  WHEN STATUS_CODE = 'NW' THEN 'NW - Non Working' 
+  WHEN STATUS_CODE = 'NW/N' THEN 'NC - Non Coopera.ve' 
+  WHEN STATUS_CODE = 'WK' THEN 'WK - Working' 
+  ELSE SHORT_DESCRIPTION 
+ END AS SHORT_DESCRIPTION  
+FROM  
+ HIGH_SCHOOL_STATUS WITH (NOLOCK) 
+WHERE  
+ -- .lter out 'NW/S' value per SCR # 102 since database team is changing 
+ -- all 'NW/S' records to 'NW' 
+ STATUS_CODE <> 'NW/S' 
+  
+-- SELECT STATUS_CODE, SHORT_DESCRIPTION FROM HIGH_SCHOOL_STATUS 
+ 
+GO 
+/****** Object:  StoredProcedure [USMC].[GetSelec.onBoardFullVo.ngHistory]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER ON 
+GO 
+ 
+CREATE Procedure [USMC].[GetSelec.onBoardFullVo.ngHistory] 
+( 
+ @NWAID int, 
+ @BoardID int, 
+ @VoterID uniqueiden..er 
+) 
+AS 
+select sbcv.NWA_ID, 
+    voter.Username, 
+    sbcv.VOTE_DATE, 
+    sbcv.BOARD_ID, 
+    ACADEMIC_SCORE + PHYSICAL_SCORE + LEADERSHIP_SCORE AS SCORE, 
+    VOTE 
+from SELECTION_BOARD_CURRENT_VOTE sbcv, SELECTION_BOARD_VOTER_WORKSHEET sbvw, [USERMGMT].[dbo].[User] voter, BOARD 
+where sbcv.VOTER_ID = sbvw.VOTER_ID 
+and sbcv.VOTER_ID = voter.UserID 
+and sbcv.BOARD_ID = sbvw.BOARD_ID 
+and sbcv.BOARD_ID = board.BOARD_ID 
+and sbcv.NWA_ID = sbvw.NWA_ID 
+and sbcv.NWA_ID = @NWAID 
+and (sbcv.BOARD_ID = @BoardID or @BoardID is null) 
+and (sbcv.VOTER_ID = @VoterID or @VoterID is null) 
+order by board.BOARD_DATE desc, sbcv.VOTE_DATE desc 
+GO 
+/****** Object:  StoredProcedure [USMC].[GetSelec.onBoardOSOWorksheet]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER ON 
+GO 
+ 
+CREATE Procedure [USMC].[GetSelec.onBoardOSOWorksheet] 
+( 
+ @NWAID int, 
+ @BoardID int 
+) 
+AS 
+SELECT   [WORKSHEET_ID] 
+   ,[NWA_ID] 
+   ,[BOARD_ID] 
+   ,[OSO_ACADEMIC_NOTES] 
+   ,[OSO_PHYSICAL_NOTES] 
+   ,[OSO_LEADERSHIP_NOTES] 
+FROM [mcriss].[dbo].[SELECTION_BOARD_OSO_WORKSHEET] 
+WHERE NWA_ID = @NWAID AND BOARD_ID = @BoardID 
+ 
+GO 
+/****** Object:  StoredProcedure [USMC].[GetSelec.onBoardView]    Script Date: 4/4/2024 8:26:44 AM ******/ 
+SET ANSI_NULLS ON 
+GO 
+SET QUOTED_IDENTIFIER OFF 
+GO 
+ 
+CREATE  procedure [USMC].[GetSelec.onBoardView] 
+( 
+ @OrgID int = 0, 
+ @BoardStatusID int, 
+ @GenderCode char(1), 
+ @AssignedBoardOrgID int, 
+ @AssignedBoardID int, 
+ @ProgramCodes varchar(200), --pipe-separated string, es.mated max length = 36 
+ @ProgramTypeCodes varchar(50), --pipe-separated string, es.mated max length = 10 
+ @ProgramFiscalYear int, 
+ @ProgramClass varchar(20), 
+ @ProgramIncrement int, 
+ @SortColumnNumber int, 
+ @ColumnSortOrder bit = 1, 
+ @startRowIndex int, 
+ @maximumRows int, 
+ @maxTotalRowsToSort int 
+) 
+AS 
+ 
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+declare @totalrows int 
+declare @isOrgOnlySearch bit 
+declare @isOCSClassSearch bit 
+ 
+if @ProgramIncrement is null and @ProgramClass is null and @ProgramFiscalYear is null  
+set @isOCSClassSearch = 0 
+else 
+set @isOCSClassSearch = 1  
+ 
+--Since most common search is by org only, we make that speedy 
+if @BoardStatusID is null and @GenderCode is null and @AssignedBoardOrgID is null  
+ and @AssignedBoardID is null and @ProgramCodes is null and @ProgramTypeCodes is null 
+ and @isOCSClassSearch = 0 
+set @isOrgOnlySearch = 1 
+else 
+set @isOrgOnlySearch = 0 
+ 
+--Get all subordinate organiza.ons for the @OrgID 
+declare @SubordinateOrgs as TABLE ( 
+ OrgID int 
+ ) 
+insert into @SubordinateOrgs (OrgID) values (@OrgID) 
+insert into @SubordinateOrgs select OSS from [usmc].[vwRecrui.ngOrgIDs] where HQ = @OrgID and OSS is not null 
+insert into @SubordinateOrgs select OSS from [usmc].[vwRecrui.ngOrgIDs] where Region = @OrgID and OSS is not null 
+insert into @SubordinateOrgs select OSS from [usmc].[vwRecrui.ngOrgIDs] where District = @OrgID and OSS is not null 
+insert into @SubordinateOrgs select OSS from [usmc].[vwRecrui.ngOrgIDs] where RS = @OrgID and OSS is not null 
+ 
+--Get all NWAIDs with class records matching @ProgramClass, @ProgramFilter, @ProgramFiscalYear 
+declare @NWAsInSpeci.edClasses as TABLE ( 
+ NWA_ID int 
+ ) 
+if (@isOCSClassSearch = 1) 
+insert into @NWAsInSpeci.edClasses 
+ select NWA_ID from OCS, OCS_CLASS 
+  where OCS.OCS_CLASS_ID = OCS_CLASS.CLASS_ID 
+     and (OCS_CLASS.TRAINING_TYPE_CODE = @ProgramClass or @ProgramClass is null) 
+     and (OCS_CLASS.FISCAL_YEAR = @ProgramFiscalYear or @ProgramFiscalYear is null) 
+     and (OCS_CLASS.CLASS_NUMBER = @ProgramIncrement or @ProgramIncrement is null) 
+ 
+--Get the count.  Split out speedy OrgOnly search. 
+IF @isOrgOnlySearch = 1 
+BEGIN 
+SELECT @totalrows = COUNT(*) FROM 
+ [dbo].[OFFICER_CONTRACT] contract 
+ INNER JOIN [dbo].[NWA] nwa on contract.NWA_ID = nwa.NWA_ID INNER JOIN [dbo].[MARINE_CANDIDATE] mc on nwa.MARINE_CANDIDATE_ID = mc.MARINE_CANDIDATE_ID 
+WHERE 
+ nwa.ORGANIZATION_OF_RECORD_ID in (SELECT OrgID from @SubordinateOrgs) 
+ AND contract.BOARD_STATUS_ID <> 1 
+END 
+ELSE 
+BEGIN 
+--Less speedy.  We want the count so that we can know whether or not sor.ng/paging will cripple the search 
+SELECT @totalrows = COUNT(*) FROM 
+ [dbo].[OFFICER_CONTRACT] contract 
+ INNER JOIN [dbo].[NWA] nwa on contract.NWA_ID = nwa.NWA_ID 
+ INNER JOIN [dbo].[MARINE_CANDIDATE] mc on nwa.MARINE_CANDIDATE_ID = mc.MARINE_CANDIDATE_ID 
+ INNER JOIN (select OFFICER_CONTRACT_ID, max(STATUS_DATE) as CURRENT_STATUS_DATE FROM OFFICER_CONTRACT_BOARD_STATUS_HISTORY group by OFFICER_CONTRACT_ID) statusDate on contract.contract_ID = statusDate.OFFICER_CONTRACT_ID 
+ INNER JOIN [dbo].[OFFICER_CONTRACT_BOARD_STATUS_HISTORY] ocbsh ON ocbsh.OFFICER_CONTRACT_ID = contract.CONTRACT_ID and ocbsh.STATUS_DATE = statusDate.CURRENT_STATUS_DATE 
+ LEFT OUTER JOIN [dbo].[OFFICER_CONTRACT_BOARD] ocb on ocb.CONTRACT_BOARD_ID = ocbsh.CONTRACT_BOARD_ID 
+ LEFT OUTER JOIN [dbo].[NROTC_CONTRACT] nc on nc.CONTRACT_ID = contract.CONTRACT_ID 
+WHERE 
+ nwa.ORGANIZATION_OF_RECORD_ID in (SELECT OrgID from @SubordinateOrgs) 
+ AND (mc.GENDER_CODE = @GenderCode OR @GenderCode is null) 
+ AND (contract.BOARD_STATUS_ID = @BoardStatusID or @BoardStatusID is null) 
+ AND ((ocb.BOARD_ID in (select BOARD_ID from BOARD where ORGANIZATION_ID = @AssignedBoardOrgID)) or @AssignedBoardOrgID is null) 
+ AND (ocb.BOARD_ID = @AssignedBoardID or @AssignedBoardID is null) 
+ AND (@ProgramCodes like '%|' + nwa.OFFICER_COMPONENT_CODE + '|%' or @ProgramCodes is null) 
+ AND (@ProgramTypeCodes like '%|' + CAST(nc.PROGRAM_TYPE as varchar(10)) + '|%' or @ProgramTypeCodes is null) 
+ AND ((nwa.NWA_ID in (select NWA_ID from @NWAsInSpeci.edClasses)) or @isOCSClassSearch = 0) 
+ AND contract.BOARD_STATUS_ID <> 1 
+END 
+ 
+--If no records, return quickly 
+IF @totalrows = 0 
+RETURN 
+ELSE 
+--If count is less than @maxTotalRowsToSort, we'll sort and page.  
+IF @totalrows < @maxTotalRowsToSort 
+BEGIN 
+declare @WorkingResultSet as TABLE ( 
+ NWA_ID int, 
+ ORGANIZATION_OF_RECORD_ID int, 
+ BOARD_ID int, 
+ FIRST_NAME varchar(100), 
+ MIDDLE_NAME varchar(20), 
+ LAST_NAME varchar(100), 
+ SSN varchar(15), 
+ RS varchar(45), 
+ OSS varchar(45), 
+ PROGRAM varchar(50), 
+ GENDER_CODE varchar(1), 
+ TOTAL_SCORE int, 
+ DISPOSITION varchar(40), 
+ BOARD_STATUS varchar(20), 
+ BOARD_STATUS_DATE date.me 
+) 
+ 
+--remember org-only search is split out for speed 
+IF @isOrgOnlySearch = 1 
+BEGIN 
+INSERT INTO @WorkingResultSet 
+SELECT  
+ contract.NWA_ID, 
+ nwa.ORGANIZATION_OF_RECORD_ID, 
+ ocb.BOARD_ID, 
+ person.FIRST_NAME, 
+ person.LEGAL_MIDDLE_NAME AS MIDDLE_NAME, 
+ person.LAST_NAME, 
+ person.SOCIAL_SECURITY_NUMBER as SSN, 
+ parents.NAME AS RS, 
+ ro.NAME as OSS, 
+ cc.COMPONENT_DESCRIPTION as PROGRAM, 
+ mc.GENDER_CODE, 
+ scores.TOTAL_SCORE, 
+ sd.DISPOSITION_DESCRIPTION as DISPOSITION, 
+ boardStatus.DESCRIPTION as BOARD_STATUS, 
+ statusDate.CURRENT_STATUS_DATE as BOARD_STATUS_DATE 
+FROM 
+ [dbo].[OFFICER_CONTRACT] contract 
+ INNER JOIN [dbo].[NWA] nwa on contract.NWA_ID = nwa.NWA_ID 
+ INNER JOIN [dbo].[MARINE_CANDIDATE] mc on nwa.MARINE_CANDIDATE_ID = mc.MARINE_CANDIDATE_ID 
+ INNER JOIN [dbo].[PERSON] person on nwa.MARINE_CANDIDATE_ID = person.PERSON_ID 
+ INNER JOIN [dbo].[RECRUITING_ORGANIZATION] ro on nwa.ORGANIZATION_OF_RECORD_ID = ro.ORGANIZATION_ID 
+ INNER JOIN (select ro.ORGANIZATION_ID, parent.NAME from RECRUITING_ORGANIZATION ro, ORGANIZATION_MAP om, RECRUITING_ORGANIZATION parent 
+     where ro.ORGANIZATION_ID = om.CHILD_ORGANIZATION_ID and om.PARENT_ORGANIZATION_ID = parent.ORGANIZATION_ID 
+     union 
+    select ORGANIZATION_ID, SHORT_NAME as NAME from RECRUITING_ORGANIZATION where ORGANIZATION_ID = 910) 
+    parents on nwa.ORGANIZATION_OF_RECORD_ID = parents.ORGANIZATION_ID  
+ INNER JOIN [dbo].COMPONENT_CODE cc on nwa.OFFICER_COMPONENT_CODE = cc.COMPONENT_CODE 
+ INNER JOIN [dbo].[OFFICER_BOARD_STATUS] boardStatus on contract.BOARD_STATUS_ID = boardStatus.BOARD_STATUS_ID 
+ INNER JOIN (select NWA_ID, max(CANDIDATE_STATUS_ID) as CURRENT_STATUS_ID FROM CANDIDATE_STATUS group by NWA_ID) csd on nwa.nwa_ID = csd.nwa_id 
+ INNER JOIN [dbo].[CANDIDATE_STATUS] cs on nwa.NWA_ID = cs.NWA_ID and cs.CANDIDATE_STATUS_ID = csd.CURRENT_STATUS_ID 
+ INNER JOIN [dbo].[STATUS_DISPOSITION] sd ON cs.[STATUS_TYPE]=sd.[STATUS_TYPE] AND cs.[STATUS_CODE]=sd.[STATUS_CODE] AND cs.[DISPOSITION_CODE]=sd.[DISPOSITION_CODE] 
+ INNER JOIN (select OFFICER_CONTRACT_ID, max(STATUS_DATE) as CURRENT_STATUS_DATE FROM OFFICER_CONTRACT_BOARD_STATUS_HISTORY group by OFFICER_CONTRACT_ID) statusDate on contract.contract_ID = statusDate.OFFICER_CONTRACT_ID 
+ INNER JOIN [dbo].[OFFICER_CONTRACT_BOARD_STATUS_HISTORY] ocbsh ON ocbsh.OFFICER_CONTRACT_ID = contract.CONTRACT_ID and ocbsh.STATUS_DATE = statusDate.CURRENT_STATUS_DATE 
+ LEFT OUTER JOIN [dbo].[OFFICER_CONTRACT_BOARD] ocb on ocb.CONTRACT_BOARD_ID = ocbsh.CONTRACT_BOARD_ID 
+ LEFT OUTER JOIN [dbo].[NROTC_CONTRACT] nc on nc.CONTRACT_ID = contract.CONTRACT_ID 
+ LEFT OUTER JOIN (select BOARD_ID, NWA_ID, sum(ACADEMIC_SCORE)+sum(PHYSICAL_SCORE)+sum(LEADERSHIP_SCORE) AS TOTAL_SCORE 
+      FROM [dbo].[SELECTION_BOARD_VOTER_WORKSHEET] group by BOARD_ID, NWA_ID) scores 
+        on scores.NWA_ID = nwa.NWA_ID and scores.BOARD_ID = ocb.BOARD_ID 
+WHERE 
+ nwa.ORGANIZATION_OF_RECORD_ID in (SELECT OrgID from @SubordinateOrgs) 
+ --AND (mc.GENDER_CODE = @GenderCode OR @GenderCode is null) 
+ --AND (contract.BOARD_STATUS_ID = @BoardStatusID OR @BoardStatusID is null) 
+ --AND ((ocb.BOARD_ID in (select BOARD_ID from BOARD where ORGANIZATION_ID = @AssignedBoardOrgID)) or @AssignedBoardOrgID is null) 
+ --AND (ocb.BOARD_ID = @AssignedBoardID or @AssignedBoardID is null) 
+ --AND (@ProgramCodes like '%|' + nwa.OFFICER_COMPONENT_CODE + '|%' or @ProgramCodes is null) 
+ --AND (@ProgramTypeCodes like '%|' + CAST(nc.PROGRAM_TYPE as varchar(10)) + '|%' or @ProgramTypeCodes is null) 
+ --AND ((nwa.NWA_ID in (select NWA_ID from @NWAsInSpeci.edClasses)) or @isOCSClassSearch = 0) 
+ AND contract.BOARD_STATUS_ID <> 1 
+ 
+END 
+ELSE 
+--not "just by org" search 
+BEGIN 
+INSERT INTO @WorkingResultSet 
+SELECT  
+ contract.NWA_ID, 
+ nwa.ORGANIZATION_OF_RECORD_ID, 
+ ocb.BOARD_ID, 
+ person.FIRST_NAME, 
+ person.LEGAL_MIDDLE_NAME AS MIDDLE_NAME, 
+ person.LAST_NAME, 
+ person.SOCIAL_SECURITY_NUMBER as SSN, 
+ parents.NAME AS RS, 
+ ro.NAME as OSS, 
+ cc.COMPONENT_DESCRIPTION as PROGRAM, 
+ mc.GENDER_CODE, 
+ scores.TOTAL_SCORE, 
+ sd.DISPOSITION_DESCRIPTION as DISPOSITION, 
+ boardStatus.DESCRIPTION as BOARD_STATUS, 
+ statusDate.CURRENT_STATUS_DATE as BOARD_STATUS_DATE 
+FROM 
+ [dbo].[OFFICER_CONTRACT] contract 
+ INNER JOIN [dbo].[NWA] nwa on contract.NWA_ID = nwa.NWA_ID 
+ INNER JOIN [dbo].[MARINE_CANDIDATE] mc on nwa.MARINE_CANDIDATE_ID = mc.MARINE_CANDIDATE_ID 
+ INNER JOIN [dbo].[PERSON] person on nwa.MARINE_CANDIDATE_ID = person.PERSON_ID 
+ INNER JOIN [dbo].[RECRUITING_ORGANIZATION] ro on nwa.ORGANIZATION_OF_RECORD_ID = ro.ORGANIZATION_ID 
+ INNER JOIN (select ro.ORGANIZATION_ID, parent.NAME from RECRUITING_ORGANIZATION ro, ORGANIZATION_MAP om, RECRUITING_ORGANIZATION parent 
+     where ro.ORGANIZATION_ID = om.CHILD_ORGANIZATION_ID and om.PARENT_ORGANIZATION_ID = parent.ORGANIZATION_ID 
+     union 
+    select ORGANIZATION_ID, SHORT_NAME as NAME from RECRUITING_ORGANIZATION where ORGANIZATION_ID = 910) 
+    parents on nwa.ORGANIZATION_OF_RECORD_ID = parents.ORGANIZATION_ID  
+ INNER JOIN [dbo].COMPONENT_CODE cc on nwa.OFFICER_COMPONENT_CODE = cc.COMPONENT_CODE 
+ INNER JOIN [dbo].[OFFICER_BOARD_STATUS] boardStatus on contract.BOARD_STATUS_ID = boardStatus.BOARD_STATUS_ID 
+ INNER JOIN (select NWA_ID, max(CANDIDATE_STATUS_ID) as CURRENT_STATUS_ID FROM CANDIDATE_STATUS group by NWA_ID) csd on nwa.nwa_ID = csd.nwa_id 
+ INNER JOIN [dbo].[CANDIDATE_STATUS] cs on nwa.NWA_ID = cs.NWA_ID and cs.CANDIDATE_STATUS_ID = csd.CURRENT_STATUS_ID 
+ INNER JOIN [dbo].[STATUS_DISPOSITION] sd ON cs.[STATUS_TYPE]=sd.[STATUS_TYPE] AND cs.[STATUS_CODE]=sd.[STATUS_CODE] AND cs.[DISPOSITION_CODE]=sd.[DISPOSITION_CODE] 
+ INNER JOIN (select OFFICER_CONTRACT_ID, max(STATUS_DATE) as CURRENT_STATUS_DATE FROM OFFICER_CONTRACT_BOARD_STATUS_HISTORY group by OFFICER_CONTRACT_ID) statusDate on contract.contract_ID = statusDate.OFFICER_CONTRACT_ID 
+ INNER JOIN [dbo].[OFFICER_CONTRACT_BOARD_STATUS_HISTORY] ocbsh ON ocbsh.OFFICER_CONTRACT_ID = contract.CONTRACT_ID and ocbsh.STATUS_DATE = statusDate.CURRENT_STATUS_DATE 
+ LEFT OUTER JOIN [dbo].[OFFICER_CONTRACT_BOARD] ocb on ocb.CONTRACT_BOARD_ID = ocbsh.CONTRACT_BOARD_ID 
+ LEFT OUTER JOIN [dbo].[NROTC_CONTRACT] nc on nc.CONTRACT_ID = contract.CONTRACT_ID 
+ LEFT OUTER JOIN (select BOARD_ID, NWA_ID, sum(ACADEMIC_SCORE)+sum(PHYSICAL_SCORE)+sum(LEADERSHIP_SCORE) AS TOTAL_SCORE 
+      FROM [dbo].[SELECTION_BOARD_VOTER_WORKSHEET] group by BOARD_ID, NWA_ID) scores 
+        on scores.NWA_ID = nwa.NWA_ID and scores.BOARD_ID = ocb.BOARD_ID 
+WHERE 
+ nwa.ORGANIZATION_OF_RECORD_ID in (SELECT OrgID from @SubordinateOrgs) 
+ AND (mc.GENDER_CODE = @GenderCode OR @GenderCode is null) 
+ AND (contract.BOARD_STATUS_ID = @BoardStatusID OR @BoardStatusID is null) 
+ AND ((ocb.BOARD_ID in (select BOARD_ID from BOARD where ORGANIZATION_ID = @AssignedBoardOrgID)) or @AssignedBoardOrgID is null) 
+ AND (ocb.BOARD_ID = @AssignedBoardID or @AssignedBoardID is null) 
+ AND (@ProgramCodes like '%|' + nwa.OFFICER_COMPONENT_CODE + '|%' or @ProgramCodes is null) 
+ AND (@ProgramTypeCodes like '%|' + CAST(nc.PROGRAM_TYPE as varchar(10)) + '|%' or @ProgramTypeCodes is null) 
+ AND ((nwa.NWA_ID in (select NWA_ID from @NWAsInSpeci.edClasses)) or @isOCSClassSearch = 0) 
+ AND contract.BOARD_STATUS_ID <> 1 
+END 
+ 
+--use the working result set (generated by the org-only or non-org-only branches) to get correct sort and page 
+SELECT @totalrows AS TotalRows, 
+ NWA_ID, 
+ ORGANIZATION_OF_RECORD_ID, 
+ BOARD_ID, 
+ FIRST_NAME, 
+ MIDDLE_NAME, 
+ LAST_NAME, 
+ SSN, 
+ RS, 
+ OSS, 
+ PROGRAM, 
+ GENDER_CODE, 
+ TOTAL_SCORE, 
+ DISPOSITION, 
+ BOARD_STATUS, 
+ BOARD_STATUS_DATE 
+FROM 
+(SELECT  
+ ROW_NUMBER() OVER ( ORDER BY  
+  --NOTE THREE COLUMN SORT FOR SortColumnNumber 1 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 1 THEN LAST_NAME END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 1 THEN LAST_NAME END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 1 THEN FIRST_NAME END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 1 THEN FIRST_NAME END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 1 THEN MIDDLE_NAME END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 1 THEN MIDDLE_NAME END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 2 THEN SSN END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 2 THEN SSN END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 3 THEN RS END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 3 THEN RS END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 4 THEN OSS END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 4 THEN OSS END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 5 THEN PROGRAM END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 5 THEN PROGRAM END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 6 THEN GENDER_CODE END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 6 THEN GENDER_CODE END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 7 THEN TOTAL_SCORE END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 7 THEN TOTAL_SCORE END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 8 THEN DISPOSITION END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 8 THEN DISPOSITION END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 9 THEN BOARD_STATUS END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 9 THEN BOARD_STATUS END END DESC, 
+ 
+  CASE WHEN @ColumnSortOrder = 1 THEN CASE WHEN @SortColumnNumber = 10 THEN BOARD_STATUS_DATE END END ASC, 
+  CASE WHEN @ColumnSortOrder = 0 THEN CASE WHEN @SortColumnNumber = 10 THEN BOARD_STATUS_DATE END END DESC, 
+ 
+       CASE WHEN @ColumnSortOrder <> 0 and @ColumnSortOrder <> 1 and (@SortColumnNumber < 1 or @SortColumnNumber > 4) 
+    THEN LAST_NAME END ASC 
+ ) as RowNum, 
+ * 
+FROM  
+ @WorkingResultSet 
+) as O.cerContract 
+ WHERE @startRowIndex is null OR (RowNum BETWEEN @startRowIndex AND (@startRowIndex + @maximumRows) - 1) 
+ Order By RowNum 
+END 
+ELSE 
+--too many rows for e.cient sor.ng and paging, so we just get the top page of unsorted records 
+BEGIN 
+SELECT TOP (@maximumrows) @totalrows AS TotalRows, 
+ contract.NWA_ID, 
+ nwa.ORGANIZATION_OF_RECORD_ID, 
+ ocb.BOARD_ID, 
+ person.FIRST_NAME, 
+ person.LEGAL_MIDDLE_NAME AS MIDDLE_NAME, 
+ person.LAST_NAME, 
+ person.SOCIAL_SECURITY_NUMBER as SSN, 
+ parents.NAME AS RS, 
+ ro.NAME as OSS, 
+ cc.COMPONENT_DESCRIPTION as PROGRAM, 
+ mc.GENDER_CODE, 
+ scores.TOTAL_SCORE, 
+ sd.DISPOSITION_DESCRIPTION as DISPOSITION, 
+ boardStatus.DESCRIPTION as BOARD_STATUS, 
+ statusDate.CURRENT_STATUS_DATE as BOARD_STATUS_DATE 
+FROM 
+ [dbo].[OFFICER_CONTRACT] contract 
+ INNER JOIN [dbo].[NWA] nwa on contract.NWA_ID = nwa.NWA_ID 
+ INNER JOIN [dbo].[MARINE_CANDIDATE] mc on nwa.MARINE_CANDIDATE_ID = mc.MARINE_CANDIDATE_ID 
+ INNER JOIN [dbo].[PERSON] person on nwa.MARINE_CANDIDATE_ID = person.PERSON_ID 
+ INNER JOIN [dbo].[RECRUITING_ORGANIZATION] ro on nwa.ORGANIZATION_OF_RECORD_ID = ro.ORGANIZATION_ID 
+ INNER JOIN (select ro.ORGANIZATION_ID, parent.NAME from RECRUITING_ORGANIZATION ro, ORGANIZATION_MAP om, RECRUITING_ORGANIZATION parent 
+     where ro.ORGANIZATION_ID = om.CHILD_ORGANIZATION_ID and om.PARENT_ORGANIZATION_ID = parent.ORGANIZATION_ID 
+     union 
+    select ORGANIZATION_ID, SHORT_NAME as NAME from RECRUITING_ORGANIZATION where ORGANIZATION_ID = 910) 
+    parents on nwa.ORGANIZATION_OF_RECORD_ID = parents.ORGANIZATION_ID  
+ INNER JOIN [dbo].COMPONENT_CODE cc on nwa.OFFICER_COMPONENT_CODE = cc.COMPONENT_CODE 
+ INNER JOIN [dbo].[OFFICER_BOARD_STATUS] boardStatus on contract.BOARD_STATUS_ID = boardStatus.BOARD_STATUS_ID 
+ INNER JOIN (select NWA_ID, max(CANDIDATE_STATUS_ID) as CURRENT_STATUS_ID FROM CANDIDATE_STATUS group by NWA_ID) csd on nwa.nwa_ID = csd.nwa_id 
+ INNER JOIN [dbo].[CANDIDATE_STATUS] cs on nwa.NWA_ID = cs.NWA_ID and cs.CANDIDATE_STATUS_ID = csd.CURRENT_STATUS_ID 
+ INNER JOIN [dbo].[STATUS_DISPOSITION] sd ON cs.[STATUS_TYPE]=sd.[STATUS_TYPE] AND cs.[STATUS_CODE]=sd.[STATUS_CODE] AND cs.[DISPOSITION_CODE]=sd.[DISPOSITION_CODE] 
+ INNER JOIN (select OFFICER_CONTRACT_ID, max(STATUS_DATE) as CURRENT_STATUS_DATE FROM OFFICER_CONTRACT_BOARD_STATUS_HISTORY group by OFFICER_CONTRACT_ID) statusDate on contract.contract_ID = statusDate.OFFICER_CONTRACT_ID 
+ INNER JOIN [dbo].[OFFICER_CONTRACT_BOARD_STATUS_HISTORY] ocbsh ON ocbsh.OFFICER_CONTRACT_ID = contract.CONTRACT_ID and ocbsh.STATUS_DATE = statusDate.CURRENT_STATUS_DATE 
+ LEFT OUTER JOIN [dbo].[OFFICER_CONTRACT_BOARD] ocb on ocb.CONTRACT_BOARD_ID = ocbsh.CONTRACT_BOARD_ID 
+ LEFT OUTER JOIN [dbo].[NROTC_CONTRACT] nc on nc.CONTRACT_ID = contract.CONTRACT_ID 
+ LEFT OUTER JOIN (select BOARD_ID, NWA_ID, sum(ACADEMIC_SCORE)+sum(PHYSICAL_SCORE)+sum(LEADERSHIP_SCORE) AS TOTAL_SCORE 
+      FROM [dbo].[SELECTION_BOARD_VOTER_WORKSHEET] group by BOARD_ID, NWA_ID) scores 
+        on scores.NWA_ID = nwa.NWA_ID and scores.BOARD_ID = ocb.BOARD_ID 
+WHERE 
+ nwa.ORGANIZATION_OF_RECORD_ID in (SELECT OrgID from @SubordinateOrgs) 
+ AND (mc.GENDER_CODE = @GenderCode OR @GenderCode is null) 
+ AND (contract.BOARD_STATUS_ID = @BoardStatusID OR @BoardStatusID is null) 
+ AND ((ocb.BOARD_ID in (select BOARD_ID from BOARD where ORGANIZATION_ID = @AssignedBoardOrgID)) or @AssignedBoardOrgID is null) 
+ AND (ocb.BOARD_ID = @AssignedBoardID or @AssignedBoardID is null) 
+ AND (@ProgramCodes like '%|' + nwa.OFFICER_COMPONENT_CODE + '|%' or @ProgramCodes is null) 
+ AND (@ProgramTypeCodes like '%|' + CAST(nc.PROGRAM_TYPE as varchar(10)) + '|%' or @ProgramTypeCodes is null) 
+ AND ((nwa.NWA_ID in (select NWA_ID from @NWAsInSpeci.edClasses)) or @isOCSClassSearch = 0) 
+ AND contract.BOARD_STATUS_ID <> 1 
+END]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

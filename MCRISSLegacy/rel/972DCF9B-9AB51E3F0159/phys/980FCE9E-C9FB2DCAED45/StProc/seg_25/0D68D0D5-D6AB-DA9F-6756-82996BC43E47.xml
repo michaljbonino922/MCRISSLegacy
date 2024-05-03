@@ -1,0 +1,43 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateMedicalStatusWaiversAccession]" directorySegmentName="seg_25" id="0D68D0D5-D6AB-DA9F-6756-82996BC43E47">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@MedicalStatusWaiverID int, 
+ @NWAID int, 
+ @SubmissionTypeID int, 
+ @DateSubmitedBUMED date.me, 
+ @DateReceivedMCRC date.me, 
+ @BUMEDDisposi.onID int, 
+ @MCRCDisposi.onID int, 
+ @DateToDistrict date.me, 
+ @UserLogin varchar(30) 
+AS 
+ 
+IF EXISTS (SELECT 1 FROM [MEDICAL_STATUS_WAIVERS_ACCESSION] WHERE [MEDICAL_STATUS_WAIVER_ID] = @MedicalStatusWaiverID) 
+BEGIN 
+ UPDATE 
+  [MEDICAL_STATUS_WAIVERS_ACCESSION] 
+ SET 
+  [SUBMISSION_TYPE_ID] = @SubmissionTypeID, 
+  [DATE_SUBMITTED_BUMED] = @DateSubmitedBUMED, 
+  [DATE_RECEIVED_MCRC] = @DateReceivedMCRC, 
+  [BUMED_DISPOSITION_ID] = @BUMEDDisposi.onID, 
+  [MCRC_DISPOSITION_ID] = @MCRCDisposi.onID, 
+  [DATE_TO_DISTRICT] = @DateToDistrict, 
+  [USER_LOGIN] = @UserLogin, 
+  [UPDATE_DATE] = getdate() 
+ WHERE 
+  [MEDICAL_STATUS_WAIVER_ID] = @MedicalStatusWaiverID   
+END 
+ELSE 
+BEGIN 
+ INSERT INTO 
+  [MEDICAL_STATUS_WAIVERS_ACCESSION] ([NWA_ID], [SUBMISSION_TYPE_ID], [DATE_SUBMITTED_BUMED], [DATE_RECEIVED_MCRC], [BUMED_DISPOSITION_ID], [MCRC_DISPOSITION_ID], [DATE_TO_DISTRICT], [USER_LOGIN], [UPDATE_DATE]) 
+ VALUES 
+  (@NWAID, @SubmissionTypeID, @DateSubmitedBUMED, @DateReceivedMCRC, @BUMEDDisposi.onID, @MCRCDisposi.onID, @DateToDistrict, @UserLogin, getdate()) 
+END]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

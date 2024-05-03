@@ -1,0 +1,174 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetHSCCMPSheetById-test]" directorySegmentName="seg_5" id="57B4E1BA-88ED-9B76-031E-C2534456C1F2">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@SchoolYear int, 
+ @OrgId      int 
+      
+AS 
+BEGIN 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+  
+ EXECUTE [USMC].[InsertSchoolPro.leForOrg] @OrgId, @SchoolYear 
+  
+ DECLARE @SchoolYearStartDate date.me 
+ DECLARE @SchoolYearEndDate date.me 
+ 
+ SET @SchoolYearStartDate = DATEFROMPARTS ( str(@SchoolYear-1), 7, 1 ) 
+ SET @SchoolYearEndDate   = DATEFROMPARTS ( str(@SchoolYear), 6, 30 ) 
+ 
+ ;WITH SchoolList (SCHOOL_CODE,ORGANIZATION_ID,HIGHSCHOOL_NAME,DOD_CODE,SCHOOL_TYPE,ISPUBLIC) AS  
+ (SELECT DISTINCT hs.[SCHOOL_CODE],hs.[ORGANIZATION_ID],hs.[HIGHSCHOOL_NAME],hs.[DOD_CODE],hs.[SCHOOL_TYPE],hs.[ISPUBLIC] 
+  FROM  
+  MCRISS.dbo.High_School hs 
+  INNER JOIN MCRISS.USMC.vwDecendentRecrui.ngOrgs c 
+   ON hs.ORGANIZATION_ID = c.decendent  
+  WHERE  
+  (hs.ORGANIZATION_ID = @orgId OR c.Parent = @orgId) 
+  AND (  
+    hs.E.ec.ve_Date IS NULL OR 
+    ( hs.E.ec.ve_Date IS NOT NULL AND 
+      ((  hs.DELETED <> 'Y' AND hs.E.ec.ve_Date <= @SchoolYearEndDate) OR 
+       (  hs.DELETED = 'Y' AND hs.E.ec.ve_Date <= @SchoolYearEndDate AND hs.UPDATE_DATE >= @SchoolYearStartDate) 
+      ) 
+    ) 
+   ) 
+  AND hs.School_Type <> 'COL' and hs.School_Type <> '4Y' and hs.DELETED = 'N')  
+  
+  SELECT hs.HighSchool_Name [Name] 
+     ,hs.School_Type 
+     ,hs.SCHOOL_CODE 
+     ,hs.ORGANIZATION_ID 
+     ,hsp.rowguid  [SchoolPro.leId] 
+     ,hsp.Priority_Code [Priority] 
+     ,hsa.Short_Descrip.on [Access] 
+     ,hsp.School_Year [SchoolYear] 
+     ,rp.Rank_Code + ' ' + p.Last_Name [Recruiter] 
+     ,hs.DOD_Code [DODCode]     
+     ,case when hsp.Status_Code='WK' then 'Working' else 'Not Working' end as [Category] 
+     ,hsp.Access_Code 
+     ,hsp.Status_Code 
+     ,hsp.Male_Seniors 
+     ,hsp.Female_Seniors 
+     ,hsp.FOUR_YEAR_COLLEGE_PERCENTAGE 
+      
+     ,ISNULL(hsap.Ini.al_Visit_Plan, 
+      (SELECT PLANNED_MONTH FROM MCRISS.dbo.HIGH_SCHOOL_PLAN WHERE PLAN_TYPE = 'INV' AND SCHOOL_CODE = hs.SCHOOL_CODE AND SCHOOL_YEAR = @SchoolYear ) )  
+      AS Ini.al_Visit_Plan 
+       
+     ,(SELECT ACTUAL_MONTH FROM MCRISS.dbo.HIGH_SCHOOL_PLAN WHERE PLAN_TYPE = 'INV' AND SCHOOL_CODE = hs.SCHOOL_CODE AND SCHOOL_YEAR = @SchoolYear )  
+      AS [Ini.al_Visit_Actual] 
+       
+     ,hsnp.Ini.al_Visit_New_Plan 
+       
+     ,ISNULL(hsap.Senior_List_Plan, 
+      (SELECT PLANNED_MONTH FROM MCRISS.dbo.HIGH_SCHOOL_PLAN WHERE PLAN_TYPE = 'SRL' AND SCHOOL_CODE = hs.SCHOOL_CODE AND SCHOOL_YEAR = @SchoolYear ) )  
+   AS Senior_List_Plan 
+      
+     ,(SELECT ACTUAL_MONTH FROM MCRISS.dbo.HIGH_SCHOOL_PLAN WHERE PLAN_TYPE = 'SRL' AND SCHOOL_CODE = hs.SCHOOL_CODE AND SCHOOL_YEAR = @SchoolYear )   
+      AS [Senior_List_Actual] 
+      
+     ,hsnp.Senior_List_New_Plan 
+       
+     ,ISNULL(hsap.Junior_List_Plan, 
+      (SELECT PLANNED_MONTH FROM MCRISS.dbo.HIGH_SCHOOL_PLAN WHERE PLAN_TYPE = 'JRL' AND SCHOOL_CODE = hs.SCHOOL_CODE AND SCHOOL_YEAR = @SchoolYear ) ) 
+      AS Junior_List_Plan 
+       
+     ,(SELECT ACTUAL_MONTH FROM MCRISS.dbo.HIGH_SCHOOL_PLAN WHERE PLAN_TYPE = 'JRL' AND SCHOOL_CODE = hs.SCHOOL_CODE AND SCHOOL_YEAR = @SchoolYear )   
+   AS [Junior_List_Actual] 
+     ,hsnp.Junior_List_New_Plan  
+      
+     ,ISNULL(hsap.NROTC_Junior_Plan, 
+      (SELECT PLANNED_MONTH FROM MCRISS.dbo.HIGH_SCHOOL_PLAN WHERE PLAN_TYPE = 'JNT' AND SCHOOL_CODE = hs.SCHOOL_CODE AND SCHOOL_YEAR = @SchoolYear ) ) 
+      AS NROTC_Junior_Plan 
+       
+     ,(SELECT ACTUAL_MONTH FROM MCRISS.dbo.HIGH_SCHOOL_PLAN WHERE PLAN_TYPE = 'JNT' AND SCHOOL_CODE = hs.SCHOOL_CODE AND SCHOOL_YEAR = @SchoolYear )   
+      AS [NROTC_Junior_Actual] 
+     ,hsnp.NROTC_Junior_New_Plan  
+      
+     ,ISNULL(hsap.NROTC_Senior_Plan, 
+      (SELECT PLANNED_MONTH FROM MCRISS.dbo.HIGH_SCHOOL_PLAN WHERE PLAN_TYPE = 'SNT' AND SCHOOL_CODE = hs.SCHOOL_CODE AND SCHOOL_YEAR = @SchoolYear ) )  
+      AS NROTC_Senior_Plan 
+      
+     ,(SELECT ACTUAL_MONTH FROM MCRISS.dbo.HIGH_SCHOOL_PLAN WHERE PLAN_TYPE = 'SNT' AND SCHOOL_CODE = hs.SCHOOL_CODE AND SCHOOL_YEAR = @SchoolYear )   
+   AS [NROTC_Senior_Actual] 
+    
+     ,hsnp.NROTC_Senior_New_Plan  
+      
+     ,ISNULL(hsap.Band_Talk_Plan, 
+      (SELECT PLANNED_MONTH FROM MCRISS.dbo.HIGH_SCHOOL_PLAN WHERE PLAN_TYPE = 'BAT' AND SCHOOL_CODE = hs.SCHOOL_CODE AND SCHOOL_YEAR = @SchoolYear ) )  
+      AS Band_Talk_Plan 
+       
+     ,(SELECT ACTUAL_MONTH FROM MCRISS.dbo.HIGH_SCHOOL_PLAN WHERE PLAN_TYPE = 'BAT' AND SCHOOL_CODE = hs.SCHOOL_CODE AND SCHOOL_YEAR = @SchoolYear )   
+      AS [Band_Talk_Actual] 
+     ,hsnp.Band_Talk_New_Plan     
+      
+     ,ISNULL(hsap.Career_Talk_Plan, 
+      (SELECT PLANNED_MONTH FROM MCRISS.dbo.HIGH_SCHOOL_PLAN WHERE PLAN_TYPE = 'CAT' AND SCHOOL_CODE = hs.SCHOOL_CODE AND SCHOOL_YEAR = @SchoolYear ) )  
+      AS Career_Talk_Plan 
+       
+     ,(SELECT ACTUAL_MONTH FROM MCRISS.dbo.HIGH_SCHOOL_PLAN WHERE PLAN_TYPE = 'CAT' AND SCHOOL_CODE = hs.SCHOOL_CODE AND SCHOOL_YEAR = @SchoolYear )   
+   AS [Career_Talk_Actual] 
+      
+     ,hsnp.Career_Talk_New_Plan   
+      
+     ,ISNULL(hsap.First_Senior_Plan, 
+      (SELECT PLANNED_MONTH FROM MCRISS.dbo.HIGH_SCHOOL_PLAN WHERE PLAN_TYPE = '1SR' AND SCHOOL_CODE = hs.SCHOOL_CODE AND SCHOOL_YEAR = @SchoolYear ) )  
+      AS First_Senior_Plan 
+      
+     ,(SELECT MIN(c.Contract_Begin_Date) 
+     FROM [MCRISS].[dbo].[CANDIDATE_EDUCATION] ce   
+     INNER JOIN [MCRISS].[dbo].NWA nwa ON ce.MARINE_CANDIDATE_ID = nwa.MARINE_CANDIDATE_ID 
+     INNER JOIN [MCRISS].[dbo].MICONTRACT c ON  nwa.NWA_ID = c.NWA_ID 
+     WHERE  
+    ce.EDUCATION_LEVEL = 11 
+    AND ce.EDUCATION_CODE = 'S'  
+    AND ce.YEAR_GRADUATED = @SchoolYear 
+    AND c.CONTRACT_BEGIN_DATE IS NOT NULL 
+    AND ce.SCHOOL_CODE = hs.SCHOOL_CODE)  
+    AS First_Senior_Actual 
+      
+     ,hsnp.First_Senior_New_Plan      
+      
+     ,hsp.ASVAB_Resp 
+     ,hsnp.NEW_PLAN_APPROVED 
+     ,hsp.NEW_PLAN_ID 
+     ,hsnp.APPROVED_BY_USER 
+     ,hsnp.UPDATE_DATE 
+     ,hsnp.Priority_Code AS NewPriority 
+     ,hsnp.Status_Code AS NewStatus 
+     ,(SELECT SHORT_DESCRIPTION FROM MCRISS.dbo.HIGH_SCHOOL_STATUS WHERE STATUS_CODE = hsnp.Status_Code ) AS NewStatusDesc 
+     ,hsnp.Access_Code AS NewAccess 
+     ,(SELECT SHORT_DESCRIPTION FROM MCRISS.dbo.HIGH_SCHOOL_ACCESS WHERE ACCESS_CODE = hsnp.Access_Code) AS NewAccessDesc 
+     ,(SELECT Rank_Code + ' ' + Last_Name  
+    FROM  
+    MCRISS.DBO.RECRUITING_PERSON rp2 
+    INNER JOIN MCRISS.DBO.PERSON p2 on p2.PERSON_ID = rp2.RECRUITING_PERSON_ID 
+    WHERE p2.PERSON_ID = hsnp.Recruiter_ID )  
+    AS NewRecruiter, 
+    hs.ISPUBLIC  
+ FROM  SchoolList hs  
+ INNER JOIN MCRISS.dbo.HIGH_SCHOOL_PROFILE hsp ON hsp.SCHOOL_CODE = hs.SCHOOL_CODE 
+ INNER JOIN MCRISS.USMC.vwDecendentRecrui.ngOrgs childHS on hs.ORGANIZATION_ID = childHS.Decendent 
+ LEFT OUTER JOIN MCRISS.DBO.RECRUITING_PERSON rp on rp.RECRUITING_PERSON_ID = hsp.RECRUITER_ID  
+ LEFT OUTER JOIN MCRISS.DBO.PERSON p on p.PERSON_ID = rp.RECRUITING_PERSON_ID  
+ LEFT OUTER JOIN MCRISS.dbo.HIGH_SCHOOL_NEW_PLAN hsnp on hsp.NEW_PLAN_ID = hsnp.ID 
+ LEFT OUTER JOIN MCRISS.DBO.HIGH_SCHOOL_ACCESS hsa on hsp.Access_Code = hsa.Access_Code 
+ LEFT OUTER JOIN MCRISS.dbo.HIGH_SCHOOL_PROFILE hsp2 on hsp.SCHOOL_CODE = hsp2.SCHOOL_CODE  
+                 and hsp2.School_Year = hsp.School_Year 
+ LEFT OUTER JOIN MCRISS.dbo.HIGH_SCHOOL_APPROVED_PLAN hsap on hsp2.APPROVED_PLAN_ID = hsap.ID 
+                          
+ WHERE  
+  hsp.School_Year = @SchoolYear AND  
+  (hs.ORGANIZATION_ID = @OrgId OR childHS.Parent = @OrgId)  
+  
+ ORDER BY  
+  hs.HighSchool_Name 
+  
+END]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

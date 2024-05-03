@@ -1,0 +1,184 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_rptRecruiterProduc.onReportB]" directorySegmentName="seg_23" id="6ADCD1B4-C443-7CF2-97E4-C771BEB27FC3">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@SSN as varchar(9), 
+@AFQT as char(1), 
+@Edu as char(1), 
+@CCF as char(1), 
+@CSI as char(3), 
+@begindate as char(11), 
+@enddate as char(11) 
+ 
+AS 
+ 
+DECLARE @wherestmt varchar(450) 
+DECLARE @AFQTStmt varchar(30) 
+DECLARE @EduStmt varchar(130) 
+DECLARE @CCFStmt varchar(120) 
+DECLARE @CSIStmt varchar(200) 
+DECLARE @SSNStmt varchar(60) 
+DECLARE @fullstmt varchar(5000) 
+ 
+ 
+ 
+ 
+ 
+set @SSNstmt = ' TRec.SOCIAL_SECURITY_NUMBER = ''' + @SSN + ''' ' 
+ 
+if @AFQT = 1 
+ set @AFQTStmt =  ' AND CA.afqt_score >= 50 ' 
+else 
+ set @AFQTStmt =  ' ' 
+ 
+ 
+ 
+if @CCF = 1  
+ set @CCFStmt = ' AND (TRec.COMP_CHANGE_FLAG IS NULL OR TRec.COMP_CHANGE_FLAG = ''N'') ' 
+else 
+ set @CCFStmt = ' ' 
+ 
+ 
+ 
+if @CSI = 'C'  --' contracts, select where contract date is in period 
+begin 
+   set @CSIStmt = ' AND TRec.Contract_Begin_Date >= ''' + @BeginDate+ ''' AND TRec.Contract_begin_date <= '''  
+     + @EndDate + ''' ' 
+   --strFields = "contracts" 
+end 
+if @CSI = 'CE'  --' contracts, select where contract date exists during tour 
+begin 
+   set @CSIStmt = ' AND TRec.Contract_Begin_Date >= RP.Tour_Begin_Date ' 
+   --strFields = "contracts" 
+end 
+if @CSI = 'S'   --' shippers, select where ship date is in period 
+begin 
+   set @CSIStmt = ' AND S.Ship_Date >=  ''' + @BeginDate + ''' AND S.Ship_Date <= ''' + @EndDate + ''' ' 
+   --strFields = "shippers" 
+end 
+if @CSI = 'D'  --' Discharges, select where discharge date is in period 
+begin 
+   set @CSIStmt = ' AND TRec.Discharge_Date >=  ''' + @BeginDate + ''' AND TRec.Discharge_Date <= ''' + @EndDate + ''' ' 
+   --strFields = "discharges" 
+end 
+if @CSI = 'DE'  --' discharges of NWAs contracted 
+begin 
+   set @CSIStmt = ' AND TRec.Discharge_Date IS NOT NULL AND TRec.Contract_Begin_Date >= RP.Tour_Begin_Date ' 
+   --strFields = "discharges" 
+end 
+if @CSI = 'DD'  --' MCRDs, select where drop_date is in the period  
+begin 
+   set @CSIStmt = ' AND RT.drop_date >=  ''' + @BeginDate + ''' AND RT.drop_date <= ''' + @EndDate + ''' AND RT.drop_reason is not NULL ' 
+   --strFields = "mcrds" 
+end 
+if @CSI = 'DDE'  --' MCRDs at any .me within the tour 
+begin 
+   set @CSIStmt = ' AND RT.Drop_Date >= RP.Tour_Begin_Date AND RT.drop_reason is not NULL ' 
+   --strFields = "mcrds" 
+end 
+if @CSI = 'SE'    --' shippers, select all shippers for en.re tour. 
+begin 
+   set @CSIStmt = ' AND S.Ship_Date is not NULL AND S.Ship_Date >=  RP.Tour_Begin_Date ' 
+   --strFields = "shippers" 
+end 
+ 
+ 
+ 
+set @wherestmt = @SSNStmt + @AFQTStmt + @CCFStmt + @CSIStmt 
+ 
+ 
+set @fullstmt =  
+ 
+' 
+ 
+set nocount on 
+SELECT  P.social_security_number, P..rst_name, P.last_name, P.legal_middle_name, P.Person_ID, 
+ NWA.comp_change_.ag, NWA.Marine_candidate_id mci, nwa.recruiter_of_record_id, nwa.organiza.on_of_record_id, 
+ C1.contract_begin_date, C1.discharge_date, C1.discharge_code, C1.nwa_id, C1.term_of_enlistment, C1.component_code, C1.contract_id 
+ 
+INTO  #TempRecruitees2 
+ 
+FROM Contract C1 le. outer join NWA on C1.NWA_ID = NWA.NWA_ID  
+      right outer join Person P on P.PERSON_ID = NWA.RECRUITER_OF_RECORD_ID 
+ 
+WHERE  P.Social_Security_Number = ''' + @SSN + ''' 
+set nocount o. 
+ 
+SELECT TRec.*, 
+ CE.educa.on_code, CE.educa.on_level, school_end_date, 
+ S.ship_date, 
+ TOrg.NAME AS SHIP_TO, 
+ RP.rank_code, RP.tour_begin_date, RP.tour_end_date, 
+ RT.Drop_Reason, RT.drop_date, 
+ CA.AFQT_Score, CA.Asvab_Date, 
+ P2.Social_Security_Number SSN, P2.last_name LN, P2..rst_name FN, P2.legal_middle_name MN, 
+ RO.MCC_Code, RO.Short_Name, 
+ MC.Gender_Code, MC.marine_candidate_id,  
+ QSN.QSN_ID, QSN.MOS, 
+ DRC.discharge_reason, 
+ DRRT.discharge_reason as mcrd_reason, 
+ PA.Program_id, 
+ Prog.Program_Descrip.on 
+ 
+ 
+ 
+FROM   
+ #TempRecruitees2 TRec 
+      le. outer join QSN on TRec.CONTRACT_ID = QSN.CONTRACT_ID 
+       le. outer join Discharge_Reason DRC on TRec.DISCHARGE_CODE = DRC.DISCHARGE_CODE 
+      le. outer join Shipper S on  TRec.CONTRACT_ID = S.CONTRACT_ID 
+      le. outer join Recruit_Training RT on S.SHIP_ID = RT.SHIP_ID 
+      le. outer join Discharge_Reason DRRT on RT.DROP_REASON = DRRT.DISCHARGE_CODE 
+      le. outer join Training_Organiza.on TOrg on S.TRAINING_ORGANIZATION_ID = TOrg.TRAINING_ORGANIZATION_ID 
+      le. outer join Person P2 on TRec.mci = P2.PERSON_ID 
+      le. outer join Recrui.ng_Person RP on TRec.RECRUITER_OF_RECORD_ID = RP.RECRUITING_PERSON_ID 
+      le. outer join Recrui.ng_Organiza.on RO on TRec.ORGANIZATION_OF_RECORD_ID = RO.ORGANIZATION_ID 
+      le. outer join Candidate_ASVAB CA on TRec.mci = CA.MARINE_CANDIDATE_ID 
+      le. outer join Marine_Candidate MC on TRec.mci = MC.MARINE_CANDIDATE_ID 
+      le. outer join Candidate_Educa.on CE on MC.MARINE_CANDIDATE_ID = CE.MARINE_CANDIDATE_ID 
+      le. outer join Program_availability PA on TRec.Contract_ID = PA.Contract_ID 
+      le. outer join Program Prog on PA.Program_id = Prog.Program_ID 
+--      le. outer join Candidate_Educa.on CE on NWA.MARINE_CANDIDATE_ID = CE.MARINE_CANDIDATE_ID 
+ 
+ 
+ 
+ 
+WHERE  ( 
+ 
+  ' + @wherestmt + '  
+ 
+ AND  CE.rowguid = (select top 1 ce1.rowguid from candidate_educa.on ce1 
+    where ce1.marine_candidate_id = ce.marine_candidate_id order by ce1.educa.on_level desc) 
+   
+ AND   ((NOT EXISTS 
+          ( 
+   SELECT  1 
+                 FROM    contract C2 
+                 WHERE   C2.nwa_id = Trec.nwa_id AND discharge_code = ''ZKC'' AND C2.CONTRACT_ID < Trec.CONTRACT_ID))  
+    AND ((Trec.DISCHARGE_CODE <> ''ZKC'') OR (Trec.DISCHARGE_CODE IS NULL))) 
+ 
+  -- get asvab record with the latest date 
+ AND (CA.ROWGUID =( 
+   SELECT  top 1 rowguid  
+   FROM  candidate_asvab CA1 
+   WHERE  CA1.marine_candidate_id = CA.marine_candidate_id and CA1.asvab_date =  
+    ( 
+    SELECT  max(CA2.asvab_date)  
+    FROM candidate_asvab CA2  
+    WHERE CA2.marine_candidate_id = CA1.marine_candidate_id) 
+        ) 
+  ) 
+ 
+ )   
+ 
+ 
+ORDER BY SSN' 
+ 
+ 
+ 
+exec (@fullstmt)]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

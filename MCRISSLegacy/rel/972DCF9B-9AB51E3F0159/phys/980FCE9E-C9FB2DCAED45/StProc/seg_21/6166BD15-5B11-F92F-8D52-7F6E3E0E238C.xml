@@ -1,0 +1,21 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetSSADiscrepancyDescrip.on]" directorySegmentName="seg_21" id="6166BD15-5B11-F92F-8D52-7F6E3E0E238C">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@SSADiscrepancyCode   varchar(2), 
+ @SSADiscrepancyDescrip.on  varchar(50) OUTPUT 
+AS 
+ 
+SELECT  
+ @SSADiscrepancyDescrip.on = SSA_DISCREPANCY_DESCRIPTION  
+FROM  
+ SSA_DISCREPANCY  
+WHERE  
+ SSA_DISCREPANCY_CODE = @SSADiscrepancyCode 
+ 
+SELECT @SSADiscrepancyDescrip.on = COALESCE(@SSADiscrepancyDescrip.on, SPACE(0))]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

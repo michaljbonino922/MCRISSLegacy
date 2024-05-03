@@ -1,0 +1,20 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetMIContractRegionCMCValue]" directorySegmentName="seg_6" id="24740F45-F64A-CAA9-5966-687E380E06C1">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+   @FiscalYear        INT, 
+   @Region            INT, 
+   @RegCMCValue       INT OUTPUT) 
+AS 
+   SELECT @RegCMCValue = MISSION_VALUE 
+     FROM MCRISS.dbo.CONTRACTING_MISSION_PLAN_MICONTRACT 
+    WHERE     FISCAL_YEAR = @FiscalYear 
+          AND ORGANIZATION_ID = @Region 
+          AND MONTH_CODE = 0 
+          AND CONTRACTING_MISSION_TYPE = 'CMC']]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

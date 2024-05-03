@@ -1,0 +1,84 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetNumSchoolContracts]" directorySegmentName="seg_6" id="47AD7613-0146-F6A7-17CA-643CE2EE403B">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@SchoolCode int, 
+    @FiscalYear int    
+AS 
+SET NOCOUNT ON 
+ 
+BEGIN 
+ 
+-- per ECP 2218 only count one contract per personID unless they are from a di.erent org or are from reservist 
+ 
+--retreive non-reservist 
+ Select N.NWA_ID 
+ INTO #Contracts 
+ from OFFICER_CONTRACT OFC  
+    inner join NWA N ON N.NWA_ID = OFC.NWA_ID 
+    inner join [CANDIDATE_STATUS] CS ON CS.NWA_ID = N.NWA_ID 
+    inner join CANDIDATE_EDUCATION CE ON N.MARINE_CANDIDATE_ID = CE.MARINE_CANDIDATE_ID  AND CE.EDUCATIONTYPE = 1 
+    inner join HIGH_SCHOOL HS ON HS.SCHOOL_CODE = CE.SCHOOL_CODE  
+    inner join OCS O ON O.NWA_ID = N.NWA_ID 
+    inner join OCS_CLASS OC ON OC.CLASS_ID = O.OCS_CLASS_ID  
+   where DISCHARGE_CODE is null AND CE.SCHOOL_CODE = @SchoolCode AND OC.FISCAL_YEAR = @FiscalYear    
+   AND CS.STATUS_CODE = 'B'  
+   AND N.OFFICER_COMPONENT_CODE IS NOT NULL AND N.OFFICER_COMPONENT_CODE IN ('0A', '0B', '0C', '0E', '1A', '1B', '1C', '1H')  
+   AND OFC.contract_begin_Date =  
+         (SELECT MIN(contract_begin_Date) 
+       FROM MCRISS.dbo.OFFICER_CONTRACT OC 
+       INNER JOIN NWA NW ON NW.NWA_ID = OC.NWA_ID  
+       INNER JOIN OCS O ON O.NWA_ID = NW.NWA_ID 
+       INNER JOIN OCS_CLASS OCC ON OCC.CLASS_ID = O.OCS_CLASS_ID 
+       INNER JOIN CANDIDATE_EDUCATION CE ON NW.MARINE_CANDIDATE_ID = CE.MARINE_CANDIDATE_ID  AND CE.EDUCATIONTYPE = 1     
+       INNER JOIN MARINE_CANDIDATE M ON  M.MARINE_CANDIDATE_ID = NW.MARINE_CANDIDATE_ID 
+       WHERE M.MARINE_CANDIDATE_ID = CE.MARINE_CANDIDATE_ID 
+       AND NW.ORGANIZATION_OF_RECORD_ID = N.ORGANIZATION_OF_RECORD_ID 
+       AND NW.OFFICER_COMPONENT_CODE IS NOT NULL AND NW.OFFICER_COMPONENT_CODE IN ('0A', '0B', '0C', '0E', '1A', '1B', '1C', '1H') 
+       AND DISCHARGE_CODE is null AND CE.SCHOOL_CODE = @SchoolCode AND OCC.FISCAL_YEAR = @FiscalYear    
+       AND CS.STATUS_CODE = 'B' ) 
+ 
+--retreive reservist        
+ INSERT INTO #Contracts        
+ Select N.NWA_ID 
+ from OFFICER_CONTRACT OFC  
+    inner join NWA N ON N.NWA_ID = OFC.NWA_ID 
+    inner join [CANDIDATE_STATUS] CS ON CS.NWA_ID = N.NWA_ID 
+    inner join CANDIDATE_EDUCATION CE ON N.MARINE_CANDIDATE_ID = CE.MARINE_CANDIDATE_ID  AND CE.EDUCATIONTYPE = 1 
+    inner join HIGH_SCHOOL HS ON HS.SCHOOL_CODE = CE.SCHOOL_CODE  
+    inner join OCS O ON O.NWA_ID = N.NWA_ID 
+    inner join OCS_CLASS OC ON OC.CLASS_ID = O.OCS_CLASS_ID  
+   where DISCHARGE_CODE is null AND CE.SCHOOL_CODE = @SchoolCode AND OC.FISCAL_YEAR = @FiscalYear    
+   AND CS.STATUS_CODE = 'B'  
+   AND N.OFFICER_COMPONENT_CODE IS NOT NULL AND N.OFFICER_COMPONENT_CODE IN ('1E')  
+   AND OFC.contract_begin_Date =  
+         (SELECT MIN(contract_begin_Date) 
+       FROM MCRISS.dbo.OFFICER_CONTRACT OC 
+       INNER JOIN NWA NW ON NW.NWA_ID = OC.NWA_ID  
+       INNER JOIN OCS O ON O.NWA_ID = NW.NWA_ID 
+       INNER JOIN OCS_CLASS OCC ON OCC.CLASS_ID = O.OCS_CLASS_ID 
+       INNER JOIN CANDIDATE_EDUCATION CE ON NW.MARINE_CANDIDATE_ID = CE.MARINE_CANDIDATE_ID  AND CE.EDUCATIONTYPE = 1     
+       INNER JOIN MARINE_CANDIDATE M ON  M.MARINE_CANDIDATE_ID = NW.MARINE_CANDIDATE_ID 
+       WHERE M.MARINE_CANDIDATE_ID = CE.MARINE_CANDIDATE_ID 
+       AND NW.ORGANIZATION_OF_RECORD_ID = N.ORGANIZATION_OF_RECORD_ID 
+       AND NW.OFFICER_COMPONENT_CODE IS NOT NULL AND NW.OFFICER_COMPONENT_CODE = '1E' 
+       AND DISCHARGE_CODE is null AND CE.SCHOOL_CODE = @SchoolCode AND OCC.FISCAL_YEAR = @FiscalYear    
+       AND CS.STATUS_CODE = 'B' ) 
+ 
+ Select COUNT(*) NumContracts  
+ from #Contracts  
+  
+ drop table #Contracts 
+    
+END 
+ 
+ 
+ 
+  
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

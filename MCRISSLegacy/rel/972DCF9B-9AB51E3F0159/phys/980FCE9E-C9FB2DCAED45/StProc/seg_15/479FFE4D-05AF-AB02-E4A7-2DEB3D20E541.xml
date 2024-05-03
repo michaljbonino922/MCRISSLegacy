@@ -1,0 +1,64 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_DeleteOCSClassAssignment]" directorySegmentName="seg_15" id="479FFE4D-05AF-AB02-E4A7-2DEB3D20E541">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@OCSID    int, 
+ @UserLogin  varchar(15)  
+AS 
+ 
+SET NOCOUNT ON 
+ 
+DECLARE @DBID    int 
+DECLARE @DBNAME   sysname 
+DECLARE @ErrMsg   varchar(100) 
+DECLARE @DisplayRecord  char(1) 
+ 
+--- INITIALIZE VARIABLES 
+SELECT 
+ @DBID   = DB_ID(),  
+ @DBNAME  = DB_NAME() 
+ 
+--- CHECK THE DISPLAY RECORD FLAG 
+SELECT 
+ @DisplayRecord = DISPLAY_RECORD 
+FROM 
+ OCS 
+WHERE 
+ OCS_ID = @OCSID  
+ 
+ 
+IF @DisplayRecord = 'Y' 
+BEGIN 
+ SET @ErrMsg = 'An error occurred dele.ng the OCS class assignment for this applicant.' 
+ RAISERROR (@ErrMsg, 16, 1, @DBID, @DBNAME) 
+ RETURN 
+END 
+ 
+ 
+IF EXISTS (SELECT 1 FROM OCS WHERE OCS_ID = @OCSID AND DISPLAY_RECORD = 'N') 
+BEGIN 
+ --- DELETE THE RECORD 
+ DELETE FROM OCS WHERE OCS_ID = @OCSID AND DISPLAY_RECORD = 'N' 
+ 
+ IF @@ROWCOUNT != 1 
+ BEGIN 
+  SET @ErrMsg = 'An error occurred dele.ng the OCS class assignment for this applicant.' 
+  RAISERROR (@ErrMsg, 16, 2, @DBID, @DBNAME) 
+  RETURN 
+ END 
+END  
+ 
+ 
+IF @@ERROR != 0  
+BEGIN 
+ SET @ErrMsg = 'An error occurred dele.ng the OCS class assignment for this applicant.' 
+ RAISERROR (@ErrMsg, 16, 3, @DBID, @DBNAME) 
+ RETURN 
+END 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

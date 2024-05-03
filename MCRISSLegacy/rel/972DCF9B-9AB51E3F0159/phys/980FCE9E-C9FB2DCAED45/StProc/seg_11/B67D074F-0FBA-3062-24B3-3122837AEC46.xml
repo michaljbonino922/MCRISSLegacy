@@ -1,0 +1,107 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUpdateCollegeVisitContact]" directorySegmentName="seg_11" id="B67D074F-0FBA-3062-24B3-3122837AEC46">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@CollegeVisitContactId  int, 
+     @CollegeVisitContactTypeId smallint,  
+     @LastName     varchar(50), 
+     @FirstName     varchar(50), 
+     @TelePhoneNumber   varchar(25),  
+     @LastUpdateUserId   int, 
+                 @Organiza.onId    int, 
+                 @SchoolCode     int, 
+     @FiscalYear     int, 
+                 @CellPhoneNumber   varchar(25), 
+     @EmailAddress    varchar(40) 
+ 
+AS 
+BEGIN 
+ 
+-- STEP 1: Start the transac.on 
+BEGIN TRANSACTION 
+ 
+-- STEP 2 & 3: Issue the data change statement(s), checking @@ERROR a.er each statement 
+IF EXISTS(SELECT CollegeVisitContactId FROM CollegeVisitContact WHERE CollegeVisitContactId = @CollegeVisitContactId) 
+BEGIN 
+ -- if @intCount > 0, then the Employee already exists.  UPDATE. 
+ UPDATE 
+   [USMC].[CollegeVisitContact] 
+  SET  
+   CollegeVisitContactTypeId = @CollegeVisitContactTypeId, 
+   LastName  = @LastName,    
+   FirstName = @FirstName,   
+   TelePhoneNumber = @TelePhoneNumber,    
+   LastUpdatedDate = GETDATE(), 
+   LastUpdateUserId= @LastUpdateUserId, 
+   Organiza.onId=   @Organiza.onId, 
+   School_Code = @SchoolCode, 
+   FiscalYear = @FiscalYear, 
+   CellPhoneNumber = @CellPhoneNumber, 
+   EmailAddress = @EmailAddress 
+  WHERE  
+   CollegeVisitContactId = @CollegeVisitContactId 
+END 
+ELSE 
+BEGIN 
+ -- if @intCount = 0, then the Employee does not exist.  INSERT. 
+ 
+ INSERT INTO [USMC].CollegeVisitContact ( 
+       CollegeVisitContactTypeId, 
+       LastName, 
+       FirstName, 
+       TelePhoneNumber,   
+       LastUpdatedDate, 
+       LastUpdateUserId, 
+       Organiza.onId, 
+       School_Code, 
+       FiscalYear, 
+       CellPhoneNumber, 
+       EmailAddress) 
+     VALUES ( 
+       @CollegeVisitContactTypeId, 
+       @LastName, 
+       @FirstName, 
+       @TelePhoneNumber,        
+       GETDATE(), 
+       @LastUpdateUserId, 
+       @Organiza.onId, 
+       @SchoolCode, 
+       @FiscalYear, 
+       @CellPhoneNumber, 
+       @EmailAddress) 
+ 
+END 
+ 
+-- Rollback the transac.on if there were any errors 
+IF @@ERROR <> 0 
+ BEGIN 
+    -- Rollback the transac.on 
+    ROLLBACK TRANSACTION 
+ 
+    -- Raise an error and return 
+    RAISERROR ('Error occurred while performing the change.', 16, 1) 
+    RETURN 
+ END 
+ 
+-- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+IF @@ROWCOUNT > 1 
+BEGIN 
+    -- Rollback the transac.on 
+    ROLLBACK TRANSACTION 
+ 
+    -- Raise an error and return 
+    RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+    RETURN 
+END 
+  
+-- STEP 4: If we reach this point, the commands completed successfully 
+--         Commit the transac.on.... 
+COMMIT TRANSACTION 
+ 
+  
+END]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

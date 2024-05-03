@@ -1,0 +1,80 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_DBAInsertCandidateASVABEntry]" directorySegmentName="seg_14" id="D4841611-AC1E-77FB-DDD5-50F97B4E0F7E">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@marine_candidate_id int, 
+@version varchar(3), 
+@asvab_date date.me, 
+@GS_SUBTEST varchar(2), 
+@AR_SUBTEST varchar(2), 
+@WK_SUBTEST varchar(2), 
+@PC_SUBTEST varchar(2), 
+@AS_SUBTEST varchar(2), 
+@MC_SUBTEST varchar(2), 
+@NO_SUBTEST varchar(2), 
+@CS_SUBTEST varchar(2), 
+@MK_SUBTEST varchar(2), 
+@EI_SUBTEST varchar(2), 
+@VE_SUBTEST varchar(2), 
+@GT_SCORE int, 
+@EL_SCORE int, 
+@CL_SCORE int, 
+@MM_SCORE int, 
+@AFQT_SCORE int, 
+@user_login varchar(15) 
+ 
+ AS 
+ 
+insert into candidate_asvab  
+( 
+marine_candidate_id, 
+version, 
+asvab_date, 
+GS_SUBTEST, 
+AR_SUBTEST, 
+WK_SUBTEST, 
+PC_SUBTEST, 
+AS_SUBTEST, 
+MC_SUBTEST, 
+NO_SUBTEST, 
+CS_SUBTEST, 
+MK_SUBTEST, 
+EI_SUBTEST, 
+VE_SUBTEST, 
+GT_SCORE, 
+EL_SCORE, 
+CL_SCORE, 
+MM_SCORE, 
+AFQT_SCORE, 
+user_login, 
+update_date 
+) values 
+( 
+@marine_candidate_id, 
+@version, 
+@asvab_date, 
+@GS_SUBTEST, 
+@AR_SUBTEST, 
+@WK_SUBTEST, 
+@PC_SUBTEST, 
+@AS_SUBTEST, 
+@MC_SUBTEST, 
+@NO_SUBTEST, 
+@CS_SUBTEST, 
+@MK_SUBTEST, 
+@EI_SUBTEST, 
+@VE_SUBTEST, 
+@GT_SCORE, 
+@EL_SCORE, 
+@CL_SCORE, 
+@MM_SCORE, 
+@AFQT_SCORE, 
+@user_login, 
+getdate()--update_date 
+ 
+)]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

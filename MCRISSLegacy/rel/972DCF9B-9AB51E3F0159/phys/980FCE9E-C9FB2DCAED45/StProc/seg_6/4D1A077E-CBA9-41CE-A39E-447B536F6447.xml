@@ -1,0 +1,25 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetMIContract]" directorySegmentName="seg_6" id="4D1A077E-CBA9-41CE-A39E-447B536F6447">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@NwaId   int 
+AS 
+BEGIN 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+SELECT NWA_ID, 
+       CONTRACT_BEGIN_DATE, 
+       COMPONENT_CODE, 
+       PROJECTED_SHIP_DATE, 
+       PROJECTED_TRAINING_ORG_ID, 
+       TERM_OF_ENLISTMENT 
+  FROM [MCRISS].[dbo].[MIContract] 
+ WHERE NWA_ID = @NwaId 
+ 
+END]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

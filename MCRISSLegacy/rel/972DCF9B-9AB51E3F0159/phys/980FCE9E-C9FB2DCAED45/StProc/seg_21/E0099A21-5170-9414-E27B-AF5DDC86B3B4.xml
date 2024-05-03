@@ -1,0 +1,26 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetTLogBySSN]" directorySegmentName="seg_21" id="E0099A21-5170-9414-E27B-AF5DDC86B3B4">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@SSN    char(9), 
+ @Transac.onDate date.me = NULL 
+AS 
+ 
+SELECT  
+ T.* 
+FROM  
+ TRANS_LOG T INNER JOIN NWA N ON T.NWA_ID = N.NWA_ID 
+ INNER JOIN PERSON P ON N.MARINE_CANDIDATE_ID = P.PERSON_ID 
+WHERE 
+ P.SOCIAL_SECURITY_NUMBER = @SSN AND 
+ ( 
+ (@Transac.onDate IS NOT NULL AND DATEDIFF(DAY, T.TRANSACTION_DATE, @Transac.onDate) = 0) OR 
+ (@Transac.onDate IS NULL AND DATEDIFF(DAY, T.TRANSACTION_DATE, GETDATE()) >= 0) 
+ ) 
+ORDER BY 
+ T.TRANSACTION_DATE DESC]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

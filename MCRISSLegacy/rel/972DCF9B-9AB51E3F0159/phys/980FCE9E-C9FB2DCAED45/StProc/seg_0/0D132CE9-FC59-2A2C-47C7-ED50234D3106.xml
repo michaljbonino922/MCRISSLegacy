@@ -1,0 +1,118 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[MigrateUser]" directorySegmentName="seg_0" id="0D132CE9-FC59-2A2C-47C7-ED50234D3106">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:39:44 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @Username varchar(50), 
+ @strADGroup varchar(50) 
+) 
+AS 
+ 
+DECLARE @strUsername varchar(55) 
+SET @strUsername = 'VAR\' + @Username 
+ 
+DECLARE @intUserTypeID int 
+SET @intUserTypeID = 
+CASE 
+WHEN (@strADGroup = 'region_mktg') THEN 1 
+WHEN (@strADGroup = 'mcrc_mktg') THEN 1 
+WHEN (@strADGroup = 'dist_mktg') THEN 1 
+WHEN (@strADGroup = 'district_aop') THEN 2 
+WHEN (@strADGroup = 'district_chief') THEN 1 
+WHEN (@strADGroup = 'district_contactchief_readonly') THEN 1 
+WHEN (@strADGroup = 'district_ops') THEN 1 
+WHEN (@strADGroup = 'district_readonly') THEN 1 
+WHEN (@strADGroup = 'hqmc_ra') THEN 1 
+WHEN (@strADGroup = 'mcrc_aop') THEN 2 
+WHEN (@strADGroup = 'mcrc_contactchief_readonly') THEN 1 
+WHEN (@strADGroup = 'nrotc_aop') THEN 5 
+WHEN (@strADGroup = 'nrotc_readonly') THEN 5 
+WHEN (@strADGroup = 'mcrc_ops') THEN 1 
+WHEN (@strADGroup = 'mcrc_readonly') THEN 1 
+WHEN (@strADGroup = 'mcriss_gadmin') THEN 1 
+WHEN (@strADGroup = 'mcriss_superops') THEN 1 
+WHEN (@strADGroup = 'meps') THEN 3 
+WHEN (@strADGroup = 'ncoic_readonly') THEN 1 
+WHEN (@strADGroup = 'ocs') THEN 2 
+WHEN (@strADGroup = 'ocs_aop') THEN 2 
+WHEN (@strADGroup = 'ocs_ops') THEN 2 
+WHEN (@strADGroup = 'ocs_readonly') THEN 2 
+WHEN (@strADGroup = 'oss_ops') THEN 2 
+WHEN (@strADGroup = 'recruiter_readonly') THEN 1 
+WHEN (@strADGroup = 'region_aop') THEN 2 
+WHEN (@strADGroup = 'region_ops') THEN 1 
+WHEN (@strADGroup = 'region_readonly') THEN 1 
+WHEN (@strADGroup = 'rs_ops') THEN 1 
+WHEN (@strADGroup = 'rs_readonly') THEN 1 
+WHEN (@strADGroup = 'rs_superops') THEN 1 
+WHEN (@strADGroup = 'rs_xo') THEN 1 
+END 
+ 
+DECLARE @intRoleID int 
+SET @intRoleID = 
+CASE 
+WHEN (@strADGroup = 'region_mktg') THEN 7 
+WHEN (@strADGroup = 'mcrc_mktg') THEN 3 
+WHEN (@strADGroup = 'dist_mktg') THEN 13 
+WHEN (@strADGroup = 'district_aop') THEN 11 
+WHEN (@strADGroup = 'district_chief') THEN 12 
+WHEN (@strADGroup = 'district_contactchief_readonly') THEN 12 
+WHEN (@strADGroup = 'district_ops') THEN 14 
+WHEN (@strADGroup = 'district_readonly') THEN 15 
+WHEN (@strADGroup = 'hqmc_ra') THEN 31 
+WHEN (@strADGroup = 'mcrc_aop') THEN 1 
+WHEN (@strADGroup = 'mcrc_contactchief_readonly') THEN 3 
+WHEN (@strADGroup = 'nrotc_aop') THEN 29 
+WHEN (@strADGroup = 'nrotc_readonly') THEN 30 
+WHEN (@strADGroup = 'mcrc_ops') THEN 4 
+WHEN (@strADGroup = 'mcrc_readonly') THEN 5 
+WHEN (@strADGroup = 'mcriss_gadmin') THEN 16 
+WHEN (@strADGroup = 'mcriss_superops') THEN 17 
+WHEN (@strADGroup = 'meps') THEN 26 
+WHEN (@strADGroup = 'ncoic_readonly') THEN 18 
+WHEN (@strADGroup = 'ocs') THEN 28 
+WHEN (@strADGroup = 'ocs_aop') THEN 28 
+WHEN (@strADGroup = 'ocs_ops') THEN 28 
+WHEN (@strADGroup = 'ocs_readonly') THEN 27 
+WHEN (@strADGroup = 'oss_ops') THEN 24 
+WHEN (@strADGroup = 'recruiter_readonly') THEN 19 
+WHEN (@strADGroup = 'region_aop') THEN 6 
+WHEN (@strADGroup = 'region_ops') THEN 8 
+WHEN (@strADGroup = 'region_readonly') THEN 9 
+WHEN (@strADGroup = 'rs_ops') THEN 20 
+WHEN (@strADGroup = 'rs_readonly') THEN 21 
+WHEN (@strADGroup = 'rs_superops') THEN 22 
+WHEN (@strADGroup = 'rs_xo') THEN 23 
+END 
+ 
+ 
+ 
+DECLARE @OrgUnitID int 
+SET @OrgUnitID = (SELECT MAX(COALESCE(ro.OrgUnitID, mo.OrgUnitID, 0)) 
+      FROM MCRISS.dbo.USER_LIST ul 
+       LEFT JOIN MCRISS.dbo.RECRUITING_ORGANIZATION ro ON ul.MCC_CODE = ro.MCC_CODE 
+       LEFT JOIN MCRISS.dbo.MEPS_ORGANIZATION_LOOKUP mo ON ul.MCC_CODE = mo.MCC_CODE 
+      WHERE ul.[USER_ID] = @Username) 
+if @OrgUnitID is not null 
+begin 
+ 
+IF NOT EXISTS (SELECT 1 FROM [UserMgmt].[dbo].[User] WHERE [Username] = @strUsername) 
+BEGIN 
+ INSERT INTO [UserMgmt].[dbo].[User]  
+ ([Username],[UserTypeID], [Sta.on_OrgUnitID],[IsAc.ve],[LastEditBy],[LastEditDate]) 
+ VALUES(@strUsername, @intUserTypeID, @OrgUnitID, 1, 'MCRISS v4.0', GetDate()) 
+END 
+ 
+DECLARE @UserID int 
+SET @UserID = (SELECT ID FROM [UserMgmt].[dbo].[User] WHERE [Username] = @strUsername) 
+ 
+EXEC [UserMgmt].[dbo].[AssignPost] @UserID, @intRoleID, @OrgUnitID 
+ 
+end 
+else 
+ PRINT 'user: ' + CONVERT(varchar(100), @strUsername)]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>30378C7E-748C-F803-F9A3-93DBFA86C9A7</database>
+</StoredProcedureSqlServerv2k5>

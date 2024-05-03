@@ -1,0 +1,35 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetSasvabTestData]" directorySegmentName="seg_0" id="2532CF70-7A4D-B482-1074-402DB7E201DE">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:22 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @MepsID varchar(3), 
+ @SortOrder varchar(6) 
+) 
+AS 
+ 
+IF(@SortOrder = 'SCHOOL') 
+ BEGIN 
+  SELECT DISTINCT  
+   SCHOOL_CODE, 
+   SCHOOL_NAME,  
+   TEST_DATE  
+  FROM SCORES  
+  WHERE MEPS_ID = @MepsID 
+  ORDER BY SCHOOL_NAME 
+ END 
+ELSE 
+ BEGIN 
+  SELECT DISTINCT  
+   SCHOOL_CODE, 
+   SCHOOL_NAME,  
+   TEST_DATE  
+  FROM SCORES  
+  WHERE MEPS_ID = @MepsID 
+  ORDER BY TEST_DATE DESC 
+ END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>41314BC2-D959-09B0-BF6C-D1F7CEED59CA</database>
+</StoredProcedureSqlServerv2k5>

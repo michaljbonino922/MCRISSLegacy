@@ -1,0 +1,54 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetWaiver]" directorySegmentName="seg_11" id="9A1AC938-B8CA-B20B-C03E-BCA8BAC15395">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:37 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @WaiverID uniqueiden..er 
+) 
+AS 
+ 
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+SELECT w.WaiverID, 
+    w.LeadID, 
+    w.WaiverStatusID, 
+    w.WaiverCategoryID, 
+    w.WaiverTypeID, 
+    w.WaiverLevelID, 
+    w.ControlNumber, 
+ recr.WaiverReviewID as RecWaiverReviewId, 
+ recr.ReviewerID as RecReviewerId, 
+ recr.ReviewDate as RecReviewDate, 
+ recr.WaiverReviewAc.onID as RecAc.onId, 
+ rssr.WaiverReviewID as RssWaiverReviewId, 
+ rssr.ReviewerID as RssReviewerId, 
+ rssr.ReviewDate as RssReviewDate, 
+ rssr.WaiverReviewAc.onID as RssAc.onId, 
+  rsr.WaiverReviewID as RsWaiverReviewId, 
+  rsr.ReviewerID as RsReviewerId, 
+  rsr.ReviewDate as RsReviewDate, 
+  rsr.WaiverReviewAc.onID as RsAc.onId, 
+   rr.WaiverReviewID as RegionWaiverReviewId, 
+   rr.ReviewerID as RegionReviewerId, 
+   rr.ReviewDate as RegionReviewDate, 
+   rr.WaiverReviewAc.onID as RegionAc.onId, 
+   mcrcr.WaiverReviewID as McrcWaiverReviewId, 
+   mcrcr.ReviewerID as McrcReviewerId, 
+   mcrcr.ReviewDate as McrcReviewDate, 
+   mcrcr.WaiverReviewAc.onID as McrcAc.onId, 
+    w.TFRSNumber, 
+    w.RequestedBy_UserID 
+FROM   
+ [dbo].[Waiver] w 
+ LEFT OUTER JOIN [WaiverReview] recr on recr.WaiverReviewId = w.RecruiterWaiverReviewID 
+ LEFT OUTER JOIN [WaiverReview] rssr on rssr.WaiverReviewId = w.RssWaiverReviewID 
+ LEFT OUTER JOIN [WaiverReview] rsr on rsr.WaiverReviewId = w.RsWaiverReviewID 
+ LEFT OUTER JOIN [WaiverReview] rr on rr.WaiverReviewId = w.RegionWaiverReviewID 
+ LEFT OUTER JOIN [WaiverReview] mcrcr on mcrcr.WaiverReviewId = w.McrcWaiverReviewID 
+WHERE  
+ [WaiverID] = @WaiverID]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+</StoredProcedureSqlServerv2k5>

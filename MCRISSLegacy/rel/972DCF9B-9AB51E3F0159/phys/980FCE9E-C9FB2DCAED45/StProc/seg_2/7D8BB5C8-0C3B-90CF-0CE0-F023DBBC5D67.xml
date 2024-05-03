@@ -1,0 +1,80 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetDataSheetDischargeDetail]" directorySegmentName="seg_2" id="7D8BB5C8-0C3B-90CF-0CE0-F023DBBC5D67">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@OrgID int , 
+ @FiscalYear int  
+ 
+AS 
+ 
+BEGIN 
+  
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+ DECLARE @StartDate DateTime 
+ DECLARE @EndDate DateTime 
+ 
+ SET @StartDate =  CAST( CONVERT(varchar(4), @FiscalYear-1) + '-10-1' as Date.me); 
+ SET @EndDate =    CAST( CONVERT(varchar(4), @FiscalYear)   + '-10-1' as Date.me); 
+ 
+ SELECT 
+  p.LAST_NAME, 
+  p.FIRST_NAME, 
+  p.LEGAL_MIDDLE_NAME, 
+  cd.DISCH_REASON AS DISCHARGE_REASON, 
+  rp.RANK_CODE, 
+  (SELECT LAST_NAME + ', ' + FIRST_NAME  
+   FROM MCRISS.dbo.PERSON 
+   WHERE PERSON_ID = rp.RECRUITING_PERSON_ID) as recruiterName, 
+  cd.COMPONENT_CODE, 
+  cd.CONTRACT_ID AS ID,  
+  cd.DISCH_DATE, 
+  'DEP DISCHARGE' AS DISPOSITION_DESCRIPTION, 
+  n.rowguid AS NwaId, 
+  (SELECT ProspectId FROM PROSPECTING.USMC.Prospect WHERE 
+   NwaId = n.rowguid) AS ProspectId 
+ FROM        
+  MCRISS_OLAP.dbo.CONTRACT_DISCHARGES cd   
+  INNER JOIN MCRISS.dbo.CONTRACT c ON c.CONTRACT_ID = cd.CONTRACT_ID 
+  INNER JOIN MCRISS.dbo.NWA n ON n.NWA_ID = c.NWA_ID 
+  INNER JOIN MCRISS.dbo.Person p ON p.PERSON_ID = n.MARINE_CANDIDATE_ID 
+  INNER JOIN MCRISS.dbo.RECRUITING_PERSON rp ON n.RECRUITER_OF_RECORD_ID = rp.RECRUITING_PERSON_ID 
+           
+ WHERE 
+  (cd.DISCH_DATE >= @StartDate AND cd.DISCH_DATE < @EndDate)  
+  AND cd.RSS_ORG_ID = @OrgID 
+ 
+ UNION 
+ 
+ SELECT 
+  p.LAST_NAME, 
+  p.FIRST_NAME, 
+  p.LEGAL_MIDDLE_NAME, 
+  sd.DISCH_REASON AS DISCHARGE_REASON, 
+  rp.RANK_CODE, 
+  (SELECT LAST_NAME + ', ' + FIRST_NAME  
+   FROM MCRISS.dbo.PERSON 
+   WHERE PERSON_ID = rp.RECRUITING_PERSON_ID) as recruiterName, 
+  sd.COMPONENT_CODE, 
+  sd.SHIPPER_ID AS ID,  
+  sd.DISCH_DATE, 
+  'MCRD DISCHARGE' AS DISPOSITION_DESCRIPTION, 
+  n.rowguid AS NwaId, 
+  (SELECT ProspectId FROM PROSPECTING.USMC.Prospect WHERE 
+   NwaId = n.rowguid) AS ProspectId 
+ FROM 
+  MCRISS_OLAP.dbo.SHIPPER_DISCHARGES sd 
+  INNER JOIN MCRISS.dbo.Person p ON p.PERSON_ID = sd.PERSON_ID 
+  INNER JOIN MCRISS.dbo.NWA n ON n.Marine_Candidate_Id = p.PERSON_ID 
+  INNER JOIN MCRISS.dbo.RECRUITING_PERSON rp ON n.RECRUITER_OF_RECORD_ID = rp.RECRUITING_PERSON_ID 
+            
+ WHERE 
+  (sd.DISCH_DATE >= @StartDate AND sd.DISCH_DATE < @EndDate)  
+  AND sd.RSS_ORG_ID = @OrgID 
+   
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

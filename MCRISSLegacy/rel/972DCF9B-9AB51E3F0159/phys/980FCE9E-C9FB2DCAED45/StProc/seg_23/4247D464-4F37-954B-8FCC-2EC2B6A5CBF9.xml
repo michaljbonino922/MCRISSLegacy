@@ -1,0 +1,258 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_TestAddContracts]" directorySegmentName="seg_23" id="4247D464-4F37-954B-8FCC-2EC2B6A5CBF9">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@SSNPre.x   varchar(9), 
+ @NumberToAdd  int, 
+ @ContractBeginDate  date.me, 
+ @TOE   int, 
+ @PADD   date.me, 
+ @ProjectedTrainingOrg int, 
+ @YouthProgramCode varchar(3) = NULL, 
+ @ENTNACSubmitDate date.me = NULL, 
+ @ENTNACCompleteDate date.me = NULL, 
+ @SpecialInterest varchar(15) = NULL, 
+ @DischargeDate  date.me = NULL, 
+ @DischargeCode  varchar(4) = NULL, 
+ @CatP   char(1) = NULL, 
+ @DEPExtension  int = NULL, 
+ @MEPSProcessingStatus char(1) = NULL, 
+ @UserLogin  varchar(15) = 'SA' 
+AS 
+ 
+ 
+DECLARE @DBID    int 
+DECLARE @DBNAME   nvarchar(128) 
+ 
+DECLARE @SSN    char(9) 
+DECLARE @NWAID    int 
+DECLARE @ContractID   int 
+DECLARE @ComponentCode  varchar(2) 
+DECLARE @LenSSNPre.x   int 
+ 
+DECLARE @i   int 
+DECLARE @ErrMsg   varchar(100) 
+ 
+DECLARE @Ini.alSSN   char(9) 
+DECLARE @FirstSSN  char(9) 
+DECLARE @LastSSN  char(9) 
+DECLARE @SSNMessage  varchar(100) 
+ 
+DECLARE @CandidateStatusID int 
+DECLARE @StatusType  char(1) 
+DECLARE @StatusCode  char(1) 
+DECLARE @Disposi.onCode char(1) 
+ 
+DECLARE @ScheduleID  int 
+ 
+SET NOCOUNT ON  
+ 
+SELECT  
+ @DBID  = DB_ID(),  
+ @DBNAME = DB_NAME() 
+ 
+ 
+--- MAKE SURE THE NUMBER OF PEOPLE TO BE CONTRACTED IS BETWEEN 1 AND 9999 
+IF @NumberToAdd NOT BETWEEN 1 AND 9999 
+BEGIN 
+ RAISERROR ('You must enter a number between 1 and 9999.', 16, 1, @DBID, @DBNAME) 
+ RETURN  
+END 
+ 
+ 
+--- MAKE SURE THE SSN PREFIX IS 5 CHARACTERS LONG 
+SET @LenSSNPre.x = LEN(@SSNPre.x) 
+ 
+--- IF THE SSN PREFIX IS LESS THAN 5 CHARACTERS LONG, APPEND 0's UNTIL IT'S 5 CHARACTERS LONG 
+IF @LenSSNPre.x < 5 
+BEGIN 
+ SET @SSNPre.x = RTRIM(@SSNPre.x) + REPLICATE('0', 5 - LEN(@SSNPre.x)) 
+END 
+ 
+--- INITIALIZE THE COUNTER 
+SET @i = 1 
+ 
+ 
+SET @Ini.alSSN = CASE  
+   WHEN LEN(@SSNPre.x) = 9 THEN @SSNPre.x 
+   WHEN EXISTS (SELECT 1 FROM PERSON P WHERE P.SOCIAL_SECURITY_NUMBER LIKE @SSNPre.x + '%') 
+    THEN CONVERT(CHAR(9), CONVERT(INT, (SELECT MAX(P.SOCIAL_SECURITY_NUMBER) FROM PERSON P  
+         WHERE P.SOCIAL_SECURITY_NUMBER LIKE @SSNPre.x + '%') + 1)) 
+   ELSE @SSNPre.x + '0000' 
+   END 
+ 
+ 
+--- MAKE SURE WE DON'T LOSE ANY LEADING 0's 
+IF LEN(@Ini.alSSN) < 9 
+BEGIN 
+ SET @Ini.alSSN = REPLICATE('0', 9 - LEN(@Ini.alSSN)) + @Ini.alSSN 
+END 
+ 
+ 
+WHILE @i <= @NumberToAdd 
+BEGIN 
+ --- DEFINE THE SSN FOR THE PERSON TO BE CONTRACTED 
+ SET @SSN = CONVERT(CHAR(9), CONVERT(INT, @Ini.alSSN) + (@i - 1)) 
+ 
+ --- MAKE SURE WE DON'T LOSE ANY LEADING 0's 
+ IF LEN(@SSN) < 9 
+ BEGIN 
+  SET @SSN = REPLICATE('0', 9 - LEN(@SSN)) + @SSN 
+ END 
+ 
+ --- CLEAR THE NWAID FOR THE NEXT RECORD 
+ SET @NWAID = NULL 
+ 
+ --- get the NWAID and Status/Disposi.on 
+ EXEC sp_GetCurrentStatusDisposi.on @SSN = @SSN, @NWAID = @NWAID OUTPUT, @StatusType = @StatusType OUTPUT,  
+      @StatusCode = @StatusCode OUTPUT, @Disposi.onCode = @Disposi.onCode OUTPUT  
+ 
+ 
+ 
+ IF @StatusType = 'E' AND @StatusCode = 'A' AND @Disposi.onCode = 'F' 
+ BEGIN 
+  --- set the @ComponentCode based on the Category Code and TOE 
+  SELECT  
+   @ComponentCode = CASE  
+     WHEN N.CATEGORY_CODE = 'R' THEN 'K5' 
+     WHEN N.CATEGORY_CODE IN ('A', 'G') THEN  
+      CASE @TOE  
+       WHEN 3 THEN 'K8' 
+       WHEN 4 THEN 'K9' 
+       WHEN 5 THEN 'B5' 
+       WHEN 6 THEN 'K4' 
+       ELSE 'K9' 
+      END  
+     ELSE 'K5' 
+     END 
+  FROM  
+   NWA N INNER JOIN PERSON P ON  
+    (N.MARINE_CANDIDATE_ID = P.PERSON_ID AND 
+    P.SOCIAL_SECURITY_NUMBER = @SSN AND 
+    N.NWA_ID = (SELECT MAX(N2.NWA_ID) FROM NWA N2  
+      WHERE N2.MARINE_CANDIDATE_ID = N.MARINE_CANDIDATE_ID)) 
+ 
+ 
+  --- START THE TRANSACTION 
+  BEGIN TRANSACTION 
+ 
+  --- INSERT CONTRACT DATA 
+  INSERT INTO CONTRACT  
+   (NWA_ID, CONTRACT_BEGIN_DATE, COMPONENT_CODE, TERM_OF_ENLISTMENT, PROJECTED_SHIP_DATE,  
+   PROJECTED_TRAINING_ORG_ID, YOUTH_PROGRAM_CODE, ENTNAC_SUBMIT_DATE, ENTNAC_COMPLETE_DATE, 
+   SPECIAL_INTEREST, DISCHARGE_DATE, DISCHARGE_CODE, CATEGORY_P, DEP_EXTENSION,  
+   USER_LOGIN, UPDATE_DATE) 
+  VALUES  
+   (@NWAID, @ContractBeginDate, @ComponentCode, @TOE, @PADD,  
+   @ProjectedTrainingOrg, @YouthProgramCode, @ENTNACSubmitDate, @ENTNACCompleteDate,  
+   @SpecialInterest, @DischargeDate, @DischargeCode, @CatP, @DEPExtension,  
+   @UserLogin, GETDATE()) 
+ 
+  --- get the @ContractID 
+  SELECT @ContractID = COALESCE(@@IDENTITY, (SELECT MAX(CONTRACT_ID) FROM CONTRACT  
+        WHERE NWA_ID = @NWAID)) 
+ 
+  IF @@ERROR != 0 OR @@ROWCOUNT = 0 
+  BEGIN 
+   ROLLBACK TRANSACTION 
+   SET @ErrMsg = 'An error occurred adding the contract record for SSN ' + @SSN + '.' 
+   RAISERROR (@ErrMsg, 16, 1, @DBID, @DBNAME) 
+   RETURN 
+  END 
+ 
+  --- INSERT CANDIDATE STATUS DATA 
+  EXEC sp_UpdateCandidateStatus @NWAID = @NWAID, @StatusE.ec.veDate = @ContractBeginDate, @StatusType = 'E',  
+     @StatusCode = 'B', @Disposi.onCode = 'K', @UserLogin = @UserLogin 
+ 
+ 
+  IF @@ERROR != 0 OR @@ROWCOUNT = 0 
+  BEGIN 
+   ROLLBACK TRANSACTION 
+   SET @ErrMsg = 'An error occurred adding the status record for SSN ' + @SSN + '.' 
+   RAISERROR (@ErrMsg, 16, 2, @DBID, @DBNAME) 
+   RETURN 
+  END 
+ 
+  --- INSERT PADD HISTORY DATA 
+  EXEC sp_UpdatePADD @ContractID = @ContractID, @PADD = @PADD, @UserLogin = @UserLogin 
+ 
+ 
+  IF @@ERROR != 0 OR @@ROWCOUNT = 0 
+  BEGIN 
+   ROLLBACK TRANSACTION 
+   SET @ErrMsg = 'An error occurred adding the padd history record for SSN ' + @SSN + '.' 
+   RAISERROR (@ErrMsg, 16, 3, @DBID, @DBNAME) 
+   RETURN 
+  END 
+ 
+  --- ADD/UPDATE MEPS SCHEDULE 
+  SELECT @ScheduleID = MAX(MS.SCHEDULE_ID) FROM MEPS_SCHEDULE MS WHERE MS.NWA_ID = @NWAID 
+ 
+  SELECT   
+   @ScheduleID = COALESCE(@ScheduleID, 0),  
+   @MEPSProcessingStatus = COALESCE(@MEPSProcessingStatus, 'P') 
+  
+  EXEC sp_UpdateMEPSSchedule @ScheduleID = @ScheduleID, @NWAID = @NWAID, @ProcessingDate = @ContractBeginDate, 
+   @MEPSOrganiza.onID = 500, @ArrivalDate = @ContractBeginDate, @Transporta.onRequired = 'N', 
+   @LodgingRequired = 'N', @LastProcessedFor = NULL, @ASVABRequired = 'N', 
+   @SpecialExamRequired = 'N', @SpecialExamType = NULL, @CompletePhysical = 'N', 
+   @Inspec.onPhysical = 'N', @Consulta.onPhysical = 'N', @Consulta.onType = NULL, 
+   @Contract = 'Y', @Ship = 'N', @OtherProcessing = 'N', @ProcessingStatus = @MEPSProcessingStatus,  
+   @ProcessingNotes = NULL, @UserLogin = @UserLogin, @ID = @ScheduleID OUTPUT 
+ 
+  IF @@ERROR != 0 OR @@ROWCOUNT = 0 
+  BEGIN 
+   ROLLBACK TRANSACTION 
+   SET @ErrMsg = 'An error occurred ' + CASE @ScheduleID WHEN 0 THEN 'adding' ELSE 'upda.ng' END + ' the MEPS Schedule record for SSN ' + @SSN + '.'    
+   RAISERROR (@ErrMsg, 16, 3, @DBID, @DBNAME) 
+   RETURN 
+  END 
+ 
+  --- IF WE MAKE IT HERE COMMIT THE TRANSACTION 
+  COMMIT TRANSACTION 
+ END 
+ ELSE 
+ BEGIN 
+  SET @ErrMsg = 'SSN ' + @SSN + ' is not eligible to be contracted.' 
+  RAISERROR (@ErrMsg, 16, 4, @DBID, @DBNAME) 
+  RETURN 
+ END 
+ 
+ 
+ SELECT 
+  @FirstSSN = CASE @i 
+    WHEN 1 THEN @SSN 
+    ELSE @FirstSSN 
+    END, 
+  @LastSSN = CASE  
+    WHEN @i BETWEEN 1 AND @NumberToAdd THEN @SSN 
+    ELSE @LastSSN  
+    END 
+ 
+ 
+ --- INCREMENT THE COUNTER 
+ SET @i = @i + 1 
+END 
+ 
+SET NOCOUNT OFF 
+ 
+ 
+--- DEFINE THE MESSAGE TO DISPLAY 
+SET @SSNMessage = CASE  
+   WHEN (@FirstSSN IS NOT NULL AND LEN(@FirstSSN) = 9) AND 
+    (@LastSSN IS NOT NULL AND LEN(@LastSSN) = 9)  
+   THEN 
+    'The Contracts entered range from SSN ' + @FirstSSN + ' to ' + @LastSSN + '.' 
+   ELSE SPACE(0) 
+   END 
+ 
+ 
+IF @SSNMessage IS NOT NULL AND LEN(@SSNMessage) > 0 
+BEGIN 
+ PRINT @SSNMessage 
+END]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

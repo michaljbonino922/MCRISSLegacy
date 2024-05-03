@@ -1,0 +1,54 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="BANK" directorySegmentName="seg_4" id="679C1DF7-7FE4-6D6C-36FE-CB06F7327DBC">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:13 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<schemaObject>2A6D9360-3BB2-5CEA-6E99-790D76996FDF</schemaObject>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+<filegroup>E6573514-5674-5781-6648-B1C5FB42B0A5</filegroup>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="USER_LOGIN" id="220E4756-836A-EC76-7D26-D49C7EA6E40C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:15 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="BANK_ID" id="3939ACF7-83C2-287D-4E2A-ACB3FF566BE5">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:15 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<asIdentity>true</asIdentity>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="DIRECT_DEPOSIT_IND" id="754635DD-C9A6-4445-7741-FF4AE23CBDA7">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:15 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="REM_SEQ_NUM" id="7812CE60-5882-AD57-07F8-97304F3F8714">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:15 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="UPDATE_DATE" id="9D23D398-28E9-9B56-D536-D1E0024D9B5C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:15 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="MARINE_CANDIDATE_ID" id="E0FF7F92-5E48-73A1-0477-B78D8E59F5A5">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:15 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+</columnProxies>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="PK_BANK" id="8A615DC4-4BF0-697B-30C5-55FEB62B80AB">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:15 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<clustered>true</clustered>
+<fileGroup>E6573514-5674-5781-6648-B1C5FB42B0A5</fileGroup>
+<fillFactor>90</fillFactor>
+<partitioningColumn>3939ACF7-83C2-287D-4E2A-ACB3FF566BE5</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+</TableProxySqlServerv2k5>

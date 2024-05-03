@@ -1,0 +1,27 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetWaiverOccasions]" directorySegmentName="seg_21" id="BD0C9BBE-1F2E-089D-AE76-B39AD6F31B72">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@WaiverOccasionType char(1) = 'E' 
+AS 
+ 
+SELECT   
+ WO.WAIVER_OCCASION_ID, 
+ WO.WAIVER_OCCASION_DESC,  
+ CASE WO.WAIVER_OCCASION_DESC 
+  WHEN 'NWA' THEN 1 
+  WHEN 'CONTRACT' THEN 2 
+  WHEN 'OCS/SHIPPER' THEN 3 
+  ELSE 4 
+ END AS SORT_COLUMN 
+FROM  
+ WAIVER_OCCASION WO 
+WHERE 
+ WO.WAIVER_OCCASION_TYPE IN ('B', @WaiverOccasionType) 
+ORDER BY  
+ SORT_COLUMN]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

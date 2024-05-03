@@ -1,0 +1,249 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SP_CON_PROCESS179]" directorySegmentName="seg_13" id="A4CB6987-D8E7-0006-B0A0-0796298CC5D4">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[AS  
+SET ARITHABORT OFF 
+set arithignore on 
+set ansi_warnings o. 
+ 
+declare  @person_id   int, 
+  @contract_id   int, 
+  @nwa_id   int, 
+  @ship_id   int, 
+  @proj_training_org_id  int, 
+  @ssn    varchar(9), 
+  @category_p        char(1), 
+          @component_code   varchar(2), 
+          @contract_begin_date  date.me, 
+          @discharge_code      varchar(3), 
+          @discharge_date      date.me, 
+  @entnac_comp_date  date.me, 
+  @entnac_submit_date  date.me, 
+  @induc.on_stat_code  char(1), 
+  @pay_grade_code  varchar(3), 
+  @proj_ship_date  date.me, 
+  @source_of_entry  varchar(4), 
+  @special_interest  varchar(15), 
+  @term_of_enlistment  int, 
+  @youth_prog_code  varchar(3), 
+  @training_org_mcc  varchar(3), 
+  @mcroc   varchar(20), 
+  @sex    varchar(2), 
+  @ist_date   date.me, 
+  @ist_pull_ups   int, 
+  @ist_hang   int, 
+  @ist_crunches   int, 
+  @ist_minutes   int, 
+  @ist_result   char(1), 
+  @ist_seconds   int, 
+  @orders_address_type  char(1), 
+  @ist_height   int, 
+  @ist_weight   int, 
+  @contract_gpa   .oat, 
+  @user_login   varchar(15), 
+  @update_date   date.me, 
+  @prior_svc   varchar(2) 
+ 
+declare arms_179 cursor for 
+select  SSN, 
+        COMP_CD, 
+        convert(date.me,DEP_DATEIN,112), 
+  DEP_DROP_CD, 
+  convert(date.me,DEP_DROP_DTE,112), 
+  convert(date.me,ENT_COMP,112), 
+  convert(date.me,ENT_SUBM,112), 
+  RANK, 
+  convert(date.me,PADD,112), 
+  XFER_TO_RS, 
+  SPEC_INTRST, 
+  convert(int,TOE), 
+  YTH_PRGM, 
+  RD_PL_IND, 
+  convert(int, substring(IST_SCORES,1,2)), 
+  convert(int, substring(IST_SCORES,3,2)), 
+  convert(int, substring(IST_SCORES,5,2)), 
+  convert(int, substring(IST_SCORES,7,2)), 
+  convert(date.me,INITIAL_STRENGTH_TEST_DATE), 
+  MCROC, 
+  SEX, 
+  HEIGHT, 
+  WEIGHT, 
+  PRIOR_SVC 
+ 
+ 
+from  arms..ARMS179 
+  
+open arms_179 
+ 
+fetch arms_179 
+     into @ssn, @component_code, @contract_begin_date, @discharge_code, 
+       @discharge_date, @entnac_comp_date, @entnac_submit_date, 
+    @pay_grade_code, @proj_ship_date, 
+    @training_org_mcc, @special_interest, @term_of_enlistment, 
+    @youth_prog_code, @category_p, @ist_pull_ups, @ist_crunches, 
+    @ist_minutes, @ist_seconds,@ist_date,  @mcroc,@sex, 
+    @ist_height,@ist_weight,@prior_svc 
+ 
+select @source_of_entry = NULL 
+select @contract_gpa = NULL 
+ 
+ 
+while (@@FETCH_STATUS = 0) 
+begin 
+  select @user_login = 'migra.on' 
+ 
+  select @update_date = getdate() 
+ 
+  select @induc.on_stat_code = 'V' 
+ 
+  select @person_id = PERSON_ID from PERSON 
+      where SOCIAL_SECURITY_NUMBER = @ssn 
+ 
+  select @nwa_id =  max( NWA_ID) from NWA 
+   where MARINE_CANDIDATE_ID = @person_id 
+ 
+ 
+  if not exists(select 1 from mcriss..CONTRACT  
+  where NWA_ID = @nwa_id) 
+     begin 
+   print @ssn 
+ 
+/********************************************************************************************************************************** 
+Adjusts the  Component_Codes for Migra.on from Arms to Mcriss.  Requirements were 
+completed for this sec.on by GySgt Calvanese and implemented by Rob McAndrew w/ Booz Allen & Hamilton 
+************************************************************************************************************************************/  
+ --logic for all prior service 
+ if @prior_svc not in ('K5', 'NO') and @prior_svc not like '' 
+ set @component_code = '11'-- Component_Code for Prior Service 
+  
+ --logic for all regulars who may have had their Comp_Cd 's changed in Arms a.er shipping 
+ if @component_code = '11' and @prior_svc  not in ('','K1','K2','K3','K4')  
+ set @component_code = 'K5' -- Component_Code for USMC Regular(Dep) 
+ 
+ 
+ if @prior_svc in ('K1','K2','K5') 
+ set @proj_training_org_id = 3 
+ else  
+ set @proj_training_org_id = (select TRAINING_ORGANIZATION_ID 
+                                 from TRAINING_ORGANIZATION 
+     where MCC_CODE = @training_org_mcc) 
+/****************************************************************************************************************************************** 
+   End of The COMPONENT_CODE Conversion 
+*******************************************************************************************************************************************/ 
+ 
+       
+      if @proj_training_org_id is not NULL 
+     begin 
+   
+   if @discharge_code = ' ' 
+     select @discharge_code = NULL 
+ 
+   if @discharge_date = ' ' 
+     select @discharge_date = NULL 
+   if @entnac_comp_date = ' ' 
+     select @entnac_comp_date = NULL 
+   if @entnac_submit_date = ' ' 
+     select @entnac_submit_date = NULL 
+ 
+   if @pay_grade_code = 'E01' 
+     select @pay_grade_code = 'E1' 
+   if @pay_grade_code = 'E02' 
+     select @pay_grade_code = 'E2' 
+   if @pay_grade_code = 'E03' 
+     select @pay_grade_code = 'E3' 
+   if @pay_grade_code = 'E04' 
+     select @pay_grade_code = 'E4' 
+   if @pay_grade_code = 'E05' 
+     select @pay_grade_code = 'E5' 
+   if @pay_grade_code = 'E06' 
+     select @pay_grade_code = 'E6' 
+   if @pay_grade_code = 'E07' 
+     select @pay_grade_code = 'E7' 
+   if @pay_grade_code = 'E08' 
+     select @pay_grade_code = 'E8A' 
+   if @pay_grade_code = 'E09' 
+     select @pay_grade_code = 'E9A' 
+ 
+    if @sex = 'F' 
+  select @ist_hang = @ist_pull_ups 
+  if @sex = 'F' 
+  select @ist_pull_ups = NULL 
+ 
+     
+   insert CONTRACT 
+  (NWA_ID,CONTRACT_BEGIN_DATE,COMPONENT_CODE,TERM_OF_ENLISTMENT,PROJECTED_SHIP_DATE, 
+          PROJECTED_TRAINING_ORG_ID, PAY_GRADE_CODE, INDUCTION_STATUS_CODE, SOURCE_OF_ENTRY_CODE, 
+   YOUTH_PROGRAM_CODE, ENTNAC_SUBMIT_DATE, ENTNAC_COMPLETE_DATE,SPECIAL_INTEREST,  
+   DISCHARGE_DATE, DISCHARGE_CODE,CATEGORY_P,MCROC, 
+   IST_DATE,IST_PULL_UPS,IST_HANG,IST_CRUNCHES,IST_MINUTES, 
+   IST_RESULT, IST_SECONDS, ORDERS_ADDRESS_TYPE,IST_HEIGHT,IST_WEIGHT,CONTRACT_GPA, 
+   USER_LOGIN,UPDATE_DATE) 
+   values(@nwa_id, @contract_begin_date, @component_code, 
+        @term_of_enlistment, @proj_ship_date, @proj_training_org_id, 
+    @pay_grade_code, @induc.on_stat_code, @source_of_entry,  
+    @youth_prog_code, @entnac_submit_date, @entnac_comp_date,  
+    @special_interest, @discharge_date, @discharge_code,  
+    @category_p, @mcroc,  
+    @ist_date, @ist_pull_ups, @ist_hang, @ist_crunches,  
+    @ist_minutes, @ist_result, @ist_seconds,  
+    @orders_address_type, @ist_height, @ist_weight,@contract_gpa, 
+    @user_login,@update_date) 
+ 
+   print 'CONTRACT INSERTED' 
+   
+  set @contract_id = (select contract_id from contract where nwa_id = @nwa_id) 
+  insert PADD_HISTORY 
+  (CONTRACT_ID, PROJECTED_SHIP_DATE, PADD_CHANGED_DATE, USER_LOGIN,UPDATE_DATE) 
+  values 
+  (@contract_id, @proj_ship_date, @contract_begin_date, @user_login, @update_date) 
+   
+  
+ 
+         exec SPGEN_CANDSTATUS @nwa_id,'CON','ENL',@contract_begin_date 
+ 
+   print 'CANDIDATE STATUS INSERTED' 
+ 
+   if @discharge_date is not NULL 
+    begin 
+     if @ship_id is not NULL 
+        begin 
+          exec SPGEN_CANDSTATUS @nwa_id,'DEP_SHP','ENL',@discharge_date 
+       print 'CANDIDATE STATUS INSERTED MCRD DISCHARGE' 
+              end 
+        else 
+          begin 
+            exec SPGEN_CANDSTATUS @nwa_id,'DEP_CON','ENL',@discharge_date 
+         print 'CANDIDATE STATUS INSERTED DEP DISCHARGE' 
+          end 
+          end 
+   
+  end 
+   
+ 
+  end 
+  print @ssn+'Already in Contract' 
+   
+   
+  fetch arms_179 
+     into @ssn, @component_code, @contract_begin_date, @discharge_code, 
+ 
+       @discharge_date, @entnac_comp_date, @entnac_submit_date, 
+    @pay_grade_code, @proj_ship_date, 
+    @training_org_mcc, @special_interest, @term_of_enlistment, 
+    @youth_prog_code, @category_p, @ist_pull_ups, @ist_crunches, 
+    @ist_minutes, @ist_seconds,@ist_date, @mcroc,@sex, 
+    @ist_height,@ist_weight,@prior_svc  
+ 
+end 
+ 
+ 
+ 
+close arms_179 
+ 
+deallocate  arms_179]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

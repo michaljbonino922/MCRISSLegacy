@@ -1,0 +1,27 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_CheckWaiverOverride]" directorySegmentName="seg_14" id="2BF8730B-0019-49CA-385E-C6475686DC2C">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@NWAID int, 
+ @WaiverOverrides int OUTPUT 
+AS 
+ 
+SELECT @WaiverOverrides = COUNT(*) 
+ 
+FROM  CANDIDATE_WAIVER 
+  ,WAIVER 
+ ,WAIVER_CATEGORY 
+ ,WAIVER_TYPE  
+ ,WAIVER_LEVEL 
+ 
+WHERE  CANDIDATE_WAIVER.NWA_ID = @NWAID 
+ AND WAIVER_CATEGORY_CODE + WAIVER_TYPE_CODE + WAIVER_LEVEL_CODE = 'XYB' 
+ AND CANDIDATE_WAIVER.WAIVER_ID = WAIVER.WAIVER_ID 
+ AND WAIVER.WAIVER_CATEGORY_ID = WAIVER_CATEGORY.WAIVER_CATEGORY_ID 
+ AND WAIVER.WAIVER_TYPE_ID = WAIVER_TYPE.WAIVER_TYPE_ID 
+ AND WAIVER.WAIVER_LEVEL_ID = WAIVER_LEVEL.WAIVER_LEVEL_ID]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

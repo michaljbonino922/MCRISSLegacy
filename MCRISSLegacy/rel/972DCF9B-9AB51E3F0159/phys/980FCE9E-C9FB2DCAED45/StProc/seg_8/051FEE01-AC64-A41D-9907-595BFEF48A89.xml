@@ -1,0 +1,192 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetPoolCardRows]" directorySegmentName="seg_8" id="051FEE01-AC64-A41D-9907-595BFEF48A89">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[(  
+ @OrgId uniqueiden..er = null, 
+ @LastName varchar(75) = null, 
+ @FirstName varchar(75) = null, 
+ @SSN varchar(9) = null, 
+ @DateCreatedStart date.me = null, 
+ @DateCreatedEnd date.me = null, 
+ @Ac.onDatedStart date.me = null, 
+ @Ac.onDatedEnd date.me =  null, 
+ @RecruiterId uniqueiden..er = null, 
+ @ScheduledEventsStart date.me = null, 
+ @ScheduledEventsEnd date.me = null 
+) 
+ 
+AS 
+ 
+BEGIN 
+ 
+ DECLARE @Organiza.onID INT  
+ 
+ SELECT @Organiza.onID = ORGANIZATION_ID FROM MCRISS.DBO.RECRUITING_ORGANIZATION WHERE rowguid = @orgid   
+  
+ SELECT 
+  rp.RECRUITING_PERSON_ID,  
+  rp.rowguid, 
+  rp.RANK_CODE, 
+  rp.ORGANIZATION_ID, 
+  rcrtr.LAST_NAME, 
+  rcrtr.FIRST_NAME, 
+  rcrtr.LEGAL_MIDDLE_NAME 
+ INTO #Recrui.ngPerson 
+ FROM [MCRISS].[dbo].[RECRUITING_PERSON] rp  
+ INNER JOIN [MCRISS].[dbo].[PERSON] rcrtr ON rp.RECRUITING_PERSON_ID = rcrtr.PERSON_ID 
+ WHERE ((rp.RowGuid = @RecruiterId AND @RecruiterId IS NOT NULL) OR (@RecruiterId IS NULL)) 
+  
+ CREATE TABLE #NWA 
+ (   
+   ApplicantAssetID uniqueiden..er 
+  ,ApplicantAssetName VARCHAR(300) 
+  ,MARINE_CANDIDATE_ID INT 
+  ,NWA_ID INT 
+  ,RecruiterId uniqueiden..er 
+  ,ORGANIZATION_OF_RECORD_ID INT 
+  ,SecondaryId uniqueiden..er 
+  ,Disposi.on VARCHAR(50) 
+  ,Recruiter VARCHAR(300) 
+  ,RecruiterShortName VARCHAR(300) 
+  ,CreateDate DATETIME 
+  ,EventID uniqueiden..er 
+  ,NextScheduledEvent date.me 
+ ) 
+ 
+ IF (@Organiza.onID IS NULL) 
+ BEGIN 
+ 
+  INSERT INTO #NWA 
+  SELECT  prs.[ProspectID] AS ApplicantAssetID 
+    ,COALESCE(RTRIM(P.LAST_NAME), SPACE(0))  + SPACE(1) +  
+     COALESCE(RTRIM(P.FIRST_NAME), SPACE(0)) + SPACE(1) +  
+     COALESCE(RTRIM(P.LEGAL_MIDDLE_NAME), SPACE(0)) AS ApplicantAssetName 
+    ,N.MARINE_CANDIDATE_ID 
+    ,N.NWA_ID 
+    ,rp.rowguid AS RecruiterId 
+    ,N.ORGANIZATION_OF_RECORD_ID 
+    ,N.rowguid AS SecondaryId 
+    ,SD.DISPOSITION_DESCRIPTION AS Disposi.on 
+    ,COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+     COALESCE(RTRIM(rp.LAST_NAME), SPACE(0))  + SPACE(1) +  
+     COALESCE(RTRIM(rp.FIRST_NAME), SPACE(0)) + SPACE(1) +  
+     COALESCE(RTRIM(rp.LEGAL_MIDDLE_NAME), SPACE(0)) AS Recruiter 
+    ,COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+     COALESCE(RTRIM(rp.LAST_NAME), SPACE(0)) AS RecruiterShortName 
+    ,C.CONTRACT_BEGIN_DATE AS CreateDate 
+    ,ne.EventID 
+    ,ne.StartDate AS NextScheduledEvent 
+  FROM MCRISS.dbo.PERSON P 
+  INNER JOIN [MCRISS].[DBO].[NWA] N ON P.PERSON_ID = N.MARINE_CANDIDATE_ID 
+  INNER JOIN MCRISS.dbo.CANDIDATE_STATUS CS ON N.NWA_ID = CS.NWA_ID 
+             AND CS.CANDIDATE_STATUS_ID IN ( SELECT MAX(CS2.CANDIDATE_STATUS_ID) 
+                     FROM MCRISS.dbo.CANDIDATE_STATUS CS2 
+                     WHERE CS.NWA_ID = CS2.NWA_ID) 
+  INNER JOIN MCRISS.dbo.STATUS_DISPOSITION SD ON SD.STATUS_TYPE = CS.STATUS_TYPE 
+              AND SD.STATUS_CODE = CS.STATUS_CODE 
+              AND SD.DISPOSITION_CODE = CS.DISPOSITION_CODE               
+  INNER JOIN MCRISS.dbo.CONTRACT C ON N.NWA_ID = C.NWA_ID 
+  INNER JOIN #Recrui.ngPerson rp ON rp.RECRUITING_PERSON_ID = (SELECT CASE WHEN n.WORKING_RECRUITER_ID IS NOT NULL THEN n.WORKING_RECRUITER_ID 
+                      ELSE n.RECRUITER_OF_RECORD_ID END)   
+  LEFT OUTER JOIN ( SELECT es.SubjectID, 
+       e.ID AS EventID, 
+       e.StartDate 
+      FROM [MCRISS].[DBO].[NWA] n2 
+      INNER JOIN RSSOSS.USMC.EventSubject es ON es.SubjectId = n2.rowguid 
+      INNER JOIN RSSOSS.USMC.Event e ON e.id = es.even.d 
+              AND e.StartDate IN ( SELECT MIN(e2.StartDate) 
+                   FROM [RSSOSS].[USMC].[Event] e2 
+                   INNER JOIN [RSSOSS].[USMC].EventSubject es2 ON e2.id = es2.even.d 
+                   WHERE es2.SubjectID = es.SubjectID                    
+                   AND e2.StartDate >= GetDate() 
+                   )  
+      ) ne ON ne.SubjectID =  n.rowguid   
+  LEFT OUTER JOIN Prospect prs ON prs.NWAID = n.RowGuid 
+  WHERE ((P.SOCIAL_SECURITY_NUMBER = @SSN AND @SSN IS NOT NULL) OR (@SSN IS NULL)) 
+   AND ((P.LAST_NAME = @LastName AND @LastName IS NOT NULL) OR (@LastName IS NULL)) 
+   AND ((P.FIRST_NAME = @FirstName AND @FirstName IS NOT NULL) OR (@FirstName IS NULL)) 
+   AND ((rp.RowGuid = @RecruiterId AND @RecruiterId IS NOT NULL) OR (@RecruiterId IS NULL)) 
+   AND ((C.CONTRACT_BEGIN_DATE >= @DateCreatedStart AND @DateCreatedStart IS NOT NULL) OR @DateCreatedStart IS NULL) 
+   AND ((C.CONTRACT_BEGIN_DATE >= @DateCreatedEnd AND @DateCreatedEnd IS NOT NULL) OR @DateCreatedEnd IS NULL) 
+   AND (cs.STATUS_TYPE + cs.STATUS_CODE + cs.DISPOSITION_CODE IN ('EBK')) 
+ 
+ END 
+ ELSE 
+ BEGIN 
+   
+  INSERT INTO #NWA 
+  SELECT  prs.[ProspectID] AS ApplicantAssetID 
+    ,COALESCE(RTRIM(P.LAST_NAME), SPACE(0))  + SPACE(1) +  
+     COALESCE(RTRIM(P.FIRST_NAME), SPACE(0)) + SPACE(1) +  
+     COALESCE(RTRIM(P.LEGAL_MIDDLE_NAME), SPACE(0)) AS ApplicantAssetName 
+    ,N.MARINE_CANDIDATE_ID 
+    ,N.NWA_ID 
+    ,rp.rowguid AS RecruiterId 
+    ,N.ORGANIZATION_OF_RECORD_ID 
+    ,N.rowguid AS SecondaryId 
+    ,SD.DISPOSITION_DESCRIPTION AS Disposi.on 
+    ,COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+     COALESCE(RTRIM(rp.LAST_NAME), SPACE(0))  + SPACE(1) +  
+     COALESCE(RTRIM(rp.FIRST_NAME), SPACE(0)) + SPACE(1) +  
+     COALESCE(RTRIM(rp.LEGAL_MIDDLE_NAME), SPACE(0)) AS Recruiter 
+    ,COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+     COALESCE(RTRIM(rp.LAST_NAME), SPACE(0)) AS RecruiterShortName 
+    ,C.CONTRACT_BEGIN_DATE AS CreateDate 
+    ,ne.EventID 
+    ,ne.StartDate AS NextScheduledEvent 
+  FROM MCRISS.dbo.PERSON P 
+  INNER JOIN [MCRISS].[DBO].[NWA] N ON P.PERSON_ID = N.MARINE_CANDIDATE_ID 
+  INNER JOIN MCRISS.dbo.CANDIDATE_STATUS CS ON N.NWA_ID = CS.NWA_ID 
+             AND CS.CANDIDATE_STATUS_ID IN ( SELECT MAX(CS2.CANDIDATE_STATUS_ID) 
+                     FROM MCRISS.dbo.CANDIDATE_STATUS CS2 
+                     WHERE CS.NWA_ID = CS2.NWA_ID) 
+  INNER JOIN MCRISS.dbo.STATUS_DISPOSITION SD ON SD.STATUS_TYPE = CS.STATUS_TYPE 
+             AND SD.STATUS_CODE = CS.STATUS_CODE  
+             AND SD.DISPOSITION_CODE = CS.DISPOSITION_CODE 
+  INNER JOIN MCRISS.dbo.CONTRACT C ON N.NWA_ID = C.NWA_ID 
+  INNER JOIN #Recrui.ngPerson rp ON rp.RECRUITING_PERSON_ID = (SELECT CASE WHEN n.WORKING_RECRUITER_ID IS NOT NULL THEN n.WORKING_RECRUITER_ID 
+                      ELSE n.RECRUITER_OF_RECORD_ID END) 
+  INNER JOIN [MCRISS].[dbo].[RECRUITING_ORGANIZATION] org ON org.ORGANIZATION_ID = rp.ORGANIZATION_ID                     
+  LEFT OUTER JOIN ( SELECT es.SubjectID, 
+       e.ID AS EventID, 
+       e.StartDate 
+      FROM [MCRISS].[DBO].[NWA] n2 
+      INNER JOIN RSSOSS.USMC.EventSubject es ON es.SubjectId = n2.rowguid 
+      INNER JOIN RSSOSS.USMC.Event e ON e.id = es.even.d 
+              AND e.StartDate IN ( SELECT MIN(e2.StartDate) 
+                   FROM [RSSOSS].[USMC].[Event] e2 
+                   INNER JOIN [RSSOSS].[USMC].EventSubject es2 ON e2.id = es2.even.d 
+                   WHERE es2.SubjectID = es.SubjectID                    
+                   AND e2.StartDate >= GetDate() 
+                   )  
+      ) ne ON ne.SubjectID =  n.rowguid  
+  LEFT OUTER JOIN Prospect prs ON prs.NWAID = n.RowGuid 
+  WHERE (org.ORGANIZATION_ID = @Organiza.onID) 
+   AND ((C.CONTRACT_BEGIN_DATE >= @DateCreatedStart AND @DateCreatedStart IS NOT NULL) OR @DateCreatedStart IS NULL) 
+   AND ((C.CONTRACT_BEGIN_DATE >= @DateCreatedEnd AND @DateCreatedEnd IS NOT NULL) OR @DateCreatedEnd IS NULL) 
+   AND ((rp.RowGuid = @RecruiterId AND @RecruiterId IS NOT NULL) OR (@RecruiterId IS NULL)) 
+   AND sd.STATUS_TYPE + sd.STATUS_CODE + sd.DISPOSITION_CODE IN ('EBK') 
+ END 
+  
+ IF (@Ac.onDatedStart is null and @Ac.onDatedEnd is null) 
+      SELECT DISTINCT *  
+      FROM #NWA  
+ else 
+     SELECT DISTINCT nwa.*  
+  FROM #NWA nwa  
+  INNER JOIN [RSSOSS].[USMC].EventSubject es ON es.SubjectID = nwa.SecondaryID 
+  INNER JOIN RSSOSS.USMC.Event e ON e.id = es.even.d  
+  WHERE ( (e.StartDate >= @Ac.onDatedStart OR @Ac.onDatedStart IS NULL) AND 
+           (e.startDate < @Ac.onDatedEnd OR @Ac.onDatedEnd IS NULL) )            
+  
+ 
+ DROP TABLE #NWA 
+ DROP TABLE #Recrui.ngPerson 
+ 
+END]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,106 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateOneRecruitHistory]" directorySegmentName="seg_27" id="12791268-DA1E-7CC7-5128-AAEE8A0A2515">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@newDate date.me, 
+ @person_id int, 
+ @SeqNo int 
+AS 
+ 
+DECLARE @PrevSeqNo int 
+ 
+ 
+IF EXISTS (SELECT  PERSON_ID FROM M8412_Recruit_History 
+  WHERE Person_ID=@person_id AND sequence_no=@SeqNo) 
+     -- update current record (from) 
+     update M8412_Recruit_History 
+ set Billet_Begin_Date =@newDate  
+ where person_id =@person_id 
+  and sequence_no =@SeqNo 
+ 
+ 
+CREATE TABLE [#M8412_Recruit_History_Temp] ( 
+ [Person_ID] [int] NOT NULL , 
+ [Sequence_No] [int] NOT NULL , 
+ [Billet_Begin_Date] [date.me] NULL , 
+ [Billet_End_Date] [date.me] NULL  
+    ) 
+ 
+ 
+INSERT #M8412_Recruit_History_Temp 
+SELECT Person_ID, Sequence_No, Billet_Begin_Date, Billet_End_Date  
+FROM M8412_Recruit_History 
+WHERE Person_ID = @person_id 
+ORDER BY Person_ID, Billet_Begin_Date desc 
+ 
+ 
+ 
+DECLARE @CUR_PERSON_ID int, @CUR_Sequence_No int 
+DECLARE @CUR_Billet_Begin_Date date.me, @CUR_Billet_End_Date date.me, @CUR_Billet_New_End_Date date.me 
+ 
+DECLARE BILLET_CUR CURSOR FOR 
+SELECT Person_ID, Sequence_No, Billet_Begin_Date, Billet_End_Date 
+FROM #M8412_Recruit_History_Temp 
+ 
+ 
+OPEN BILLET_CUR 
+ 
+-- Get the .rst record 
+FETCH BILLET_CUR INTO @CUR_PERSON_ID, @CUR_Sequence_No, @CUR_Billet_Begin_Date, @CUR_Billet_End_Date 
+IF @@FETCH_STATUS = 0 
+ BEGIN 
+  SET @CUR_Billet_New_End_Date = @CUR_Billet_Begin_Date 
+ END 
+ 
+ 
+-- Get the rest 
+FETCH BILLET_CUR INTO @CUR_PERSON_ID, @CUR_Sequence_No, @CUR_Billet_Begin_Date, @CUR_Billet_End_Date 
+WHILE @@FETCH_STATUS = 0 
+   BEGIN 
+ 
+ UPDATE M8412_Recruit_History 
+ SET Billet_End_Date = @CUR_Billet_New_End_Date 
+ WHERE Person_ID = @CUR_PERSON_ID AND Sequence_No = @CUR_Sequence_No 
+ 
+ SET @CUR_Billet_New_End_Date = @CUR_Billet_Begin_Date 
+ FETCH BILLET_CUR INTO @CUR_PERSON_ID, @CUR_Sequence_No, @CUR_Billet_Begin_Date, @CUR_Billet_End_Date 
+   END 
+ 
+CLOSE BILLET_CUR 
+ 
+DEALLOCATE BILLET_CUR 
+DROP TABLE #M8412_Recruit_History_Temp 
+ 
+ 
+-- 05/17/07  S.Kho Replace/Update te billet begin date in the background informa.on  
+--                 sec.on with the informa.on from the most recent billet in the billet history.  
+ 
+ 
+DECLARE  @TBillet VARCHAR(25) 
+ , @TBDate  DATETIME 
+ , @TLocID  INT 
+ , @TLoc    VARCHAR(20) 
+ 
+ SET @TBillet=' ' 
+ SELECT TOP 1 @TBillet = Billet 
+   , @TBDate=Billet_Begin_Date 
+   , @TLocID =Loca.on_ID, @TLoc = Loca.on 
+  FROM M8412_Recruit_History WHERE Person_ID = @person_id 
+  ORDER BY Billet_Begin_Date DESC 
+ 
+ IF (ISNULL(LEN(@TBillet),0)!=0)  
+ BEGIN 
+  UPDATE M8412_Recruit_Person   
+   SET Billet=@TBillet 
+    ,Date_Billet=@TBDate 
+    , Loca.on_ID = @TLocID 
+    , Current_Loca.on=@TLoc 
+    , Modi.ed_Date=GETDATE() 
+  --   , Modi.ed_By=@UserID 
+   WHERE Person_ID = @person_id 
+ END]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,43 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateCAIAc.vity]" directorySegmentName="seg_26" id="A38EEEE3-5E6F-1AED-A497-580A9C75793F">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@Recrui.ngOrgId int, 
+ @CAIAc.vityDate date.me, 
+ @CAIAc.vityTypeID int, 
+ @CAIAc.vityTypeSelected char(1), 
+ @LastEditBy varchar(15) 
+AS 
+SET NOCOUNT ON 
+ 
+IF NOT EXISTS (SELECT 1 FROM [dbo].[CAI_ACTIVITY] WHERE @Recrui.ngOrgId = ORGANIZATION_ID AND @CAIAc.vityDate = CAI_ACTIVITY_DATE AND @CAIAc.vityTypeID = CAI_ACTIVITY_TYPE_ID) 
+BEGIN 
+ -- CASE 1: DOESN'T EXIST AND BOX IS SELECTED = INSERT RECORD 
+ IF @CAIAc.vityTypeSelected = 'Y' 
+ BEGIN 
+  INSERT INTO [dbo].[CAI_ACTIVITY](ORGANIZATION_ID, CAI_ACTIVITY_DATE, CAI_ACTIVITY_TYPE_ID, USER_LOGIN, UPDATE_DATE) 
+   VALUES(@Recrui.ngOrgId, @CAIAc.vityDate, @CAIAc.vityTypeID, @LastEditBy, getdate()) 
+ END 
+ -- CASE 2: DOESN'T EXIST AND BOX IS NOT SELECTED = DON'T DO ANYTHING 
+END 
+ELSE 
+BEGIN 
+ -- CASE 3: DOES EXIST AND BOX IS NOT SELECTED = DELETE RECORD 
+ IF @CAIAc.vityTypeSelected = 'N' 
+ BEGIN 
+  DELETE FROM 
+   [dbo].[CAI_ACTIVITY] 
+  WHERE 
+   ORGANIZATION_ID = @Recrui.ngOrgId AND 
+   CAI_ACTIVITY_DATE = @CAIAc.vityDate AND  
+   CAI_ACTIVITY_TYPE_ID = @CAIAc.vityTypeID   
+ END 
+ -- CASE 4: DOES EXIST AND BOX IS SELECTED = DON'T DO ANYTHING 
+END 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

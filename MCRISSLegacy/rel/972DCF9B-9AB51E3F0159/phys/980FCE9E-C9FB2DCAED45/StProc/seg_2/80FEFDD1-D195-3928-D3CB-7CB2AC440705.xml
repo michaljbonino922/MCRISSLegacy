@@ -1,0 +1,88 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetEventsForSandRMonthWeekDayView]" directorySegmentName="seg_2" id="80FEFDD1-D195-3928-D3CB-7CB2AC440705">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@StartDate    date.me, 
+ @EndDate    date.me, 
+ @EventSourceTypeId  int = 1, 
+ @Organiza.onId   int, 
+ @RecruiterId   uniqueidentifier = null 
+  
+AS 
+BEGIN 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+ SELECT 
+    E.ID, 
+       E.Organiza.onId, 
+       E.Loca.on, 
+       E.Comments, 
+       E.IsComplete, 
+       E.StartDate, 
+       E.EndDate, 
+       E.EventTypeOther, 
+       E.LastUpdateDate, 
+       E.LastUpdateUserId, 
+       E.Remarks, 
+    E.EventPrecision, 
+    EA.MISApprovedEventStartDate, 
+       EA.MISApprovedEventEndDate, 
+       EA.WISApprovedEventStartDate, 
+       EA.WISApprovedEventEndDate, 
+       ES.Id EventSourceId, 
+    ES.Name EventSourceName, 
+       ET.Id EventTypeId, 
+    ET.Type EventTypeName, 
+    (SELECT SubjectId AS '@SubjectId', SubjectName AS '@SubjectName' FROM USMC.EventSubject 
+  WHERE EventId = E.ID FOR XML PATH('EventSubject'), TYPE, ROOT('EventSubjects') 
+    ) AS 'EventSubjects', 
+    (SELECT DISTINCT 
+   RTrim(rp.Rank_Code) as '@RankCode',  
+   RTrim(p.Last_Name) as '@LastName', 
+   RTrim(p.First_Name) as '@FirstName',  
+   RTrim(p.LEGAL_MIDDLE_NAME) as '@MiddleName',  
+   rp.rowguid as '@RecruiterID' 
+  FROM USMC.EventOwners eo 
+   INNER JOIN MCRISS.dbo.Recrui.ng_Person rp  ON rp.rowguid = eo.OwnerId 
+   INNER JOIN MCRISS.dbo.Person p ON rp.Recrui.ng_Person_ID = p.Person_ID   
+  WHERE  eo.EventId = E.ID FOR XML PATH('Owner'), TYPE, ROOT('Owners')   
+    ) AS 'EventOwners', 
+    (SELECT Recrui.ngPersonId as '@Recrui.ngPersonId'  FROM USMC.EventPersonVisibility 
+        WHERE  EventId = E.ID FOR XML PATH('Visibility'), TYPE, ROOT('Visibili.es')   
+       ) AS 'EventPersonVisibili.es' 
+    
+FROM  
+ [RSSOSS].[USMC].[Event] E 
+INNER JOIN [RSSOSS].[USMC].[EventSource] AS ES ON E.EventSourceId = ES.ID 
+INNER JOIN [RSSOSS].[USMC].[EventType] AS ET ON E.EventTypeId = ET.ID 
+LEFT OUTER JOIN [RSSOSS].[USMC].[EventApproval] as EA on E.ID = EA.ID 
+ 
+WHERE  
+ ES.EventSourceTypeId = @EventSourceTypeId AND 
+    (@Organiza.onId <> 0 AND (E.Organiza.onId = @Organiza.onId)) AND 
+    ( @RecruiterId IS NULL OR 
+   (  
+   Exists( SELECT ID FROM [RSSOSS].[USMC].[EventPersonVisibility] AS EV  
+                      WHERE E.ID = EV.EventId AND EV.Recrui.ngPersonId = @RecruiterId AND @RecruiterId IS NOT NULL) 
+      ) OR 
+      ( 
+            Exists( Select ID FROM [RSSOSS].[USMC].[EventOwners] EO  
+               WHERE EO.EventID = E.ID AND EO.OwnerID = @RecruiterId AND @RecruiterId IS NOT NULL) 
+   ) 
+    ) AND  
+ (  
+     ( @StartDate is null AND @EndDate is null) OR 
+     ( (E.StartDate <= @EndDate AND @EndDate IS NOT NULL)  AND (E.EndDate >= @StartDate AND @StartDate IS NOT NULL ) ) 
+ )  
+        
+ORDER BY E.StartDate desc 
+       
+   
+       
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

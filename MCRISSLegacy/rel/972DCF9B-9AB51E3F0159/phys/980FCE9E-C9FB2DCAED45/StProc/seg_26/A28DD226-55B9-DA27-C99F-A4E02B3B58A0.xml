@@ -1,0 +1,215 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SPGEN_PROGRAM_CRITERIA]" directorySegmentName="seg_26" id="A28DD226-55B9-DA27-C99F-A4E02B3B58A0">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[as 
+ 
+SET ARITHABORT OFF 
+set arithignore on 
+set ansi_warnings o. 
+ 
+declare 
+ 
+@ssn  varchar(9), 
+@contract_id int, 
+@program1 varchar(3), 
+@program2 varchar(3), 
+@sex  char(1), 
+@program_id1 int, 
+@program_id2 int, 
+@period_id int, 
+@assign_date date.me, 
+@month  int, 
+@pef  varchar(4), 
+@mcc_code varchar(5), 
+@org_id int, 
+@padd  date.me 
+ 
+ 
+declare program cursor for 
+select  SSN,  
+ PEF,  
+ SEX,  
+ convert(date.me,substring(MCROC,9,6)) , 
+ substring(RSS_RESP,1,5), 
+ PADD 
+from arms..arms179 
+ where PADD < '2001-09-30' 
+ and PEF not like '0000' 
+ and MCROC is not null 
+ 
+ 
+open program  
+ 
+fetch program  
+ into @ssn, @pef, @sex, @assign_date, @mcc_code, @padd 
+ 
+ 
+ 
+while @@fetch_status = 0 
+begin 
+ 
+-- Ge.ng the CONTRACT_ID for the candidate 
+ 
+set @contract_id = (select contract_id from contract where  
+nwa_id = (select max(nwa_id) from nwa where 
+marine_candidate_id = (select person_id from person  
+where social_security_number = @ssn))) 
+ 
+  
+ if @padd < '2001-09-30' and @contract_id is not null 
+ begin 
+ 
+  if @pef not in ('     ','    ','','0000')  
+  begin 
+   
+   -- Se.ng the program_code from the PEF 
+ 
+   set @program1 = substring(@pef,1,2) 
+   set @program2 = substring(@pef,3,2) 
+   set @org_id = (select organiza.on_id from recrui.ng_organiza.on where MCC_CODE = @mcc_code) 
+  
+   -- Ge.ng the right PERIOD based on the ASSIGNMENT_DATE 
+ 
+   select @period_id = PROGRAM_PERIOD_ID from PROGRAM_PERIOD 
+   where BEGIN_DATE <= @assign_date and END_DATE >= @assign_date 
+ 
+   -- Female applicant logic 
+ 
+   if @sex = 'F' set @program1 = @program1 + 'F' 
+   if @sex = 'F' and @program2 not in ('','  ','00') set @program2 = @program2 + 'F' 
+  
+   -- Musician Logic 
+   if @program1 = 'U2F' 
+   set @program1 = 'U2' 
+   if @program2 = 'U2F' 
+   set @program2 = 'U2' 
+ 
+  
+   set @program_id1 = (select program_id from program where program_code = @program1) 
+  
+   set @program_id2 = (select program_id from program where program_code = @program2) 
+  
+ 
+   if @program_id1 is not null 
+    begin 
+     if not exists(select 1 from program_availability where program_id = @program_id1  
+     and CONTRACT_ID = @contract_id and PROGRAM_PERIOD_ID = @period_id) 
+     begin 
+      if exists(select 1 from program_availability where program_id = @program_id1  
+      and program_period_id = @period_id and CONTRACT_ID is NULL) 
+      begin 
+       update program_availability 
+       set CONTRACT_ID = @contract_id, 
+       PROGRAM_ASSIGNMENT_DATE = @assign_date, 
+       PROGRAM_PERIOD_ID = @period_id, 
+       USER_LOGIN = 'migra.on', 
+       UPDATE_DATE = getdate() 
+       where PROGRAM_AVAILABILITY_ID = (select  
+       min(PROGRAM_AVAILABILITY_ID)from PROGRAM_AVAILABILITY  
+       where CONTRACT_ID is NULL and  
+       PROGRAM_ID = @program_id1 and  
+       PROGRAM_PERIOD_ID = @period_id) 
+      end 
+     else 
+      begin 
+       insert program_availability 
+       (PROGRAM_ID, ASSIGNED_ORGANIZATION_ID, CONTRACT_ID, 
+       PROGRAM_ASSIGNMENT_DATE, PROGRAM_PERIOD_ID, 
+       USER_LOGIN, UPDATE_DATE) 
+       values 
+       (@program_id1, @org_id, @contract_id,  
+       @assign_date, @period_id, 'mcandrewrc', getdate()) 
+      end 
+ 
+ 
+  
+     end  
+    end --program_id was not null 
+   else 
+   
+     -- inserts invalid programs into an error table for repor.ng purposes 
+     begin 
+      insert into arms..invalid_programs 
+      (SSN, PEF,PROGRAM,PROGRAM_NUMBER,SEX, MIGRATION_DATE) 
+      values (@ssn, @pef,@program1,'1',@sex, getdate()) 
+ 
+      print @ssn + 'Inserted into error table' 
+     end 
+ 
+ 
+     if @program_id2 is not null  
+     begin 
+  
+      if not exists (select 1 from program_availability  
+      where program_id = @program_id2 and CONTRACT_ID = @contract_id and  
+      PROGRAM_PERIOD_ID = @period_id) 
+      begin 
+       if exists(select 1 from program_availability where program_id = @program_id2 
+       and program_period_id = @period_id and CONTRACT_ID is NULL) 
+       begin 
+        update program_availability 
+        set CONTRACT_ID = @contract_id, 
+        PROGRAM_ASSIGNMENT_DATE = @assign_date, 
+        PROGRAM_PERIOD_ID = @period_id, 
+        USER_LOGIN = 'migra.on', 
+        UPDATE_DATE = getdate() 
+        where PROGRAM_AVAILABILITY_ID = (select  
+        min(PROGRAM_AVAILABILITY_ID)from PROGRAM_AVAILABILITY  
+        where CONTRACT_ID is NULL and  
+        PROGRAM_ID = @program_id2 and  
+        PROGRAM_PERIOD_ID = @period_id) 
+       end 
+      else 
+       begin 
+        insert program_availability 
+        (PROGRAM_ID, ASSIGNED_ORGANIZATION_ID, CONTRACT_ID, 
+        PROGRAM_ASSIGNMENT_DATE, PROGRAM_PERIOD_ID, 
+        USER_LOGIN, UPDATE_DATE) 
+        values 
+        (@program_id2, @org_id, @contract_id,  
+        @assign_date, @period_id, 'mcandrewrc', getdate()) 
+       end 
+ 
+    
+    
+      end 
+ 
+     end -- program_id was not null 
+ 
+   else 
+    -- inserts invalid programs into an error table for repor.ng purposes 
+    begin 
+     if @program2 not like 'F%' and @program2 not like '' 
+     insert into arms..invalid_programs 
+     (SSN, PEF,PROGRAM,PROGRAM_NUMBER, SEX,MIGRATION_DATE) 
+     values (@ssn, @pef,@program2,'2',@sex, getdate()) 
+    
+     print @ssn + 'Inserted into error table' 
+    end 
+  
+   
+   end -- contract_id was null 
+ 
+  else  
+  begin 
+   print @ssn + 'Does not have a program' 
+  end 
+END 
+ 
+fetch program  
+ into @ssn, @pef, @sex, @assign_date, @mcc_code, @padd 
+ 
+ 
+end 
+ 
+ 
+ 
+close program  
+ 
+deallocate program]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

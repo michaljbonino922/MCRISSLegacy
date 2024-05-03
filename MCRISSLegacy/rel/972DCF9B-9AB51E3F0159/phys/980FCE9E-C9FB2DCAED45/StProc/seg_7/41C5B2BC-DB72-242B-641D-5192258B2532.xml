@@ -1,0 +1,95 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUpdateOrienta.onEvent]" directorySegmentName="seg_7" id="41C5B2BC-DB72-242B-641D-5192258B2532">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@MaterialsDueDate   date.me, 
+ @EventId     uniqueidentifier, 
+ @POC      varchar(100), 
+ @POCPhone     varchar(20), 
+ @BeginCoordina.on   varchar(100), 
+ @OstPar.cipa.on   varchar(100), 
+ @Logis.calRequirements     varchar(4000) 
+AS 
+BEGIN 
+  
+-- STEP 1: Start the transac.on 
+BEGIN TRANSACTION 
+ 
+-- STEP 2 & 3: Issue the data change statement(s), checking @@ERROR a.er each statement 
+IF EXISTS(SELECT ID FROM [RSSOSS].[USMC].[Orienta.onEvent] WHERE ID = @EventId) 
+BEGIN 
+ -- if @intCount > 0, then the Record already exists.  UPDATE. 
+ UPDATE [RSSOSS].[USMC].[Orienta.onEvent] 
+   SET POC = @POC, 
+       POCPhone = @POCPhone, 
+       BeginCoordina.on = @BeginCoordina.on, 
+       MaterialsDueDate = CASE WHEN @MaterialsDueDate IS NOT NULL   -- ERR - This is a temporary workaround un.l we .gure out 
+        THEN @MaterialsDueDate     -- where/if to get this parameter 
+        ELSE  
+        '9999-12-31' 
+        END, 
+       OstPar.cipa.on = @OstPar.cipa.on, 
+       Logis.calRequirements = @Logis.calRequirements 
+   WHERE  
+  ID = @EventId  
+   
+END 
+ELSE 
+BEGIN 
+ -- if @intCount = 0, then the Record does not exist.  INSERT. 
+ INSERT INTO [RSSOSS].[USMC].[Orienta.onEvent] 
+           (ID, 
+            POC, 
+            POCPhone, 
+            BeginCoordina.on, 
+            MaterialsDueDate, 
+            OstPar.cipa.on, 
+            Logis.calRequirements) 
+     VALUES 
+           (@EventId, 
+            @POC, 
+            @POCPhone, 
+            @BeginCoordina.on, 
+            CASE WHEN @MaterialsDueDate IS NOT NULL   -- ERR - This is a temporary workaround un.l we .gure out 
+   THEN @MaterialsDueDate     -- where/if to get this parameter 
+   ELSE  
+   '9999-12-31' 
+   END, 
+            @OstPar.cipa.on, 
+            @Logis.calRequirements) 
+            
+END 
+ 
+-- Rollback the transac.on if there were any errors 
+IF @@ERROR <> 0 
+ BEGIN 
+    -- Rollback the transac.on 
+    ROLLBACK TRANSACTION 
+ 
+    -- Raise an error and return 
+    RAISERROR ('Error occurred while performing the change.', 16, 1) 
+    RETURN 
+ END 
+ 
+-- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+IF @@ROWCOUNT > 1 
+BEGIN 
+    -- Rollback the transac.on 
+    ROLLBACK TRANSACTION 
+ 
+    -- Raise an error and return 
+    RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+    RETURN 
+END 
+  
+-- STEP 4: If we reach this point, the commands completed successfully 
+--         Commit the transac.on.... 
+COMMIT TRANSACTION 
+ 
+  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

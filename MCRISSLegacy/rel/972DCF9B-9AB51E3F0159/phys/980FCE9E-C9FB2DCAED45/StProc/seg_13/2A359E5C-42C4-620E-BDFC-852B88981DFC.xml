@@ -1,0 +1,195 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetMasterPlanForSchool]" directorySegmentName="seg_13" id="2A359E5C-42C4-620E-BDFC-852B88981DFC">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@SchoolYear  int, 
+ @SchoolPro.leId   uniqueiden..er     
+AS 
+BEGIN 
+ 
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+  
+declare @SchYr int 
+declare @StartDt date.me 
+declare @EndDt date.me 
+ 
+--select @SchYr = School_Year from MCRISS.dbo.HIGH_SCHOOL_PROFILE where rowguid = @Pro.leID 
+select @SchYr = @SchoolYear 
+declare @syst varchar(20) 
+declare @syed varchar(20) 
+ 
+ 
+select @syst = str(@SchYr -1) + '/7/1' 
+select @StartDt = convert(date.me, @syst,101)  
+ 
+select @syed = str(@SchYr) + '/6/30' 
+select @EndDt = convert(date.me, @syed,101) 
+ 
+SELECT *  
+INTO #Event 
+FROM  
+RSSOSS.USMC.Event e 
+WHERE  
+e.IsComplete = 1  
+AND 
+e.EventTypeId IN( 132, 144, 143, 139, 140, 141, 142,138)  
+AND  
+e.StartDate >= @StartDt 
+AND  
+e.StartDate <= @EndDt 
+ 
+SELECT  hs.HighSchool_Name [Name] 
+    ,hsp.rowguid  [SchoolPro.leId] 
+    ,hsp.SCHOOL_CODE 
+    ,hsp.SCHOOL_YEAR 
+    ,hsnp.Priority_Code [Priority] 
+    ,hsnp.STATUS_CODE 
+    ,hsnp.ACCESS_CODE 
+    ,hsnp.Recruiter_ID 
+    ,hsp.NEW_PLAN_ID 
+    ,hsp.APPROVED_PLAN_ID 
+    ,ISNULL(hsap.Ini.al_Visit_Plan, 
+     (SELECT PLANNED_MONTH FROM MCRISS.dbo.HIGH_SCHOOL_PLAN WHERE PLAN_TYPE = 'INV' AND SCHOOL_CODE = hs.SCHOOL_CODE AND SCHOOL_YEAR = @SchoolYear ) )  
+     AS Ini.al_Visit_Plan 
+    ,ISNULL(eIV.StartDate,  
+     (SELECT ACTUAL_MONTH FROM MCRISS.dbo.HIGH_SCHOOL_PLAN WHERE PLAN_TYPE = 'INV' AND SCHOOL_CODE = hs.SCHOOL_CODE AND SCHOOL_YEAR = @SchoolYear ) )  
+     AS [Ini.al_Visit_Actual] 
+    ,hsnp.Ini.al_Visit_New_Plan  
+    ,ISNULL(hsap.Senior_List_Plan, 
+     (SELECT PLANNED_MONTH FROM MCRISS.dbo.HIGH_SCHOOL_PLAN WHERE PLAN_TYPE = 'SRL' AND SCHOOL_CODE = hs.SCHOOL_CODE AND SCHOOL_YEAR = @SchoolYear ) )  
+  AS Senior_List_Plan 
+    ,ISNULL(eSL.StartDate,  
+     (SELECT ACTUAL_MONTH FROM MCRISS.dbo.HIGH_SCHOOL_PLAN WHERE PLAN_TYPE = 'SRL' AND SCHOOL_CODE = hs.SCHOOL_CODE AND SCHOOL_YEAR = @SchoolYear ) )  
+     AS [Senior_List_Actual] 
+    ,hsnp.Senior_List_New_Plan  
+    ,ISNULL(hsap.Junior_List_Plan, 
+     (SELECT PLANNED_MONTH FROM MCRISS.dbo.HIGH_SCHOOL_PLAN WHERE PLAN_TYPE = 'JRL' AND SCHOOL_CODE = hs.SCHOOL_CODE AND SCHOOL_YEAR = @SchoolYear ) ) 
+     AS Junior_List_Plan 
+    ,ISNULL(eJL.StartDate,  
+     (SELECT ACTUAL_MONTH FROM MCRISS.dbo.HIGH_SCHOOL_PLAN WHERE PLAN_TYPE = 'JRL' AND SCHOOL_CODE = hs.SCHOOL_CODE AND SCHOOL_YEAR = @SchoolYear ) )  
+  AS [Junior_List_Actual] 
+    ,hsnp.Junior_List_New_Plan  
+    ,ISNULL(hsap.NROTC_Junior_Plan, 
+     (SELECT PLANNED_MONTH FROM MCRISS.dbo.HIGH_SCHOOL_PLAN WHERE PLAN_TYPE = 'JNT' AND SCHOOL_CODE = hs.SCHOOL_CODE AND SCHOOL_YEAR = @SchoolYear ) ) 
+     AS NROTC_Junior_Plan 
+    ,ISNULL(eNJ.StartDate,  
+     (SELECT ACTUAL_MONTH FROM MCRISS.dbo.HIGH_SCHOOL_PLAN WHERE PLAN_TYPE = 'JNT' AND SCHOOL_CODE = hs.SCHOOL_CODE AND SCHOOL_YEAR = @SchoolYear ) )  
+     AS [NROTC_Junior_Actual] 
+    ,hsnp.NROTC_Junior_New_Plan  
+    ,ISNULL(hsap.NROTC_Senior_Plan, 
+     (SELECT PLANNED_MONTH FROM MCRISS.dbo.HIGH_SCHOOL_PLAN WHERE PLAN_TYPE = 'SNT' AND SCHOOL_CODE = hs.SCHOOL_CODE AND SCHOOL_YEAR = @SchoolYear ) )  
+     AS NROTC_Senior_Plan 
+    ,ISNULL(eNS.StartDate,  
+     (SELECT ACTUAL_MONTH FROM MCRISS.dbo.HIGH_SCHOOL_PLAN WHERE PLAN_TYPE = 'SNT' AND SCHOOL_CODE = hs.SCHOOL_CODE AND SCHOOL_YEAR = @SchoolYear ) )  
+  AS [NROTC_Senior_Actual] 
+    ,hsnp.NROTC_Senior_New_Plan  
+    ,ISNULL(hsap.Band_Talk_Plan, 
+     (SELECT PLANNED_MONTH FROM MCRISS.dbo.HIGH_SCHOOL_PLAN WHERE PLAN_TYPE = 'BAT' AND SCHOOL_CODE = hs.SCHOOL_CODE AND SCHOOL_YEAR = @SchoolYear ) )  
+     AS Band_Talk_Plan 
+    ,ISNULL(eBT.StartDate,  
+     (SELECT ACTUAL_MONTH FROM MCRISS.dbo.HIGH_SCHOOL_PLAN WHERE PLAN_TYPE = 'BAT' AND SCHOOL_CODE = hs.SCHOOL_CODE AND SCHOOL_YEAR = @SchoolYear ) )  
+     AS [Band_Talk_Actual] 
+    ,hsnp.Band_Talk_New_Plan     
+    ,ISNULL(hsap.Career_Talk_Plan, 
+     (SELECT PLANNED_MONTH FROM MCRISS.dbo.HIGH_SCHOOL_PLAN WHERE PLAN_TYPE = 'CAT' AND SCHOOL_CODE = hs.SCHOOL_CODE AND SCHOOL_YEAR = @SchoolYear ) )  
+     AS Career_Talk_Plan 
+    ,ISNULL(eCT.StartDate,  
+     (SELECT ACTUAL_MONTH FROM MCRISS.dbo.HIGH_SCHOOL_PLAN WHERE PLAN_TYPE = 'CAT' AND SCHOOL_CODE = hs.SCHOOL_CODE AND SCHOOL_YEAR = @SchoolYear ) )  
+  AS [Career_Talk_Actual] 
+    ,hsnp.Career_Talk_New_Plan   
+    ,ISNULL(hsap.First_Senior_Plan, 
+     (SELECT PLANNED_MONTH FROM MCRISS.dbo.HIGH_SCHOOL_PLAN WHERE PLAN_TYPE = '1SR' AND SCHOOL_CODE = hs.SCHOOL_CODE AND SCHOOL_YEAR = @SchoolYear ) )  
+     AS First_Senior_Plan 
+    ,(SELECT MIN(c.Contract_Begin_Date) 
+      FROM [MCRISS].[dbo].[CANDIDATE_EDUCATION] ce   
+      INNER JOIN [MCRISS].[dbo].NWA nwa ON ce.MARINE_CANDIDATE_ID = nwa.MARINE_CANDIDATE_ID 
+      INNER JOIN [MCRISS].[dbo].CONTRACT c ON  nwa.NWA_ID = c.NWA_ID 
+      WHERE  
+           ce.EDUCATION_LEVEL = 11 
+      AND ce.EDUCATION_CODE = 'S'  
+      AND ce.YEAR_GRADUATED = @SchoolYear 
+      AND c.CONTRACT_BEGIN_DATE IS NOT NULL 
+      AND ce.SCHOOL_CODE = hs.SCHOOL_CODE)  
+     AS [First_Senior_Actual] 
+    ,hsnp.First_Senior_New_Plan       
+    ,hsnp.NEW_PLAN_APPROVED 
+    ,hsap.APPROVED_BY_USER 
+    ,hsp.ASVAB_RESP 
+ FROM  PROSPECTING.USMC.vwMcrissHighSchool hs  
+INNER JOIN MCRISS.dbo.HIGH_SCHOOL_PROFILE hsp ON hsp.SCHOOL_CODE = hs.SCHOOL_CODE 
+LEFT OUTER JOIN MCRISS.dbo.HIGH_SCHOOL_NEW_PLAN hsnp on hsp.NEW_PLAN_ID = hsnp.ID 
+LEFT OUTER JOIN MCRISS.DBO.HIGH_SCHOOL_ACCESS hsa on hsp.Access_Code = hsa.Access_Code 
+LEFT OUTER JOIN MCRISS.dbo.HIGH_SCHOOL_PROFILE hsp2 on hsp.SCHOOL_CODE = hsp2.SCHOOL_CODE 
+                                     and hsp2.School_Year = hsp.School_Year 
+LEFT OUTER JOIN MCRISS.dbo.HIGH_SCHOOL_APPROVED_PLAN hsap on hsp2.APPROVED_PLAN_ID = hsap.ID                              
+LEFT OUTER JOIN (SELECT MIN(StartDate) AS StartDate, SubjectID  
+       FROM [RSSOSS].[USMC].EventSubject es, #Event e 
+         WHERE e.id=es.even.d AND 
+      e.EventTypeId = 132 
+               GROUP BY SubjectID) eIV 
+                  ON hsp.rowguid = eIV.subjec.d  
+LEFT OUTER JOIN (SELECT MIN(StartDate) AS StartDate, SubjectID  
+                   FROM [RSSOSS].[USMC].EventSubject es, #Event e 
+         WHERE e.id=es.even.d AND 
+                        e.EventTypeId = 144 
+               GROUP BY SubjectID) eJL 
+                  ON eJL.subjec.d =  hsp.rowguid 
+LEFT OUTER JOIN (SELECT MIN(StartDate) AS StartDate, SubjectID  
+                   FROM [RSSOSS].[USMC].EventSubject es, #Event e 
+         WHERE e.id=es.even.d AND 
+                        e.EventTypeId = 143 
+               GROUP BY SubjectID) eSL 
+                  ON eSL.subjec.d =  hsp.rowguid 
+LEFT OUTER JOIN (SELECT MIN(StartDate) AS StartDate, SubjectID  
+                   FROM [RSSOSS].[USMC].EventSubject es, #Event e 
+      WHERE e.id=es.even.d AND  
+                        e.EventTypeId = 139 
+               GROUP BY SubjectID) eNS 
+                  ON eNS.subjec.d =  hsp.rowguid 
+LEFT OUTER JOIN (SELECT MIN(StartDate) AS StartDate, SubjectID  
+                   FROM [RSSOSS].[USMC].EventSubject es, #Event e 
+         WHERE e.id=es.even.d AND 
+                        e.EventTypeId = 140 
+               GROUP BY SubjectID) eNJ 
+                   ON eNJ.subjec.d =  hsp.rowguid 
+LEFT OUTER JOIN (SELECT MIN(StartDate) AS StartDate, SubjectID  
+                   FROM [RSSOSS].[USMC].EventSubject es, #Event e 
+         WHERE e.id=es.even.d AND 
+                        e.EventTypeId = 141 
+               GROUP BY SubjectID) eBT 
+                   ON eBT.subjec.d =  hsp.rowguid 
+LEFT OUTER JOIN (SELECT MIN(StartDate) AS StartDate, SubjectID  
+                   FROM [RSSOSS].[USMC].EventSubject es, #Event e 
+         WHERE e.id=es.even.d AND  
+                        e.EventTypeId = 142 
+               GROUP BY SubjectID) eCT 
+                   ON eCT.subjec.d =  hsp.rowguid                        
+LEFT OUTER JOIN (SELECT MIN(StartDate) AS StartDate, SubjectID  
+                   FROM [RSSOSS].[USMC].EventSubject es, #Event e 
+         WHERE e.id=es.even.d AND 
+                        e.EventTypeId = 138 
+               GROUP BY SubjectID) eAR 
+                   ON eAR.subjec.d =  hsp.rowguid 
+LEFT OUTER JOIN (select MIN(c.CONTRACT_BEGIN_DATE) as StartDate, ps.SchoolId  
+                   FROM MCRISS.DBO.Contract c, 
+                        MCRISS.DBO.NWA n, 
+                        USMC.Prospect p,  
+                        USMC.ProspectSchool ps  
+                  WHERE c.NWA_ID = n.NWA_ID AND  
+                        n.rowguid = p.NWAID AND  
+                        c.CONTRACT_BEGIN_DATE >= @StartDt AND  
+                        c.CONTRACT_BEGIN_DATE <= @EndDt AND  
+                        p.ProspectId = ps.ProspectID  
+               GROUP BY ps.SchoolId) eFS  
+                 ON eFS.SchoolId = hs.rowguid                        
+WHERE hsp.School_Year = @SchoolYear AND  
+      hsp.rowguid = @SchoolPro.leId 
+                        
+DROP TABLE #Event 
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

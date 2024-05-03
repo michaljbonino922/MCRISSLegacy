@@ -1,0 +1,172 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[CreateLeadFromUnatachedLead]" directorySegmentName="seg_9" id="B7C71016-607E-F42B-77A8-A0C6CDEA6723">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:37 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @UnatachedLeadID uniqueiden..er,  
+ @OrgUnitID int 
+) 
+ 
+AS 
+ 
+declare @varNewPersonID uniqueiden..er 
+declare @varNewRecruitID uniqueiden..er 
+declare @varNewLeadID uniqueiden..er 
+declare @FirstName varchar(15) 
+declare @LastName varchar(15) 
+declare @SSN varchar(9) 
+declare @MiddleInit varchar(1) 
+declare @DateOfBirth date.me 
+declare @Gender varchar(1) 
+declare @PrimaryMOS varchar(4) 
+declare @PayGrade varchar(2) 
+declare @ReenlistCode varchar(2) 
+declare @ReserveECC date.me 
+declare @EAS date.me 
+declare @PresentRUC varchar(5) 
+declare @ReserveRUC varchar(5) 
+declare @HomePhone varchar(30) 
+declare @Email varchar(255) 
+declare @Address1 varchar(50) 
+declare @CityCode varchar(4) 
+declare @CountyCode varchar(3) 
+declare @StateCountryCode varchar(2) 
+declare @ZipCode varchar(9) 
+declare @DateOfRank date.me 
+declare @Addi.onalMOS1 varchar(4) 
+declare @Addi.onalMOS2 varchar(4) 
+declare @MCC varchar(3) 
+declare @NOKPhone varchar(30) 
+declare @MaritalStatus varchar(1) 
+declare @NumberOfDependents int 
+declare @DropUnitDischargeDate date.me 
+declare @ASVAB_GT int 
+declare @ASVAB_MM int 
+declare @ASVAB_CL int 
+declare @ASVAB_EL int 
+declare @Separa.onCode varchar(4) 
+declare @ComponentCode varchar(2) 
+declare @ConductAvgService .oat 
+declare @Pro.ciencyAvgService .oat 
+ 
+declare @ODSEUserID uniqueiden..er 
+ 
+declare @AtachedPSRSS int 
+declare @StatusDisposi.onID int 
+ 
+declare @counter int 
+declare @moscount int 
+declare @ruccount int 
+ 
+BEGIN 
+ 
+ BEGIN TRANSACTION 
+  
+ SELECT @SSN = SSN from UnatachedLeads where UnatachedLeadID = @UnatachedLeadID 
+ 
+ if @SSN is not null 
+ BEGIN 
+  select @FirstName = .rst_name, @LastName = last_name, @MiddleInit = middle_ini.al, @DateOfBirth = date_of_birth, @Gender = sex, 
+   @PrimaryMOS = primary_mos_code, @PayGrade = present_grade_code, @ReenlistCode = reenlist_recommenda.on_code, 
+   @ReserveEcc = reserve_exp_current_contract, @EAS = expira.on_of_ac.ve_service, 
+   @PresentRUC = present_repor.ng_unit_code, @ReserveRUC = reserve_repor.ng_unit_code, @HomePhone = home_telephone_number, @Email = electronic_mail_address_text, 
+   @Address1 = street_address, @CityCode = home_of_record_city_code, @CountyCode = home_of_record_county, @StateCountryCode = home_of_record_state_country, @ZipCode = zip_code, 
+   @DateOfRank = present_rank_date, @Addi.onalMOS1 = addl_.rst_mos_code, @Addi.onalMOS2 = addl_second_mos_code, @MCC = present_monitored_command_code, @NOKPhone = nok_telephone1, 
+   @MaritalStatus = marital_status_code, @NumberOfDependents = number_of_dependents, @DropUnitDischargeDate = drop_discharge_unit_date, @ASVAB_GT = asvab_comp_general_tech, @ASVAB_MM = asvab_comp_mech_maint, @ASVAB_CL = asvab_comp_clerical, @ASVAB_EL = asvab_comp_electronics, 
+   @Separa.onCode = separa.on_code, 
+   @ComponentCode = component_code, 
+   @ConductAvgService = conduct_average_service, @Pro.ciencyAvgService = pro.ciency_average_service 
+  from ODSE_BridgeToPSR 
+  where right(SSN,9) = @SSN 
+ 
+  set @ODSEUserID = '7246835e-d639-47a8-9166-b7072b.768e' 
+ 
+  --for inserts and updates, we need the lookup tables updated with all values from ODSE 
+  SET @moscount = (SELECT COUNT(MOSID) FROM MOS WHERE descrip.on=@PrimaryMOS) 
+  IF @moscount = 0 and @PrimaryMOS is not NULL 
+    INSERT INTO MOS (Descrip.on) values (@PrimaryMOS) 
+  SET @moscount = (SELECT COUNT(MOSID) FROM MOS WHERE descrip.on=@Addi.onalMOS1) 
+  IF @moscount = 0 and @Addi.onalMOS1 is not NULL 
+    INSERT INTO MOS (Descrip.on) values (@Addi.onalMOS1) 
+  SET @moscount = (SELECT COUNT(MOSID) FROM MOS WHERE descrip.on=@Addi.onalMOS2) 
+  IF @moscount = 0 and @Addi.onalMOS2 is not NULL 
+    INSERT INTO MOS (Descrip.on) values (@Addi.onalMOS2) 
+  SET @ruccount = (SELECT COUNT(RUCID) FROM RUC WHERE descrip.on=@PresentRUC) 
+  IF @ruccount = 0 and @PresentRUC is not NULL 
+    INSERT INTO RUC (Descrip.on) values (@PresentRUC) 
+  SET @ruccount = (SELECT COUNT(RUCID) FROM RUC WHERE descrip.on=@ReserveRUC) 
+  IF @ruccount = 0 and @ReserveRUC is not NULL 
+    INSERT INTO RUC (Descrip.on) values (@ReserveRUC) 
+  --cleanup of codes 
+  SET @CityCode = right('0000' + cast(@CityCode as varchar(4)),4) 
+  Set @CountyCode = right('000' + cast(@CountyCode as varchar(3)),3) 
+ 
+  -- note the di.erence between this and ODSE migra.on is that incoming OrgUnitID is the AtachedPSRSS 
+  Set @AtachedPSRSS = @OrgUnitID 
+ 
+  if @Separa.onCode like '8%' 
+   set @StatusDisposi.onID = 16 --Unworkable/Deceased 
+  else if @EAS > GETDATE() 
+   set @StatusDisposi.onID = 2 --Unassigned/Ac.ve Component 
+  else 
+   set @StatusDisposi.onID = 3 --Unassigned/Other Leads 
+ 
+  select @varNewPersonID = NEWID() 
+  select @varNewRecruitID = NEWID() 
+  select @varNewLeadID = NEWID() 
+  insert into [dbo].[Person] 
+   (PersonID, FirstName, LastName, SSN, MiddleName, DateOfBirth) 
+  values (@varNewPersonID, @FirstName, @LastName, @SSN, @MiddleInit, @DateOfBirth) 
+  insert into [dbo].[Recruit] 
+   (RecruitID, PersonID) 
+  values (@varNewRecruitID, @varNewPersonID) 
+  insert into [dbo].[Lead] (LeadID, RecruitID, PrimaryMOSID, PayGradeID, ReEnlistmentCode, DateRECC, DateEndAc.veService, PresentRUCID, ReserveRUCID, DOR, AddtlMOSID1, AddtlMOSID2, MCC, Gender, MaritalStatusID, NumberDependents, DropDischargeUnitDate, AtachedPSRSSID, ComponentCode, ConductAvgService, Pro.ciencyAvgService) 
+   select @varNewLeadID, @varNewRecruitID, (select MOSID from MOS where descrip.on=@PrimaryMOS), (select PayGradeID from PayGrade where descrip.on=@PayGrade), @ReenlistCode, @ReserveECC, @EAS, (select RUCID from RUC where descrip.on=@PresentRUC), (select RUCID from RUC where descrip.on=@ReserveRUC), @DateOfRank, (select MOSID from MOS where descrip.on=@Addi.onalMOS1), (select MOSID from MOS where descrip.on=@Addi.onalMOS2), @MCC, @Gender, (select MaritalStatusID from MaritalStatus where Code=@MaritalStatus), @NumberOfDependents, @DropUnitDischargeDate, @AtachedPSRSS, @ComponentCode, @ConductAvgService, @Pro.ciencyAvgService 
+  insert into [dbo].[RecruitCurrentLead] (RecruitCurrentLeadID, RecruitID, LeadID) 
+   select NEWID(), @varNewRecruitID, @varNewLeadID 
+  insert into [dbo].[EmailAddress] (EmailAddressID, LeadID, EmailAddressTypeID, Email, DateUpdated, IsCurrent) 
+   select NEWID(), @varNewLeadID, 1, @Email, GETDATE(), 1 
+  insert into [dbo].[Address] (AddressID, LeadID, Street1, CityID, StateID, CountyID, ZipCode) 
+   select NEWID(), @varNewLeadID, @Address1, right('0000' + cast(@CityCode as varchar(4)),4), @StateCountryCode, right('000' + cast(@CountyCode as varchar(3)),3), @ZipCode 
+  insert into [dbo].[LeadPhones] (LeadPhonesID, LeadID, PrimaryPhone, SecondaryPhone, Ter.aryPhone, NOK1, NOK2) 
+   select NEWID(), @varNewLeadID, @HomePhone, null, null, @NOKPhone, null 
+  insert into [dbo].[LeadStatusDisposi.on] 
+     (LeadStatusDisposi.onID, StatusDisposi.onID, LeadID, DateUpdated) 
+   select NEWID(), @StatusDisposi.onID, @varNewLeadID, GETDATE() 
+  insert into [dbo].[ASVABResult] (ASVABResultID, GT, MM, CL, EL, LeadID) 
+   select NEWID(), @ASVAB_GT, @ASVAB_MM, @ASVAB_CL, @ASVAB_EL, @varNewLeadID 
+ 
+  --now that there is a real lead for this user, remove from the Unatached Lead table 
+  delete from UnatachedLeads where UnatachedLeadID = @UnatachedLeadID 
+ END 
+ 
+ -- Rollback the transac.on if there were any errors 
+ IF @@ERROR <> 0 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+  
+  -- Raise an error and return 
+  RAISERROR ('Error occurred while performing the change.', 16, 1) 
+  RETURN 
+ END 
+  
+ -- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+ IF @@ROWCOUNT > 1 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+  
+  -- Raise an error and return 
+  RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+  RETURN 
+ END 
+  
+ -- If we reach this point, the commands completed successfully. 
+ COMMIT TRANSACTION 
+END]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+</StoredProcedureSqlServerv2k5>

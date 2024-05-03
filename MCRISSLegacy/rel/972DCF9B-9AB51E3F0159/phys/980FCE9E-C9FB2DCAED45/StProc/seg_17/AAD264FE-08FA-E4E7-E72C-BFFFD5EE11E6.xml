@@ -1,0 +1,18 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetMEPSUserOrgID]" directorySegmentName="seg_17" id="AAD264FE-08FA-E4E7-E72C-BFFFD5EE11E6">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@UserID VARCHAR(30), 
+ @MEPSOrgID INT OUTPUT 
+ 
+AS 
+ 
+SELECT @MEPSOrgID = MOL.MEPS_ORGANIZATION_ID 
+FROM MEPS_ORGANIZATION_LOOKUP MOL, USER_LIST UL 
+WHERE UL.MCC_CODE = MOL.MCC_CODE 
+ AND UL.USER_ID = @UserID]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

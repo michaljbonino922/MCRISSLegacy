@@ -1,0 +1,106 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertUpdateMapsAddress]" directorySegmentName="seg_7" id="7A5D03B0-E8CE-18CE-78C9-B3F1A2270B54">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@AddressId   uniqueidentifier, 
+ @StreetAddress1  varchar(75), 
+ @StreetAddress2  varchar(75)=null, 
+ @City    varchar(30)=null, 
+ @State       varchar(30)=null, 
+ @ZipCode            varchar(9), 
+    @La.tude   int = null, 
+ @Longitude   int = null, 
+ @GeoLoca.onId  uniqueidentifier=null, 
+ @GeoCodeDate  date.me = null, 
+ --@LastUpdateDate  date.me, 
+ @LastUpdateUserId uniqueidentifier 
+ 
+AS 
+BEGIN 
+ 
+-- STEP 1: Start the transac.on 
+BEGIN TRANSACTION 
+ 
+-- STEP 2 & 3: Issue the data change statement(s), checking @@ERROR a.er each statement 
+IF EXISTS(SELECT AddressId FROM MapsAddress WHERE AddressId = @AddressId) 
+BEGIN 
+ -- if @intCount > 0, then the Employee already exists.  UPDATE. 
+ UPDATE 
+   MapsAddress 
+  SET 
+   Street1=@StreetAddress1, 
+   Street2=@StreetAddress2, 
+   City=@City, 
+   State=@State, 
+   ZipCode=@ZipCode, 
+   La.tude=@La.tude, 
+   Longitude=@Longitude, 
+   GeoLoca.onId=@GeoLoca.onId, 
+   GeoCodeDate=@GeoCodeDate, 
+   LastUpdateDate=GETDATE(), 
+   LastUpdateUserId=@LastUpdateUserId 
+  WHERE  
+   AddressId = @AddressId 
+END 
+ELSE 
+BEGIN 
+ -- if @intCount = 0, then the Employee does not exist.  INSERT. 
+ INSERT INTO MapsAddress (AddressId, 
+      Street1, 
+      Street2, 
+      City, 
+      State, 
+      ZipCode, 
+      La.tude, 
+      Longitude, 
+      GeoLoca.onId, 
+      GeoCodeDate, 
+      LastUpdateDate, 
+      LastUpdateUserId) 
+    VALUES (@AddressId, 
+      @StreetAddress1, 
+      @StreetAddress2, 
+      @City, 
+      @State, 
+      @ZipCode, 
+      @La.tude, 
+      @Longitude, 
+      @GeoLoca.onId, 
+      @GeoCodeDate, 
+      GETDATE(), 
+      @LastUpdateUserId) 
+END 
+ 
+-- Rollback the transac.on if there were any errors 
+IF @@ERROR <> 0 
+ BEGIN 
+    -- Rollback the transac.on 
+    ROLLBACK TRANSACTION 
+ 
+    -- Raise an error and return 
+    RAISERROR ('Error occurred while performing the change.', 16, 1) 
+    RETURN 
+ END 
+ 
+-- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+IF @@ROWCOUNT > 1 
+BEGIN 
+    -- Rollback the transac.on 
+    ROLLBACK TRANSACTION 
+ 
+    -- Raise an error and return 
+    RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+    RETURN 
+END 
+  
+-- STEP 4: If we reach this point, the commands completed successfully 
+--         Commit the transac.on.... 
+COMMIT TRANSACTION 
+ 
+  
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

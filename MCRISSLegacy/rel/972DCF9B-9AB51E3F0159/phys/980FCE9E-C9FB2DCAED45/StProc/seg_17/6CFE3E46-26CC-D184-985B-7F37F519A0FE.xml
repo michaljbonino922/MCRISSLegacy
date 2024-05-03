@@ -1,0 +1,25 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_GetLatestAEPUploadData]" directorySegmentName="seg_17" id="6CFE3E46-26CC-D184-985B-7F37F519A0FE">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@PersonID   AS integer 
+  
+AS 
+ 
+SELECT  A.AEP_FILE_UPLOAD_LOG_ID AS AepID, 
+ A.[FILE_NAME] AS AepFile, 
+ A.USER_LOGIN AS UploadUser, 
+ A.UPDATE_DATE AS UploadDate, 
+ EX.USER_LOGIN AS ExportUser, 
+ EX.UPDATE_DATE AS ExportDate, 
+ EX.SUCCESSFUL_TRANSMISSION AS SuccessfulExport 
+FROM AEP_FILE_UPLOAD_LOG A LEFT OUTER JOIN JPAS_EXPORT_LOG EX 
+  ON ( A.AEP_FILE_UPLOAD_LOG_ID = EX.AEP_FILE_UPLOAD_LOG_ID AND 
+   EX.JPAS_LOG_ID = (SELECT MAX(EX2.JPAS_LOG_ID) FROM JPAS_EXPORT_LOG EX2 WHERE EX2.AEP_FILE_UPLOAD_LOG_ID = A.AEP_FILE_UPLOAD_LOG_ID)) 
+WHERE PERSON_ID = @PersonID and 
+ A.AEP_FILE_UPLOAD_LOG_ID = (SELECT MAX(AEP_FILE_UPLOAD_LOG_ID) FROM AEP_FILE_UPLOAD_LOG WHERE PERSON_ID = @PersonID)]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

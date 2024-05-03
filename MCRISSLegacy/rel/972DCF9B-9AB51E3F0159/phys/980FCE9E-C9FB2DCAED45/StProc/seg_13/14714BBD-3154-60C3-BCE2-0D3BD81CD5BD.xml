@@ -1,0 +1,21 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[ReassignNWARecruiter]" directorySegmentName="seg_13" id="14714BBD-3154-60C3-BCE2-0D3BD81CD5BD">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @NWAGuidID uniqueiden..er, 
+ @RecruiterID uniqueiden..er  
+) 
+AS 
+  
+ --declare @Recruiter_PersonId int 
+ --select  
+  
+UPDATE [mcriss].[dbo].[NWA] SET 
+ WORKING_RECRUITER_ID = (select RECRUITING_PERSON_ID from [mcriss].[dbo].[RECRUITING_PERSON] 
+ where rowguid = @RecruiterID) where rowguid = @NWAGuidID]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

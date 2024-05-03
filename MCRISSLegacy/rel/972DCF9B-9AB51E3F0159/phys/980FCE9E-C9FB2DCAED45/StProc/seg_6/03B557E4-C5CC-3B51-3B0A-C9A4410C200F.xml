@@ -1,0 +1,62 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetNumberOfContractsForRSorAbove]" directorySegmentName="seg_6" id="03B557E4-C5CC-3B51-3B0A-C9A4410C200F">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@Recrui.ngOrgID integer,  
+ @BeginDate  date.me,  
+ @Contracts  integer OUTPUT 
+AS 
+ 
+SET ArithAbort ON 
+SET NOCOUNT ON  
+ 
+ 
+SELECT  
+ n.NWA_ID, n.MARINE_CANDIDATE_ID 
+INTO #Nwa  
+FROM   
+ USMC.GetOrgHierarchyMinimal (@Recrui.ngOrgID) oh 
+ INNER JOIN [dbo].[NWA] n 
+ ON ( 
+  oh.ORG_ID = n.ORGANIZATION_OF_RECORD_ID  
+  AND  
+  oh.ORG_TYPE = 'RSS'  
+  ) 
+ INNER JOIN [dbo].[MICONTRACT] c 
+ ON (n.NWA_ID = c.NWA_ID AND 
+  c.CONTRACT_BEGIN_DATE BETWEEN DATEADD(m, -3, @BeginDate) AND DATEADD(d, -1, @BeginDate)) 
+ 
+ 
+-- records created as a result of a Component Code change. 
+SELECT DISTINCT n.NWA_ID 
+ INTO #NwaZkc 
+FROM  
+ #Nwa N  
+ INNER JOIN MCRISS.dbo.NWA N_OLD  
+  ON N_OLD.MARINE_CANDIDATE_ID = N.MARINE_CANDIDATE_ID  
+      AND N_OLD.NWA_ID = (SELECT MAX(N2.NWA_ID)  
+          FROM NWA N2  
+          WHERE N2.NWA_ID < N.Nwa_ID  
+          AND N.MARINE_CANDIDATE_ID = N2.MARINE_CANDIDATE_ID) 
+ INNER JOIN MCRISS.dbo.CONTRACT C_OLD  
+   ON C_OLD.NWA_ID = N_OLD.NWA_ID 
+WHERE  
+ C_OLD.DISCHARGE_CODE = 'ZKC' 
+ AND N_OLD.NWA_ID < N.Nwa_ID 
+ 
+-- Component Code is no longer excluded 
+--DELETE FROM #Nwa WHERE NWA_ID IN (SELECT NWA_ID FROM #NwaZkc) 
+ 
+SELECT  
+ @Contracts = COUNT(NWA_ID) 
+FROM #Nwa  
+ 
+ DROP TABLe #NwaZkc 
+ DROP TABLe #Nwa 
+ 
+SET NOCOUNT OFF]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

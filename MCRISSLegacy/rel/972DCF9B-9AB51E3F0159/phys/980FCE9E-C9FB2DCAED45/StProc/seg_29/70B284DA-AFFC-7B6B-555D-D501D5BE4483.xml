@@ -1,0 +1,147 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SaveCi.zenship]" directorySegmentName="seg_29" id="70B284DA-AFFC-7B6B-555D-D501D5BE4483">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:39 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @PersonID uniqueiden..er, 
+ @IsUsCi.zen bit, 
+ @Ci.zenshipCode varchar(50), 
+ @HasMul.ple bit, 
+ @IsNonUsCi.zenshipByBirth bit, 
+ @NonUsCi.zenshipByBirthExplana.on varchar(1000), 
+ @IsNonUsCi.zenshipRenounced bit, 
+ @NonUsCi.zenshipRenouncedExplana.on varchar(1000), 
+ @ImmigrantAlienCountry varchar(100), 
+ @NonImmigrantAlienCountry varchar(100), 
+ @DateEntered date.me, 
+ @EnteredAtStreet1 varchar(100), 
+ @EnteredAtStreet2 varchar(100), 
+ @EnteredAtCity varchar(100), 
+ @EnteredAtCounty varchar(100), 
+ @EnteredAtState varchar(100), 
+ @EnteredAtCountry varchar(100), 
+ @EnteredAtZipCode varchar(100), 
+ @ARN_CountryOfOrigin varchar(100), 
+ @ARN_DocumentNumber varchar(100), 
+ @ARN_DocumentType varchar(100), 
+ @ARN_Registra.onNumber varchar(100) 
+) 
+AS 
+BEGIN 
+ 
+ BEGIN TRANSACTION 
+  
+ IF EXISTS(SELECT PersonID FROM [ACP].Ci.zenship WHERE [PersonID] = @PersonID) 
+ BEGIN 
+  UPDATE 
+   [ACP].[Ci.zenship] 
+  SET  
+   [IsUsCi.zen] = @IsUsCi.zen, 
+   [Ci.zenshipCode] = @Ci.zenshipCode, 
+   [HasMul.ple] = @HasMul.ple, 
+   [IsNonUsCi.zenshipByBirth] = @IsNonUsCi.zenshipByBirth, 
+   [NonUsCi.zenshipByBirthExplana.on] = @NonUsCi.zenshipByBirthExplana.on, 
+   [IsNonUsCi.zenshipRenounced] = @IsNonUsCi.zenshipRenounced, 
+   [NonUsCi.zenshipRenouncedExplana.on] = @NonUsCi.zenshipRenouncedExplana.on, 
+   [ImmigrantAlienCountry] = @ImmigrantAlienCountry, 
+   [NonImmigrantAlienCountry] = @NonImmigrantAlienCountry, 
+   [DateEntered] = @DateEntered, 
+   [EnteredAtStreet1] = @EnteredAtStreet1, 
+   [EnteredAtStreet2] = @EnteredAtStreet2, 
+   [EnteredAtCity] = @EnteredAtCity, 
+   [EnteredAtCounty] = @EnteredAtCounty, 
+   [EnteredAtState] = @EnteredAtState, 
+   [EnteredAtCountry] = @EnteredAtCountry, 
+   [EnteredAtZipCode] = @EnteredAtZipCode, 
+   [ARN_CountryOfOrigin] = @ARN_CountryOfOrigin, 
+   [ARN_DocumentNumber] = @ARN_DocumentNumber, 
+   [ARN_DocumentType] = @ARN_DocumentType, 
+   [ARN_Registra.onNumber] = @ARN_Registra.onNumber 
+  WHERE  
+   [PersonID] = @PersonID 
+ END 
+ ELSE 
+ BEGIN 
+  INSERT INTO [ACP].[Ci.zenship]  
+  ( 
+   [PersonID], 
+   [IsUsCi.zen], 
+   [Ci.zenshipCode], 
+   [HasMul.ple], 
+   [IsNonUsCi.zenshipByBirth], 
+   [NonUsCi.zenshipByBirthExplana.on], 
+   [IsNonUsCi.zenshipRenounced], 
+   [NonUsCi.zenshipRenouncedExplana.on], 
+   [ImmigrantAlienCountry], 
+   [NonImmigrantAlienCountry], 
+   [DateEntered], 
+   [EnteredAtStreet1], 
+   [EnteredAtStreet2], 
+   [EnteredAtCity], 
+   [EnteredAtCounty], 
+   [EnteredAtState], 
+   [EnteredAtCountry], 
+   [EnteredAtZipCode], 
+   [ARN_CountryOfOrigin], 
+   [ARN_DocumentNumber], 
+   [ARN_DocumentType], 
+   [ARN_Registra.onNumber] 
+  ) 
+  VALUES  
+  ( 
+   @PersonID, 
+   @IsUsCi.zen, 
+   @Ci.zenshipCode, 
+   @HasMul.ple, 
+   @IsNonUsCi.zenshipByBirth, 
+   @NonUsCi.zenshipByBirthExplana.on, 
+   @IsNonUsCi.zenshipRenounced, 
+   @NonUsCi.zenshipRenouncedExplana.on, 
+   @ImmigrantAlienCountry, 
+   @NonImmigrantAlienCountry, 
+   @DateEntered, 
+   @EnteredAtStreet1, 
+   @EnteredAtStreet2, 
+   @EnteredAtCity, 
+   @EnteredAtCounty, 
+   @EnteredAtState, 
+   @EnteredAtCountry, 
+   @EnteredAtZipCode, 
+   @ARN_CountryOfOrigin, 
+   @ARN_DocumentNumber, 
+   @ARN_DocumentType, 
+   @ARN_Registra.onNumber 
+  ) 
+  
+ END 
+  
+ -- Rollback the transac.on if there were any errors 
+ IF @@ERROR <> 0 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+  
+  -- Raise an error and return 
+  RAISERROR ('Error occurred while performing the change.', 16, 1) 
+  RETURN 
+ END 
+  
+ -- Rollback the transac.on if the number of rows changed does not meet our expecta.on... 
+ IF @@ROWCOUNT > 1 
+ BEGIN 
+  -- Rollback the transac.on 
+  ROLLBACK TRANSACTION 
+  
+  -- Raise an error and return 
+  RAISERROR ('An unexpected number of rows were changed.', 16, 1) 
+  RETURN 
+ END 
+  
+ -- If we reach this point, the commands completed successfully. 
+ COMMIT TRANSACTION 
+END]]></body>
+<schema>569A41D8-8F40-0619-141C-F4C9436AAF46</schema>
+<database>2D7ED536-DF8E-3523-7DC3-4228EBAF5F66</database>
+</StoredProcedureSqlServerv2k5>

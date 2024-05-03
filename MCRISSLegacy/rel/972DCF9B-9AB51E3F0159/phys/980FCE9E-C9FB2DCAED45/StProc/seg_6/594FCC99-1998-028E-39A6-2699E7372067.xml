@@ -1,0 +1,45 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetXmlTrainingProvided]" directorySegmentName="seg_6" id="594FCC99-1998-028E-39A6-2699E7372067">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@TrainingProvidedID     uniqueidentifier 
+ 
+AS 
+BEGIN 
+  
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+ SELECT  
+ tp.ID 
+ ,TrainingFileID 
+ ,TrainingDate 
+ ,TrainingTypeID 
+ ,t.Type AS TrainingTypeTitle 
+ ,TrainingProvidedTypeID 
+ ,tpt.Type AS TrainingProvidedTypeTitle  
+ ,Subject 
+ ,Hours 
+ ,ConductedBy 
+ ,RecruiterSignatureID AS 'RecruiterSignature/SignatureID'  
+    ,U1.FirstName AS 'RecruiterSignature/SignatureFirstName'  
+ ,U1.MiddleName AS 'RecruiterSignature/SignatureMiddleName'  
+ ,U1.LastName AS 'RecruiterSignature/SignatureLastName'  
+ ,NCOICSignatureID 
+ ,LastUpdatedDate 
+ ,LastUpdatedBy 
+ FROM USMC.TrainingProvided tp 
+ INNER JOIN USMC.TrainingProvidedType tpt 
+ ON tp.TrainingProvidedTypeID = tpt.ID 
+ INNER JOIN USMC.TrainingType t 
+ ON tp.TrainingTypeID = t.ID 
+ LEFT OUTER JOIN USMC.vwMcrissUserMgmtUser AS U1 ON U1.UserID = tp.RecruiterSignatureID 
+ WHERE  
+ tp.ID = @TrainingProvidedID  
+ FOR XML PATH('TrainingProvided'), root('TrainingProvidedList'), ELEMENTS XSINIL 
+     
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

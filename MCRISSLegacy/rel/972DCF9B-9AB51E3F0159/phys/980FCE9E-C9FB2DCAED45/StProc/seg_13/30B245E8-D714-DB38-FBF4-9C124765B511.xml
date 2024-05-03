@@ -1,0 +1,28 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetCanvassDataBySchoolId]" directorySegmentName="seg_13" id="30B245E8-D714-DB38-FBF4-9C124765B511">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@SchoolId   uniqueiden..er  
+ AS 
+BEGIN 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+  
+                    select t1.startdate as date, count(t2.prospec.d) as cumscrubbed 
+                          from (select e.startdate from rssoss.usmc.event e inner join rssoss.usmc.eventsubject es on es.subjec.d = @schoolid and e.id=es.even.d  
+                    and e.eventypeid in (151,152,153)) t1 le. outer join (select psh.prospec.d, min(psh.updatedate) as updatedate FROM PROSPECTING.USMC.ImportEvent AS ie INNER JOIN 
+                         PROSPECTING.USMC.ImportPerson AS iper ON iper.ImportEventId = ie.ImportEventId INNER JOIN  
+                         PROSPECTING.USMC.Person AS per ON per.PersonId = iper.PersonId INNER JOIN 
+                         PROSPECTING.USMC.Prospect AS p ON p.PersonId = iper.PersonId inner join PROSPECTING.USMC.ProspectStatusHistory psh on p.prospec.d=psh.prospec.d and psh.Disposi.onId IN (2,3, 4) and  ie.SchoolId= @SchoolId group by psh.prospec.d) t2 
+                         on (CONVERT(VARCHAR(10), t1.startdate, 120))>=(CONVERT(VARCHAR(10), t2.updatedate, 120)) group by t1.startdate 
+ 
+                    
+                        
+                          
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

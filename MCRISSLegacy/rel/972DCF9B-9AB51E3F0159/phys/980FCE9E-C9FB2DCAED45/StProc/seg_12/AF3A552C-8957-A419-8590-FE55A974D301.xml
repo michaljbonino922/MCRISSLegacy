@@ -1,0 +1,85 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[migrate_179]" directorySegmentName="seg_12" id="AF3A552C-8957-A419-8590-FE55A974D301">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[as 
+ 
+print 'Star.ng PERSON' 
+exec SP_P_PROCESS179 
+ 
+print 'Star.ng MARINE CANDIDATE' 
+exec SP_MC_PROCESS179 
+ 
+print 'Star.ng NWA' 
+exec SP_NWA_PROCESS179 
+ 
+print 'Star.ng CONTRACT' 
+exec SP_CON_PROCESS179  
+ 
+print 'Star.ng SHIPPER' 
+exec SP_SHIP_PROCESS179 
+ 
+print 'Star.ng ASVAB' 
+exec SPGEN_CANDASVAB179 
+ 
+print 'Star.ng ADDRESS' 
+exec SPGEN_CANDADDRESS 
+ 
+print 'Star.ng DEPENDENT' 
+exec SPGEN_CANDDEPENDENT 
+ 
+print 'Star.ng MEDICAL EXAM' 
+exec SPGEN_CANDMEDICAL_EXAM 
+ 
+print 'Star.ng SPECIAL EXAM' 
+exec SPGEN_CANDSPECIAL_EXAM 
+ 
+print 'Star.ng LANGUAGE' 
+exec SPGEN_CANDLANGUAGE 
+ 
+print 'Star.ng EDUCATION' 
+exec SPGEN_CANDEDUCATION179  
+ 
+print 'Star.ng PROFESSED EXAM' 
+exec SP_GENCANDIDATE_PROFESSEDEXAM 
+ 
+print 'Star.ng TELEPHONE' 
+exec SPGEN_CANDTELEPHONE   
+ 
+print 'Star.ng REFERRAL' 
+exec SP_REFERRAL_179  
+ 
+print 'Star.ng PROGRAMS' 
+exec SPGEN_PROGRAM_CRITERIA 
+ 
+print 'Star.ng WAIVERS' 
+exec sp_gen_waivers179 
+ 
+ 
+--inserts a record into the meps schedule table 
+ 
+insert meps_schedule 
+(NWA_ID,MEPS_ORGANIZATION_ID,PROCESSING_DATE,ARRIVAL_DATE,ASVAB,SPECIAL_EXAM, 
+COMPLETE_PHYSICAL,INSPECTION_PHYSICAL,CONSULTATION_PHYSICAL,CONTRACT, 
+SHIP,OTHER_PROCESSING,PROCESSING_STATUS,LODGING_REQUIRED,TRANSPORTATION_REQUIRED,SPECIAL_EXAM_TYPE, 
+PROCESSING_NOTES,DELETED,USER_LOGIN,UPDATE_DATE) 
+select n.NWA_ID, a.MEPS_ORGANIZATION_ID, c.contract_begin_date, c.contract_begin_date,'N','N', 
+'N','N','N','Y', 
+'N','Y','S','N','N','N', 
+'migrated schedule record','N','migra.on',getdate() 
+from nwa n,  contract c, candidate_status cs, candidate_asvab a 
+where n.nwa_id not in (select nwa_id from meps_schedule) and 
+ n.marine_candidate_id = a.marine_candidate_id and 
+ n.nwa_id = c.nwa_id and 
+ n.user_login = 'migra.on' and   
+ a.meps_organiza.on_id is not null and 
+ n.nwa_id = cs.nwa_id and  
+ cs.candidate_status_id = (select max(candidate_status_id) from candidate_status where nwa_id = n.nwa_id) and 
+ cs.status_type = 'E' and 
+ cs.status_code = 'B'and 
+ cs.disposi.on_code = 'K']]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

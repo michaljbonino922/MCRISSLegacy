@@ -1,0 +1,92 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_ODSE_DeleteLeads]" directorySegmentName="seg_12" id="DE41E82D-2483-62F3-DAE7-2DF3979204CD">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:37 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[AS 
+ 
+--The following script can be used to delete leads 
+--It uses a temp table to store the leads that should be deleted 
+--IMPORTANT: modify the script where appropriate to purge the correct leads 
+ 
+--Sample clauses 
+--NOTE: Put clauses here that might be useful for others to have when dele.ng leads 
+ 
+--Leads which are unassigned: 
+/* 
+ select leadid from leadstatusdisposi.on where  
+  statusdisposi.onid in (2,3) 
+*/ 
+ 
+--Leads more than 5 years a.er Reserve ECC date 
+/* 
+ select leadid from Lead where 
+  DateRECC is not null and DateRECC < DATEADD(Year,-5,GETDATE()) 
+*/ 
+ 
+create TABLE ##LeadsToDelete  
+( 
+ LeadID uniqueiden..er 
+) 
+ 
+insert into ##LeadsToDelete (LeadID) 
+--IMPORTANT: Clause below indicates which leads will be deleted 
+ select leadid from Lead where 
+  DateRECC is not null and DateRECC < DATEADD(Year,-5,GETDATE()) 
+ 
+delete from [ASVABResult] where LeadID in (select LeadID from ##LeadsToDelete) 
+delete from [LeadStatusDisposi.on] where LeadID in (select LeadID from ##LeadsToDelete) 
+delete from [LeadPhones] where LeadID in (select LeadID from ##LeadsToDelete) 
+delete from [EmailAddress] where LeadID in (select LeadID from ##LeadsToDelete) 
+delete from [Address] where LeadID in (select LeadID from ##LeadsToDelete) 
+delete from [RecruitCurrentLead] where LeadID in (select LeadID from ##LeadsToDelete) 
+delete from [LeadHistoryLineItem] where LeadHistoryID in ( 
+ select leadhistoryid from [LeadHistory] where LeadID in (select LeadID from ##LeadsToDelete) 
+ ) 
+delete from [AddressHistory] where LeadID in (select LeadID from ##LeadsToDelete) 
+delete from [LeadHistory] where LeadID in (select LeadID from ##LeadsToDelete) 
+delete from [ApplicantPackage] where LeadID in (select LeadID from ##LeadsToDelete) 
+delete from [ScreeningResponse] where ScreeningInfoID in ( 
+ select ScreeningInfoID from [ScreeningInfo] where LeadID in (select LeadID from ##LeadsToDelete) 
+ ) 
+delete from [ScreeningInfo] where LeadID in (select LeadID from ##LeadsToDelete) 
+delete from [ScheduledEvent] where LeadID in (select LeadID from ##LeadsToDelete) 
+delete from [RetrainAtachment] where RetrainID in ( 
+ select RetrainID from [Retrain] where LeadID in (select LeadID from ##LeadsToDelete) 
+ ) 
+delete from [RetrainCourse] where RetrainID in ( 
+ select RetrainID from [Retrain] where LeadID in (select LeadID from ##LeadsToDelete) 
+ ) 
+delete from [Retrain] where LeadID in (select LeadID from ##LeadsToDelete) 
+delete from [Contact] where LeadID in (select LeadID from ##LeadsToDelete) 
+delete from [LeadForm] where LeadID in (select LeadID from ##LeadsToDelete) 
+delete from [Waiver] where LeadID in (select LeadID from ##LeadsToDelete) 
+delete from [Note] where LeadID in (select LeadID from ##LeadsToDelete) 
+delete from [Lead] where LeadID in (select LeadID from ##LeadsToDelete) 
+delete from [Recruit] where RecruitID not in (select RecruitID from RecruitCurrentLead) 
+delete from [Person] where PersonID not in  
+ (select PersonID from Recruit union select PersonID from Recruiter) 
+ 
+--Note that Alerts may have orphaned ReferenceIDs due to the above deletes. 
+--The check constraint enforcing this integrity is not validated during deletes 
+delete from Alert where AlertTypeID in (2,3) and ReferenceID in (select LeadID from ##LeadsToDelete) 
+delete from Alert where AlertTypeID = 4 and ReferenceID in ( 
+ select WaiverID from Waiver where LeadID in (select LeadID from ##LeadsToDelete) 
+ ) 
+delete from Alert where AlertTypeID = 5 and ReferenceID in ( 
+ select QSNID from ApplicantPackage where LeadID in (select LeadID from ##LeadsToDelete) 
+ ) 
+delete from Alert where AlertTypeID = 6 and ReferenceID in ( 
+ select QSNChangeRequestID from QSNChangeRequest where QSNID in ( 
+  select QSNID from ApplicantPackage where LeadID in (select LeadID from ##LeadsToDelete) 
+  ) 
+ ) 
+delete from Alert where AlertTypeID = 7 and ReferenceID in ( 
+ select RetrainID from Retrain where LeadID in (select LeadID from ##LeadsToDelete) 
+ ) 
+ 
+DROP TABLE ##LeadsToDelete]]></body>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+</StoredProcedureSqlServerv2k5>

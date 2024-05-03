@@ -1,0 +1,51 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetMarketAnalysisRecord]" directorySegmentName="seg_6" id="F66D3650-880D-1E2D-D224-BE6BCCB76BFC">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@CollegePro.leID uniqueiden..er 
+   
+AS 
+  
+SELECT  
+  CollegePro.leID 
+  ,hs.[SCHOOL_CODE] AS SchoolCode 
+  ,hs.[RowGuid] as SchoolRowGuid 
+  ,hs.highschool_name AS CollegeName 
+  ,FiscalYear 
+  ,cp.PriorityCode AS Priority 
+  ,cp.BarronsIndex AS BarronIndex 
+  ,cp.NumMale 
+  ,cp.NumFemale 
+  ,cp.NumAfricanAmerican 
+  ,cp.NumHispanic 
+  ,cp.NumOther 
+  ,ISNULL(PercentQuali.ed,0) AS PercentQuali.ed  
+  ,ISNULL(NumQCPMale,0) AS NumQCPM 
+  ,ISNULL(NumQCPFemale,0) AS NumQCPF     
+  ,ISNULL(NumDQCPMale,0) AS NumDQCPM 
+  ,ISNULL(NumDQCPFemale,0) AS NumDQCPF 
+  ,0 AS NumPool 
+  ,0 AS  NumAEV    
+  ,TimeToCollegeInMinutes 
+  ,DistanceToCollege 
+  ,0 AS NumFYPlannedVisits  
+  ,0 AS NumFYContractGoal     
+  ,0 AS NumFYPlannedVisits1  
+  ,0 AS NumFYContractGoal1     
+  ,0 AS NumFYPlannedVisits2 
+  ,0 AS NumFYContractGoal2     
+  ,0 AS NumFYPlannedVisits3  
+  ,0 AS NumFYContractGoal3    
+FROM [MCRISS].[dbo].High_School hs     
+INNER JOIN [MCRISS].[USMC].[CollegePro.le] cp on cp.school_code = hs.school_code 
+WHERE CollegePro.leID = @CollegePro.leID 
+  
+ORDER BY cp.[SCHOOL_CODE] 
+                               
+  
+SET NOCOUNT OFF]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

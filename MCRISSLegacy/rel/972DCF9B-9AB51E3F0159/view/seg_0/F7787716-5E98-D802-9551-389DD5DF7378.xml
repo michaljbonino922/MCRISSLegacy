@@ -1,0 +1,80 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableView class="oracle.dbtools.crest.model.design.relational.TableView" directorySegmentName="seg_0" id="F7787716-5E98-D802-9551-389DD5DF7378" schemaObject="2A6D9360-3BB2-5CEA-6E99-790D76996FDF" name="vw_Candidate_Professed_Exam_PJ">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<importedID>42DA23A6-778F-5E69-E48D-927989476FA5</importedID>
+<userDefined>true</userDefined>
+<userDefinedSQL><![CDATA[SELECT     dbo.PERSON.PERSON_ID, 'S' AS ProfessedExamType, GETDATE() AS ExamDate, GETDATE() AS ExamEnteredDate,  
+                      dbo.Working_USNA.[SAT Total Score] AS ExamScore 
+FROM         dbo.PERSON INNER JOIN 
+                      dbo.Working_USNA ON dbo.PERSON.SOCIAL_SECURITY_NUMBER = dbo.Working_USNA.CSSN]]></userDefinedSQL>
+<syntaxProvider>MSSQL</syntaxProvider>
+<viewElements>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="PERSON_ID" id="FF00FBCD-3D22-0E86-5D72-89BAE875691F">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>PERSON_ID</alias>
+<dataType>UNKNOWN</dataType>
+<expression>PERSON_ID</expression>
+<reference>false</reference>
+<viewID>F7787716-5E98-D802-9551-389DD5DF7378</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="&apos;S&apos;" id="009F6CE1-F525-2A2D-DC69-10E5F1178BDA">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>ProfessedExamType</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>ProfessedExamType</headerAlias>
+<expression>&apos;S&apos;</expression>
+<reference>false</reference>
+<viewID>F7787716-5E98-D802-9551-389DD5DF7378</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="GETDATE()" id="4F4C56BA-EE89-0F3C-3083-46B0F711EF3C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>ExamDate</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>ExamDate</headerAlias>
+<expression>GETDATE()</expression>
+<reference>false</reference>
+<viewID>F7787716-5E98-D802-9551-389DD5DF7378</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="COL_724" id="A03F2F49-7357-D31D-CABE-C9803E90942A">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>ExamEnteredDate</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>ExamEnteredDate</headerAlias>
+<expression>GETDATE()</expression>
+<reference>false</reference>
+<viewID>F7787716-5E98-D802-9551-389DD5DF7378</viewID>
+</viewElement>
+<viewElement class="oracle.dbtools.crest.model.design.relational.ColumnView" name="[SAT Total Score]" id="4666EAC8-847F-A93A-0C92-EB2F20CDE0C4">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:29:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<alias>ExamScore</alias>
+<dataType>UNKNOWN</dataType>
+<headerAlias>ExamScore</headerAlias>
+<expression>[SAT Total Score]</expression>
+<reference>false</reference>
+<viewID>F7787716-5E98-D802-9551-389DD5DF7378</viewID>
+</viewElement>
+</viewElements>
+</TableView>

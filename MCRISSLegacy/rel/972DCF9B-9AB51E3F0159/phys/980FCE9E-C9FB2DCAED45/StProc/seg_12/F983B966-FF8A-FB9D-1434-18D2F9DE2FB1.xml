@@ -1,0 +1,59 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[M8412_Duty_Preference_Update]" directorySegmentName="seg_12" id="F983B966-FF8A-FB9D-1434-18D2F9DE2FB1">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@PersonID   INT  
+ , @Billet1  VARCHAR(25)=null 
+ , @Loca.on_ID1  INT=null 
+ , @Loca.on1  VARCHAR(25)=null 
+ , @Billet2  VARCHAR(25)=null 
+ , @Loca.on_ID2  INT=null 
+ , @Loca.on2  VARCHAR(25)=null 
+ , @UserID  VARCHAR(15)=NULL 
+ 
+AS 
+ 
+ set nocount on 
+ 
+ 
+ IF EXISTS (SELECT Person_ID FROM M8412_Duty_Preference WHERE Person_ID=@PersonID) 
+  DELETE FROM M8412_Duty_Preference WHERE Person_ID=@PersonID 
+ 
+  
+ 
+ 
+-- 1st preference 
+IF (ISNULL(LEN(@Billet1),0)!=0 OR ISNULL(LEN(@Loca.on1),0)!=0) 
+  INSERT INTO M8412_Duty_Preference VALUES( 
+ @PersonID 
+ , 1 
+ , @Billet1   
+ , @Loca.on_ID1   
+ , @Loca.on1  
+ , GETDATE() 
+ , GETDATE() 
+ , @UserID 
+ ) 
+ 
+-- 2st preference 
+IF (ISNULL(LEN(@Billet2),0)!=0 OR ISNULL(LEN(@Loca.on2),0)!=0) 
+  INSERT INTO M8412_Duty_Preference VALUES( 
+ @PersonID 
+ , 2 
+ , @Billet2   
+ , @Loca.on_ID2 
+ , @Loca.on2 
+ , GETDATE() 
+ , GETDATE() 
+ , @UserID 
+ ) 
+ 
+  
+ 
+ 
+set nocount o.]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,37 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetPreCommissionData]" directorySegmentName="seg_8" id="508E2093-4D7E-9D34-3C88-A2CCB8CC0AD9">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@NwaId int 
+AS  
+ 
+SELECT  
+ p.[PRECOMMISSION_ID] 
+ ,p.[NWA_ID] 
+ ,p.[CONTRACT_ID] 
+ ,p.[TBS_ID] 
+ ,p.[FY_ACTIVE_DUTY_ASSIGNMENT] 
+ ,p.[PROJ_LAW_GRAD_DATE] 
+ ,p.[FLIGHT_INDOCTRINATION] 
+ ,p.[PRIVATE_PILOT] 
+ ,p.[FLIGHT_HOURS] 
+ ,p.[CERTIFIED_CROSS_COUNTRY] 
+ ,p.[REQUEST_FOR_APPOINTMENT_DATE] 
+ ,p.[USER_LOGIN] 
+ ,p.[UPDATE_DATE] 
+ ,c.[COMMISSION_DATE] 
+ ,t.[CLASS] AS TBS_CLASS 
+ ,t.[FY] AS TBS_FY 
+ ,a.[ACCESSION_DATE] 
+ ,rfa.[MCRC_RECEIVED_DATE] 
+FROM [mcriss].[dbo].[PRECOMMISSION_DATA] p WITH (NOLOCK) 
+ LEFT JOIN [mcriss].[dbo].[COMMISSIONEE] c on p.[CONTRACT_ID] = c.[CONTRACT_ID] 
+ LEFT JOIN [mcriss].[dbo].[TBS] t on p.TBS_ID = t.TBS_ID 
+ LEFT JOIN [mcriss].[dbo].[OFFICER_ACCESSION] a on p.[NWA_ID] = a.[NWA_ID] 
+ LEFT JOIN [mcriss].[dbo].[RFA_TRACKING_DATES] rfa on  p.[CONTRACT_ID] = rfa.[CONTRACT_ID] 
+WHERE p.[NWA_ID] = @NwaId]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

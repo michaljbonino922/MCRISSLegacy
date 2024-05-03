@@ -1,0 +1,93 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetWFVHSCCVisitCardRows]" directorySegmentName="seg_14" id="A4F53FDE-5EA2-4AC2-4458-C6EE50B5489E">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:56 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[(  
+ @OrgId uniqueiden..er = null, 
+ @RecruiterId uniqueiden..er = null, 
+ @ScheduledEventsStart date.me, 
+ @ScheduledEventsEnd date.me, 
+ @EventTypeId int = null, 
+ @OnlyNextScheduledEvent bit = 1 
+) 
+AS 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+  
+ DECLARE @Organiza.onID int  
+ 
+ SELECT @Organiza.onID = ORGANIZATION_ID FROM MCRISS.DBO.RECRUITING_ORGANIZATION WHERE rowguid = @orgid   
+  
+ SELECT 
+   prf.rowguid AS ApplicantAssetID,  
+   hs.HIGHSCHOOL_NAME  + '-' + cast(prf.SCHOOL_YEAR as varchar(5)) AS ApplicantAssetName, 
+   hs.rowguid AS SchoolId, 
+   hs.rowguid AS CardId, 
+   hsv.DatePrepared AS CreateDate,     
+   rp.rowguid AS RecruiterID, 
+   COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+   COALESCE(RTRIM(p.LAST_NAME), SPACE(0))  + SPACE(1) +  
+   COALESCE(RTRIM(p.FIRST_NAME), SPACE(0)) + SPACE(1) +  
+   COALESCE(RTRIM(p.LEGAL_MIDDLE_NAME), SPACE(0)) AS Recruiter, 
+   COALESCE(RTRIM(rp.RANK_CODE), SPACE(0)) + SPACE(1)  +  
+   COALESCE(RTRIM(p.LAST_NAME), SPACE(0)) AS RecruiterShortName, 
+   prf.SCHOOL_YEAR AS SchoolYear, 
+   hse.EventID, 
+   hse.StartDate AS EventDate, 
+   hse.EventTypeOther, 
+   hse.EventType 
+  INTO #RESULTS 
+  FROM [MCRISS].[dbo].[HIGH_SCHOOL] hs 
+  INNER JOIN [MCRISS].[dbo].[HIGH_SCHOOL_PROFILE] prf ON hs.SCHOOL_CODE = prf.SCHOOL_CODE 
+  LEFT JOIN [RSSOSS].[USMC].HSCCVisitCard hsv ON hs.SCHOOL_CODE = hsv.School_Code AND hsv.School_Year = prf.SCHOOL_YEAR 
+  --INNER JOIN RSSOSS.USMC.MapsSectorZip msz ON SUBSTRING(hs.ZIP_CODE,1,5) = msz.Zip 
+  --           AND msz.LastUpdateDate IN (SELECT MAX(msz2.LastUpdateDate) 
+  --                  FROM RSSOSS.USMC.MapsSectorZip msz2 
+  --                  WHERE msz.Zip = msz2.Zip) 
+  --INNER JOIN RSSOSS.USMC.MapsSectorRecruiter msr ON msz.SectorID = msr.SectorID 
+  --           AND msr.LastUpdateDate IN ( SELECT MAX(msr2.LastUpdateDate) 
+  --                  FROM RSSOSS.USMC.MapsSectorRecruiter msr2 
+  --                  WHERE msr.SectorID = msr2.SectorID) 
+  --INNER JOIN RSSOSS.USMC.MapsSector ms ON ms.SectorID = msr.SectorID  
+  --          AND ms.SectorType = 'E'  
+  --          AND ms.Recrui.ngOrganiza.onId = @OrgId 
+  INNER JOIN MCRISS.dbo.RECRUITING_ORGANIZATION ro ON hs.ORGANIZATION_ID = ro.ORGANIZATION_ID 
+  INNER JOIN MCRISS.dbo.RECRUITING_PERSON rp ON prf.Recruiter_ID = rp.RECRUITING_PERSON_ID 
+  INNER JOIN MCRISS.dbo.PERSON p ON rp.RECRUITING_PERSON_ID = p.PERSON_ID 
+  INNER JOIN (SELECT e.StartDate, 
+       es.SubjectId, 
+       e.Id AS EventId, 
+       e.EventTypeId, 
+       e.EventTypeOther, 
+       et.[Type] as EventType 
+      FROM [MCRISS].[dbo].[HIGH_SCHOOL_PROFILE] prf2 
+      INNER JOIN [RSSOSS].[USMC].EventSubject es ON es.SubjectID = prf2.rowguid 
+      INNER JOIN RSSOSS.USMC.Event e ON e.Id = es.EventId and e.EventSourceId = 19 
+      inner join [RSSOSS].[USMC].[EventType] et on et.ID = e.EventTypeId 
+       ) hse ON hse.SubjectID =  prf.rowguid      
+   WHERE  
+    (prf.rowguid IS NOT NULL) AND 
+    (rp.RowGuid = @RecruiterId OR @RecruiterId IS NULL) AND 
+    (ro.ORGANIZATION_ID = @Organiza.onID) AND 
+    hse.StartDate >= @ScheduledEventsStart AND  
+    hse.StartDate < @ScheduledEventsEnd AND 
+    (hse.EventTypeId = @EventTypeId OR @EventTypeId IS NULL) 
+ 
+ SELECT * 
+ FROM #RESULTS r 
+ WHERE (EventDate IN (SELECT MIN(EventDate) 
+      FROM #RESULTS r2 
+      WHERE r.ApplicantAssetID = r2.ApplicantAssetID 
+       AND r2.EventDate >= GetDate()) 
+     -- in case two events have the same minimum event date 
+     AND EventID = (SELECT Top 1 EventID FROM #RESULTS r3 WHERE r.ApplicantAssetID = r3.ApplicantAssetID AND r3.EventDate = r.EventDate) 
+     ) 
+  OR (@OnlyNextScheduledEvent = 0   
+  AND r.EventDate >= GetDate())-- this returns all future events when set to 0 
+ 
+DROP TABLE #RESULTS]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,81 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[InsertOrUpdateProgramInfo]" directorySegmentName="seg_11" id="D6EA1A48-EDB9-BE27-B368-695B733DF36A">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:43 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@NWARowId uniqueiden..er, 
+      @FIPEnrolled char(1), 
+      @FIPEnrollmentDate date.me, 
+      @FAPEnrolled char(1), 
+      @FAPEnrollmentDate date.me, 
+      @MCTAPEnrolled char(1), 
+      @MCTAPEnrollmentDate date.me, 
+      @Con.den.alRemark varchar(max), 
+      @UserLogin uniqueiden..er 
+          
+   
+AS 
+SET NOCOUNT ON 
+ 
+ 
+ --IMPORTANT NOTE: Add begin and end transac.on 
+ 
+ 
+  
+ --records are  updated only for the same p. date under the assump.on the user  
+ --made a mistake. Otherwise a new record is inserted so that the PFT history can  
+ -- be maintained 
+  
+ IF EXISTS (SELECT '1' FROM [MCRISS].[USMC].[CandidatePoolCardInfo]  cpf 
+            inner join [MCRISS].[dbo].[NWA] n  
+               ON cpf.nwa_id = n.nwa_id 
+            where n.[rowguid] = @NWARowId) 
+   
+  
+ BEGIN 
+  
+  UPDATE [MCRISS].[USMC].[CandidatePoolCardInfo]   
+  SET  
+    [FIPEnrolled] = @FIPEnrolled, 
+    [FIPEnrollmentDate] = @FIPEnrollmentDate, 
+    [FAPEnrolled] = @FAPEnrolled, 
+    [FAPEnrollmentDate] = @FAPEnrollmentDate, 
+    [MCTAPEnrolled] = @MCTAPEnrolled,  
+    [MCTAPEnrollmentDate] = @MCTAPEnrollmentDate,  
+    [Con.den.alRemark] = @Con.den.alRemark, 
+    [LastUpdateUserId] = newid(), 
+    [LastUpdateDate] = GetDate() 
+           
+   WHERE  nwa_id =  (SELECT cpf.nwa_id FROM [MCRISS].[USMC].[CandidatePoolCardInfo]  cpf 
+        inner join [MCRISS].[dbo].[NWA] n  
+        ON cpf.nwa_id = n.nwa_id 
+        where n.[rowguid] = @NWARowId) 
+ 
+ END 
+ 
+    ELSE   
+  BEGIN  
+   
+  INSERT INTO [MCRISS].[USMC].[CandidatePoolCardInfo] 
+     ([NWA_ID],[FIPEnrolled] ,[FIPEnrollmentDate] ,[FAPEnrolled], 
+     [FAPEnrollmentDate] ,[MCTAPEnrolled] ,[MCTAPEnrollmentDate], 
+     [Con.den.alRemark],[LastUpdateUserId],[LastUpdateDate]) 
+            
+      
+     Select NWA_ID  , @FIPEnrolled, 
+      @FIPEnrollmentDate, @FAPEnrolled, 
+      @FAPEnrollmentDate, @MCTAPEnrolled, 
+      @MCTAPEnrollmentDate, @Con.den.alRemark, 
+      newid(),GetDate() 
+       
+     from NWA n where n.rowguid =  @NWARowId    
+           
+ 
+  END 
+  
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>72379847-5555-B149-4E45-17F849103A51</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,137 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_mg_Educa.on]" directorySegmentName="seg_22" id="2B791CBF-E595-0718-DE53-8260ABECB285">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[as 
+declare 
+  @user_login varchar(15), 
+  @update_date date.me, 
+  @coll_ed_level char(1), 
+  @actual_grad_dte char(6), 
+  @curr_grad_dte char(6), 
+  @coll_major char(2), 
+  @gpa char(3), 
+  @coll_cd char(4), 
+  @ssn char(9), 
+  @educa.on_level char(2), 
+  @educa.on_code char(1), 
+  @actual_grad_dte_d date.me, 
+  @curr_grad_dte_d date.me, 
+  @gpa_.oat .oat, 
+  @school_code int, 
+  @dte_to_ocs char(6), 
+  @veri.ca.on char(10), 
+  @person_id int 
+   
+ 
+declare cur_arms cursor for 
+  select ssn, 
+    coll_ed_level, 
+    actual_grad_dte, 
+    curr_grad_dte, 
+    coll_major, 
+    gpa, 
+    coll_cd, 
+    dte_to_ocs 
+    from AO2 
+ 
+  set @user_login = 'o_migra.on' 
+  set @update_date = getdate() 
+ 
+  open cur_arms 
+  fetch cur_arms into 
+    @ssn, 
+    @coll_ed_level, 
+    @actual_grad_dte, 
+    @curr_grad_dte, 
+    @coll_major, 
+    @gpa, 
+    @coll_cd, 
+    @dte_to_ocs 
+ 
+while (@@FETCH_STATUS = 0) 
+begin 
+print '---------' 
+print @ssn 
+print @coll_cd 
+ 
+  set @person_id = (select top 1 person_id from person 
+    where social_security_number = @ssn) 
+  set @school_code = (select top 1 school_code from high_school 
+    where dod_code = rtrim(@coll_cd)) 
+  if @school_code is null 
+    set @school_code = 33970 -- set to not listed 
+ 
+  set @actual_grad_dte_d = mcriss.dbo.sp_mg_GetDate(@actual_grad_dte) 
+  set @curr_grad_dte_d = mcriss.dbo.sp_mg_GetDate(@curr_grad_dte) 
+  set @gpa_.oat = mcriss.dbo.sp_mg_ConvertToFloat (@gpa) 
+  set @gpa_.oat = mcriss.dbo.sp_mg_ConvertToFloat (substring(@gpa,1,1) + '.' + substring(@gpa,2,2)) 
+ 
+  /* If the transforma.on rules change, need to update NWA migra.on code as well. */ 
+  /* Set to default values in case coll_ed_level is invalid */ 
+  set @educa.on_level = '12' 
+  set @educa.on_code = '2' 
+ 
+  /* 
+   * Change educa.on level into MCRISS format. 
+   */ 
+  if (@coll_ed_level <> '2') 
+   and (@coll_ed_level <> '3') 
+   and (@coll_ed_level <> '4') 
+   and (@coll_ed_level <> '5') 
+   and (@coll_ed_level <> '6') 
+   and (@coll_ed_level <> 'K') 
+   and (@coll_ed_level <> 'N') 
+   and (@coll_ed_level <> 'W') 
+    set @coll_ed_level = '6' 
+  /* 
+   * College_major 'F0' is an error.  Set it to '00'.  Gy Cal 
+   */ 
+  if (@coll_major = 'F0') 
+    set @coll_major = '00' 
+ 
+  set @veri.ca.on = 'PENDING' 
+    
+  /* Insert a new record. */ 
+ 
+  insert into candidate_educa.on ( 
+    marine_candidate_id, 
+    school_code, 
+    educa.on_level, 
+    civilian_educa.on_major_code, 
+    school_end_date, 
+    projected_compl_date, 
+    cumula.ve_gpa, 
+    veri.ca.on, 
+    user_login, 
+    update_date) 
+  values ( 
+    @person_id, 
+    @school_code, 
+    @coll_ed_level, 
+    @coll_major, 
+    @curr_grad_dte_d, 
+    @curr_grad_dte_d, 
+    @gpa_.oat, 
+    @veri.ca.on, 
+    @user_login, 
+    @update_date) 
+ 
+  fetch cur_arms into 
+    @ssn, 
+    @coll_ed_level, 
+    @actual_grad_dte, 
+    @curr_grad_dte, 
+    @coll_major, 
+    @gpa, 
+    @coll_cd, 
+    @dte_to_ocs     
+end 
+ 
+close cur_arms 
+deallocate cur_arms]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

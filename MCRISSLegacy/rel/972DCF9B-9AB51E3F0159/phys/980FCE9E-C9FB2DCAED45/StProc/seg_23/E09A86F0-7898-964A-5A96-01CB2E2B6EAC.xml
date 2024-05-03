@@ -1,0 +1,54 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SP_P_PROCESS174]" directorySegmentName="seg_23" id="E09A86F0-7898-964A-5A96-01CB2E2B6EAC">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[AS  
+ 
+declare @person_id int, 
+ @su.cd         varchar(5), 
+        @ssn            varchar(9), 
+        @l.rst         varchar(20), 
+        @lmiddle        varchar(20), 
+        @llast          varchar(20), 
+ @user_login varchar(15), 
+ @update_date    date.me 
+ 
+declare arms_174 cursor for 
+select  substring(ssn,1,9), 
+        .rst_name, 
+        last_name, 
+ minits 
+from  arms..arms_174  
+  
+open arms_174 
+ 
+fetch arms_174 
+     into @ssn, @l.rst, @llast, @lmiddle 
+ 
+ 
+set @su.cd = NULL 
+set @user_login = "migra.on" 
+set @update_date = GETDATE() 
+ 
+while (@@FETCH_STATUS = 0) 
+begin 
+ 
+  if (not exists(select 1 from mcriss..PERSON  
+   where SOCIAL_SECURITY_NUMBER = @ssn)) 
+     begin 
+      exec SPADDPERSONTBL @su.cd,@ssn,@l.rst,@lmiddle,@llast,@user_login,@update_date 
+     end 
+  
+   
+  fetch arms_174 
+      into @ssn, @l.rst, @llast, @lmiddle 
+ 
+end 
+close arms_174 
+ 
+deallocate arms_174]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

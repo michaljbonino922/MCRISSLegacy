@@ -1,0 +1,59 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_DeleteCandidateWaiver]" directorySegmentName="seg_15" id="0177EC55-92A4-E842-677D-35C2BAB8E0C9">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@CandidateWaiverID  int, 
+ @UserLogin  varchar(15) 
+AS  
+ 
+DECLARE @DBID  INT 
+DECLARE @DBNAME NVARCHAR(128) 
+ 
+SET @DBID = DB_ID()  
+SET @DBNAME = DB_NAME() 
+ 
+IF EXISTS (SELECT 1 FROM CANDIDATE_PROGRAM_CRITERIA_WAIVER WHERE CANDIDATE_WAIVER_ID = @CandidateWaiverID) 
+ BEGIN 
+  --- DELETE THE CANDIDATE PROGRAM CRITERIA WAIVER RECORD 
+  DELETE FROM CANDIDATE_PROGRAM_CRITERIA_WAIVER WHERE CANDIDATE_WAIVER_ID = @CandidateWaiverID 
+ END 
+ 
+IF @@ERROR != 0 
+BEGIN 
+ RAISERROR ('An error occurred dele.ng the Candidate Program Criteria Waivers', 16, 1, @DBID, @DBNAME) 
+ RETURN 
+END 
+ 
+  
+IF EXISTS (SELECT 1 FROM CANDIDATE_CRITERIA_WAIVER WHERE CANDIDATE_WAIVER_ID = @CandidateWaiverID) 
+ BEGIN 
+  --- DELETE THE CANDIDATE CRITERIA WAIVER RECORD 
+  EXEC sp_DeleteCandidateCriteriaWaiver @CandidateWaiverID 
+ END 
+ 
+ 
+IF @@ERROR != 0  
+BEGIN 
+ RAISERROR ('An error occurred dele.ng the Candidate Criteria Waiver', 16, 1, @DBID, @DBNAME) 
+ RETURN 
+END  
+ 
+ 
+--- UPDATE THE USER_LOGIN BEFORE DELETING THE RECORD 
+IF EXISTS (SELECT 1 FROM CANDIDATE_WAIVER WHERE CANDIDATE_WAIVER_ID = @CandidateWaiverID) 
+BEGIN 
+ UPDATE 
+  CANDIDATE_WAIVER 
+ SET 
+  USER_LOGIN = @UserLogin 
+ WHERE  
+  CANDIDATE_WAIVER_ID = @CandidateWaiverID 
+END 
+ 
+--- DELETE THE RECORD 
+DELETE FROM CANDIDATE_WAIVER WHERE CANDIDATE_WAIVER_ID = @CandidateWaiverID]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

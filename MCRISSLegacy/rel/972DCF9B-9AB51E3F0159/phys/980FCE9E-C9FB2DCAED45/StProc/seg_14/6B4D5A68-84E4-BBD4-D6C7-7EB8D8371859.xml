@@ -1,0 +1,25 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetProspectAc.vityComments]" directorySegmentName="seg_14" id="6B4D5A68-84E4-BBD4-D6C7-7EB8D8371859">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:55 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[AS 
+BEGIN 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+ 
+ SELECT pac.ProspectAc.vityCommentId,  
+   pac.Ac.vity,  
+   pct.ProspectCommentType, 
+   pct.ProspectCommentDescrip.on,   
+   pac.IsEnlisted, 
+   pac.SortOrder 
+  FROM  
+   usmc.ProspectAc.vityComment pac 
+   INNER JOIN usmc.ProspectCommentType pct on pct.ProspectCommentTypeId = pac.ProspectCommentTypeId 
+   
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>5DE69EDC-7A85-C77A-928E-DB3F41DD97CF</database>
+</StoredProcedureSqlServerv2k5>

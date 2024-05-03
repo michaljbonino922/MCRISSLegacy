@@ -1,0 +1,42 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateRFATrackingDates]" directorySegmentName="seg_26" id="46A1105A-7BB0-8E0B-8BFA-0DD2EECBBF97">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@ContractID   int, 
+ @SentToDistDate  date.me, 
+ @DistReceivedDate date.me, 
+ @MCRCReceivedDate  date.me, 
+ @MailedToMCRCDate date.me, 
+ @MCRCOAMailedDate date.me, 
+ @MCRCMailsToOSS  date.me, 
+ @UserLogin   varchar(15) 
+AS 
+ 
+IF EXISTS (SELECT 1 FROM RFA_TRACKING_DATES WHERE CONTRACT_ID = @ContractID) 
+BEGIN 
+ UPDATE  
+  RFA_TRACKING_DATES  
+ SET 
+  SENT_TO_DIST_DATE = @SentToDistDate, 
+  DIST_RECEIVED_DATE = @DistReceivedDate, 
+  MAILED_TO_MCRC_DATE = @MailedToMCRCDate, 
+  MCRC_RECEIVED_DATE  = @MCRCReceivedDate, 
+  MCRC_OA_MAILED_DATE = @MCRCOAMailedDate, 
+  MCRC_MAILS_TO_OSS = @MCRCMailsToOSS, 
+  USER_LOGIN   = @UserLogin, 
+  UPDATE_DATE   = GETDATE() 
+ WHERE  
+  CONTRACT_ID   = @ContractID 
+END 
+ELSE 
+BEGIN 
+ INSERT INTO RFA_TRACKING_DATES  
+  (CONTRACT_ID, SENT_TO_DIST_DATE, DIST_RECEIVED_DATE, MAILED_TO_MCRC_DATE, MCRC_RECEIVED_DATE, MCRC_OA_MAILED_DATE, MCRC_MAILS_TO_OSS, USER_LOGIN, UPDATE_DATE) 
+ VALUES  
+  (@ContractID, @SentToDistDate, @DistReceivedDate, @MailedToMCRCDate, @MCRCReceivedDate, @MCRCOAMailedDate, @MCRCMailsToOSS, @UserLogin, GETDATE()) 
+END]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

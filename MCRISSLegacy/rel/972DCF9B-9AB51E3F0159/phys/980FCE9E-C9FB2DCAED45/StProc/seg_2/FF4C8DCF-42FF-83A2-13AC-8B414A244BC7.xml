@@ -1,0 +1,167 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetDataSheetEndOfMonthPoolDetail]" directorySegmentName="seg_2" id="FF4C8DCF-42FF-83A2-13AC-8B414A244BC7">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@OrgID int , 
+ @FiscalYear int  
+ 
+ 
+AS 
+ 
+BEGIN 
+  
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+  
+  
+ 
+ DECLARE @CurrentFiscalYear int 
+ DECLARE @CurrentTime date.me 
+ 
+ SET @CurrentTime = GETDATE() 
+ 
+ IF Month(@CurrentTime) > 9  
+ BEGIN 
+  SET @CurrentFiscalYear = YEAR(@CurrentTime) + 1 
+ END 
+ ELSE 
+ BEGIN 
+    SET @CurrentFiscalYear = YEAR(@CurrentTime) 
+ END 
+ 
+ IF @CurrentFiscalYear = @FiscalYear --- use real .me OLTP count instead of snapshot for current FY 
+ BEGIN 
+ 
+  SELECT 
+       p.LAST_NAME 
+   ,p.FIRST_NAME 
+   ,p.LEGAL_MIDDLE_NAME 
+   ,c.CONTRACT_ID 
+   ,c.CONTRACT_BEGIN_DATE 
+   ,c.COMPONENT_CODE 
+   ,m.GENDER_CODE 
+   , ( 
+    SELECT TOP 1 AFQT_SCORE  
+    FROM MCRISS.dbo.CANDIDATE_ASVAB 
+    WHERE  
+     Marine_Candidate_Id = m.marine_candidate_id 
+     AND asvab_date = ( SELECT MAX(ASVAB_DATE) FROM MCRISS.dbo.CANDIDATE_ASVAB 
+                                       WHERE Marine_Candidate_id = m.marine_candidate_id ) 
+    ) AS AFQT 
+    , ( 
+    SELECT TOP 1 EDUCATION_LEVEL + EDUCATION_CODE  
+    FROM MCRISS.dbo.CANDIDATE_EDUCATION 
+    WHERE  
+     marine_candidate_id = m.marine_candidate_id 
+                    AND school_end_date = (SELECT MAX(school_end_date) FROM mcriss.dbo.candidate_educa.on  
+                                    WHERE marine_candidate_id = m.marine_candidate_id) 
+      ) as EDUCATION_CODE 
+   , ( 
+    SELECT DISPOSITION_DESCRIPTION  
+    FROM MCRISS.dbo.STATUS_DISPOSITION 
+    WHERE  
+     STATUS_TYPE = cs.STATUS_TYPE 
+     AND STATUS_CODE = cs.STATUS_CODE 
+     AND DISPOSITION_CODE = cs.DISPOSITION_CODE 
+    ) AS Disposi.on 
+   ,c.PROJECTED_SHIP_DATE AS PADD 
+   ,n.rowguid AS NwaId 
+   , (SELECT ProspectId FROM PROSPECTING.USMC.Prospect WHERE 
+    NwaId = n.rowguid) AS ProspectId 
+    
+  FROM  
+   MCRISS.dbo.NWA n 
+   INNER JOIN MCRISS.dbo.CONTRACT c 
+    ON n.NWA_ID = c.NWA_ID 
+   INNER JOIN MCRISS.dbo.CANDIDATE_STATUS cs 
+    ON cs.NWA_ID = n.NWA_ID 
+     AND cs.CANDIDATE_STATUS_ID =  
+     (SELECT MAX(CANDIDATE_STATUS_ID) FROM MCRISS.dbo.CANDIDATE_STATUS WHERE NWA_ID = n.NWA_ID ) 
+   INNER JOIN MCRISS.dbo.MARINE_CANDIDATE m 
+    ON n.Marine_Candidate_Id = m.Marine_Candidate_Id 
+   INNER JOIN MCRISS.dbo.Person p 
+    ON p.Person_ID =  m.Marine_Candidate_Id 
+  WHERE 
+   n.ORGANIZATION_OF_RECORD_ID = @OrgID 
+   AND (cs.STATUS_TYPE = 'E' AND cs.STATUS_CODE = 'B' AND cs.DISPOSITION_CODE IN ('K', 'M') ) 
+   AND COMPONENT_CODE IN ('K5','PO','K4','K8','K9','B5','11') 
+  
+ END 
+ ELSE 
+ BEGIN 
+   
+  CREATE TABLE #TEMP_END_MONTH_POOL 
+  ( 
+   CONTRACT_ID int 
+   ,LAST_NAME varchar(20) 
+   ,FIRST_NAME varchar(20) 
+   ,MIDDLE_NAME varchar(20) 
+   ,DEP_DATE date.me 
+   ,AFQT int 
+   ,EDUCATION_CODE varchar(3) 
+   ,GENDER_CODE char(1) 
+   ,COMPONENT_CODE varchar(2)  
+   ,PADD_DATE date.me 
+  ) 
+ 
+  INSERT INTO #TEMP_END_MONTH_POOL 
+  SELECT DISTINCT 
+   CONTRACT_ID, 
+   LAST_NAME, 
+   FIRST_NAME, 
+   MIDDLE_NAME, 
+   DEP_DATE, 
+   AFQT, 
+   EDUCATION_CODE,   
+   GENDER_CODE, 
+   COMPONENT_CODE, 
+   PADD_DATE 
+  FROM [MCRISS_OLAP].[dbo].POOLEES_DATASHEET 
+  WHERE RSS_ORG_ID = @OrgID       
+   AND ((RPT_YEAR = @FiscalYear-1 AND RPT_MONTH IN (10,11,12)) OR (RPT_YEAR = @FiscalYear AND RPT_MONTH < 10)) 
+   AND COMPONENT_CODE IN ('K5','PO','K4','K8','K9','B5','11') 
+   AND RPT_MONTH <> PADD_MONTH 
+  
+  SELECT DISTINCT 
+   p.LAST_NAME, 
+   p.FIRST_NAME, 
+   p.MIDDLE_NAME AS LEGAL_MIDDLE_NAME, 
+   p.CONTRACT_ID, 
+   p.DEP_DATE AS CONTRACT_BEGIN_DATE, 
+   p.COMPONENT_CODE, 
+   p.GENDER_CODE, 
+   p.AFQT, 
+   p.EDUCATION_CODE, 
+   ( 
+    SELECT DISPOSITION_DESCRIPTION  
+    FROM MCRISS.dbo.STATUS_DISPOSITION 
+    WHERE  
+     STATUS_TYPE = cs.STATUS_TYPE 
+     AND STATUS_CODE = cs.STATUS_CODE 
+     AND DISPOSITION_CODE = cs.DISPOSITION_CODE 
+   )  
+   AS Disposi.on, 
+   p.PADD_DATE AS PADD, 
+   n.rowguid AS NwaId, 
+   (SELECT ProspectId FROM PROSPECTING.USMC.Prospect WHERE 
+    NwaId = n.rowguid) AS ProspectId 
+  FROM #TEMP_END_MONTH_POOL p 
+  INNER JOIN MCRISS.dbo.CONTRACT ct ON p.CONTRACT_ID = ct.CONTRACT_ID  
+  INNER JOIN MCRISS.dbo.NWA n ON n.NWA_ID = ct.NWA_ID 
+  INNER JOIN MCRISS.dbo.CANDIDATE_STATUS cs ON cs.NWA_ID = n.NWA_ID AND 
+             cs.CANDIDATE_STATUS_ID IN ( SELECT MAX(cs2.CANDIDATE_STATUS_ID) 
+                    FROM MCRISS.dbo.CANDIDATE_STATUS cs2 
+                    WHERE cs2.NWA_ID = cs.NWA_ID) 
+  ORDER BY LAST_NAME 
+ 
+  DROP TABLE #TEMP_END_MONTH_POOL 
+ 
+ END 
+ 
+  
+ 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

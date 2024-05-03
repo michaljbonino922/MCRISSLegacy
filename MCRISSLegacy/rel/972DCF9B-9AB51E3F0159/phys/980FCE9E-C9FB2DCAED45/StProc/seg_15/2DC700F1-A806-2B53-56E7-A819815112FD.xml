@@ -1,0 +1,161 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[SP_GENRECHISTORY]" directorySegmentName="seg_15" id="2DC700F1-A806-2B53-56E7-A819815112FD">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:47 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[as 
+ 
+declare @recrui.ng_person_id  int, 
+ @ssn    varchar(9), 
+ @prior_dist   varchar(3), 
+ @prior_rsn   varchar(5), 
+ @prior_rss   varchar(5), 
+ @prior_billet   varchar(2), 
+ @e.ec.ve_date   date.me, 
+ @hq_name   varchar(20), 
+ @region_id   int, 
+ @region_name   varchar(20), 
+ @district_name   varchar(20), 
+ @district_org_id  int, 
+ @rs_name   varchar(20), 
+ @rss_org_id   int, 
+ @rss_name   varchar(20), 
+ @billet_desc   varchar(40), 
+ @billet_begin_date  date.me, 
+ @billet_end_date  date.me, 
+ @nonprod_reason_desc  varchar(40), 
+ @organiza.on_type  varchar(3), 
+ @user_login   varchar(15), 
+ @update_date   date.me 
+ 
+declare history cursor for 
+select SSN,PRIOR_RSN,PRIOR_RSS,PRIOR_DTE,PRIOR_BILLET,REASGN_DTE 
+from arms..arms_174  
+ 
+open history 
+ 
+fetch history 
+into  @ssn,@prior_rsn,@prior_rss,@billet_begin_date, 
+ @prior_billet,@billet_end_date 
+ 
+set @user_login = 'migra.on' 
+set @update_date = getdate() 
+set @nonprod_reason_desc = NULL 
+set @organiza.on_type = 'RSS' 
+set @hq_name = 'MCRC' 
+ 
+/*===================================================================*/ 
+/* Selec.ng the District Name from Recrui.ng_Organiza.on          */ 
+/*===================================================================*/ 
+ 
+ 
+if @prior_dist = '01' 
+set @district_name = (select SHORT_NAME from RECRUITING_ORGANIZATION where STATE_CODE = 'NY' 
+        and ORGANIZATION_TYPE = 'D') 
+ 
+if @prior_dist = '04' 
+set @district_name = (select SHORT_NAME from RECRUITING_ORGANIZATION where STATE_CODE = 'PA' 
+        and ORGANIZATION_TYPE = 'D') 
+ 
+if @prior_dist = '06' 
+set @district_name = (select SHORT_NAME from RECRUITING_ORGANIZATION where STATE_CODE = 'SC' 
+        and ORGANIZATION_TYPE = 'D') 
+ 
+if @prior_dist = '08' 
+set @district_name = (select SHORT_NAME from RECRUITING_ORGANIZATION where STATE_CODE = 'LA' 
+        and ORGANIZATION_TYPE = 'D') 
+ 
+if @prior_dist = '09' 
+set @district_name = (select SHORT_NAME from RECRUITING_ORGANIZATION where STATE_CODE = 'MO' 
+        and ORGANIZATION_TYPE = 'D') 
+ 
+if @prior_dist = '12' 
+set @district_name = (select SHORT_NAME from RECRUITING_ORGANIZATION where STATE_CODE = 'CA' 
+        and ORGANIZATION_TYPE = 'D') 
+ 
+ 
+while (@@FETCH_STATUS = 0) 
+begin 
+ 
+/*=====================================================================*/ 
+/* The values to denote an organiza.on were saved as number in arms.  */ 
+/* Here we are pu.ng them together and comparing them to the MCC_CODE*/ 
+/* in RECRUITING_ORGANIZATION to .nd the name to insert        */ 
+/*=====================================================================*/ 
+ 
+ set @rss_org_id = (select top 1 organiza.on_id from RECRUITING_ORGANIZATION where MCC_CODE = @prior_rsn + @prior_rss) 
+ 
+ set @billet_desc = (select top 1 SHORT_DESCRIPTION from RECRUITING_ROLE where RECRUITING_ROLE_ID = @prior_billet) 
+ 
+ set @e.ec.ve_date = @billet_end_date 
+ 
+ set @rs_name = (select top 1 rs_name from mcorg_view  where rss_org_id  = @rss_org_id) 
+  
+ set @rss_name = (select top 1 rss_name from mcorg_view where rss_org_id = @rss_org_id) 
+  
+ set @district_name = (select  top 1 dist_name  from mcorg_view where rss_org_id = @rss_org_id) 
+  
+ set @region_name = (select top 1 reg_name from mcorg_view where rss_org_id = @rss_org_id) 
+  
+ set @recrui.ng_person_id = (select  RECRUITING_PERSON_ID from RECRUITING_PERSON where  
+   RECRUITING_PERSON_ID = (select PERSON_ID from PERSON where SOCIAL_SECURITY_NUMBER = @ssn)) 
+ 
+ 
+if @recrui.ng_person_id is not null and @rss_org_id is not null and @e.ec.ve_date is not null 
+begin 
+  
+ if exists (select 1 from RECRUITER_HISTORY where RECRUITING_PERSON_ID = @recrui.ng_person_id 
+  and EFFECTIVE_DATE = @e.ec.ve_date) 
+ 
+begin 
+ print @ssn 
+ print 'Being Updated' 
+ 
+ update RECRUITER_HISTORY 
+ set HQ_NAME = @hq_name, 
+ REGION_NAME = @region_name, 
+ DISTRICT_NAME = @district_name, 
+ RS_NAME = @rs_name, 
+ RSS_NAME = @rss_name, 
+ BILLET_DESC = @billet_desc, 
+ BILLET_BEGIN_DATE = @billet_begin_date, 
+ BILLET_END_DATE = @billet_end_date, 
+ NONPROD_REASON_DESC = @nonprod_reason_desc, 
+ ORGANIZATION_TYPE = @organiza.on_type, 
+ USER_LOGIN = @user_login, 
+ UPDATE_DATE = @update_date 
+where 
+ RECRUITING_PERSON_ID = @recrui.ng_person_id 
+ and EFFECTIVE_DATE = @e.ec.ve_date 
+end 
+ 
+else begin 
+ print @ssn 
+ print 'Being Inserted' 
+ insert RECRUITER_HISTORY 
+ (RECRUITING_PERSON_ID,EFFECTIVE_DATE,HQ_NAME,REGION_NAME,DISTRICT_NAME, 
+ RS_NAME,RSS_NAME,BILLET_DESC,BILLET_BEGIN_DATE,BILLET_END_DATE, 
+ NONPROD_REASON_DESC,ORGANIZATION_TYPE,USER_LOGIN,UPDATE_DATE) 
+ 
+ values 
+ (@recrui.ng_person_id,@e.ec.ve_date,@hq_name,@region_name, 
+ @district_name,@rs_name,@rss_name,@billet_desc,@billet_begin_date, 
+ @billet_end_date,@nonprod_reason_desc,@organiza.on_type,@user_login, 
+ @update_date) 
+ 
+end 
+ 
+end 
+ 
+ fetch history 
+ into  @ssn,@prior_rsn,@prior_rss,@billet_begin_date, 
+ @prior_billet,@billet_end_date 
+ 
+ 
+end 
+close history 
+deallocate history]]></body>
+<schema>DD6CF638-A2EB-2E1B-FF13-422CA718DE2D</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

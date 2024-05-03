@@ -1,0 +1,55 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetSMCRUnitVisitEvent]" directorySegmentName="seg_10" id="54CC385B-A29C-AC47-FD4F-7D5158E6BDBA">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:49 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[--not sure about input parameters 
+       --@PointOfContactID integer, 
+       --@En.tyTypeID integer 
+AS 
+SET NOCOUNT ON 
+BEGIN 
+    
+    
+ SELECT  
+   
+ --These columns may be needed by the data contracts for insert/update 
+    oe.[FiscalYear], e.[EventID], e.[EventType], 
+                      
+     e.[EventName],  
+   
+  -- SMCRReserveUnitName is speci.c to this table 
+ --The name of the Selected Marine Corps Reserve Unit.  
+ --This is a foreign key from the SMCRReserveUnit table  
+ ---It is based Based on OST, Fiscal year and SMCR UnitName   
+ sme.[SMCRReserveUnitName], 
+  
+ -- This loca.on will be speci.c to the SMCR unit again store in the 
+ -- SMCRReserveUnitEvent table  
+ sme.[EventLoca.on], 
+  
+ sme.[NumPlannedVisits], 
+ -- this will refer to mul.ple dates 
+ sme.[EventDateID], 
+  
+ RTRIM (pc.POCLastName) + ',' + RTRIM(pc.POCFirstName) + '.' + IsNull(substring(pc.POCLegalMiddleName,1,1),'') +  
+    '.' AS POCName, 
+    [POCLastName], [POCLegalMiddleName], [POCFirstName], 
+    [TelephoneNumber], [EmailAddress] 
+       
+   FROM  
+  [MCRISS].[USMC].[SMCRUnitVisitEvent] sme 
+  inner join [MCRISS].[USMC].[Organiza.onEvent] oe ON  sme.Organiza.onEventID = oe.Organiza.onEventID  
+  inner join [MCRISS].[USMC].[Event] e ON  e.EventID = oe.EventID 
+  le. outer join [MCRISS].[USMC].[EventCoordina.on] ec ON  ec.Coordina.onEventID = oe.Coordina.onEventID 
+    le. outer join [MCRISS].[USMC].[PointOfContact] pc ON  pc.PointOfContactID = oe.PointOfContactID  
+        
+ 
+END 
+  
+--- CLEAN UP 
+SET NOCOUNT OFF]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

@@ -1,0 +1,71 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetProdRecPoolDischargeByFiscalYear]" directorySegmentName="seg_4" id="8FC8F516-4358-257E-B598-8C52E615D42E">
+<sourceDDLFile>create ODSE script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:41:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@TrainingFileId uniqueidentifier, 
+ @FiscalYear int 
+AS 
+ 
+BEGIN 
+  
+ SET NOCOUNT ON 
+ 
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+  
+ DECLARE @StartDate date.me 
+ DECLARE @EndDate date.me  
+ SET @StartDate = CONVERT(varchar(4), @FiscalYear-1) + '-10-1' 
+ SET @EndDate = CONVERT(varchar(4), @FiscalYear)+ '-9-30' 
+  
+ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+  
+ DECLARE @RecruiterId uniqueidentifier; 
+ SELECT  
+  @RecruiterId = RecruiterId 
+ FROM  
+  USMC.TrainingFile  
+ WHERE  
+  ID = @TrainingFileId 
+ 
+ SELECT 
+  c.CONTRACT_ID, 
+  c.DISCHARGE_DATE, 
+  n.RECRUITER_OF_RECORD_ID 
+ INTO #Contract 
+ FROM MCRISS.dbo.Person AS p  
+ INNER JOIN MCRISS.dbo.Marine_Candidate AS mc ON p.PERSON_ID = mc.MARINE_CANDIDATE_ID  
+ INNER JOIN MCRISS.dbo.Nwa AS n ON mc.MARINE_CANDIDATE_ID = n.MARINE_CANDIDATE_ID  
+ INNER JOIN MCRISS.dbo.Contract AS c ON n.NWA_ID = c.NWA_ID    
+ INNER JOIN MCRISS.dbo.DISCHARGE_REASON dr ON dr.DISCHARGE_CODE = c.DISCHARGE_CODE 
+ INNER JOIN MCRISS.dbo.Candidate_Status AS cs on c.NWA_ID = cs.NWA_ID  
+ INNER JOIN MCRISS.dbo.Status_Disposi.on AS sd on sd.Disposi.on_Code = cs.Disposi.on_Code  
+           AND sd.Status_Code = cs.Status_Code  
+           AND sd.Status_Type = cs.Status_Type  
+           AND sd.Status_Type = cs.Status_Type 
+    INNER JOIN MCRISS.dbo.Marine m ON n.RECRUITER_OF_RECORD_ID=m.MARINE_ID 
+ WHERE sd.DISPOSITION_DESCRIPTION = 'DEP DISCHARGE'  
+ AND c.DISCHARGE_DATE BETWEEN @StartDate AND @EndDate 
+ AND m.rowguid = @RecruiterId 
+ 
+ SELECT  
+  RecruiterId 
+ INTO #TrainingFile 
+ FROM USMC.TrainingFile  
+ WHERE ID = @TrainingFileId  
+  
+ SELECT Count(dis.nct c.CONTRACT_ID) AS MonthCount,  
+ DATEPART(mm, c.DISCHARGE_DATE) AS CalendarMonth 
+ FROM #Contract c  
+  INNER JOIN MCRISS.dbo.Marine AS m ON c.RECRUITER_OF_RECORD_ID = m.MARINE_ID 
+  INNER JOIN #TrainingFile AS . ON m.rowguid = ..RecruiterID  
+ GROUP BY DATEPART(mm, c.DISCHARGE_DATE) 
+ ORDER BY CalendarMonth 
+  
+ DROP TABLE #Contract 
+ DROP TABLE #TrainingFile 
+END]]></body>
+<schema>A5B5C85F-7BA3-158E-D5A2-943767AC9AE2</schema>
+<database>7220F1F8-DA6B-58D6-61AE-B77688E1C655</database>
+</StoredProcedureSqlServerv2k5>

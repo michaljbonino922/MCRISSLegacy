@@ -1,0 +1,44 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[UpdateApplicantNwaGUID]" directorySegmentName="seg_30" id="39832287-DD3A-87AA-BDE2-9D0A5194E331">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:59:39 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[( 
+ @AcpPersonId uniqueiden..er = NULL, 
+ @NwaGUID uniqueiden..er = NULL 
+) 
+AS 
+ 
+DECLARE @SSN varchar(9) 
+DECLARE @AcpSSN varchar(11) 
+ 
+PRINT 'test' 
+ 
+IF(@NwaGUID IS NULL AND @AcpPersonId IS NOT NULL) 
+BEGIN 
+ -- 'We have a @AcpPersonId, but not a @NwaGUID.  Find the @NwaGUID using SSN' 
+ 
+ SET @AcpSSN = (SELECT SSN FROM [ACP].[Person] WHERE PersonId = @AcpPersonId) 
+ SET @SSN = (SELECT REPLACE(@AcpSSN, '-', '')) 
+ SET @NwaGUID = (SELECT NwaGUID FROM [ACP].[EXT_MCRISS_NwaGUID] WHERE SSN = @SSN) 
+END 
+  
+IF(@AcpPersonId IS NULL AND @NwaGUID IS NOT NULL) 
+BEGIN 
+ -- 'We have a @NwaGUID but not a @AcpPersonId,  Find the @AcpPersonId using SSN' 
+ 
+ SET @SSN = (SELECT SSN FROM [ACP].[EXT_MCRISS_NwaGUID] WHERE NwaGUID = @NwaGUID) 
+ SET @AcpSSN = (SUBSTRING(@SSN, 1, 3) + '-' + SUBSTRING(@SSN, 4, 2) + '-' + SUBSTRING(@SSN, 6, 4)) 
+ SET @AcpPersonId = (SELECT PersonId FROM [ACP].[Person] WHERE SSN = @AcpSSN) 
+END 
+ 
+ 
+-- If we have both an @AcpPersonId and a @NwaGUID, update [ACP].[Applicant]  
+IF(@AcpPersonId IS NOT NULL AND @NwaGUID IS NOT NULL) 
+BEGIN 
+ UPDATE [ACP].[Applicant] SET NwaId = @NwaGUID WHERE PersonId = @AcpPersonId 
+END]]></body>
+<schema>569A41D8-8F40-0619-141C-F4C9436AAF46</schema>
+<database>2D7ED536-DF8E-3523-7DC3-4228EBAF5F66</database>
+</StoredProcedureSqlServerv2k5>

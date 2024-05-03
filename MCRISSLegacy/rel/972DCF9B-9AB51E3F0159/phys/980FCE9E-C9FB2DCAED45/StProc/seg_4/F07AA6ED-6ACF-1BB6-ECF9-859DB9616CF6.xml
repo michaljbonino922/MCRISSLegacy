@@ -1,0 +1,22 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[GetCMCAssignedValues]" directorySegmentName="seg_4" id="F07AA6ED-6ACF-1BB6-ECF9-859DB9616CF6">
+<sourceDDLFile>Appian.sql</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:57:48 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@FiscalYear int, 
+ @CategoryCode char(2), 
+ @Recrui.ngOrgID  int  
+AS 
+ 
+SELECT ORGANIZATION_ID = 'CMC',  MONTH_CODE, QUOTA_VALUE, REQMT_VALUE 
+FROM RECRUITING_ORGANIZATION WITH (NOLOCK)  
+ INNER JOIN SHIPPING_QUOTA_PLAN ON  
+     RECRUITING_ORGANIZATION.ORGANIZATION_ID = SHIPPING_QUOTA_PLAN.ORGANIZATION_ID 
+WHERE SHIPPING_QUOTA_PLAN.FISCAL_YEAR =  @FiscalYear AND 
+RECRUITING_ORGANIZATION.ORGANIZATION_TYPE = 'R' AND 
+SHIPPING_QUOTA_PLAN.CATEGORY_CODE = @CategoryCode AND 
+SHIPPING_QUOTA_PLAN.ORGANIZATION_ID = @Recrui.ngOrgID]]></body>
+<schema>E9C4E37D-78A2-31F9-D580-7C2848ACFCB7</schema>
+<database>EA42DEDC-DFC5-B775-3079-AD0E133F5E1D</database>
+</StoredProcedureSqlServerv2k5>

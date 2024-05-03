@@ -1,0 +1,150 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_dbaAddSchool]" directorySegmentName="seg_14" id="3372BB34-5BD0-D4E6-A035-8893FE5B95F7">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:41 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@mcc_code varchar(5), 
+@state_code varchar(2), 
+@school_name varchar(40), 
+@telephone_number varchar(10), 
+@street varchar(40), 
+@street2 varchar(40), 
+@city varchar(20), 
+@zip_code varchar(9), 
+@deleted char(1), 
+@dod_code varchar(20), 
+@school_type char(2), 
+@user_login varchar(15) 
+ 
+AS 
+ 
+declare @organiza.on_id int 
+set @organiza.on_id=(select organiza.on_id from recrui.ng_organiza.on where mcc_code=@mcc_code and organiza.on_type='RSS') 
+ 
+ 
+if @dod_code is NULL 
+begin 
+ declare @NewDODCode varchar(20) 
+ set @NewDODCode=NULL 
+ exec sp_dbaCreateDummyDODCodeFinal @NewDODCode OUTPUT 
+ set @dod_code= @NewDODCode 
+end 
+ 
+insert into HIGH_SCHOOL 
+( 
+ ORGANIZATION_ID, 
+ STATE_CODE, 
+ HIGHSCHOOL_NAME, 
+ TELEPHONE_NUMBER, 
+ STREET, 
+ STREET2, 
+ CITY, 
+ ZIP_CODE, 
+ DELETED, 
+ DOD_CODE, 
+ SCHOOL_TYPE, 
+ USER_LOGIN, 
+ UPDATE_DATE 
+) 
+values 
+( 
+ @organiza.on_id, 
+ @state_code, 
+ @school_name, 
+ @telephone_number, 
+ @street, 
+ @street2, 
+ @city, 
+ @zip_code, 
+ @deleted, 
+ @dod_code, 
+ @school_type, 
+ @user_login, 
+ getdate() 
+) 
+ 
+ 
+ 
+if  SUBSTRING(@mcc_code, 4, 5)<> 'HQ' 
+begin 
+ 
+ 
+--Need to get school code of high school that was just inserted and add school to pro.le table 
+declare @school_code int 
+declare @school_year int 
+ 
+set @school_code=(select school_code from high_school where dod_code=@dod_code) 
+set @school_year=(SELECT DATEPART(yy, getdate()) +1) 
+ 
+INSERT INTO [HIGH_SCHOOL_PROFILE] 
+( 
+[SCHOOL_CODE], 
+[SCHOOL_YEAR], 
+[PRIORITY_CODE], 
+[STATUS_CODE], 
+[ACCESS_CODE], 
+[RECRUITER_ID], 
+[PERCENT_TO_COLLEGE], 
+[MALE_SENIORS], 
+[FEMALE_SENIORS], 
+[ASVAB_RESP], 
+[ASVAB_MONTH], 
+[ASVAB_NUM], 
+[SCHEDULED_GRAD_DATE], 
+[USER_LOGIN], 
+[UPDATE_DATE] 
+) 
+VALUES 
+( 
+@school_code, 
+@school_year, 
+NULL, 
+NULL, 
+NULL, 
+NULL, 
+NULL, 
+0, 
+0, 
+'N', 
+NULL, 
+NULL, 
+NULL, 
+'sa', 
+getdate() 
+) 
+end 
+ 
+Print 'School was added to High_School and Pro.le tables with the following informa.on' 
+Print '============================================================================================' 
+Print 'School Table' 
+Print '==========' 
+Print 'ORGANIZATION_ID:' + convert(varchar(50),@organiza.on_id) 
+Print 'STATE_CODE:' + convert(varchar(50), @state_code) 
+Print 'HIGHSCHOOL_NAME:' + convert(varchar(50),@school_name) 
+Print 'TELEPHONE_NUMBER:' + convert(varchar(50),@telephone_number) 
+Print 'STREET:' + convert(varchar(50),@street) 
+Print 'STREET2:' + convert(varchar(50),@street2) 
+Print 'CITY:' + convert(varchar(50),@city) 
+Print 'ZIP_CODE:' + convert(varchar(50),@zip_code) 
+Print 'DELETED:' + convert(varchar(50),@deleted) 
+Print 'DOD_CODE:' + convert(varchar(50), @dod_code) 
+Print 'SCHOOL_TYPE:' + convert(varchar(50),@school_type) 
+Print 'USER_LOGIN:' + convert(varchar(50),@user_login) 
+Print ' ' 
+ 
+if  SUBSTRING(@mcc_code, 4, 5) <> 'HQ' 
+begin 
+ 
+Print 'Pro.le Table' 
+Print '==========' 
+Print 'School Code:' + convert(varchar(10),@school_code) 
+Print 'School Year:' + convert(varchar(4),@school_year) 
+end 
+ 
+Print '===============================================================================================' 
+--Can later use this to retrieve org_id given MCC Already Done 
+--select organiza.on_id from recrui.ng_organiza.on where mcc_code='938AL' and organiza.on_type='RSS']]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

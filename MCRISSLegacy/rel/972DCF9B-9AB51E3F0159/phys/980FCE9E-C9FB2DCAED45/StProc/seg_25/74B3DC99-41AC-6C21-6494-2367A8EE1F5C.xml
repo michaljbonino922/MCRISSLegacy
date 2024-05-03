@@ -1,0 +1,29 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<StoredProcedureSqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.StoredProcedureSqlServerv2k5" name="[sp_UpdateNWAContract]" directorySegmentName="seg_25" id="74B3DC99-41AC-6C21-6494-2367A8EE1F5C">
+<sourceDDLFile>create MCRISS script - MCRISS OTA.txt</sourceDDLFile>
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 19:28:42 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<body><![CDATA[@NWAID INT, 
+ @SourceCode VARCHAR(10) = NULL, 
+ @SourceCodeDual VARCHAR(10) = NULL, 
+ @Ac.vityCode VARCHAR(2) = NULL, 
+ @PPC VARCHAR(8), 
+ @Email VARCHAR(50), 
+ @UserLogin VARCHAR(15) 
+AS  
+  
+UPDATE NWA 
+SET SOURCE_CODE = @SourceCode,  
+SOURCE_CODE_DUAL = @SourceCodeDual, 
+ACTIVITY_CODE = @Ac.vityCode, 
+PPC = @PPC, 
+EMAIL_ADDRESS = @Email, 
+USER_LOGIN = @UserLogin, 
+UPDATE_DATE = GETDATE() 
+WHERE NWA_ID = @NWAID 
+ 
+RETURN]]></body>
+<schema>3925E19F-DC76-90A4-B892-D7A526C79632</schema>
+<database>B007042D-D2E3-F83F-481F-CEB23B21CB30</database>
+</StoredProcedureSqlServerv2k5>

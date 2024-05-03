@@ -1,0 +1,66 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxySqlServerv2k5 class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.TableProxySqlServerv2k5" name="QSNHistoryLineItem" directorySegmentName="seg_2" id="E9EEB991-C721-9688-C18F-FBEA3C02E674">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:42:52 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<schemaObject>2A6D9360-3BB2-5CEA-6E99-790D76996FDF</schemaObject>
+<database>0070DB58-AADF-159B-2831-3CD8EEAC6A57</database>
+<schema>CEC76C37-9D45-8E15-510C-CBE87FFE10F5</schema>
+<columnProxies>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="OldValue" id="236B7D9D-3ACC-1049-8D13-21548F2F5067">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:09 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="NewValue" id="35F208AC-C5B5-0671-6661-01479750F342">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:09 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="ChangedField" id="4EDB6387-DCF6-A48F-6E7B-E2CCB4098C05">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:09 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="QSNHistoryID" id="6976B2C5-934C-0C18-F543-0D01D56A7592">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:10 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.ColumnProxySqlServerv2k12" name="QSNHistoryLineItemID" id="BC54F95A-434B-0978-4D65-4BC8A8B38B2C">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:09 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+</ColumnProxy>
+</columnProxies>
+<indexProxies>
+<IndexProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.IndexProxySqlServerv2k12" name="missing_index_219" id="4FFC61EC-AECB-760B-0A8B-F2EAC88056F3">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:10 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<recomputeStatistics>ON</recomputeStatistics>
+</IndexProxy>
+<IndexProxy class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k12.IndexProxySqlServerv2k12" name="missing_index_215" id="9AD4671F-3DC3-EB2E-D906-595C27D92FE8">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:10 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<recomputeStatistics>ON</recomputeStatistics>
+</IndexProxy>
+</indexProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.FKProxySqlServerv2k5" name="._QSNHistoryLineItem_QSNHistory" id="20FDCE00-C1F2-4FEA-CF4C-AB2E652C1BC8">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:25 UTC</createdTime>
+<ownerDesignName>create UserMgmt script - MCRISS OTA</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.sqlserver.v2k5.PKProxySqlServerv2k5" name="pk_QSNHistoryLineItem" id="ECD5D1FC-4EAE-9D62-6AA6-03BBCA6B2CF8">
+<createdBy>MichalBonino</createdBy>
+<createdTime>2024-04-29 23:43:10 UTC</createdTime>
+<ownerDesignName>MCRISSLegacy</ownerDesignName>
+<clustered>true</clustered>
+<partitioningColumn>BC54F95A-434B-0978-4D65-4BC8A8B38B2C</partitioningColumn>
+</PrimaryKey>
+</primaryKeys>
+</TableProxySqlServerv2k5>
